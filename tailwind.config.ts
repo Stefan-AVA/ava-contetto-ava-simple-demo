@@ -23,6 +23,7 @@ export default {
 
       green: {
         500: "#43A491",
+        600: "#8BC83F",
       },
 
       white: "#FFF",
