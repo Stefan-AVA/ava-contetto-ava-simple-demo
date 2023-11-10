@@ -16,7 +16,7 @@ const houses = [
 
 export default function App() {
   return (
-    <div className="flex flex-col container pt-32 pb-24">
+    <div className="flex flex-col">
       <div className="flex flex-col gap-9 max-w-3xl mx-auto w-full">
         <h1 className="text-4xl font-medium text-gray-800">
           {"Let's start exploring"}
