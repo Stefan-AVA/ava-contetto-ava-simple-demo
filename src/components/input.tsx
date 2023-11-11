@@ -1,4 +1,5 @@
 import { forwardRef, type ComponentProps } from "react"
+import { cn } from "@/utils/classname"
 import { useFormContext } from "react-hook-form"
 
 interface InputProps extends ComponentProps<"input"> {
@@ -10,12 +11,17 @@ interface FormInputProps extends InputProps {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label }, ref) => {
+  ({ label, className }, ref) => {
     return (
-      <div className="flex flex-col">
-        <label>{label}</label>
+      <div className={cn("flex flex-col", className)}>
+        <label className="mb-2 font-medium text-gray-800">{label}</label>
 
-        <input ref={ref} />
+        <div className="flex items-center relative">
+          <input
+            ref={ref}
+            className="w-full border border-solid border-gray-300 rounded-lg py-3 px-5 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-300 hover:border-blue-500"
+          />
+        </div>
       </div>
     )
   }

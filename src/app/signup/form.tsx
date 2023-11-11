@@ -13,14 +13,21 @@ export default function Form() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(submit)}>
+      <form
+        onSubmit={methods.handleSubmit(submit)}
+        className="flex flex-col w-full"
+      >
         <FormInput name="name" label="Full Name" />
 
-        <FormInput name="email" label="Email" />
+        <FormInput name="email" label="Email" className="my-6" />
 
         <FormInput name="password" label="Create Password" />
 
-        <FormInput name="confirmPassword" label="Confirm Password" />
+        <FormInput
+          name="confirmPassword"
+          label="Confirm Password"
+          className="mt-6"
+        />
       </form>
     </FormProvider>
   )
