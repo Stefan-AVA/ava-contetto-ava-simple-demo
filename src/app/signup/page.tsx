@@ -1,5 +1,8 @@
 import Image from "next/image"
+import Link from "next/link"
 import Background from "~/assets/signup-background.jpg"
+
+import Form from "./form"
 
 export default function Signup() {
   return (
@@ -34,6 +37,16 @@ export default function Signup() {
 
           <span className="flex w-full h-px bg-gray-300" />
         </div>
+
+        <Form />
+
+        <p className="text-sm text-gray-700 mt-20 text-center">
+          Already have an account?{" "}
+          <Link href="/" className="font-bold text-blue-500">
+            Sign In
+          </Link>{" "}
+          to your account.
+        </p>
       </div>
     </div>
   )
