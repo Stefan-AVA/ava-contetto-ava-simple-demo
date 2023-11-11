@@ -8,16 +8,31 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <div className="flex flex-col">
       <div className="absolute flex items-center justify-between w-full pt-5 px-8 md:pt-8 md:px-16">
-        <Link href="/">
+        <Link href="/" className="flex">
           <Image src={Logo} alt="Logo Revault" className="w-auto h-12" />
         </Link>
 
-        <button
-          type="button"
-          className="flex items-center justify-center border border-solid border-green-500 rounded-full w-12 h-12 md:w-16 md:h-16"
-        >
-          <Mail className="text-gray-800" />
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            className="flex items-center justify-center border border-solid border-green-500 rounded-full w-12 h-12 md:w-16 md:h-16"
+          >
+            <Mail className="text-gray-800" />
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center justify-center border border-solid border-gray-300 rounded-full p-0.5 w-12 h-12 md:w-16 md:h-16"
+          >
+            <Image
+              src="/assets/avatar.png"
+              alt=""
+              width={60}
+              height={60}
+              className="object-cover rounded-full"
+            />
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col container pt-40 pb-24 relative">
