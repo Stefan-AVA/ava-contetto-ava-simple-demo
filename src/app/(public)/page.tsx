@@ -42,7 +42,7 @@ export default function App() {
         {houses.map((house) => (
           <Link
             key={house}
-            href={"/1" as Route}
+            href={"/houses/1" as Route}
             className="border border-solid border-gray-300 rounded-xl"
           >
             <Image

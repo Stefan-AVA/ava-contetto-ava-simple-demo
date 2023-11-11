@@ -17,6 +17,7 @@ export default {
         300: "#DFDFDF",
         400: "#A1A5C1",
         500: "#4B5765",
+        600: "#4D4D4D",
         700: "#172832",
         800: "#252B5C",
       },
@@ -57,7 +58,7 @@ export default {
 
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.5rem",
     },
 
     fontFamily: {
