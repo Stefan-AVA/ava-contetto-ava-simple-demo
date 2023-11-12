@@ -18,17 +18,17 @@ export default function App() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-9 max-w-3xl mx-auto w-full">
-        <h1 className="text-4xl font-medium text-gray-800">
+        <h1 className="text-4xl font-medium text-blue-800">
           {"Let's start exploring"}
         </h1>
 
-        <div className="flex py-4 rounded-full text-gray-400 bg-gray-200">
-          <div className="py-2 pl-5 mr-3 text-gray-800">
+        <div className="flex py-4 rounded-full text-blue-300 bg-gray-200">
+          <div className="py-2 pl-5 mr-3 text-blue-800">
             <Search size={20} />
           </div>
 
           <input
-            className="text-sm w-full h-auto font-medium bg-transparent text-gray-800 outline-none placeholder:text-gray-400"
+            className="text-sm w-full h-auto font-medium bg-transparent text-blue-800 outline-none placeholder:text-blue-300"
             placeholder="Type in your search criteria"
           />
 
@@ -54,7 +54,7 @@ export default function App() {
             />
 
             <div className="flex flex-col p-3">
-              <h3 className="text-xl font-medium text-gray-800">$250,000</h3>
+              <h3 className="text-xl font-medium text-blue-800">$250,000</h3>
 
               <div className="flex items-center gap-6 mt-2 mb-4">
                 <span className="flex items-center gap-1 text-xs text-gray-500">
@@ -71,7 +71,7 @@ export default function App() {
                 </span>
               </div>
 
-              <p className="text-sm text-gray-800">
+              <p className="text-sm text-blue-800">
                 2520 Wark St Victoria, BC V9T 5G6
               </p>
             </div>

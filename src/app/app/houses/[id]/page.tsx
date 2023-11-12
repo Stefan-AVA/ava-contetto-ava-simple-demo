@@ -45,7 +45,7 @@ export default function House() {
           </div>
 
           <div className="flex flex-col py-4 px-3 md:p-8">
-            <h1 className="text-4xl font-medium text-gray-800">$250,000</h1>
+            <h1 className="text-4xl font-medium text-blue-800">$250,000</h1>
 
             <p className="flex flex-col mt-3 mb-6 gap-3 text-xl text-gray-700 md:items-center md:flex-row">
               <MapPin />
@@ -86,7 +86,7 @@ export default function House() {
 
         <div className="flex flex-col gap-10">
           <div className="flex flex-col pt-4 pl-4 pr-6 pb-8 relative border border-solid border-blue-500 rounded-xl">
-            <h3 className="font-medium text-gray-800">Property Tour</h3>
+            <h3 className="font-medium text-blue-800">Property Tour</h3>
 
             <p className="mt-2 text-sm text-gray-500">
               If you want to tour property then feel free to schedule from the
@@ -103,7 +103,7 @@ export default function House() {
           </div>
 
           <div className="flex flex-col pt-4 pl-4 pr-6 pb-8 relative border border-solid border-blue-500 rounded-xl">
-            <h3 className="font-medium text-gray-800">Agent Details</h3>
+            <h3 className="font-medium text-blue-800">Agent Details</h3>
 
             <p className="mt-2 text-sm text-gray-500">
               Contact Ms. Ashely Black to discuss more about your potential new

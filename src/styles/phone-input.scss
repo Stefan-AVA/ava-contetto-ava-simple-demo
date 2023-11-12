@@ -1,0 +1,23 @@
+@layer components {
+  .PhoneInput {
+    .PhoneInputInput {
+      @apply w-full border border-solid border-gray-300 rounded-r-lg py-3 px-5 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-300 hover:border-blue-500;
+    }
+
+    .PhoneInputCountry {
+      @apply py-3 px-5 mr-0 rounded-l-lg border border-solid border-gray-300 border-r-0;
+
+      .PhoneInputCountryIcon {
+        @apply shadow-none;
+      }
+
+      .PhoneInputCountryIconImg {
+        @apply rounded;
+      }
+
+      .PhoneInputCountrySelectArrow {
+        @apply w-2 h-2 ml-4 border-b-2 border-r-2 text-gray-700;
+      }
+    }
+  }
+}

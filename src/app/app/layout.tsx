@@ -17,7 +17,7 @@ export default function Layout({ children }: PropsWithChildren) {
             type="button"
             className="flex items-center justify-center border border-solid border-green-500 rounded-full w-12 h-12 md:w-16 md:h-16"
           >
-            <Mail className="text-gray-800" />
+            <Mail className="text-blue-800" />
           </button>
 
           <button
