@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import secrets from "@/constants/secrets"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -40,6 +41,8 @@ export default function Form() {
 
   async function submit(data: FormSchema) {
     console.log({ data })
+
+    sessionStorage.setItem(secrets.fullName, data.name)
 
     // Send request to backend.
 

@@ -5,7 +5,7 @@ import secrets from "@/constants/secrets"
 
 import type { User } from "@/types/user"
 
-type GetSession = {
+export type GetSession = {
   user: User
   accessToken: string
 }

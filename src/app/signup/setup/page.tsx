@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import secrets from "@/constants/secrets"
 import { cn } from "@/utils/classname"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
@@ -47,6 +48,14 @@ export default function Setup() {
   const methods = useForm<FormSchema>({
     resolver: zodResolver(schema[step as keyof typeof schema]),
   })
+
+  useEffect(() => {
+    if (window !== undefined) {
+      const fullName = sessionStorage.getItem(secrets.fullName)
+
+      if (fullName) methods.setValue("name", fullName)
+    }
+  }, [methods])
 
   async function submit() {
     const data = methods.getValues()
