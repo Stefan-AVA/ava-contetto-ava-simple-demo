@@ -39,10 +39,7 @@ export const Upload = forwardRef<HTMLInputElement, UploadProps>(
 
     return (
       <div
-        className={cn(
-          "flex py-7 px-9 w-full flex-col cursor-pointer relative border border-dashed border-gray-300 rounded",
-          className
-        )}
+        className={cn("flex w-fit flex-col cursor-pointer relative", className)}
       >
         <div className="flex flex-col items-center justify-center pointer-events-none bg-gray-300 w-28 h-28 rounded-full aspect-square relative">
           {preview && (
