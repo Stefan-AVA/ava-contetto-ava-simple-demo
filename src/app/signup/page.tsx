@@ -30,7 +30,7 @@ export default function Signup() {
           Sign up with Google
         </button>
 
-        <div className="flex w-full items-center gap-6">
+        <div className="flex w-full items-center gap-6 mb-6">
           <span className="flex w-full h-px bg-gray-300" />
 
           <p className="text-sm text-gray-400">or</p>
