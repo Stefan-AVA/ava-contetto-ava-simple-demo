@@ -11,6 +11,7 @@ import { z } from "zod"
 import Button from "@/components/button"
 import { FormInput } from "@/components/input"
 import { FormPhoneInput } from "@/components/phone-input"
+import { FormSelect } from "@/components/select"
 import { FormUpload } from "@/components/upload"
 
 import Steps from "./steps"
@@ -25,7 +26,7 @@ const first = z.object({
 
 const second = z.object({
   company: z.string().min(1, "Enter your company name"),
-  industry: z.string().min(1, "Enter the industry"),
+  industry: z.object({ value: z.string(), label: z.string() }),
   headCount: z.string().min(1, "Enter the head count"),
   companyAddress: z.string().min(1, "Enter the company address"),
 })
@@ -118,9 +119,14 @@ export default function Setup() {
                 placeholder="Enter your company name"
               />
 
-              <FormInput
+              <FormSelect
                 name="industry"
                 label="Industry"
+                options={[
+                  { value: "industry-1", label: "Industry 1" },
+                  { value: "industry-2", label: "Industry 2" },
+                  { value: "industry-3", label: "Industry 3" },
+                ]}
                 placeholder="Enter the industry"
               />
 
