@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import setSession from "@/actions/session/set-session"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -30,6 +31,17 @@ export default function Form() {
     console.log({ data })
 
     // Send request to backend.
+
+    // Manager session with server actions.
+    await setSession({
+      user: {
+        id: "1",
+        name: "Yuri",
+        email: "develop@yumartins.com.br",
+      },
+
+      accessToken: "token",
+    })
 
     replace("/app")
   }
