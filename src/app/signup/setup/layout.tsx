@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
         <Image src={Logo} alt="Logo Revault" className="w-auto h-12" />
       </div>
 
-      <div className="flex flex-col mx-auto max-w-2xl my-12 w-full">
+      <div className="flex flex-col mx-auto max-w-2xl my-12 w-full px-6">
         <h1 className="text-3xl text-center font-semibold text-gray-800">
           Profile Setup
         </h1>

@@ -13,14 +13,14 @@ export default function AuthLayout({
   description,
 }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen h-full">
+    <div className="flex flex-col min-h-screen h-full lg:flex-row">
       <Image
         src={Background}
         alt=""
-        className="w-1/2 min-h-screen object-cover"
+        className="w-full h-96 object-cover lg:h-full lg:min-h-screen lg:w-1/2"
       />
 
-      <div className="flex py-20 px-40 flex-col items-center w-1/2">
+      <div className="flex px-6 py-10 flex-col items-center w-full md:p-20 lg:w-1/2 2xl:px-40">
         <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
 
         {description && (

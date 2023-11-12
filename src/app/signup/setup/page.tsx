@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import secrets from "@/constants/secrets"
 import { cn } from "@/utils/classname"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,6 +46,8 @@ type FormSchema = FirstFormSchema & SecondFormSchema
 export default function Setup() {
   const [step, setStep] = useState(1)
 
+  const { replace } = useRouter()
+
   const methods = useForm<FormSchema>({
     resolver: zodResolver(schema[step as keyof typeof schema]),
   })
@@ -65,13 +68,15 @@ export default function Setup() {
     console.log({ data })
 
     // Send request to backend.
+
+    replace("/app")
   }
 
   return (
     <div className="flex flex-col items-center mt-8 w-full">
       <Steps step={step} />
 
-      <div className="flex w-full mt-5 py-14 px-20 flex-col border border-solid border-gray-300 rounded-xl">
+      <div className="flex w-full mt-5 py-12 px-6 flex-col border border-solid border-gray-300 rounded-xl md:py-14 md:px-20">
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(submit)}>
             <div className={cn("flex-col", step === 1 ? "flex" : "hidden")}>
