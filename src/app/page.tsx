@@ -70,7 +70,7 @@ const LoginPage = () => {
             >
               <FormInput
                 name="username"
-                label="username"
+                label="Username"
                 className="mb-6"
                 placeholder="Enter your username"
               />

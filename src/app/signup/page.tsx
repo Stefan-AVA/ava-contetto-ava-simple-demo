@@ -94,14 +94,14 @@ const SignupPage = () => {
 
   return (
     <LoginLayout>
-      <div className="flex flex-col min-h-screen h-full lg:flex-row">
+      <div className="flex flex-col min-h-screen h-full lg:h-screen lg:flex-row">
         <Image
           src={Background}
           alt=""
-          className="w-full h-96 object-cover lg:h-full lg:min-h-screen lg:w-1/2"
+          className="w-full h-96 object-cover lg:h-full lg:w-1/2"
         />
 
-        <div className="flex px-6 py-10 flex-col items-center w-full md:p-20 lg:w-1/2 2xl:px-40">
+        <div className="flex px-6 py-10 flex-col items-center w-full overflow-y-auto md:p-20 lg:w-1/2 2xl:px-40 lg:h-screen">
           {step === 1 && (
             <>
               <h1 className="text-3xl font-bold text-gray-800">
