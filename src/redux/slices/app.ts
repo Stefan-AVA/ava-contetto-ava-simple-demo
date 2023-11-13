@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
-import { IUser } from "@/types/user"
+import { IUser } from "@/types/user.types"
 
 import { clearToken } from "../fetchAuthQuery"
 
