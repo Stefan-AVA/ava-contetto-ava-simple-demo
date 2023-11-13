@@ -10,14 +10,14 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
-  const { data: user, isLoading, isError } = useGetMeQuery()
+  const { data: user, isLoading } = useGetMeQuery()
 
   useEffect(() => {
     if (user && !isLoading) {
       dispatch(setUser(user))
       replace("/app")
     }
-  }, [user, isLoading, isError])
+  }, [dispatch, user, isLoading])
 
   return <>{children}</>
 }
