@@ -48,19 +48,6 @@ const LoginPage = () => {
       console.log("signup error ==>", error)
       setRequestError(parseError(error))
     }
-
-    // Send request to backend.
-
-    // Manager session with server actions.
-    // await setSession({
-    //   user: {
-    //     id: "1",
-    //     name: "Yuri",
-    //     email: "develop@yumartins.com.br",
-    //   },
-
-    //   accessToken: "token",
-    // })
   }
 
   return (
@@ -94,6 +81,14 @@ const LoginPage = () => {
                 isPassword
                 placeholder="Enter your password"
               />
+              <p className="text-sm text-gray-700 mt-3">
+                <Link
+                  href="/forgot-password"
+                  className="font-bold text-blue-500"
+                >
+                  Forgot password?
+                </Link>
+              </p>
 
               <Button type="submit" className="mt-9" loading={isLoading}>
                 Sign In
@@ -107,7 +102,7 @@ const LoginPage = () => {
             </form>
           </FormProvider>
 
-          <p className="text-sm text-gray-700 mt-20 text-center">
+          <p className="text-sm text-gray-700 mt-10 text-center">
             {"Don't have an account? "}
             <Link href="/signup" className="font-bold text-blue-500">
               Sign up

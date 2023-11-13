@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
 import { IUser } from "@/types/user"
+import { ForgotPasswordFormSchema } from "@/app/forgot-password/page"
 import { LoginFormSchema } from "@/app/page"
 import { SingupFormSchema } from "@/app/signup/page"
 
@@ -15,6 +16,12 @@ interface IConfirmEmailRequest {
   email: string
   verificationCode: string
   orgNeeded: boolean
+}
+
+interface IForgotPasswordConfirmRequest {
+  email: string
+  verificationCode: string
+  password: string
 }
 
 export const authApi = createApi({
@@ -48,6 +55,23 @@ export const authApi = createApi({
         method: "GET",
       }),
     }),
+    forgotPassword: builder.mutation<IBaseResponse, ForgotPasswordFormSchema>({
+      query: (data) => ({
+        url: "/forgot-password",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    forgotPasswordConfirm: builder.mutation<
+      IBaseResponse,
+      IForgotPasswordConfirmRequest
+    >({
+      query: (data) => ({
+        url: "/forgot-password-confirm",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 })
 
@@ -56,4 +80,6 @@ export const {
   useConfirmEmailMutation,
   useLoginMutation,
   useGetMeQuery,
+  useForgotPasswordMutation,
+  useForgotPasswordConfirmMutation,
 } = authApi

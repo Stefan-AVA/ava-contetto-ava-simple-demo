@@ -4,7 +4,12 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import LoginLayout from "@/layouts/LoginLayout"
-import { useConfirmEmailMutation, useSignupMutation } from "@/redux/apis/auth"
+import {
+  useConfirmEmailMutation,
+  useForgotPasswordConfirmMutation,
+  useForgotPasswordMutation,
+  useSignupMutation,
+} from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Background from "~/assets/signup-background.jpg"
@@ -12,21 +17,18 @@ import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import Button from "@/components/button"
-import { FormCheckbox } from "@/components/checkbox"
 import { FormInput } from "@/components/input"
 
-const singupSchema = z
+const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .email("Enter your valid email address")
+    .min(1, "Enter your email"),
+})
+
+const confirmForgotPasswordSchema = z
   .object({
-    username: z.string().min(1, "Enter your username"),
-    terms: z
-      .enum(["true"], {
-        invalid_type_error: "Accept the terms of use",
-      })
-      .transform((value) => value === "true"),
-    email: z
-      .string()
-      .email("Enter your valid email address")
-      .min(1, "Enter your email"),
+    verificationCode: z.string().min(4, "Enter your username"),
     password: z.string().min(8, "The password must contain at least 8 digits"),
     confirmPassword: z.string().min(1, "Confirm your password"),
   })
@@ -34,56 +36,54 @@ const singupSchema = z
     path: ["confirmPassword"],
     message: "Passwords are not the same",
   })
+export type ForgotPasswordFormSchema = z.infer<typeof forgotPasswordSchema>
+export type ConfirmForgotPasswordFormSchema = z.infer<
+  typeof confirmForgotPasswordSchema
+>
 
-const confirmEmailSchema = z.object({
-  verificationCode: z.string().min(4, "Enter verification code"),
-})
-
-export type SingupFormSchema = z.infer<typeof singupSchema>
-export type ConfirmEmailFormSchema = z.infer<typeof confirmEmailSchema>
-
-const SignupPage = () => {
+const ForgotPasswordPage = () => {
   const [reqestError, setRequestError] = useState("")
   const [step, setStep] = useState(1)
 
-  const singupMethods = useForm<SingupFormSchema>({
-    resolver: zodResolver(singupSchema),
+  const forgotPasswordMethods = useForm<ForgotPasswordFormSchema>({
+    resolver: zodResolver(forgotPasswordSchema),
   })
-  const confirmEmailMethods = useForm<ConfirmEmailFormSchema>({
-    resolver: zodResolver(confirmEmailSchema),
-  })
+  const confirmForgotPasswordMethods = useForm<ConfirmForgotPasswordFormSchema>(
+    {
+      resolver: zodResolver(confirmForgotPasswordSchema),
+    }
+  )
 
-  const [signup, { isLoading: isSignupLoading }] = useSignupMutation()
-  const [confirmEmail, { isLoading: isConfirmEmailLoading }] =
-    useConfirmEmailMutation()
+  const [forgotPassword, { isLoading: isForgotPasswordLoading }] =
+    useForgotPasswordMutation()
+  const [forgotPasswordConfirm, { isLoading: isConfirmLoading }] =
+    useForgotPasswordConfirmMutation()
 
   const clearErrors = () => {
-    singupMethods.clearErrors()
-    confirmEmailMethods.clearErrors()
+    forgotPasswordMethods.clearErrors()
+    confirmForgotPasswordMethods.clearErrors()
     setRequestError("")
   }
 
-  const onSignup = async (data: SingupFormSchema) => {
+  const onSignup = async (data: ForgotPasswordFormSchema) => {
     try {
       clearErrors()
-      await signup(data).unwrap()
+      await forgotPassword(data).unwrap()
       setStep(2)
     } catch (error) {
-      console.log("signup error ==>", error)
+      console.log("forgotPassword error ==>", error)
       setRequestError(parseError(error))
     }
   }
 
-  const onConfirm = async (data: ConfirmEmailFormSchema) => {
-    const { username, email } = singupMethods.getValues()
-    console.log(data)
+  const onConfirm = async (data: ConfirmForgotPasswordFormSchema) => {
+    const { email } = forgotPasswordMethods.getValues()
     try {
       clearErrors()
-      await confirmEmail({
-        username,
+      await forgotPasswordConfirm({
         email,
         verificationCode: data.verificationCode,
-        orgNeeded: true,
+        password: data.password,
       }).unwrap()
       setStep(3)
     } catch (error) {
@@ -105,24 +105,18 @@ const SignupPage = () => {
           {step === 1 && (
             <>
               <h1 className="text-3xl font-bold text-gray-800">
-                Create your account
+                Forgot Password
               </h1>
 
-              <p className="text-md mt-1 text-gray-600 mb-5">
-                Enter the answer for following fields and get started
+              <p className="text-md mt-1 text-gray-600 mt-5">
+                Please enter your email. We will send you a verification code
               </p>
 
-              <FormProvider {...singupMethods}>
+              <FormProvider {...forgotPasswordMethods}>
                 <form
-                  onSubmit={singupMethods.handleSubmit(onSignup)}
+                  onSubmit={forgotPasswordMethods.handleSubmit(onSignup)}
                   className="flex flex-col w-full"
                 >
-                  <FormInput
-                    name="username"
-                    label="Username"
-                    placeholder="Enter your username for login"
-                  />
-
                   <FormInput
                     name="email"
                     label="Email"
@@ -130,11 +124,54 @@ const SignupPage = () => {
                     placeholder="Enter your valid email address"
                   />
 
+                  <Button
+                    type="submit"
+                    className="mt-9"
+                    loading={isForgotPasswordLoading}
+                  >
+                    Send email
+                  </Button>
+                  {reqestError && (
+                    <p className="text-sm text-center text-red-500 mt-3">
+                      {reqestError}
+                    </p>
+                  )}
+                </form>
+              </FormProvider>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Forgot Password
+              </h1>
+
+              <p className="text-md mt-1 text-gray-600 mb-5">
+                We have sent you a verification code to{" "}
+                {forgotPasswordMethods.getValues().email}. Please check the
+                code.
+              </p>
+
+              <FormProvider {...confirmForgotPasswordMethods}>
+                <form
+                  onSubmit={confirmForgotPasswordMethods.handleSubmit(
+                    onConfirm
+                  )}
+                  className="flex flex-col w-full"
+                >
+                  <FormInput
+                    name="verificationCode"
+                    label="Verification Code"
+                    placeholder="Enter your verification code"
+                  />
+
                   <FormInput
                     name="password"
-                    label="Create Password"
+                    label="New Password"
+										className="mt-6"
                     isPassword
-                    placeholder="Create your password"
+                    placeholder="New password"
                   />
 
                   <FormInput
@@ -145,64 +182,10 @@ const SignupPage = () => {
                     placeholder="Confirm your password"
                   />
 
-                  <FormCheckbox
-                    name="terms"
-                    value="true"
-                    label="I agree to Terms of service and Privacy policy of RealVault"
-                    className="mt-3"
-                  />
-
                   <Button
                     type="submit"
                     className="mt-9"
-                    loading={isSignupLoading}
-                  >
-                    Create account
-                  </Button>
-                  {reqestError && (
-                    <p className="text-sm text-center text-red-500 mt-3">
-                      {reqestError}
-                    </p>
-                  )}
-                </form>
-              </FormProvider>
-
-              <p className="text-sm text-gray-700 mt-10 text-center">
-                Already have an account?{" "}
-                <Link href="/" className="font-bold text-blue-500">
-                  Sign In
-                </Link>{" "}
-                to your account.
-              </p>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <h1 className="text-3xl font-bold text-gray-800">
-                Check Your Inbox
-              </h1>
-
-              <p className="text-md mt-1 text-gray-600 mb-5">
-                We have sent you a verification code to{" "}
-                {singupMethods.getValues().email}. Please check the code.
-              </p>
-
-              <FormProvider {...confirmEmailMethods}>
-                <form
-                  onSubmit={confirmEmailMethods.handleSubmit(onConfirm)}
-                  className="flex flex-col w-full"
-                >
-                  <FormInput
-                    name="verificationCode"
-                    label="Verification Code"
-                    placeholder="Enter your verification code"
-                  />
-
-                  <Button
-                    type="submit"
-                    className="mt-9"
-                    loading={isConfirmEmailLoading}
+                    loading={isConfirmLoading}
                   >
                     Confirm
                   </Button>
@@ -219,11 +202,11 @@ const SignupPage = () => {
           {step === 3 && (
             <>
               <h1 className="text-3xl font-bold text-gray-800">
-                Email verified
+                Password updated
               </h1>
 
               <p className="text-gray-700 mt-10 text-center">
-                Your account is now verified. Please{" "}
+                Please{" "}
                 <Link href="/" className="font-bold text-blue-500">
                   Sign In
                 </Link>{" "}
@@ -237,4 +220,4 @@ const SignupPage = () => {
   )
 }
 
-export default SignupPage
+export default ForgotPasswordPage
