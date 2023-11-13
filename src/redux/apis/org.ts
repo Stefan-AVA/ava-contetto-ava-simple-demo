@@ -17,6 +17,11 @@ interface IINviteAgentRquest {
   role: string
 }
 
+interface IINviteContactRquest {
+  id: string
+  email: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -75,6 +80,13 @@ export const orgApi = createApi({
         body: rest,
       }),
     }),
+    inviteContact: builder.mutation<IBaseResponse, IINviteContactRquest>({
+      query: ({ id, ...rest }) => ({
+        url: `/${id}/invite-contact`,
+        method: "POST",
+        body: rest,
+      }),
+    }),
   }),
 })
 
@@ -85,4 +97,5 @@ export const {
   useGetOrgQuery,
   useGetMembersQuery,
   useInviteAgentMutation,
+  useInviteContactMutation,
 } = orgApi

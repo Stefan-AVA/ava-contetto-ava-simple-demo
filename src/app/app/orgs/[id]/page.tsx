@@ -1,17 +1,15 @@
 "use client"
 
 import { useEffect } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useGetMembersQuery, useGetOrgQuery } from "@/redux/apis/org"
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs"
 
 import "react-tabs/style/react-tabs.css"
 
-import { FormProvider } from "react-hook-form"
+import { useGetContactsQuery } from "@/redux/apis/agent"
 
-import { FormInput } from "@/components/input"
-
+import MyContacts from "./Contacts"
 import OrgMembers from "./Members"
 import OrgInfo from "./OrgInfo"
 
@@ -25,6 +23,10 @@ const Page = ({ params: { id } }: PageProps) => {
   const { replace } = useRouter()
   const { data: orgData, isError } = useGetOrgQuery({ id }, { skip: !id })
   const { data: members = [] } = useGetMembersQuery({ id }, { skip: !id })
+  const { data: contacts = [] } = useGetContactsQuery(
+    { id: orgData?.agentProfile._id as string },
+    { skip: !orgData?.agentProfile._id }
+  )
 
   useEffect(() => {
     if (!id || isError) replace("/app/orgs")
@@ -53,7 +55,7 @@ const Page = ({ params: { id } }: PageProps) => {
             <OrgMembers me={orgData?.agentProfile} members={members} />
           </TabPanel>
           <TabPanel>
-            <h2>Any content 3</h2>
+            <MyContacts me={orgData?.agentProfile} contacts={contacts} />
           </TabPanel>
         </Tabs>
       </div>
