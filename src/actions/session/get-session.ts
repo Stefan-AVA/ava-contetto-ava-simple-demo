@@ -3,10 +3,10 @@
 import { cookies } from "next/headers"
 import secrets from "@/constants/secrets"
 
-import type { User } from "@/types/user"
+import { IUser } from "@/types/user"
 
 export type GetSession = {
-  user: User
+  user: IUser
   accessToken: string
 }
 

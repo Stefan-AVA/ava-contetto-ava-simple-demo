@@ -3,11 +3,11 @@
 import { cookies } from "next/headers"
 import secrets from "@/constants/secrets"
 
-import type { User } from "@/types/user"
+import { IUser } from "@/types/user"
 
 import getSession from "./get-session"
 
-export default async function updateSession(props: Partial<User>) {
+export default async function updateSession(props: Partial<IUser>) {
   const cookie = cookies()
 
   const currentSession = await getSession()
