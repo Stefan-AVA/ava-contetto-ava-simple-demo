@@ -55,6 +55,13 @@ export const authApi = createApi({
         method: "GET",
       }),
     }),
+    postMe: builder.mutation<IUser, IUser>({
+      query: (data) => ({
+        url: "/me",
+        method: "POST",
+        body: data,
+      }),
+    }),
     forgotPassword: builder.mutation<IBaseResponse, ForgotPasswordFormSchema>({
       query: (data) => ({
         url: "/forgot-password",
@@ -80,6 +87,7 @@ export const {
   useConfirmEmailMutation,
   useLoginMutation,
   useGetMeQuery,
+  usePostMeMutation,
   useLazyGetMeQuery,
   useForgotPasswordMutation,
   useForgotPasswordConfirmMutation,

@@ -15,7 +15,9 @@ const Menu = () => {
   const options = [
     {
       label: "Profile",
-      action: () => {},
+      action: () => {
+        push("/app/profile")
+      },
     },
     {
       label: "Organizations",
