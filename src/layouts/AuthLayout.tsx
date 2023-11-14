@@ -17,7 +17,7 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
       dispatch(logout())
       replace("/")
     }
-  }, [dispatch, isLoading, isError])
+  }, [dispatch, isLoading, isError, replace])
 
   return <>{children}</>
 }

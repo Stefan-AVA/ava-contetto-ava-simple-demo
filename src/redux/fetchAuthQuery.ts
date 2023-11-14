@@ -16,7 +16,7 @@ type FetchQuery = BaseQueryFn<
 >
 
 // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-export const tokenKey = "register_token"
+export const tokenKey = "@ava-token"
 
 const setToken = (token: string) => {
   if (window) window.localStorage.setItem(tokenKey, token)
@@ -42,20 +42,18 @@ export const fetchAuthQuery =
   async (args, api, extraOptions) => {
     const token = getToken()
 
+    const params = {
+      ...(args as FetchArgs),
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
+    }
+
     const result = await getBaseQuery({
       baseUrl: `${process.env.NEXT_PUBLIC_API_URL}${baseArgs?.baseUrl}`,
-    })(
-      {
-        ...(args as FetchArgs),
-        headers: token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : {},
-      },
-      api,
-      extraOptions
-    )
+    })(params, api, extraOptions)
 
     if (result.meta?.response?.headers.get("token")) {
       setToken(String(result.meta?.response?.headers.get("token")))
