@@ -7,6 +7,7 @@ import { Tab, TabList, TabPanel, Tabs } from "react-tabs"
 
 import "react-tabs/style/react-tabs.css"
 
+import Link from "next/link"
 import { useGetContactsQuery } from "@/redux/apis/agent"
 
 import MyContacts from "./Contacts"
@@ -38,6 +39,7 @@ const Page = ({ params: { id } }: PageProps) => {
         <h1 className="text-2xl font-medium text-blue-800 capitalize">
           {orgData?.org.name}
         </h1>
+        <Link href="/app/orgs">Back</Link>
       </div>
 
       <div className="mt-5">

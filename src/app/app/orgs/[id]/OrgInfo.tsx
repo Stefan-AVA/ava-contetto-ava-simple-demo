@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useUpdateOrgMutation } from "@/redux/apis/org"
+import { useRouter } from "next/navigation"
+import { useCreateOrgMutation, useUpdateOrgMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
@@ -21,9 +22,11 @@ export type OrgSchema = z.infer<typeof orgSchema>
 interface IOrgInfo {
   org?: IOrg
   role?: AgentRole
+  isCreate?: boolean
 }
 
-const OrgInfo = ({ org, role }: IOrgInfo) => {
+const OrgInfo = ({ org, role, isCreate = false }: IOrgInfo) => {
+  const { push } = useRouter()
   const [reqestError, setRequestError] = useState("")
 
   const orgMethods = useForm<OrgSchema>({
@@ -34,6 +37,7 @@ const OrgInfo = ({ org, role }: IOrgInfo) => {
   })
 
   const [updateOrg, { isLoading: isUpdateLoading }] = useUpdateOrgMutation()
+  const [createOrg, { isLoading: isCreateLoading }] = useCreateOrgMutation()
 
   const clearErrors = () => {
     orgMethods.clearErrors()
@@ -43,12 +47,16 @@ const OrgInfo = ({ org, role }: IOrgInfo) => {
   const onSubmit = async (data: OrgSchema) => {
     try {
       clearErrors()
-      if (org) {
+      if (!isCreate && org) {
         // update org
         await updateOrg({ ...org, name: data.name }).unwrap()
       }
+      if (isCreate) {
+        const res = await createOrg({ name: data.name }).unwrap()
+        push(`/app/orgs/${res.orgId}`)
+      }
     } catch (error) {
-      console.log("Update error ==>", error)
+      console.log("org submit error ==>", error)
       setRequestError(parseError(error))
     }
   }
@@ -64,11 +72,16 @@ const OrgInfo = ({ org, role }: IOrgInfo) => {
             name="name"
             label="Organization Name"
             placeholder="Enter organization name"
-            disabled={role !== AgentRole.owner}
+            disabled={!isCreate && role !== AgentRole.owner}
           />
-          {role === AgentRole.owner && (
+          {!isCreate && role === AgentRole.owner && (
             <Button type="submit" className="mt-9" loading={isUpdateLoading}>
               Update
+            </Button>
+          )}
+          {isCreate && (
+            <Button type="submit" className="mt-9" loading={isCreateLoading}>
+              Create a new Organization
             </Button>
           )}
           {reqestError && (

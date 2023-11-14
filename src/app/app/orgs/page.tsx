@@ -13,9 +13,11 @@ const Page = () => {
         <h1 className="text-2xl font-medium text-blue-800">
           Your Organizations
         </h1>
-        <button className="bg-blue-500 text-white hover:bg-blue-800 inline-flex h-8 py-3 px-6 items-center justify-center rounded-lg text-sm transition-colors">
-          Create
-        </button>
+        <Link href="/app/orgs/create">
+          <button className="bg-blue-500 text-white hover:bg-blue-800 inline-flex h-8 py-3 px-6 items-center justify-center rounded-lg text-sm transition-colors">
+            Create
+          </button>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-2 mt-5">

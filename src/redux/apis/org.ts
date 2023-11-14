@@ -27,8 +27,8 @@ export const orgApi = createApi({
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
   endpoints: (builder) => ({
     createOrg: builder.mutation<
-      IBaseResponse,
-      Omit<IOrg, "_id | owner | deleted">
+      { orgId: string },
+      Omit<IOrg, "_id" | "owner" | "deleted">
     >({
       query: (data) => ({
         url: "",
