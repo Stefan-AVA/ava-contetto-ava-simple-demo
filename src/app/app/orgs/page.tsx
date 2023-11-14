@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useGetOrgsQuery } from "@/redux/apis/org"
 import { ArrowRight } from "lucide-react"
 
+import Button from "@/components/button"
+
 const Page = () => {
   const { data } = useGetOrgsQuery()
 
@@ -14,21 +16,18 @@ const Page = () => {
           Your Organizations
         </h1>
         <Link href="/app/orgs/create">
-          <button className="bg-blue-500 text-white hover:bg-blue-800 inline-flex h-8 py-3 px-6 items-center justify-center rounded-lg text-sm transition-colors">
-            Create
-          </button>
+          <Button className="w-fit">Create</Button>
         </Link>
       </div>
 
       <div className="flex flex-col gap-2 mt-5">
         {(data?.agentProfiles || []).map(({ _id, org, role, orgId }) => (
           <div key={_id} className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-base font-bold capitalize">
-                {org?.name}
-              </span>
-              <span className="text-xs ml-2">({role})</span>
+            <div className="flex items-center gap-2">
+              <span className="font-bold capitalize">{org?.name}</span>
+              <span className="text-xs text-gray-500">({role})</span>
             </div>
+
             <Link href={`/app/orgs/${orgId}`}>
               <ArrowRight />
             </Link>
@@ -36,12 +35,13 @@ const Page = () => {
         ))}
         {/* {(data?.contacts || []).map(({ _id, org }) => (
           <div key={_id} className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <span className="text-base font-bold capitalize">
                 {org?.name}
               </span>
-              <span className="text-xs ml-2">(contact)</span>
+              <span className="text-xs text-gray-500">(contact)</span>
             </div>
+
             <Link href={`/app/contacts/${_id}`}>
               <ArrowRight />
             </Link>

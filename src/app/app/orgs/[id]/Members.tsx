@@ -111,11 +111,11 @@ const OrgMembers = ({ me, members = [] }: IOrgMembers) => {
       <h3 className="font-bold text-lg mb-1 mt-5">Members</h3>
       <div className="flex flex-col gap-3">
         {members.map(({ _id, username, role }) => (
-          <div key={_id} className="flex items-center">
-            <span className="text-base font-bold capitalize">{username}</span>
-            <span className="text-xs ml-2">({role})</span>
+          <div key={_id} className="flex items-center gap-2">
+            <span className="font-bold capitalize">{username}</span>
+            <span className="text-xs">({role})</span>
             {username === me?.username && (
-              <span className="text-xs ml-2">You</span>
+              <span className="text-xs text-gray-500">You</span>
             )}
           </div>
         ))}

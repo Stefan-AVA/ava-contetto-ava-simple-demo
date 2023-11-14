@@ -1,14 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useGetMembersQuery, useGetOrgQuery } from "@/redux/apis/org"
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs"
-
 import "react-tabs/style/react-tabs.css"
 
+import { useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useGetContactsQuery } from "@/redux/apis/agent"
+import { useGetMembersQuery, useGetOrgQuery } from "@/redux/apis/org"
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs"
 
 import MyContacts from "./Contacts"
 import OrgMembers from "./Members"
@@ -31,7 +30,7 @@ const Page = ({ params: { id } }: PageProps) => {
 
   useEffect(() => {
     if (!id || isError) replace("/app/orgs")
-  }, [id, isError])
+  }, [id, replace, isError])
 
   return (
     <div className="flex flex-col">

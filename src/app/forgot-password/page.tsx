@@ -5,10 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import LoginLayout from "@/layouts/LoginLayout"
 import {
-  useConfirmEmailMutation,
   useForgotPasswordConfirmMutation,
   useForgotPasswordMutation,
-  useSignupMutation,
 } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -108,7 +106,7 @@ const ForgotPasswordPage = () => {
                 Forgot Password
               </h1>
 
-              <p className="text-md mt-1 text-gray-600 mt-5">
+              <p className="text-md text-gray-600 mt-5">
                 Please enter your email. We will send you a verification code
               </p>
 

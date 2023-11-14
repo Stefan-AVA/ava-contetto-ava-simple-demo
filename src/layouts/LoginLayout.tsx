@@ -17,7 +17,7 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
       dispatch(setUser(user))
       replace("/app")
     }
-  }, [dispatch, user, isLoading])
+  }, [dispatch, user, isLoading, replace])
 
   return <>{children}</>
 }
