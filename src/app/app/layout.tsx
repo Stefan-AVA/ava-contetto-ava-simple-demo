@@ -12,9 +12,10 @@ export default function Layout({ children }: PropsWithChildren) {
     <AuthLayout>
       <div className="flex flex-col">
         <div className="absolute flex items-center justify-between w-full pt-5 px-8 md:pt-8 md:px-16">
-          <Link href="/" className="flex">
+          <div></div>
+          {/* <Link href="/" className="flex">
             <Image src={Logo} alt="Logo Revault" className="w-auto h-12" />
-          </Link>
+          </Link> */}
 
           <div className="flex items-center gap-4">
             <button
