@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import LoginLayout from "@/layouts/LoginLayout"
 import { useConfirmEmailMutation, useSignupMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
@@ -43,6 +44,9 @@ export type SingupFormSchema = z.infer<typeof singupSchema>
 export type ConfirmEmailFormSchema = z.infer<typeof confirmEmailSchema>
 
 const SignupPage = () => {
+  const searchParams = useSearchParams()
+  const nextLink = searchParams.get("_next")
+
   const [reqestError, setRequestError] = useState("")
   const [step, setStep] = useState(1)
 
@@ -169,7 +173,10 @@ const SignupPage = () => {
 
               <p className="text-sm text-gray-700 mt-10 text-center">
                 Already have an account?{" "}
-                <Link href="/" className="font-bold text-blue-500">
+                <Link
+                  href={nextLink ? `/?_next=${nextLink}` : "/"}
+                  className="font-bold text-blue-500"
+                >
                   Sign In
                 </Link>{" "}
                 to your account.
@@ -224,7 +231,10 @@ const SignupPage = () => {
 
               <p className="text-gray-700 mt-10 text-center">
                 Your account is now verified. Please{" "}
-                <Link href="/" className="font-bold text-blue-500">
+                <Link
+                  href={nextLink ? `/?_next=${nextLink}` : "/"}
+                  className="font-bold text-blue-500"
+                >
                   Sign In
                 </Link>{" "}
                 to your account.

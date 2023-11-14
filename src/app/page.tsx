@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import LoginLayout from "@/layouts/LoginLayout"
 import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
@@ -23,7 +23,9 @@ const schema = z.object({
 export type LoginFormSchema = z.infer<typeof schema>
 
 const LoginPage = () => {
-  const { replace } = useRouter()
+  const { push } = useRouter()
+  const searchParams = useSearchParams()
+  const nextLink = searchParams.get("_next")
 
   const [reqestError, setRequestError] = useState("")
 
@@ -43,7 +45,7 @@ const LoginPage = () => {
       clearErrors()
       await login(data).unwrap()
 
-      replace("/app")
+      push(nextLink ? (nextLink as any) : "/app")
     } catch (error) {
       console.log("signup error ==>", error)
       setRequestError(parseError(error))
@@ -83,7 +85,11 @@ const LoginPage = () => {
               />
               <p className="text-sm text-gray-700 mt-3">
                 <Link
-                  href="/forgot-password"
+                  href={
+                    nextLink
+                      ? `/forgot-password?_next=${nextLink}`
+                      : "/forgot-password"
+                  }
                   className="font-bold text-blue-500"
                 >
                   Forgot password?
@@ -104,7 +110,10 @@ const LoginPage = () => {
 
           <p className="text-sm text-gray-700 mt-10 text-center">
             {"Don't have an account? "}
-            <Link href="/signup" className="font-bold text-blue-500">
+            <Link
+              href={nextLink ? `/signup?_next=${nextLink}` : "/signup"}
+              className="font-bold text-blue-500"
+            >
               Sign up
             </Link>{" "}
             your account.

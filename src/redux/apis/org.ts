@@ -22,6 +22,11 @@ interface IINviteContactRquest {
   email: string
 }
 
+interface IAcceptInviteRequest {
+  id: string
+  code: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -100,6 +105,15 @@ export const orgApi = createApi({
         body: rest,
       }),
     }),
+    acceptInvite: builder.mutation<IBaseResponse, IAcceptInviteRequest>({
+      query: ({ id, code }) => ({
+        url: `/${id}/invite-accept`,
+        method: "POST",
+        body: {
+          code,
+        },
+      }),
+    }),
   }),
 })
 
@@ -111,4 +125,5 @@ export const {
   useGetMembersQuery,
   useInviteAgentMutation,
   useInviteContactMutation,
+  useAcceptInviteMutation,
 } = orgApi

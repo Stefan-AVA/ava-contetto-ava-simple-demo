@@ -33,20 +33,20 @@ const Page = () => {
             </Link>
           </div>
         ))}
-        {/* {(data?.contacts || []).map(({ _id, org }) => (
+        {(data?.contacts || []).map(({ _id, org, agent }) => (
           <div key={_id} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-base font-bold capitalize">
                 {org?.name}
               </span>
-              <span className="text-xs text-gray-500">(contact)</span>
+              <span className="text-xs text-gray-500">{`(contact of ${agent?.username})`}</span>
             </div>
 
-            <Link href={`/app/contacts/${_id}`}>
+            {/* <Link href={`/app/contacts/${_id}`}>
               <ArrowRight />
-            </Link>
+            </Link> */}
           </div>
-        ))} */}
+        ))}
       </div>
     </div>
   )

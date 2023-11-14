@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import LoginLayout from "@/layouts/LoginLayout"
 import {
   useForgotPasswordConfirmMutation,
@@ -40,6 +41,9 @@ export type ConfirmForgotPasswordFormSchema = z.infer<
 >
 
 const ForgotPasswordPage = () => {
+  const searchParams = useSearchParams()
+  const nextLink = searchParams.get("_next")
+
   const [reqestError, setRequestError] = useState("")
   const [step, setStep] = useState(1)
 
@@ -205,7 +209,10 @@ const ForgotPasswordPage = () => {
 
               <p className="text-gray-700 mt-10 text-center">
                 Please{" "}
-                <Link href="/" className="font-bold text-blue-500">
+                <Link
+                  href={nextLink ? `/?_next=${nextLink}` : "/"}
+                  className="font-bold text-blue-500"
+                >
                   Sign In
                 </Link>{" "}
                 to your account.
