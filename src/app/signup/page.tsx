@@ -152,7 +152,7 @@ const SignupPage = () => {
                   <FormCheckbox
                     name="terms"
                     value="true"
-                    label="I agree to Terms of service and Privacy policy of RealVault"
+                    label="I agree to Terms of service and Privacy policy of Ava"
                     className="mt-3"
                   />
 

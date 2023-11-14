@@ -21,7 +21,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             {...rest}
             type="checkbox"
-            className="peer appearance-none transition-colors duration-300 w-5 h-5 rounded border border-solid border-gray-300 checked:bg-blue-500 checked:border-blue-500 group-hover:border-blue-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            className="peer appearance-none transition-colors duration-300 w-5 h-5 rounded border border-solid border-gray-300 checked:bg-cyan-500 checked:border-cyan-500 group-hover:border-cyan-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           />
 
           <Check
@@ -31,7 +31,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
           <label
             htmlFor={rest.id}
-            className="text-sm text-gray-800 cursor-pointer peer-checked:text-blue-500 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            className="text-sm text-gray-800 cursor-pointer peer-checked:text-cyan-500 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
           >
             {label}
           </label>

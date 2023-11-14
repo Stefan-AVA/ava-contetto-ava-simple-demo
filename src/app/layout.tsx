@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="pt-BR">
+    <html lang="en-US">
       <head>
         <meta
           httpEquiv="Content-Security-Policy"
