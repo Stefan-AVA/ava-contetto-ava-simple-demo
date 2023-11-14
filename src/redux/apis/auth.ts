@@ -80,6 +80,7 @@ export const {
   useConfirmEmailMutation,
   useLoginMutation,
   useGetMeQuery,
+  useLazyGetMeQuery,
   useForgotPasswordMutation,
   useForgotPasswordConfirmMutation,
 } = authApi

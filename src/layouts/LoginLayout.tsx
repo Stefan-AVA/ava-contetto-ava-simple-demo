@@ -1,8 +1,8 @@
 "use client"
 
-import { PropsWithChildren, useEffect } from "react"
+import { PropsWithChildren, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useGetMeQuery } from "@/redux/apis/auth"
+import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { setUser } from "@/redux/slices/app"
 import { useAppDispatch } from "@/redux/store"
 
@@ -10,14 +10,20 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
-  const { data: user, isLoading } = useGetMeQuery()
+  const [getme] = useLazyGetMeQuery()
 
-  useEffect(() => {
-    if (user && !isLoading) {
+  const checkAuth = useCallback(async () => {
+    try {
+      const user = await getme().unwrap()
+
       dispatch(setUser(user))
       replace("/app")
-    }
-  }, [dispatch, user, isLoading, replace])
+    } catch (error) {}
+  }, [getme, dispatch, replace])
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
 
   return <>{children}</>
 }
