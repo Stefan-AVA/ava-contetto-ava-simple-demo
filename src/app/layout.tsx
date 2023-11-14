@@ -23,7 +23,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="pt-BR">
-      <head />
+      <head>
+        <meta
+          http-equiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
+      </head>
 
       <body className={`${dmsans.variable} font-sans`}>
         <Providers>{children}</Providers>
