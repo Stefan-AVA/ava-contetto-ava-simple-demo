@@ -3,7 +3,7 @@
 import { cookies } from "next/headers"
 import secrets from "@/constants/secrets"
 
-import { IUser } from "@/types/user"
+import { IUser } from "@/types/user.types"
 
 import getSession from "./get-session"
 

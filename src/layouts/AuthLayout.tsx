@@ -10,14 +10,14 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
-  const { isError } = useGetMeQuery()
+  const { isLoading, isError } = useGetMeQuery()
 
   useEffect(() => {
-    if (isError) {
+    if (!isLoading && isError) {
       dispatch(logout())
       replace("/")
     }
-  }, [dispatch, isError])
+  }, [dispatch, isLoading, isError])
 
   return <>{children}</>
 }

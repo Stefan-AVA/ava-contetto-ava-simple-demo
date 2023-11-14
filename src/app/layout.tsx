@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react"
 import type { Metadata } from "next"
 import { DM_Sans } from "next/font/google"
 
-import Providers from "./provider"
+import Providers from "./Provider"
 
 const dmsans = DM_Sans({
   weight: ["400", "500", "700"],

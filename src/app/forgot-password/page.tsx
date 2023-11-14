@@ -169,7 +169,7 @@ const ForgotPasswordPage = () => {
                   <FormInput
                     name="password"
                     label="New Password"
-										className="mt-6"
+                    className="mt-6"
                     isPassword
                     placeholder="New password"
                   />

@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IUser } from "@/types/user"
+import { IUser } from "@/types/user.types"
 import { ForgotPasswordFormSchema } from "@/app/forgot-password/page"
 import { LoginFormSchema } from "@/app/page"
 import { SingupFormSchema } from "@/app/signup/page"
