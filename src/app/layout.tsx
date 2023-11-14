@@ -25,7 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     <html lang="pt-BR">
       <head>
         <meta
-          http-equiv="Content-Security-Policy"
+          httpEquiv="Content-Security-Policy"
           content="upgrade-insecure-requests"
         />
       </head>
