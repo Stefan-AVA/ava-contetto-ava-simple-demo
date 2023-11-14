@@ -14,6 +14,12 @@ const Menu = () => {
 
   const options = [
     {
+      label: "Search",
+      action: () => {
+        push("/app")
+      },
+    },
+    {
       label: "Profile",
       action: () => {
         push("/app/profile")

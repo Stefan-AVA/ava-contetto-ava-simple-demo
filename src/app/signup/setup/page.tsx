@@ -146,8 +146,8 @@ export default function Setup() {
 
             <div className={cn(step === 3 ? "flex" : "hidden")}>
               <p className="text-gray-800">
-                I agree to the Terms of Service and Privacy Policy of the Ava
-                platform to start using it.
+                I agree to the Terms of Service and Privacy Policy of the
+                AVA platform to start using it.
               </p>
             </div>
 

@@ -5,6 +5,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux"
 import { agentApi } from "./apis/agent"
 import { authApi } from "./apis/auth"
 import { orgApi } from "./apis/org"
+import { searchApi } from "./apis/search"
 import appReducer from "./slices/app"
 
 export const store = configureStore({
@@ -13,12 +14,14 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [orgApi.reducerPath]: orgApi.reducer,
     [agentApi.reducerPath]: agentApi.reducer,
+    [searchApi.reducerPath]: searchApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
       orgApi.middleware,
-      agentApi.middleware
+      agentApi.middleware,
+      searchApi.middleware
     ),
 })
 
