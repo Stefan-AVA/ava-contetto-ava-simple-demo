@@ -25,6 +25,7 @@ interface IINviteContactRquest {
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
+  tagTypes: ["Orgs", "Members"],
   endpoints: (builder) => ({
     createOrg: builder.mutation<
       { orgId: string },
@@ -35,6 +36,7 @@ export const orgApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Orgs"],
     }),
     updateOrg: builder.mutation<IBaseResponse, IOrg>({
       query: ({ _id, ...rest }) => ({
@@ -42,6 +44,14 @@ export const orgApi = createApi({
         method: "PUT",
         body: rest,
       }),
+      invalidatesTags: ["Orgs"],
+    }),
+    deleteOrg: builder.mutation<IBaseResponse, IRequestWithId>({
+      query: ({ id }) => ({
+        url: `/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Orgs"],
     }),
     getOrgs: builder.query<
       {
@@ -54,6 +64,7 @@ export const orgApi = createApi({
         url: "",
         method: "GET",
       }),
+      providesTags: ["Orgs"],
     }),
     getOrg: builder.query<
       {
@@ -66,12 +77,14 @@ export const orgApi = createApi({
         url: `/${id}`,
         method: "GET",
       }),
+      providesTags: ["Orgs"],
     }),
     getMembers: builder.query<IAgentProfile[], IRequestWithId>({
       query: ({ id }) => ({
         url: `/${id}/members`,
         method: "GET",
       }),
+      providesTags: ["Orgs", "Members"],
     }),
     inviteAgent: builder.mutation<IBaseResponse, IINviteAgentRquest>({
       query: ({ id, ...rest }) => ({

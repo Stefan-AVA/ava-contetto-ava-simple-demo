@@ -5,7 +5,7 @@ import AuthLayout from "@/layouts/AuthLayout"
 import Logo from "~/assets/logo-revault.png"
 import { Mail } from "lucide-react"
 
-import DropdownOptions from "./dropdown-options"
+import Menu from "./Menu"
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -24,26 +24,11 @@ export default function Layout({ children }: PropsWithChildren) {
               <Mail className="text-blue-800" />
             </button>
 
-            <div className="group relative">
-              <button
-                type="button"
-                className="flex items-center justify-center border border-solid border-gray-300 rounded-full p-0.5 w-12 h-12 md:w-16 md:h-16"
-              >
-                <Image
-                  src="/assets/avatar.png"
-                  alt=""
-                  width={60}
-                  height={60}
-                  className="object-cover rounded-full"
-                />
-              </button>
-
-              <DropdownOptions />
-            </div>
+            <Menu />
           </div>
         </div>
 
-        <div className="flex flex-col container pt-40 pb-24 relative">
+        <div className="flex flex-col container mt-40 pb-24 relative">
           {children}
         </div>
       </div>

@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 import { IUser } from "@/types/user.types"
 
+import { authApi } from "../apis/auth"
 import { clearToken } from "../fetchAuthQuery"
 
 interface IAppState {
@@ -22,6 +23,14 @@ export const appSlice = createSlice({
       state.user = null
       clearToken()
     },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      authApi.endpoints.getMe.matchFulfilled,
+      (state, action) => {
+        state.user = action.payload
+      }
+    )
   },
 })
 

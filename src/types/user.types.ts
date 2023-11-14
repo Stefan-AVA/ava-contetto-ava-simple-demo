@@ -13,6 +13,7 @@ export interface IPhone {
 export interface IUser {
   _id: string
   username: string
+  name?: string
   emails: IEmail[]
   phones?: IPhone[]
   image?: string
