@@ -1,13 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useRef } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { useLazySearchQuery } from "@/redux/apis/search"
-import { Bath, BedDouble, Mic, Search, Table2 } from "lucide-react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Bath, BedDouble, Mic, Search, Send, Table2 } from "lucide-react"
+import { FormProvider, useForm } from "react-hook-form"
+import { z } from "zod"
 
-import Button from "@/components/button"
+import Spinner from "@/components/spinner"
 
 const houses = [
   "/assets/house-1.jpg",
@@ -20,49 +23,64 @@ const houses = [
   "/assets/house-8.jpg",
 ]
 
+const schema = z.object({
+  search: z.string().optional(),
+})
+
+type FormSchema = z.infer<typeof schema>
+
 const Page = () => {
-  const [search, setSearch] = useState("")
+  const methods = useForm<FormSchema>({
+    resolver: zodResolver(schema),
+  })
 
-  const [searchListings, { data: listings, isLoading }] = useLazySearchQuery()
+  const [searchListings, { data: listings, isLoading, isFetching }] =
+    useLazySearchQuery()
 
-  const onSearch = async () => {
-    try {
-      await searchListings({ search })
-    } catch (error) {}
+  console.log({ listings })
+
+  const onSearch = async ({ search }: FormSchema) => {
+    await searchListings({ search })
   }
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-9 max-w-3xl mx-auto w-full">
         <h1 className="text-4xl font-medium text-blue-800">
-          Let's start exploring
+          {"Let's start exploring"}
         </h1>
 
-        <div className="flex w-full gap-2">
-          <div className="flex rounded items-center text-blue-300 bg-gray-200 w-full">
-            <div className="pl-5 mr-3 text-blue-800">
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods.handleSubmit(onSearch)}
+            className="flex py-4 rounded-full text-blue-300 bg-gray-200"
+          >
+            <div className="py-2 pl-5 mr-3 text-blue-800">
               <Search size={20} />
             </div>
 
             <input
+              {...methods.register("search")}
               className="text-sm w-full h-auto font-medium bg-transparent text-blue-800 outline-none placeholder:text-blue-300"
               placeholder="Type in your search criteria"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* <div className="py-2 pr-6 pl-4 ml-4 border-l border-solid border-l-gray-400/20">
+            <div className="py-2 pr-6 pl-4 ml-4 flex items-center gap-4 border-l border-solid border-l-gray-400/20">
               <Mic size={20} />
-            </div> */}
-          </div>
-          <Button
-            className="text-sm px-0 py-0 h-[35px] lg:h-[44px] lg:text-base w-[80px] lg:w-[100px]"
-            onClick={onSearch}
-            loading={isLoading}
-          >
-            Search
-          </Button>
-        </div>
+
+              {(isLoading || isFetching) && <Spinner variant="primary" />}
+
+              {!(isFetching || isLoading) && (
+                <button type="submit">
+                  <Send
+                    size={20}
+                    className="text-cyan-500 transition-colors hover:text-cyan-600"
+                  />
+                </button>
+              )}
+            </div>
+          </form>
+        </FormProvider>
       </div>
 
       <div className="grid gap-8 mt-16 grid-cols-1 md:mt-28 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
