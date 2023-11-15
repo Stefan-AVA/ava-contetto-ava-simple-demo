@@ -66,7 +66,7 @@ const OrgInfo = ({ org, role, isCreate = false }: IOrgInfo) => {
       <FormProvider {...orgMethods}>
         <form
           onSubmit={orgMethods.handleSubmit(onSubmit)}
-          className="flex flex-col w-full"
+          className="flex flex-col w-full gap-6"
         >
           <FormInput
             name="name"
@@ -75,12 +75,12 @@ const OrgInfo = ({ org, role, isCreate = false }: IOrgInfo) => {
             disabled={!isCreate && role !== AgentRole.owner}
           />
           {!isCreate && role === AgentRole.owner && (
-            <Button type="submit" className="mt-9" loading={isUpdateLoading}>
+            <Button type="submit" loading={isUpdateLoading}>
               Update
             </Button>
           )}
           {isCreate && (
-            <Button type="submit" className="mt-9" loading={isCreateLoading}>
+            <Button type="submit" loading={isCreateLoading}>
               Create a new Organization
             </Button>
           )}

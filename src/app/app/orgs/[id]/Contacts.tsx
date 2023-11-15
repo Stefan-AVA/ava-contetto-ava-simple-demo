@@ -55,12 +55,13 @@ const MyContacts = ({ me, contacts = [] }: IMyContacts) => {
   }
 
   return (
-    <div className="flex flex-col py-5 max-w-[500px]">
+    <div className="flex flex-col py-5 gap-6">
       <h3 className="font-bold text-lg mb-1">Invite a contact</h3>
+
       <FormProvider {...orgMethods}>
         <form
           onSubmit={orgMethods.handleSubmit(onSubmit)}
-          className="flex flex-col w-full gap-3"
+          className="flex flex-col w-full gap-6 max-w-[500px]"
         >
           <FormInput name="email" label="Email" placeholder="Enter the email" />
           <Button type="submit" loading={isLoading}>
@@ -68,14 +69,21 @@ const MyContacts = ({ me, contacts = [] }: IMyContacts) => {
           </Button>
         </form>
       </FormProvider>
+
       {reqestError && (
         <p className="text-sm text-center text-red-500 mt-3">{reqestError}</p>
       )}
 
-      <h3 className="font-bold text-lg mb-1 mt-5">Contacts</h3>
-      <div className="flex flex-col gap-3">
+      <h3 className="font-bold text-lg mb-2 mt-6 pt-6 border-t border-solid border-t-gray-300">
+        Contacts
+      </h3>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {contacts.map(({ _id, username }) => (
-          <div key={_id} className="flex items-center">
+          <div
+            key={_id}
+            className="flex items-center p-6 border border-solid border-gray-300 rounded-lg"
+          >
             <span className="text-base font-bold capitalize">{username}</span>
           </div>
         ))}

@@ -57,20 +57,22 @@ const OrgMembers = ({ me, members = [] }: IOrgMembers) => {
   }
 
   return (
-    <div className="flex flex-col py-5 max-w-[500px]">
+    <div className="flex flex-col py-5 gap-6">
       {(me?.role === AgentRole.owner || me?.role === AgentRole.admin) && (
         <>
           <h3 className="font-bold text-lg mb-1">Invite a member</h3>
+
           <FormProvider {...orgMethods}>
             <form
               onSubmit={orgMethods.handleSubmit(onSubmit)}
-              className="flex flex-col w-full gap-3"
+              className="flex flex-col w-full gap-4 max-w-[500px]"
             >
               <FormInput
                 name="email"
                 label="Email"
                 placeholder="Enter the email"
               />
+
               <FormSelect
                 name="role"
                 label="Role"
@@ -95,11 +97,13 @@ const OrgMembers = ({ me, members = [] }: IOrgMembers) => {
                 }
                 placeholder="Select a role"
               />
+
               <Button type="submit" loading={isLoading}>
                 Invite
               </Button>
             </form>
           </FormProvider>
+
           {reqestError && (
             <p className="text-sm text-center text-red-500 mt-3">
               {reqestError}
@@ -108,10 +112,16 @@ const OrgMembers = ({ me, members = [] }: IOrgMembers) => {
         </>
       )}
 
-      <h3 className="font-bold text-lg mb-1 mt-5">Members</h3>
-      <div className="flex flex-col gap-3">
+      <h3 className="font-bold text-lg mb-2 mt-6 pt-6 border-t border-solid border-t-gray-300">
+        Members
+      </h3>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {members.map(({ _id, username, role }) => (
-          <div key={_id} className="flex items-center gap-2">
+          <div
+            key={_id}
+            className="flex w-full items-center gap-2 p-6 border border-solid border-gray-300 rounded-lg"
+          >
             <span className="font-bold capitalize">{username}</span>
             <span className="text-xs">({role})</span>
             {username === me?.username && (
