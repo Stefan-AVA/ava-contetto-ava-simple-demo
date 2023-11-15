@@ -15,21 +15,15 @@ const Menu = () => {
   const options = [
     {
       label: "Search",
-      action: () => {
-        push("/app")
-      },
+      action: () => push("/app"),
     },
     {
       label: "Profile",
-      action: () => {
-        push("/app/profile")
-      },
+      action: () => push("/app/profile"),
     },
     {
       label: "Organizations",
-      action: () => {
-        push("/app/orgs")
-      },
+      action: () => push("/app/orgs"),
     },
     {
       label: "Logout",

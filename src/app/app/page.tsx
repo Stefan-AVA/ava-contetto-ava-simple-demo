@@ -4,15 +4,21 @@ import { useEffect } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useLazySearchQuery } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Bath, BedDouble, Mic, Search, Send, Table2 } from "lucide-react"
+import { Bath, BedDouble, Search, Send, Table2 } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import Spinner from "@/components/spinner"
+
+type PageProps = {
+  searchParams: {
+    search: string
+  }
+}
 
 const schema = z.object({
   search: z.string().optional(),
@@ -20,10 +26,10 @@ const schema = z.object({
 
 type FormSchema = z.infer<typeof schema>
 
-const Page = () => {
+const Page = ({ searchParams }: PageProps) => {
   const { push } = useRouter()
-  const searchParams = useSearchParams()
-  const search = searchParams.get("search")
+
+  const { search } = searchParams
 
   const methods = useForm<FormSchema>({
     resolver: zodResolver(schema),
@@ -35,15 +41,11 @@ const Page = () => {
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
 
   useEffect(() => {
-    if (search) {
-      searchListings({ search: search || "" })
-    }
-  }, [])
+    if (search) searchListings({ search: search || "" })
+  }, [search, searchListings])
 
-  const onSearch = async ({ search }: FormSchema) => {
-    await searchListings({ search })
+  const onSearch = async ({ search }: FormSchema) =>
     push(search ? `/app?search=${search}` : "/app")
-  }
 
   return (
     <div className="flex flex-col">
@@ -68,8 +70,6 @@ const Page = () => {
             />
 
             <div className="py-2 pr-6 pl-4 ml-4 flex items-center gap-4 border-l border-solid border-l-gray-400/20">
-              {/* <Mic size={20} /> */}
-
               {(isLoading || isFetching) && <Spinner variant="primary" />}
 
               {!(isFetching || isLoading) && (
