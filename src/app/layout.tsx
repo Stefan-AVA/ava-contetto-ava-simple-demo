@@ -25,8 +25,13 @@ export default function RootLayout({ children }: PropsWithChildren) {
     <html lang="en-US">
       <head>
         <meta
-          httpEquiv="Content-Security-Policy"
           content="upgrade-insecure-requests"
+          httpEquiv="Content-Security-Policy"
+        />
+
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
         />
       </head>
 
