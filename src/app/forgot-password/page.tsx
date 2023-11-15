@@ -110,7 +110,7 @@ const ForgotPasswordPage = () => {
                 Forgot Password
               </h1>
 
-              <p className="text-md text-gray-600 mt-5">
+              <p className="text-md mt-1 text-gray-600 mb-5">
                 Please enter your email. We will send you a verification code
               </p>
 
@@ -122,7 +122,7 @@ const ForgotPasswordPage = () => {
                   <FormInput
                     name="email"
                     label="Email"
-                    className="my-6"
+                    className="mb-6"
                     placeholder="Enter your valid email address"
                   />
 

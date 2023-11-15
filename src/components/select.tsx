@@ -27,7 +27,7 @@ const style = tv({
   slots: {
     option: "!text-sm !text-gray-600 transition-all duration-300",
     control:
-      "w-full !border-gray-300 !rounded-lg !outline-none !ring-0 hover:!border-blue-500 transition-all duration-300",
+      "w-full !border-gray-300 !rounded-lg !outline-none !ring-0 hover:!border-cyan-500 transition-all duration-300",
     placeholder: "!text-gray-400",
     valueContainer: "!py-2 !px-5 !text-sm !text-gray-700",
   },
@@ -45,7 +45,7 @@ const style = tv({
 
     selected: {
       true: {
-        option: "!bg-blue-500 !text-white",
+        option: "!bg-cyan-500 !text-white",
       },
     },
   },

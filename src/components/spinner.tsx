@@ -12,7 +12,7 @@ const spinner = tv({
     variant: {
       gray: "text-gray-500",
       white: "text-white",
-      primary: "text-blue-500",
+      primary: "text-cyan-500",
     },
   },
   defaultVariants: {

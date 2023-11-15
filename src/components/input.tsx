@@ -41,7 +41,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={type()}
             className={cn(
-              "w-full border border-solid border-gray-300 rounded-lg py-3 pl-5 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-300 hover:border-blue-500",
+              "w-full border border-solid border-gray-300 rounded-lg py-3 pl-5 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-300 hover:border-cyan-500",
               isPassword ? "pr-12" : "pr-5"
             )}
           />
