@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useLazySearchQuery } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -19,14 +21,28 @@ const schema = z.object({
 type FormSchema = z.infer<typeof schema>
 
 const Page = () => {
+  const { push } = useRouter()
+  const searchParams = useSearchParams()
+  const search = searchParams.get("search")
+
   const methods = useForm<FormSchema>({
     resolver: zodResolver(schema),
+    values: {
+      search: search || "",
+    },
   })
 
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
 
+  useEffect(() => {
+    if (search) {
+      searchListings({ search: search || "" })
+    }
+  }, [])
+
   const onSearch = async ({ search }: FormSchema) => {
     await searchListings({ search })
+    push(`/app?search=${search}`)
   }
 
   return (
@@ -52,7 +68,7 @@ const Page = () => {
             />
 
             <div className="py-2 pr-6 pl-4 ml-4 flex items-center gap-4 border-l border-solid border-l-gray-400/20">
-              <Mic size={20} />
+              {/* <Mic size={20} /> */}
 
               {(isLoading || isFetching) && <Spinner variant="primary" />}
 

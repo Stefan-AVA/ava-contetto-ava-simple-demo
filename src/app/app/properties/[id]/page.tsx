@@ -58,7 +58,7 @@ const Property = ({ params }: PageProps) => {
   }, [data])
 
   return (
-    <div className="flex flex-col items-center justify-center border border-solid border-gray-300 rounded-xl p-4">
+    <div className="flex flex-col items-center justify-center lg:border lg:border-solid lg:border-gray-300 rounded-xl lg:p-4">
       {isLoading && (
         <div className="py-20">
           <Spinner variant="primary" />
@@ -70,13 +70,14 @@ const Property = ({ params }: PageProps) => {
           <div className="flex flex-col col-span-2">
             <div className="flex flex-col gap-3">
               {media.banner && (
-                <Image
-                  src={media.banner}
-                  alt=""
-                  width={980}
-                  height={452}
-                  className="rounded-xl w-full object-cover h-[28.25rem]"
-                />
+                <div className="w-full h-[250px] lg:h-[452px] relative overflow-hidden rounded-xl ">
+                  <Image
+                    src={media.banner}
+                    alt=""
+                    fill
+                    className="w-auto h-auto object-cover"
+                  />
+                </div>
               )}
 
               <Swiper
@@ -104,7 +105,7 @@ const Property = ({ params }: PageProps) => {
               </Swiper>
             </div>
 
-            <div className="flex flex-col py-4 px-3 md:p-8">
+            <div className="flex flex-col py-5 lg:px-3 md:p-8">
               <h1 className="text-4xl font-medium text-blue-800">
                 {formatMoney(data.ListPrice || data.ClosePrice)}
               </h1>
@@ -189,10 +190,10 @@ const Property = ({ params }: PageProps) => {
               style={{ border: 0 }}
               height={284}
               loading="lazy"
-              className="w-full"
+              className="w-full rounded-md"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
-            ></iframe>
+            />
           </div>
         </div>
       )}
