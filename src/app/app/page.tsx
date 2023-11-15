@@ -1,27 +1,16 @@
 "use client"
 
-import { useRef } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { useLazySearchQuery } from "@/redux/apis/search"
+import formatMoney from "@/utils/format-money"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Bath, BedDouble, Mic, Search, Send, Table2 } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import Spinner from "@/components/spinner"
-
-const houses = [
-  "/assets/house-1.jpg",
-  "/assets/house-2.jpg",
-  "/assets/house-3.jpg",
-  "/assets/house-4.jpg",
-  "/assets/house-5.jpg",
-  "/assets/house-6.jpg",
-  "/assets/house-7.jpg",
-  "/assets/house-8.jpg",
-]
 
 const schema = z.object({
   search: z.string().optional(),
@@ -83,50 +72,77 @@ const Page = () => {
         </FormProvider>
       </div>
 
-      <div className="grid gap-8 mt-16 grid-cols-1 md:mt-28 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {houses.map((house) => (
-          <Link
-            key={house}
-            href={"/app/houses/1" as Route}
-            className="border border-solid border-gray-300 rounded-xl"
-          >
-            <Image
-              src={house}
-              alt=""
-              width={276}
-              height={166}
-              className="w-full object-cover rounded-t-xl"
-            />
+      {listings && (
+        <div className="grid gap-8 mt-16 grid-cols-1 md:mt-28 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {listings.map(
+            ({
+              _id,
+              Media,
+              ListPrice,
+              ClosePrice,
+              BedroomsTotal,
+              UnparsedAddress,
+              BathroomsTotalInteger,
+              VIVA_AdditionalRentSqFt,
+            }) => {
+              const findMedia = Media.find(({ MediaURL }) => MediaURL)
 
-            <div className="flex flex-col p-3">
-              <h3 className="text-xl font-medium text-blue-800">$250,000</h3>
+              return (
+                <Link
+                  key={_id}
+                  href={`/app/properties/${_id}` as Route}
+                  className="border border-solid border-gray-300 rounded-xl"
+                >
+                  {findMedia && (
+                    <Image
+                      src={findMedia.MediaURL}
+                      alt=""
+                      width={276}
+                      height={166}
+                      className="w-full object-cover rounded-t-xl h-60"
+                    />
+                  )}
 
-              <div className="flex items-center gap-6 mt-2 mb-4">
-                <span className="flex items-center gap-1 text-xs text-gray-500">
-                  <BedDouble size={16} />2 Beds
-                </span>
+                  <div className="flex flex-col p-3">
+                    <h3 className="text-xl font-medium text-blue-800">
+                      {formatMoney(ListPrice || ClosePrice)}
+                    </h3>
 
-                <span className="flex items-center gap-1 text-xs text-gray-500">
-                  <Bath size={16} />2 Baths
-                </span>
+                    <div className="flex items-center gap-6 mt-2 mb-4">
+                      {BedroomsTotal > 0 && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <BedDouble size={16} />
+                          {`${BedroomsTotal} Beds`}
+                        </span>
+                      )}
 
-                <span className="flex items-center gap-1 text-xs text-gray-500">
-                  <Table2 size={16} />
-                  2000 sq ft
-                </span>
-              </div>
+                      {BathroomsTotalInteger > 0 && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Bath size={16} />
+                          {`${BathroomsTotalInteger} Baths`}
+                        </span>
+                      )}
 
-              <p className="text-sm text-blue-800">
-                2520 Wark St Victoria, BC V9T 5G6
-              </p>
-            </div>
+                      {VIVA_AdditionalRentSqFt && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Table2 size={16} />
+                          {`${VIVA_AdditionalRentSqFt} sq ft`}
+                        </span>
+                      )}
+                    </div>
 
-            <p className="p-3 text-blue-500 flex items-center justify-center w-full border-t border-solid border-t-gray-300">
-              View Listing
-            </p>
-          </Link>
-        ))}
-      </div>
+                    <p className="text-sm text-blue-800">{UnparsedAddress}</p>
+                  </div>
+
+                  <p className="p-3 text-blue-500 flex items-center justify-center w-full border-t border-solid border-t-gray-300">
+                    View Listing
+                  </p>
+                </Link>
+              )
+            }
+          )}
+        </div>
+      )}
     </div>
   )
 }
