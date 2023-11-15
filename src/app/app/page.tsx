@@ -23,10 +23,7 @@ const Page = () => {
     resolver: zodResolver(schema),
   })
 
-  const [searchListings, { data: listings, isLoading, isFetching }] =
-    useLazySearchQuery()
-
-  console.log({ listings })
+  const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
 
   const onSearch = async ({ search }: FormSchema) => {
     await searchListings({ search })
@@ -72,9 +69,9 @@ const Page = () => {
         </FormProvider>
       </div>
 
-      {listings && (
+      {data && (
         <div className="grid gap-8 mt-16 grid-cols-1 md:mt-28 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {listings.map(
+          {data.map(
             ({
               _id,
               Media,
