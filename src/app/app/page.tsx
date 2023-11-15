@@ -42,7 +42,7 @@ const Page = () => {
 
   const onSearch = async ({ search }: FormSchema) => {
     await searchListings({ search })
-    push(`/app?search=${search}`)
+    push(search ? `/app?search=${search}` : "/app")
   }
 
   return (
