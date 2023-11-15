@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import AuthLayout from "@/layouts/AuthLayout"
-import Logo from "~/assets/logo-ava.svg"
+import Logo from "~/assets/logo-ava.png"
 import { Mail } from "lucide-react"
 
 import Menu from "./Menu"

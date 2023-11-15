@@ -79,6 +79,7 @@ export default {
   content: [
     "src/app/*.tsx",
     "src/app/**/*.tsx",
+    "src/styles/*.scss",
     "src/layouts/*.tsx",
     "src/layouts/**/*.tsx",
     "src/components/*.tsx",

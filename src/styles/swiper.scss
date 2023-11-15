@@ -1,0 +1,11 @@
+.swiper {
+  &-pagination {
+    &-bullet {
+      @apply bg-white opacity-40 #{!important};
+
+      &-active {
+        @apply bg-white opacity-100 #{!important};
+      }
+    }
+  }
+}
