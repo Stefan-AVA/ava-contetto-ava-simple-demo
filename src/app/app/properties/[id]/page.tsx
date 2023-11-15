@@ -77,7 +77,7 @@ const Property = ({ params }: PageProps) => {
                   alt=""
                   width={980}
                   height={452}
-                  className="rounded-xl w-full object-cover"
+                  className="rounded-xl w-full object-cover h-[28.25rem]"
                 />
               )}
 
