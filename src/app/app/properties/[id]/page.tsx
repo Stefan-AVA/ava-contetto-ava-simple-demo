@@ -40,8 +40,6 @@ type PageProps = {
 const Property = ({ params }: PageProps) => {
   const { data, isLoading } = useGetListingQuery({ id: params.id })
 
-  console.log({ data })
-
   const media = useMemo(() => {
     if (data) {
       const banner = data.Media[0].MediaURL
