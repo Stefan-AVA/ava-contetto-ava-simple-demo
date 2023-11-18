@@ -7,13 +7,11 @@ import {
   type PropsWithChildren,
 } from "react"
 import { cn } from "@/utils/classname"
-import { useController } from "react-hook-form"
 import CustomPhoneInput, {
   type DefaultInputComponentProps,
   type Props,
   type State,
 } from "react-phone-number-input"
-import PhoneInputWithReactHookForm from "react-phone-number-input/react-hook-form"
 
 type CustomInputProps = Props<DefaultInputComponentProps>
 
@@ -27,10 +25,6 @@ interface WrapperProps
 }
 
 interface PhoneInputProps extends CustomInputProps, WrapperProps {}
-
-interface FormPhoneInputProps extends Omit<PhoneInputProps, "onChange"> {
-  name: string
-}
 
 function Wrapper({ error, label, children, className }: WrapperProps) {
   return (
@@ -46,7 +40,7 @@ function Wrapper({ error, label, children, className }: WrapperProps) {
   )
 }
 
-const PhoneInput = forwardRef<PhoneInputRef, PhoneInputProps>(
+export const PhoneInput = forwardRef<PhoneInputRef, PhoneInputProps>(
   ({ error, label, className, ...rest }, ref) => {
     const wrapper = {
       error,
@@ -68,34 +62,3 @@ const PhoneInput = forwardRef<PhoneInputRef, PhoneInputProps>(
 )
 
 PhoneInput.displayName = "PhoneInput"
-
-export function FormPhoneInput({
-  name,
-  error,
-  label,
-  className,
-  ...rest
-}: FormPhoneInputProps) {
-  const wrapper = {
-    error,
-    label,
-    className,
-  }
-
-  const {
-    field,
-    formState: { errors },
-  } = useController({ name })
-
-  return (
-    <Wrapper {...wrapper}>
-      <PhoneInputWithReactHookForm
-        error={errors[name]?.message as string}
-        international
-        defaultCountry="CA"
-        {...rest}
-        {...field}
-      />
-    </Wrapper>
-  )
-}

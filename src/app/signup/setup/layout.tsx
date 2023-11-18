@@ -1,25 +1,59 @@
 import type { PropsWithChildren } from "react"
 import Image from "next/image"
+import { Box, Stack, Typography } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <div className="flex flex-col">
-      <div className="py-3 flex items-center justify-between w-full px-8 border-b border-solid border-b-gray-300 md:px-16">
-        <Image src={Logo} alt="Logo Ava" className="w-auto h-8" />
-      </div>
+    <Stack>
+      <Stack
+        sx={{
+          py: 1.5,
+          px: {
+            xs: 3,
+            md: 8,
+          },
+          width: "100%",
+          alignItems: "center",
+          borderBottom: "1px solid",
+          justifyContent: "space-between",
+          borderBottomColor: "gray.300",
+        }}
+      >
+        <Box
+          sx={{ width: "auto", height: "2rem" }}
+          src={Logo}
+          alt="Logo Ava"
+          component={Image}
+        />
+      </Stack>
 
-      <div className="flex flex-col mx-auto max-w-2xl my-12 w-full px-6">
-        <h1 className="text-3xl text-center font-semibold text-gray-800">
+      <Stack
+        sx={{
+          my: 6,
+          px: 3,
+          mx: "auto",
+          width: "100%",
+          maxWidth: "42rem",
+        }}
+      >
+        <Typography
+          sx={{ color: "gray.800", textAlign: "center", fontWeight: 700 }}
+          variant="h3"
+          component="h1"
+        >
           Profile Setup
-        </h1>
+        </Typography>
 
-        <p className="text-center text-sm text-gray-600">
+        <Typography
+          sx={{ color: "gray.600", textAlign: "center" }}
+          variant="body2"
+        >
           Setup your profile to start today.
-        </p>
+        </Typography>
 
         {children}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   )
 }

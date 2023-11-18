@@ -9,14 +9,9 @@ import {
 import Image from "next/image"
 import { cn } from "@/utils/classname"
 import { Plus, UserCircle2 } from "lucide-react"
-import { useFormContext } from "react-hook-form"
 
 interface UploadProps extends ComponentProps<"input"> {
   error?: string
-}
-
-interface FormUploadProps extends UploadProps {
-  name: string
 }
 
 export const Upload = forwardRef<HTMLInputElement, UploadProps>(
@@ -75,18 +70,3 @@ export const Upload = forwardRef<HTMLInputElement, UploadProps>(
 )
 
 Upload.displayName = "Upload"
-
-export function FormUpload({ name, ...rest }: FormUploadProps) {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext()
-
-  return (
-    <Upload
-      {...rest}
-      {...register(name)}
-      error={errors[name]?.message as string}
-    />
-  )
-}

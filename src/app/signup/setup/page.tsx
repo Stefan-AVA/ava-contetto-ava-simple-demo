@@ -1,18 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import secrets from "@/constants/secrets"
 import { cn } from "@/utils/classname"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, useForm } from "react-hook-form"
+import { LoadingButton } from "@mui/lab"
+import { MenuItem, Stack, TextField, Typography } from "@mui/material"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import Button from "@/components/button"
-import { FormInput } from "@/components/input"
-import { FormPhoneInput } from "@/components/phone-input"
-import { FormSelect, schema as selectSchema } from "@/components/select"
-import { FormUpload } from "@/components/upload"
+import { PhoneInput } from "@/components/phone-input"
+import { schema as selectSchema } from "@/components/select"
+import { Upload } from "@/components/upload"
 
 import Steps from "./steps"
 
@@ -44,6 +44,12 @@ type SecondFormSchema = z.infer<typeof second>
 
 type FormSchema = FirstFormSchema & SecondFormSchema
 
+const options = [
+  { value: "industry-1", label: "Industry 1" },
+  { value: "industry-2", label: "Industry 2" },
+  { value: "industry-3", label: "Industry 3" },
+]
+
 export default function Setup() {
   const [step, setStep] = useState(1)
 
@@ -61,12 +67,10 @@ export default function Setup() {
     }
   }, [methods])
 
-  async function submit() {
-    const data = methods.getValues()
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
     if (step <= 2) return setStep((prev) => prev + 1)
-
-    console.log({ data })
 
     // Send request to backend.
 
@@ -74,89 +78,81 @@ export default function Setup() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-8 w-full">
+    <Stack
+      sx={{
+        mt: 5,
+        width: "100%",
+        alignItems: "center",
+      }}
+    >
       <Steps step={step} />
 
-      <div className="flex w-full mt-5 py-12 px-6 flex-col border border-solid border-gray-300 rounded-xl md:py-14 md:px-20">
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(submit)}>
-            <div className={cn("flex-col", step === 1 ? "flex" : "hidden")}>
-              <FormUpload name="avatar" className="mx-auto" />
+      <Stack
+        sx={{
+          mt: 2.5,
+          py: {
+            xs: 6,
+            md: 7,
+          },
+          px: {
+            xs: 3,
+            md: 10,
+          },
+          width: "100%",
+          border: "1px solid",
+          borderColor: "gray.300",
+          borderRadius: ".75rem",
+        }}
+        onSubmit={submit}
+        component="form"
+      >
+        {step === 1 && (
+          <Stack>
+            <Upload name="avatar" className="mx-auto" />
 
-              <FormInput
-                name="username"
-                label="User Name"
-                className="mt-7 mb-6"
-                placeholder="Enter your user name"
-              />
+            <TextField sx={{ mt: 3.5, mb: 3 }} label="User Name" />
 
-              <FormInput
-                name="name"
-                label="Full Name"
-                placeholder="Enter your full name"
-              />
+            <TextField label="Full Name" />
 
-              <FormPhoneInput
-                name="phone"
-                label="Phone Number"
-                className="my-6"
-                placeholder="Enter your phone number"
-              />
+            <PhoneInput
+              label="Phone Number"
+              className="my-6"
+              placeholder="Enter your phone number"
+            />
 
-              <FormInput
-                name="country"
-                label="Country"
-                placeholder="Enter your country"
-              />
-            </div>
+            <TextField label="Country" />
+          </Stack>
+        )}
 
-            <div
-              className={cn("flex-col gap-6", step === 2 ? "flex" : "hidden")}
-            >
-              <FormInput
-                name="company"
-                label="Company Name"
-                placeholder="Enter your company name"
-              />
+        {step === 2 && (
+          <Stack sx={{ gap: 3 }}>
+            <TextField label="Company Name" />
 
-              <FormSelect
-                name="industry"
-                label="Industry"
-                options={[
-                  { value: "industry-1", label: "Industry 1" },
-                  { value: "industry-2", label: "Industry 2" },
-                  { value: "industry-3", label: "Industry 3" },
-                ]}
-                placeholder="Enter the industry"
-              />
+            <TextField label="Industry" select>
+              {options.map(({ value, label }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ))}
+            </TextField>
 
-              <FormInput
-                name="headCount"
-                type="number"
-                label="Head Count"
-                placeholder="Enter the head count"
-              />
+            <TextField type="number" label="Head Count" />
 
-              <FormInput
-                name="companyAddress"
-                label="Company Address (Optional)"
-                placeholder="Enter the company address"
-              />
-            </div>
+            <TextField label="Company Address (Optional)" />
+          </Stack>
+        )}
 
-            <div className={cn(step === 3 ? "flex" : "hidden")}>
-              <p className="text-gray-800">
-                I agree to the Terms of Service and Privacy Policy of the AVA
-                platform to start using it.
-              </p>
-            </div>
+        {step === 3 && (
+          <Typography sx={{ color: "gray.800" }}>
+            I agree to the Terms of Service and Privacy Policy of the AVA
+            platform to start using it.
+          </Typography>
+        )}
 
-            <Button type="submit" className="mt-12 w-full">
-              {step === 3 ? "Confirm" : "Next"}
-            </Button>
-          </form>
-        </FormProvider>
-      </div>
-    </div>
+        <LoadingButton sx={{ mt: 6, width: "100%" }} type="submit">
+          {step === 3 ? "Confirm" : "Next"}
+        </LoadingButton>
+      </Stack>
+    </Stack>
   )
 }

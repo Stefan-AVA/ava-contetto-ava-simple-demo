@@ -1,4 +1,4 @@
-import { cn } from "@/utils/classname"
+import { Stack, Typography } from "@mui/material"
 
 interface StepsProps {
   step: number
@@ -6,31 +6,59 @@ interface StepsProps {
 
 export default function Steps({ step }: StepsProps) {
   return (
-    <div className="flex items-center w-full max-w-xl justify-between">
+    <Stack
+      sx={{
+        width: "100%",
+        maxWidth: "36rem",
+        alignItems: "center",
+        flexDirection: "row",
+        justifyContent: "space-between",
+      }}
+    >
       {[1, 2, 3].map((field, index) => (
-        <div
+        <Stack
+          sx={
+            index !== 0
+              ? {
+                  flex: 1,
+                  alignItems: "center",
+                  flexDirection: "row",
+                }
+              : undefined
+          }
           key={field}
-          className={cn("flex", index !== 0 ? "flex-1 items-center" : "")}
         >
           {index !== 0 && (
-            <span
-              className={cn(
-                "h-px flex w-full",
-                index + 1 <= step ? "bg-blue-500" : "bg-gray-300"
-              )}
+            <Stack
+              sx={{
+                width: "100%",
+                height: "1px",
+                bgcolor: index + 1 <= step ? "blue.500" : "gray.300",
+              }}
             />
           )}
 
-          <span
-            className={cn(
-              "flex items-center justify-center w-14 h-14 aspect-square rounded-full text-white font-semibold text-3xl leading-8 text-center",
-              index + 1 <= step ? "bg-blue-500" : "bg-gray-300"
-            )}
+          <Typography
+            sx={{
+              color: "white",
+              width: "3.5rem",
+              height: "3.5rem",
+              display: "flex",
+              bgcolor: index + 1 <= step ? "blue.500" : "gray.300",
+              textAlign: "center",
+              alignItems: "center",
+              lineHeight: "2rem",
+              fontWeight: 600,
+              aspectRatio: 1 / 1,
+              borderRadius: "50%",
+              justifyContent: "center",
+            }}
+            variant="h3"
           >
             {field}
-          </span>
-        </div>
+          </Typography>
+        </Stack>
       ))}
-    </div>
+    </Stack>
   )
 }
