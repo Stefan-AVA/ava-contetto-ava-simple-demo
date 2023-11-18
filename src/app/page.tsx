@@ -1,20 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { FormEvent, useState } from "react"
+import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import LoginLayout from "@/layouts/LoginLayout"
 import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
-import { zodResolver } from "@hookform/resolvers/zod"
+import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import { Box, Stack, TextField, Typography } from "@mui/material"
 import Background from "~/assets/signup-background.jpg"
-import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
-
-import { FormInput } from "@/components/input"
 
 const schema = z.object({
   username: z.string().min(1, "Enter your username"),
@@ -23,6 +21,10 @@ const schema = z.object({
 
 export type LoginFormSchema = z.infer<typeof schema>
 
+type FormError = LoginFormSchema & {
+  request?: string
+}
+
 interface PageProps {
   searchParams: {
     _next: string
@@ -30,32 +32,39 @@ interface PageProps {
 }
 
 export default function LoginPage({ searchParams }: PageProps) {
+  const [form, setForm] = useState<LoginFormSchema>({
+    username: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState<FormError | null>(null)
+
   const { push } = useRouter()
 
   const nextLink = searchParams._next
 
-  const [requestError, setRequestError] = useState("")
-
-  const methods = useForm<LoginFormSchema>({
-    resolver: zodResolver(schema),
-  })
-
   const [login, { isLoading }] = useLoginMutation()
 
-  const clearErrors = () => {
-    methods.clearErrors()
-    setRequestError("")
-  }
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  async function submit(data: LoginFormSchema) {
+    setErrors(null)
+
+    const response = schema.safeParse(form)
+
+    if (!response.success) {
+      const error = formatErrorZodMessage<LoginFormSchema>(response.error)
+
+      setErrors(error)
+
+      return
+    }
+
     try {
-      clearErrors()
-      await login(data).unwrap()
+      await login(form).unwrap()
 
-      push(nextLink ? (nextLink as any) : "/app")
+      push(nextLink ? (nextLink as Route) : "/app")
     } catch (error) {
-      console.log("signup error ==>", error)
-      setRequestError(parseError(error))
+      setErrors((prev) => ({ ...prev, request: parseError(error) }))
     }
   }
 
@@ -118,51 +127,53 @@ export default function LoginPage({ searchParams }: PageProps) {
             Login to your account
           </Typography>
 
-          <FormProvider {...methods}>
-            <Stack
-              sx={{ width: "100%" }}
-              onSubmit={methods.handleSubmit(submit)}
-              component="form"
+          <Stack sx={{ width: "100%" }} onSubmit={submit} component="form">
+            <TextField
+              sx={{ mb: 3 }}
+              label="Username"
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, username: target.value }))
+              }
+            />
+
+            <TextField
+              label="Password"
+              // isPassword
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, password: target.value }))
+              }
+            />
+
+            <Typography
+              sx={{
+                mt: 1.5,
+                color: "blue.500",
+                fontWeight: 700,
+              }}
+              href={
+                nextLink
+                  ? `/forgot-password?_next=${nextLink}`
+                  : "/forgot-password"
+              }
+              variant="body2"
+              component={Link}
             >
-              <TextField sx={{ mb: 3 }} name="username" label="Username" />
+              Forgot password?
+            </Typography>
 
-              <TextField
-                name="password"
-                label="Password"
-                // isPassword
-              />
+            <LoadingButton sx={{ mt: 4.5 }} type="submit" loading={isLoading}>
+              Sign In
+            </LoadingButton>
 
+            {errors && errors.request && (
               <Typography
-                sx={{
-                  mt: 1.5,
-                  color: "blue.500",
-                  fontWeight: 700,
-                }}
-                href={
-                  nextLink
-                    ? `/forgot-password?_next=${nextLink}`
-                    : "/forgot-password"
-                }
+                sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
                 variant="body2"
-                component={Link}
               >
-                Forgot password?
+                {errors.request}
               </Typography>
-
-              <LoadingButton sx={{ mt: 4.5 }} type="submit" loading={isLoading}>
-                Sign In
-              </LoadingButton>
-
-              {requestError && (
-                <Typography
-                  sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
-                  variant="body2"
-                >
-                  {requestError}
-                </Typography>
-              )}
-            </Stack>
-          </FormProvider>
+            )}
+          </Stack>
 
           <Typography
             sx={{
