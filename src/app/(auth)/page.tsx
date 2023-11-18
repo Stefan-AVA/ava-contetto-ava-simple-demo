@@ -92,7 +92,6 @@ export default function LoginPage({ searchParams }: PageProps) {
           type="password"
           label="Password"
           error={!!errors?.password}
-          // isPassword
           onChange={({ target }) =>
             setForm((prev) => ({ ...prev, password: target.value }))
           }
