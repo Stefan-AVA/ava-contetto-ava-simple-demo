@@ -8,9 +8,7 @@ export default function formatErrorZodMessage<T = {}>(error: ZodError<T>) {
   Object.entries(err).forEach(([key, value]) => {
     if (key === "_errors") return
 
-    console.log({ value })
-
-    response[key as keyof T] = value._errors[0]
+    response[key as keyof T] = (value as any)._errors[0]
   })
 
   return response
