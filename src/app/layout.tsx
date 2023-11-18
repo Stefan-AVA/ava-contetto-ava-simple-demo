@@ -2,15 +2,8 @@ import "@/styles/main.scss"
 
 import type { PropsWithChildren } from "react"
 import type { Metadata } from "next"
-import { DM_Sans } from "next/font/google"
 
-import Providers from "./Provider"
-
-const dmsans = DM_Sans({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-dmsans",
-})
+import Providers from "./providers"
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +23,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         />
       </head>
 
-      <body className={`${dmsans.variable} font-sans`}>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

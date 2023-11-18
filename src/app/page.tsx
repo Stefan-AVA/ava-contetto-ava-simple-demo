@@ -3,16 +3,17 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import LoginLayout from "@/layouts/LoginLayout"
 import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { LoadingButton } from "@mui/lab"
+import { Box, Stack, Typography } from "@mui/material"
 import Background from "~/assets/signup-background.jpg"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
-import Button from "@/components/button"
 import { FormInput } from "@/components/input"
 
 const schema = z.object({
@@ -22,12 +23,18 @@ const schema = z.object({
 
 export type LoginFormSchema = z.infer<typeof schema>
 
-const LoginPage = () => {
-  const { push } = useRouter()
-  const searchParams = useSearchParams()
-  const nextLink = searchParams.get("_next")
+interface PageProps {
+  searchParams: {
+    _next: string
+  }
+}
 
-  const [reqestError, setRequestError] = useState("")
+export default function LoginPage({ searchParams }: PageProps) {
+  const { push } = useRouter()
+
+  const nextLink = searchParams._next
+
+  const [requestError, setRequestError] = useState("")
 
   const methods = useForm<LoginFormSchema>({
     resolver: zodResolver(schema),
@@ -54,21 +61,68 @@ const LoginPage = () => {
 
   return (
     <LoginLayout>
-      <div className="flex flex-col min-h-screen h-full lg:flex-row">
-        <Image
+      <Stack
+        sx={{
+          height: "100%",
+          minHeight: "100vh",
+          flexDirection: {
+            xs: "column",
+            md: "row",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: {
+              xs: "100%",
+              md: "50%",
+            },
+            height: {
+              xs: "24rem",
+              md: "100%",
+            },
+            objectFit: "cover",
+            minHeight: {
+              md: "100vh",
+            },
+          }}
           src={Background}
           alt=""
-          className="w-full h-96 object-cover lg:h-full lg:min-h-screen lg:w-1/2"
+          priority
+          component={Image}
         />
-        <div className="flex px-6 py-10 flex-col items-center w-full md:p-20 lg:w-1/2 2xl:px-40">
-          <h1 className="text-3xl font-bold text-gray-800 mb-5">
+
+        <Stack
+          sx={{
+            px: {
+              xs: 3,
+              sm: 10,
+              lg: 20,
+            },
+            py: {
+              xs: 5,
+              sm: 10,
+            },
+            width: {
+              xs: "100%",
+              md: "50%",
+            },
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            sx={{ mb: 2.5, color: "gray.800", fontWeight: 700 }}
+            variant="h3"
+            component="h1"
+          >
             Login to your account
-          </h1>
+          </Typography>
 
           <FormProvider {...methods}>
-            <form
+            <Stack
+              sx={{ width: "100%" }}
               onSubmit={methods.handleSubmit(submit)}
-              className="flex flex-col w-full"
+              component="form"
             >
               <FormInput
                 name="username"
@@ -83,45 +137,60 @@ const LoginPage = () => {
                 isPassword
                 placeholder="Enter your password"
               />
-              <p className="text-sm text-gray-700 mt-3">
-                <Link
-                  href={
-                    nextLink
-                      ? `/forgot-password?_next=${nextLink}`
-                      : "/forgot-password"
-                  }
-                  className="font-bold text-blue-500"
-                >
-                  Forgot password?
-                </Link>
-              </p>
 
-              <Button type="submit" className="mt-9" loading={isLoading}>
+              <Typography
+                sx={{
+                  mt: 1.5,
+                  color: "blue.500",
+                  fontWeight: 700,
+                }}
+                href={
+                  nextLink
+                    ? `/forgot-password?_next=${nextLink}`
+                    : "/forgot-password"
+                }
+                variant="body2"
+                component={Link}
+              >
+                Forgot password?
+              </Typography>
+
+              <LoadingButton sx={{ mt: 4.5 }} type="submit" loading={isLoading}>
                 Sign In
-              </Button>
+              </LoadingButton>
 
-              {reqestError && (
-                <p className="text-sm text-center text-red-500 mt-3">
-                  {reqestError}
-                </p>
+              {requestError && (
+                <Typography
+                  sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
+                  variant="body2"
+                >
+                  {requestError}
+                </Typography>
               )}
-            </form>
+            </Stack>
           </FormProvider>
 
-          <p className="text-sm text-gray-700 mt-10 text-center">
+          <Typography
+            sx={{
+              mt: 5,
+              color: "gray.700",
+              textAlign: "center",
+            }}
+            variant="body2"
+          >
             {"Don't have an account? "}
-            <Link
+            <Typography
+              sx={{ color: "blue.500", fontWeight: 700 }}
               href={nextLink ? `/signup?_next=${nextLink}` : "/signup"}
-              className="font-bold text-blue-500"
+              variant="body2"
+              component={Link}
             >
               Sign up
-            </Link>{" "}
+            </Typography>{" "}
             your account.
-          </p>
-        </div>
-      </div>
+          </Typography>
+        </Stack>
+      </Stack>
     </LoginLayout>
   )
 }
-
-export default LoginPage
