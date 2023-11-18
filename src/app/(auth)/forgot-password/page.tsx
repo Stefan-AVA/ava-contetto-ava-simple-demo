@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import {
   useForgotPasswordConfirmMutation,
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage({ searchParams }: PageProps) {
         <>
           <Typography
             sx={{
-              mb: 2.5,
+              mb: 4,
               color: "gray.600",
               textAlign: "center",
             }}
@@ -169,7 +169,7 @@ export default function ForgotPasswordPage({ searchParams }: PageProps) {
           {form?.email && (
             <Typography
               sx={{
-                mb: 2.5,
+                mb: 4,
                 color: "gray.600",
                 textAlign: "center",
               }}

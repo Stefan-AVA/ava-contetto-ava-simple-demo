@@ -75,6 +75,11 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
             xs: "100%",
             md: "50%",
           },
+          height: {
+            xs: "100%",
+            md: "100vh",
+          },
+          overflowY: "auto",
           alignItems: "center",
         }}
       >

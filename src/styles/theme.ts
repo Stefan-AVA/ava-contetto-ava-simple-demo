@@ -129,6 +129,18 @@ const theme = createTheme({
       },
     },
 
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: palette.gray[400],
+
+          "&.Mui-checked": {
+            color: palette.cyan[600],
+          },
+        },
+      },
+    },
+
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -169,6 +181,16 @@ const theme = createTheme({
         color: "primary",
         variant: "contained",
         disableElevation: true,
+      },
+    },
+
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          color: palette.gray[800],
+          fontSize: ".875rem",
+          lineHeight: "1.5rem",
+        },
       },
     },
   },
