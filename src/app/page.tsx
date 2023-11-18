@@ -9,7 +9,7 @@ import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoadingButton } from "@mui/lab"
-import { Box, Stack, Typography } from "@mui/material"
+import { Box, Stack, TextField, Typography } from "@mui/material"
 import Background from "~/assets/signup-background.jpg"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -124,18 +124,12 @@ export default function LoginPage({ searchParams }: PageProps) {
               onSubmit={methods.handleSubmit(submit)}
               component="form"
             >
-              <FormInput
-                name="username"
-                label="Username"
-                className="mb-6"
-                placeholder="Enter your username"
-              />
+              <TextField sx={{ mb: 3 }} name="username" label="Username" />
 
-              <FormInput
+              <TextField
                 name="password"
                 label="Password"
-                isPassword
-                placeholder="Enter your password"
+                // isPassword
               />
 
               <Typography

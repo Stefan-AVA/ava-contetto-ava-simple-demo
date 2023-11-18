@@ -114,7 +114,7 @@ const theme = createTheme({
         },
 
         sizeMedium: {
-          height: "3rem",
+          height: "3.5rem",
           padding: ".75rem 1.5rem",
         },
 
@@ -125,6 +125,41 @@ const theme = createTheme({
           ":hover": {
             backgroundColor: palette.cyan[600],
           },
+        },
+      },
+    },
+
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: palette.gray[400],
+
+          "&.Mui-focused": {
+            color: palette.cyan[500],
+          },
+        },
+      },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: ".5rem",
+
+          ":hover": {
+            ".MuiOutlinedInput-notchedOutline": {
+              borderColor: `${palette.gray[400]}`,
+            },
+          },
+
+          "&.Mui-focused": {
+            ".MuiOutlinedInput-notchedOutline": {
+              borderColor: `${palette.cyan[500]}`,
+            },
+          },
+        },
+        notchedOutline: {
+          borderColor: palette.gray[300],
         },
       },
     },
