@@ -1,16 +1,12 @@
 "use client"
 
-import { useEffect, useState, type FormEvent } from "react"
+import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import secrets from "@/constants/secrets"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { LoadingButton } from "@mui/lab"
 import { MenuItem, Stack, TextField, Typography } from "@mui/material"
 import { MuiTelInput } from "mui-tel-input"
-import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { schema as selectSchema } from "@/components/select"
 import { Upload } from "@/components/upload"
 
 import Steps from "./steps"
@@ -25,7 +21,7 @@ const first = z.object({
 
 const second = z.object({
   company: z.string().min(1, "Enter your company name"),
-  industry: selectSchema("Select the industry"),
+  industry: z.string().min(1, "Select the industry"),
   headCount: z.string().min(1, "Enter the head count"),
   companyAddress: z.string().min(1, "Enter the company address"),
 })
@@ -53,18 +49,6 @@ export default function Setup() {
   const [step, setStep] = useState(1)
 
   const { replace } = useRouter()
-
-  const methods = useForm<FormSchema>({
-    resolver: zodResolver(schema[step as keyof typeof schema]),
-  })
-
-  useEffect(() => {
-    if (window !== undefined) {
-      const fullName = sessionStorage.getItem(secrets.fullName)
-
-      if (fullName) methods.setValue("name", fullName)
-    }
-  }, [methods])
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()

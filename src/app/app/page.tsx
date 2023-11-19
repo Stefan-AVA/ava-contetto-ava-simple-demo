@@ -140,7 +140,7 @@ export default function Page({ searchParams }: PageProps) {
               const findMedia = Media.find(({ MediaURL }) => MediaURL)
 
               return (
-                <Grid xs={12} sm={6} md={4} lg={3} key={_id}>
+                <Grid xs={12} sm={6} md={4} xl={3} key={_id}>
                   <Stack
                     sx={{
                       border: "1px solid",

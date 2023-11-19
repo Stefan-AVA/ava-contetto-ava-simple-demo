@@ -174,6 +174,22 @@ const theme = createTheme({
       },
     },
 
+    MuiCssBaseline: {
+      styleOverrides: {
+        ".swiper": {
+          "&-pagination-bullet": {
+            opacity: ".4 !important",
+            backgroundColor: `${palette.white} !important`,
+
+            "&-active": {
+              opacity: "1 !important",
+              backgroundColor: `${palette.white} !important`,
+            },
+          },
+        },
+      },
+    },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
