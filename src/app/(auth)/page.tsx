@@ -16,6 +16,11 @@ const schema = z.object({
   password: z.string().min(1, "Enter your password"),
 })
 
+const initialForm = {
+  username: "",
+  password: "",
+}
+
 export type LoginFormSchema = z.infer<typeof schema>
 
 type FormError = LoginFormSchema & {
@@ -29,10 +34,7 @@ interface PageProps {
 }
 
 export default function LoginPage({ searchParams }: PageProps) {
-  const [form, setForm] = useState<LoginFormSchema>({
-    username: "",
-    password: "",
-  })
+  const [form, setForm] = useState<LoginFormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
   const { push } = useRouter()
@@ -57,7 +59,7 @@ export default function LoginPage({ searchParams }: PageProps) {
     }
 
     try {
-      await login(form).unwrap()
+      await login(response.data).unwrap()
 
       push(nextLink ? (nextLink as Route) : "/app")
     } catch (error) {

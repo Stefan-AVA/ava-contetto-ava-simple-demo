@@ -4,13 +4,18 @@ import { useState } from "react"
 import { useInviteContactMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, useForm } from "react-hook-form"
+import { LoadingButton } from "@mui/lab"
+import {
+  Unstable_Grid2 as Grid,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { IAgentProfile } from "@/types/agentProfile.types"
-import { IContact } from "@/types/contact.types"
-import Button from "@/components/button"
-import { FormInput } from "@/components/input"
+import type { IAgentProfile } from "@/types/agentProfile.types"
+import type { IContact } from "@/types/contact.types"
 
 const inviteContactSchema = z.object({
   email: z
@@ -26,7 +31,7 @@ interface IMyContacts {
   contacts: IContact[]
 }
 
-const MyContacts = ({ me, contacts = [] }: IMyContacts) => {
+export default function MyContacts({ me, contacts = [] }: IMyContacts) {
   const [reqestError, setRequestError] = useState("")
 
   const orgMethods = useForm<InviteContactSchema>({
@@ -40,7 +45,7 @@ const MyContacts = ({ me, contacts = [] }: IMyContacts) => {
     setRequestError("")
   }
 
-  const onSubmit = async (data: InviteContactSchema) => {
+  async function submit(data: InviteContactSchema) {
     try {
       clearErrors()
 
@@ -55,41 +60,66 @@ const MyContacts = ({ me, contacts = [] }: IMyContacts) => {
   }
 
   return (
-    <div className="flex flex-col py-5 gap-6">
-      <h3 className="font-bold text-lg mb-1">Invite a contact</h3>
+    <Stack sx={{ gap: 3 }}>
+      <Typography sx={{ fontWeight: 700 }} variant="h6">
+        Invite a contact
+      </Typography>
 
-      <FormProvider {...orgMethods}>
-        <form
-          onSubmit={orgMethods.handleSubmit(onSubmit)}
-          className="flex flex-col w-full gap-6 max-w-[500px]"
-        >
-          <FormInput name="email" label="Email" placeholder="Enter the email" />
-          <Button type="submit" loading={isLoading}>
-            Invite
-          </Button>
-        </form>
-      </FormProvider>
+      <Stack
+        sx={{
+          gap: 3,
+          width: "100%",
+          maxWidth: "32rem",
+        }}
+        onSubmit={submit}
+        component="form"
+      >
+        <TextField label="Email" />
+
+        <LoadingButton type="submit" loading={isLoading}>
+          Invite
+        </LoadingButton>
+      </Stack>
 
       {reqestError && (
         <p className="text-sm text-center text-red-500 mt-3">{reqestError}</p>
       )}
 
-      <h3 className="font-bold text-lg mb-2 mt-6 pt-6 border-t border-solid border-t-gray-300">
+      <Typography
+        sx={{
+          pt: 3,
+          borderTop: "1px solid",
+          fontWeight: 700,
+          borderTopColor: "gray.300",
+        }}
+        variant="h6"
+      >
         Contacts
-      </h3>
+      </Typography>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
+      <Grid spacing={2} container>
         {contacts.map(({ _id, username }) => (
-          <div
+          <Grid
+            sx={{
+              p: 3,
+              gap: 1,
+              width: "100%",
+              border: "1px solid",
+              display: "flex",
+              alignItems: "center",
+              borderColor: "gray.300",
+              borderRadius: ".5rem",
+            }}
+            xs={12}
+            md={4}
             key={_id}
-            className="flex items-center p-6 border border-solid border-gray-300 rounded-lg"
           >
-            <span className="text-base font-bold capitalize">{username}</span>
-          </div>
+            <Typography sx={{ fontWeight: 700, textTransform: "uppercase" }}>
+              {username}
+            </Typography>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   )
 }
-
-export default MyContacts

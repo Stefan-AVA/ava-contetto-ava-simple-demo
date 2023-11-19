@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Box, Stack, Typography } from "@mui/material"
 import { ChevronLeft } from "lucide-react"
 
-import OrgInfo from "../[id]/OrgInfo"
+import OrgInfo from "../[id]/org-info"
 
 const CreateOrgPage = () => {
   return (

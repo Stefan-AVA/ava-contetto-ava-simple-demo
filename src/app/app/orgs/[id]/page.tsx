@@ -9,9 +9,9 @@ import { TabContext, TabList, TabPanel } from "@mui/lab"
 import { Box, CircularProgress, Stack, Tab, Typography } from "@mui/material"
 import { ChevronLeft } from "lucide-react"
 
-import MyContacts from "./Contacts"
-import OrgMembers from "./Members"
-import OrgInfo from "./OrgInfo"
+import MyContacts from "./contacts"
+import OrgMembers from "./members"
+import OrgInfo from "./org-info"
 
 type PageProps = {
   params: {
