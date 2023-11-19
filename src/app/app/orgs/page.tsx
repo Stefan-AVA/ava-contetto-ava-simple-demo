@@ -1,71 +1,148 @@
 "use client"
 
+import { Route } from "next"
 import Link from "next/link"
 import { useGetOrgsQuery } from "@/redux/apis/org"
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 import { ArrowRight } from "lucide-react"
 
-import Button from "@/components/button"
-import Spinner from "@/components/spinner"
-
-const Page = () => {
+export default function Page() {
   const { data, isLoading } = useGetOrgsQuery()
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex w-full items-center justify-between">
-        <h1 className="text-2xl font-medium text-blue-800">
+    <Stack sx={{ gap: 3 }}>
+      <Stack
+        sx={{
+          width: "100%",
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography
+          sx={{ color: "gray.800", fontWeight: 500 }}
+          variant="h4"
+          component="h1"
+        >
           Your Organizations
-        </h1>
+        </Typography>
 
         <Link href="/app/orgs/create">
           <Button className="w-fit">Create</Button>
         </Link>
-      </div>
+      </Stack>
 
       {isLoading && (
-        <div className="w-full flex justify-center">
-          <Spinner variant="primary" />
-        </div>
+        <Stack
+          sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}
+        >
+          <CircularProgress size="1.25rem" />
+        </Stack>
       )}
 
       {data && (
-        <div className="flex flex-col gap-2">
+        <Stack sx={{ gap: 1 }}>
           {(data.agentProfiles || []).map(({ _id, org, role, orgId }) => (
-            <Link
-              key={_id}
-              href={`/app/orgs/${orgId}`}
-              className="flex group items-center justify-between border border-solid border-gray-300 rounded-lg p-6"
-            >
-              <div className="flex items-center gap-2">
-                <span className="font-bold capitalize">{org?.name}</span>
-                <span className="text-xs text-gray-500">({role})</span>
-              </div>
+            <Stack
+              sx={{
+                p: 3,
+                border: "1px solid",
+                alignItems: "center",
+                borderColor: "gray.300",
+                borderRadius: ".5rem",
+                flexDirection: "row",
+                justifyContent: "space-between",
 
-              <ArrowRight className="transition-colors duration-300 group-hover:text-cyan-500" />
-            </Link>
+                ":hover": {
+                  ".arrow-right": {
+                    color: "cyan.500",
+                  },
+                },
+              }}
+              key={_id}
+              href={`/app/orgs/${orgId}` as Route}
+              component={Link}
+            >
+              <Stack
+                sx={{
+                  gap: 1,
+                  alignItems: "center",
+                  flexDirection: "row",
+                }}
+              >
+                <Typography
+                  sx={{ fontWeight: 700, textTransform: "uppercase" }}
+                >
+                  {org?.name}
+                </Typography>
+
+                <Typography
+                  sx={{ color: "gray.500" }}
+                  variant="caption"
+                  component="span"
+                >
+                  ({role})
+                </Typography>
+              </Stack>
+
+              <Box
+                sx={{ transition: "all .3s ease-in-out" }}
+                component={ArrowRight}
+                className="arrow-right"
+              />
+            </Stack>
           ))}
 
           {(data.contacts || []).map(({ _id, org, agent }) => (
-            <div
-              key={_id}
-              className="flex items-center justify-between border border-solid border-gray-300 rounded-lg p-6"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-base font-bold capitalize">
-                  {org?.name}
-                </span>
-                <span className="text-xs text-gray-500">{`(contact of ${agent?.username})`}</span>
-              </div>
+            <Stack
+              sx={{
+                p: 3,
+                border: "1px solid",
+                alignItems: "center",
+                borderColor: "gray.300",
+                borderRadius: ".5rem",
+                flexDirection: "row",
+                justifyContent: "space-between",
 
-              {/* <Link href={`/app/contacts/${_id}`}>
-                <ArrowRight />
-              </Link> */}
-            </div>
+                ":hover": {
+                  ".arrow-right": {
+                    color: "cyan.500",
+                  },
+                },
+              }}
+              key={_id}
+            >
+              <Stack
+                sx={{
+                  gap: 1,
+                  alignItems: "center",
+                  flexDirection: "row",
+                }}
+              >
+                <Typography
+                  sx={{ fontWeight: 700, textTransform: "uppercase" }}
+                >
+                  {org?.name}
+                </Typography>
+
+                <Typography
+                  sx={{ color: "gray.500" }}
+                  variant="caption"
+                  component="span"
+                >
+                  {`(contact of ${agent?.username})`}
+                </Typography>
+              </Stack>
+
+              {/* <Box
+                sx={{ transition: "all .3s ease-in-out" }}
+                component={ArrowRight}
+                className="arrow-right"
+              /> */}
+            </Stack>
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   )
 }
-
-export default Page

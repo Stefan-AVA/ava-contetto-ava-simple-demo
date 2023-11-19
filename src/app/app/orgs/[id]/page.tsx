@@ -1,16 +1,13 @@
 "use client"
 
-import "react-tabs/style/react-tabs.css"
-
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useGetContactsQuery } from "@/redux/apis/agent"
 import { useGetMembersQuery, useGetOrgQuery } from "@/redux/apis/org"
+import { TabContext, TabList, TabPanel } from "@mui/lab"
+import { Box, CircularProgress, Stack, Tab, Typography } from "@mui/material"
 import { ChevronLeft } from "lucide-react"
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs"
-
-import Spinner from "@/components/spinner"
 
 import MyContacts from "./Contacts"
 import OrgMembers from "./Members"
@@ -23,6 +20,8 @@ type PageProps = {
 }
 
 const Page = ({ params: { id } }: PageProps) => {
+  const [tab, setTab] = useState("1")
+
   const { replace } = useRouter()
 
   const {
@@ -30,6 +29,7 @@ const Page = ({ params: { id } }: PageProps) => {
     isError,
     isLoading,
   } = useGetOrgQuery({ id }, { skip: !id })
+
   const { data: members = [] } = useGetMembersQuery({ id }, { skip: !id })
   const { data: contacts = [] } = useGetContactsQuery(
     { id: orgData?.agentProfile._id as string },
@@ -41,48 +41,70 @@ const Page = ({ params: { id } }: PageProps) => {
   }, [id, replace, isError])
 
   return (
-    <div className="flex flex-col gap-10">
+    <Stack sx={{ gap: 5 }}>
       {isLoading && (
-        <div className="w-full flex justify-center">
-          <Spinner variant="primary" />
-        </div>
+        <Stack
+          sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}
+        >
+          <CircularProgress size="1.25rem" />
+        </Stack>
       )}
 
       {orgData && (
         <>
-          <div className="flex w-full gap-2 items-center">
-            <Link
+          <Stack
+            sx={{
+              gap: 1,
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            <Box
+              sx={{
+                color: "gray.400",
+                transition: "all .3s ease-in-out",
+
+                ":hover": {
+                  color: "cyan.500",
+                },
+              }}
               href="/app/orgs"
-              className="text-gray-400 transition-colors duration-300 hover:text-cyan-500"
+              component={Link}
             >
               <ChevronLeft size={20} />
-            </Link>
+            </Box>
 
-            <h1 className="text-2xl font-medium text-blue-800 capitalize">
+            <Typography
+              sx={{ color: "blue.800", fontWeight: 500 }}
+              variant="h4"
+              component="h1"
+            >
               {orgData.org.name}
-            </h1>
-          </div>
+            </Typography>
+          </Stack>
 
-          <Tabs>
-            <TabList>
-              <Tab>Info</Tab>
-              <Tab>Members</Tab>
-              <Tab>My Contacts</Tab>
-            </TabList>
+          <TabContext value={tab}>
+            <Box sx={{ borderBottom: 1, borderColor: "gray.300" }}>
+              <TabList onChange={(_, value) => setTab(value)}>
+                <Tab label="Info" value="1" />
+                <Tab label="Members" value="2" />
+                <Tab label="My contacts" value="3" />
+              </TabList>
+            </Box>
 
-            <TabPanel>
+            <TabPanel value="1">
               <OrgInfo org={orgData.org} role={orgData.agentProfile.role} />
             </TabPanel>
-            <TabPanel>
+            <TabPanel value="2">
               <OrgMembers me={orgData.agentProfile} members={members} />
             </TabPanel>
-            <TabPanel>
+            <TabPanel value="3">
               <MyContacts me={orgData.agentProfile} contacts={contacts} />
             </TabPanel>
-          </Tabs>
+          </TabContext>
         </>
       )}
-    </div>
+    </Stack>
   )
 }
 

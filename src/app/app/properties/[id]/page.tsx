@@ -81,7 +81,7 @@ export default function Property({ params }: PageProps) {
     >
       {isLoading && (
         <Stack sx={{ py: 10 }}>
-          <CircularProgress />
+          <CircularProgress size="1.25rem" />
         </Stack>
       )}
 

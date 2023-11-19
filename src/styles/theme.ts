@@ -105,6 +105,7 @@ const theme = createTheme({
       defaultProps: {
         color: "primary",
         variant: "contained",
+        disableElevation: true,
       },
 
       styleOverrides: {
