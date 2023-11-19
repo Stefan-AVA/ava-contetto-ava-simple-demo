@@ -3,14 +3,13 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import secrets from "@/constants/secrets"
-import { cn } from "@/utils/classname"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoadingButton } from "@mui/lab"
 import { MenuItem, Stack, TextField, Typography } from "@mui/material"
+import { MuiTelInput } from "mui-tel-input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { PhoneInput } from "@/components/phone-input"
 import { schema as selectSchema } from "@/components/select"
 import { Upload } from "@/components/upload"
 
@@ -114,10 +113,10 @@ export default function Setup() {
 
             <TextField label="Full Name" />
 
-            <PhoneInput
+            <MuiTelInput
+              sx={{ my: 3 }}
               label="Phone Number"
-              className="my-6"
-              placeholder="Enter your phone number"
+              defaultCountry="CA"
             />
 
             <TextField label="Country" />
