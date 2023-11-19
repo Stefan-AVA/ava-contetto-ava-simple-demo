@@ -184,6 +184,14 @@ const theme = createTheme({
       },
     },
 
+    MuiCircularProgress: {
+      styleOverrides: {
+        root: {
+          color: palette.cyan[500],
+        },
+      },
+    },
+
     MuiFormControlLabel: {
       styleOverrides: {
         label: {

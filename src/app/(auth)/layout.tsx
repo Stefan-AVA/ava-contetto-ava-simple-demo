@@ -1,6 +1,6 @@
 "use client"
 
-import { PropsWithChildren, useCallback, useEffect } from "react"
+import { useEffect, type PropsWithChildren } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
@@ -15,18 +15,18 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
 
   const [getme] = useLazyGetMeQuery()
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const user = await getme().unwrap()
-
-      dispatch(setUser(user))
-      replace("/app")
-    } catch (error) {}
-  }, [getme, dispatch, replace])
-
   useEffect(() => {
-    checkAuth()
-  }, [])
+    async function run() {
+      try {
+        const user = await getme().unwrap()
+
+        dispatch(setUser(user))
+        replace("/app")
+      } catch (error) {}
+    }
+
+    run()
+  }, [getme, dispatch, replace])
 
   return (
     <Stack
