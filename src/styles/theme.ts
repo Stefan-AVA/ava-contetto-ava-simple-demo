@@ -101,6 +101,26 @@ const theme = createTheme({
     fontFamily: dmsans.style.fontFamily,
   },
   components: {
+    MuiTab: {
+      styleOverrides: {
+        textColorPrimary: {
+          color: palette.gray[500],
+
+          "&.Mui-selected": {
+            color: palette.cyan[500],
+          },
+        },
+      },
+    },
+
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          backgroundColor: palette.cyan[500],
+        },
+      },
+    },
+
     MuiButton: {
       defaultProps: {
         color: "primary",
