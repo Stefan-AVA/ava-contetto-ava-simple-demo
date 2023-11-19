@@ -1,8 +1,8 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IListing } from "@/types/listing.types"
+import type { IListing } from "@/types/listing.types"
 
-import { fetchAuthQuery } from "../fetchAuthQuery"
+import { fetchAuthQuery } from "../fetch-auth-query"
 import { IRequestWithId } from "./org"
 
 interface ISearchRequest {

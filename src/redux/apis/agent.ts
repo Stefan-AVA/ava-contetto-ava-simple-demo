@@ -1,9 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IContact } from "@/types/contact.types"
+import type { IContact } from "@/types/contact.types"
 
-import { fetchAuthQuery } from "../fetchAuthQuery"
-import { IRequestWithId } from "./org"
+import { fetchAuthQuery } from "../fetch-auth-query"
+import type { IRequestWithId } from "./org"
 
 export const agentApi = createApi({
   reducerPath: "agentApi",

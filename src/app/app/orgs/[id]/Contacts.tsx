@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { useInviteContactMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
-import { zodResolver } from "@hookform/resolvers/zod"
+import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import {
   Unstable_Grid2 as Grid,
@@ -11,7 +11,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
@@ -24,7 +23,15 @@ const inviteContactSchema = z.object({
     .min(1, "Enter your email"),
 })
 
+const initialForm = {
+  email: "",
+}
+
 export type InviteContactSchema = z.infer<typeof inviteContactSchema>
+
+type FormError = InviteContactSchema & {
+  request?: string
+}
 
 interface IMyContacts {
   me?: IAgentProfile
@@ -32,30 +39,35 @@ interface IMyContacts {
 }
 
 export default function MyContacts({ me, contacts = [] }: IMyContacts) {
-  const [reqestError, setRequestError] = useState("")
-
-  const orgMethods = useForm<InviteContactSchema>({
-    resolver: zodResolver(inviteContactSchema),
-  })
+  const [form, setForm] = useState<InviteContactSchema>(initialForm)
+  const [errors, setErrors] = useState<FormError | null>(null)
 
   const [invite, { isLoading }] = useInviteContactMutation()
 
-  const clearErrors = () => {
-    orgMethods.clearErrors()
-    setRequestError("")
-  }
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  async function submit(data: InviteContactSchema) {
+    setErrors(null)
+
+    const response = inviteContactSchema.safeParse(form)
+
+    if (!response.success) {
+      const error = formatErrorZodMessage<InviteContactSchema>(response.error)
+
+      setErrors(error)
+
+      return
+    }
+
     try {
-      clearErrors()
-
       await invite({
         id: me?.orgId as string,
-        email: data.email,
+        email: response.data.email,
       }).unwrap()
     } catch (error) {
-      console.log("Invite error ==>", error)
-      setRequestError(parseError(error))
+      setErrors(
+        (prev) => ({ ...prev, request: parseError(error) }) as FormError
+      )
     }
   }
 
@@ -74,15 +86,27 @@ export default function MyContacts({ me, contacts = [] }: IMyContacts) {
         onSubmit={submit}
         component="form"
       >
-        <TextField label="Email" />
+        <TextField
+          label="Email"
+          error={!!errors?.email}
+          onChange={({ target }) =>
+            setForm((prev) => ({ ...prev, email: target.value }))
+          }
+          helperText={errors?.email}
+        />
 
         <LoadingButton type="submit" loading={isLoading}>
           Invite
         </LoadingButton>
       </Stack>
 
-      {reqestError && (
-        <p className="text-sm text-center text-red-500 mt-3">{reqestError}</p>
+      {errors && errors.request && (
+        <Typography
+          sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
+          variant="body2"
+        >
+          {errors.request}
+        </Typography>
       )}
 
       <Typography

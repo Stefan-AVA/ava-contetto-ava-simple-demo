@@ -1,9 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
-import { IUser } from "@/types/user.types"
+import type { IUser } from "@/types/user.types"
 
 import { authApi } from "../apis/auth"
-import { clearToken } from "../fetchAuthQuery"
+import { clearToken } from "../fetch-auth-query"
 
 interface IAppState {
   user: IUser | null

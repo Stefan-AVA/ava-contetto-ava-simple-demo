@@ -1,11 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IUser } from "@/types/user.types"
-import { ForgotPasswordFormSchema } from "@/app/forgot-password/page"
-import { LoginFormSchema } from "@/app/page"
-import { SingupFormSchema } from "@/app/signup/page"
+import type { IUser } from "@/types/user.types"
+import { ForgotPasswordFormSchema } from "@/app/(auth)/forgot-password/page"
+import { LoginFormSchema } from "@/app/(auth)/page"
+import { SingupFormSchema } from "@/app/(auth)/signup/page"
 
-import { fetchAuthQuery } from "../fetchAuthQuery"
+import { fetchAuthQuery } from "../fetch-auth-query"
 
 export interface IBaseResponse {
   msg: string

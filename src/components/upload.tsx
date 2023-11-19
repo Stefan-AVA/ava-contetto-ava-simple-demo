@@ -7,15 +7,16 @@ import {
   type ComponentProps,
 } from "react"
 import Image from "next/image"
-import { cn } from "@/utils/classname"
+import { Box, Stack, Typography, type SxProps } from "@mui/material"
 import { Plus, UserCircle2 } from "lucide-react"
 
 interface UploadProps extends ComponentProps<"input"> {
+  sx?: SxProps
   error?: string
 }
 
 export const Upload = forwardRef<HTMLInputElement, UploadProps>(
-  ({ error, className, ...rest }, ref) => {
+  ({ sx, error, className, ...rest }, ref) => {
     const [preview, setPreview] = useState<string | null>(null)
 
     function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -33,38 +34,99 @@ export const Upload = forwardRef<HTMLInputElement, UploadProps>(
     }
 
     return (
-      <div
-        className={cn("flex w-fit flex-col cursor-pointer relative", className)}
+      <Stack
+        sx={{
+          width: "fit-content",
+          cursor: "pointer",
+          position: "relative",
+          ...sx,
+        }}
       >
-        <div className="flex flex-col items-center justify-center pointer-events-none bg-gray-300 w-28 h-28 rounded-full aspect-square relative">
+        <Stack
+          sx={{
+            width: "7rem",
+            height: "7rem",
+            bgcolor: "gray.300",
+            position: "relative",
+            alignItems: "center",
+            aspectRatio: 1 / 1,
+            borderRadius: "50%",
+            pointerEvents: "none",
+            justifyContent: "center",
+          }}
+        >
           {preview && (
-            <Image
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                userSelect: "none",
+                borderRadius: "50%",
+                pointerEvents: "none",
+              }}
               src={preview}
               alt=""
               fill
-              className="w-full h-full object-cover rounded-full pointer-events-none select-none"
+              component={Image}
             />
           )}
 
           {!preview && (
-            <UserCircle2 size={64} strokeWidth={1.5} className="text-white" />
+            <Box
+              sx={{ color: "white" }}
+              size={64}
+              component={UserCircle2}
+              strokeWidth={1.5}
+            />
           )}
 
-          <div className="flex items-center justify-center absolute bottom-0 right-0 bg-gray-300 text-white rounded-full w-7 h-7 border border-solid border-white">
+          <Stack
+            sx={{
+              color: "white",
+              width: "1.75rem",
+              right: 0,
+              border: "1px solid",
+              height: "1.75rem",
+              bottom: 0,
+              bgcolor: "gray.300",
+              position: "absolute",
+              alignItems: "center",
+              borderColor: "white",
+              borderRadius: "50%",
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+          >
             <Plus size={20} />
-          </div>
-        </div>
+          </Stack>
+        </Stack>
 
         <input
           ref={ref}
           {...rest}
           type="file"
+          style={{
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            cursor: "pointer",
+            opacity: 0,
+            position: "absolute",
+          }}
           onChange={onChange}
-          className="top-0 left-0 w-full h-full absolute opacity-0 cursor-pointer"
         />
 
-        {error && <p className="text-sm mt-1 text-red-500">{error}</p>}
-      </div>
+        {error && (
+          <Typography
+            sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
+            variant="body2"
+          >
+            {error}
+          </Typography>
+        )}
+      </Stack>
     )
   }
 )
