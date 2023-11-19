@@ -1,97 +1,109 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { usePostMeMutation } from "@/redux/apis/auth"
 import { setUser } from "@/redux/slices/app"
 import { RootState, useAppDispatch } from "@/redux/store"
 import { parseError } from "@/utils/error"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, useForm } from "react-hook-form"
+import formatErrorZodMessage from "@/utils/format-error-zod"
+import { LoadingButton } from "@mui/lab"
+import { Stack, TextField } from "@mui/material"
 import { useSelector } from "react-redux"
 import { z } from "zod"
 
 import { IUser } from "@/types/user.types"
-import Button from "@/components/button"
-import { FormInput } from "@/components/input"
-
-// import { FormPhoneInput } from "@/components/phone-input"
-// import { FormUpload } from "@/components/upload"
 
 const schema = z.object({
   name: z.string().min(1, "Enter your full name"),
-  // phone: z.string().min(1, "Enter your phone number"),
-  // avatar: z.custom<FileList>(),
-  // country: z.string().min(1, "Enter your country"),
 })
+
+const initialForm = {
+  name: "",
+}
 
 export type ProfileFormSchema = z.infer<typeof schema>
 
-const Page = () => {
-  const dispatch = useAppDispatch()
+type FormError = ProfileFormSchema & {
+  request?: string
+}
 
-  const [reqestError, setRequestError] = useState("")
+export default function Page() {
+  const [form, setForm] = useState<ProfileFormSchema>(initialForm)
+  const [errors, setErrors] = useState<FormError | null>(null)
+
+  const dispatch = useAppDispatch()
 
   const user = useSelector((state: RootState) => state.app.user)
 
-  const methods = useForm<ProfileFormSchema>({
-    resolver: zodResolver(schema),
-    values: {
-      name: user?.name || "",
-    },
-  })
-
   const [updateProfile, { isLoading }] = usePostMeMutation()
 
-  const clearErrors = () => {
-    methods.clearErrors()
-    setRequestError("")
-  }
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        name: user.name || "",
+      }))
+    }
+  }, [user])
 
-  const submit = async (data: ProfileFormSchema) => {
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    setErrors(null)
+
+    const response = schema.safeParse(form)
+
+    if (!response.success) {
+      const error = formatErrorZodMessage<ProfileFormSchema>(response.error)
+
+      setErrors(error)
+
+      return
+    }
+
     try {
-      clearErrors()
       const updatedUser = await updateProfile({
         ...(user as IUser),
-        name: data.name,
+        name: form.name,
       }).unwrap()
 
       dispatch(setUser(updatedUser))
     } catch (error) {
-      console.log("signup error ==>", error)
-      setRequestError(parseError(error))
+      setErrors(
+        (prev) => ({ ...prev, request: parseError(error) }) as FormError
+      )
     }
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="flex w-full max-w-[500px] flex-col">
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(submit)}>
-            {/* <FormUpload name="avatar" className="mx-auto" /> */}
+    <Stack sx={{ width: "100%", alignItems: "center" }}>
+      <Stack
+        sx={{ width: "100%", maxWidth: "32rem" }}
+        onSubmit={submit}
+        component="form"
+      >
+        <TextField label="Username" value={user?.username || ""} disabled />
 
-            <FormInput
-              name="username"
-              label="Username"
-              className="mt-7 mb-6"
-              disabled
-              value={user?.username || ""}
-            />
+        <TextField
+          sx={{ mt: 2 }}
+          label="Display Name"
+          value={form.name}
+          error={!!errors?.name}
+          onChange={({ target }) =>
+            setForm((prev) => ({ ...prev, name: target.value }))
+          }
+          helperText={errors?.name}
+        />
 
-            <FormInput
-              name="name"
-              label="Display Name"
-              className="mt-7 mb-6"
-              placeholder="Enter your name"
-            />
-
-            <Button type="submit" className="mt-12 w-full" loading={isLoading}>
-              Submit
-            </Button>
-          </form>
-        </FormProvider>
-      </div>
-    </div>
+        <LoadingButton
+          sx={{ mt: 6 }}
+          type="submit"
+          loading={isLoading}
+          fullWidth
+        >
+          Submit
+        </LoadingButton>
+      </Stack>
+    </Stack>
   )
 }
-
-export default Page

@@ -56,6 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
             sx={{ width: "100%", height: "2rem" }}
             src={Logo}
             alt="Logo Ava"
+            priority
             component={Image}
           />
         </Stack>
