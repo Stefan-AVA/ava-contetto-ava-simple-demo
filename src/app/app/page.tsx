@@ -4,15 +4,16 @@ import { useEffect } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useLazySearchQuery } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
-import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  Box,
+  CircularProgress,
+  Unstable_Grid2 as Grid,
+  Stack,
+  Typography,
+} from "@mui/material"
 import { Bath, BedDouble, Search, Send, Table2 } from "lucide-react"
-import { FormProvider, useForm } from "react-hook-form"
-import { z } from "zod"
-
-import Spinner from "@/components/spinner"
 
 type PageProps = {
   searchParams: {
@@ -20,23 +21,8 @@ type PageProps = {
   }
 }
 
-const schema = z.object({
-  search: z.string().optional(),
-})
-
-type FormSchema = z.infer<typeof schema>
-
-const Page = ({ searchParams }: PageProps) => {
-  const { push } = useRouter()
-
+export default function Page({ searchParams }: PageProps) {
   const { search } = searchParams
-
-  const methods = useForm<FormSchema>({
-    resolver: zodResolver(schema),
-    values: {
-      search: search || "",
-    },
-  })
 
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
 
@@ -44,49 +30,102 @@ const Page = ({ searchParams }: PageProps) => {
     if (search) searchListings({ search: search || "" })
   }, [search, searchListings])
 
-  const onSearch = async ({ search }: FormSchema) =>
-    push(search ? `/app?search=${search}` : "/app")
-
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col gap-9 max-w-3xl mx-auto w-full">
-        <h1 className="text-4xl font-medium text-blue-800">
+    <Stack>
+      <Stack
+        sx={{
+          mx: "auto",
+          gap: 4.5,
+          width: "100%",
+          maxWidth: "48rem",
+        }}
+      >
+        <Typography
+          sx={{ color: "blue.800", fontWeight: 500 }}
+          variant="h2"
+          component="h1"
+        >
           {"Let's start exploring"}
-        </h1>
+        </Typography>
 
-        <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(onSearch)}
-            className="flex py-4 rounded-full text-blue-300 bg-gray-200"
+        <Stack
+          sx={{
+            py: 2,
+            color: "blue.300",
+            width: "100%",
+            bgcolor: "gray.200",
+            borderRadius: "999px",
+            flexDirection: "row",
+          }}
+          component="form"
+        >
+          <Box
+            sx={{
+              py: 1,
+              pl: 2.5,
+              mr: 1.5,
+              color: "blue.800",
+            }}
           >
-            <div className="py-2 pl-5 mr-3 text-blue-800">
-              <Search size={20} />
-            </div>
+            <Search size={20} />
+          </Box>
 
-            <input
-              {...methods.register("search")}
-              className="text-sm w-full h-auto font-medium bg-transparent text-blue-800 outline-none placeholder:text-blue-300"
-              placeholder="Type in your search criteria"
-            />
+          <Typography
+            sx={{
+              color: "blue.800",
+              width: "100%",
+              height: "auto",
+              outline: "none",
+              fontWeight: 500,
+              backgroundColor: "transparent",
 
-            <div className="py-2 pr-6 pl-4 ml-4 flex items-center gap-4 border-l border-solid border-l-gray-400/20">
-              {(isLoading || isFetching) && <Spinner variant="primary" />}
+              "::placeholder": {
+                color: "blue.300",
+              },
+            }}
+            name="search"
+            variant="body2"
+            component="input"
+            placeholder="Type in your search criteria"
+            defaultValue={searchParams.search}
+          />
 
-              {!(isFetching || isLoading) && (
-                <button type="submit">
-                  <Send
-                    size={20}
-                    className="text-cyan-500 transition-colors hover:text-cyan-600"
-                  />
-                </button>
-              )}
-            </div>
-          </form>
-        </FormProvider>
-      </div>
+          <Stack
+            sx={{
+              py: 1,
+              pr: 3,
+              pl: 2,
+              ml: 2,
+              gap: 2,
+              alignItems: "center",
+              borderLeft: "1px solid rgb(166 166 166 / 0.2)",
+              flexDirection: "row",
+            }}
+          >
+            {(isLoading || isFetching) && <CircularProgress size="1.25rem" />}
+
+            {!(isFetching || isLoading) && (
+              <button type="submit">
+                <Box
+                  sx={{
+                    color: "cyan.500",
+                    transition: "all .3s ease-in-out",
+
+                    ":hover": {
+                      color: "cyan.600",
+                    },
+                  }}
+                  size={20}
+                  component={Send}
+                />
+              </button>
+            )}
+          </Stack>
+        </Stack>
+      </Stack>
 
       {data && (
-        <div className="grid gap-8 mt-16 grid-cols-1 md:mt-28 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <Grid sx={{ mt: { xs: 8, md: 14 } }} container spacing={4}>
           {data.map(
             ({
               _id,
@@ -101,63 +140,124 @@ const Page = ({ searchParams }: PageProps) => {
               const findMedia = Media.find(({ MediaURL }) => MediaURL)
 
               return (
-                <Link
-                  key={_id}
-                  href={`/app/properties/${_id}` as Route}
-                  className="border border-solid border-gray-300 rounded-xl"
-                >
-                  {findMedia && (
-                    <Image
-                      src={findMedia.MediaURL}
-                      alt=""
-                      width={276}
-                      height={166}
-                      className="w-full object-cover rounded-t-xl h-60"
-                    />
-                  )}
+                <Grid xs={12} sm={6} md={4} xl={3} key={_id}>
+                  <Stack
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "gray.300",
+                      borderRadius: ".75rem",
+                    }}
+                    href={`/app/properties/${_id}` as Route}
+                    component={Link}
+                  >
+                    {findMedia && (
+                      <Image
+                        src={findMedia.MediaURL}
+                        alt=""
+                        style={{
+                          width: "100%",
+                          height: "15rem",
+                          objectFit: "cover",
+                          borderTopLeftRadius: ".75rem",
+                          borderTopRightRadius: ".75rem",
+                        }}
+                        width={276}
+                        height={166}
+                      />
+                    )}
 
-                  <div className="flex flex-col p-3">
-                    <h3 className="text-xl font-medium text-blue-800">
-                      {formatMoney(ListPrice || ClosePrice)}
-                    </h3>
+                    <Stack sx={{ p: 1.5 }}>
+                      <Typography
+                        sx={{ color: "blue.800", fontWeight: 500 }}
+                        variant="h5"
+                      >
+                        {formatMoney(ListPrice || ClosePrice)}
+                      </Typography>
 
-                    <div className="flex items-center gap-6 mt-2 mb-4">
-                      {BedroomsTotal > 0 && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
-                          <BedDouble size={16} />
-                          {`${BedroomsTotal} Beds`}
-                        </span>
-                      )}
+                      <Stack
+                        sx={{
+                          mt: 1,
+                          mb: 2,
+                          gap: 3,
+                          alignItems: "center",
+                          flexDirection: "row",
+                        }}
+                      >
+                        {BedroomsTotal > 0 && (
+                          <Typography
+                            sx={{
+                              gap: 0.5,
+                              color: "gray.500",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                            variant="caption"
+                            component="span"
+                          >
+                            <BedDouble size={16} />
+                            {`${BedroomsTotal} Beds`}
+                          </Typography>
+                        )}
 
-                      {BathroomsTotalInteger > 0 && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
-                          <Bath size={16} />
-                          {`${BathroomsTotalInteger} Baths`}
-                        </span>
-                      )}
+                        {BathroomsTotalInteger > 0 && (
+                          <Typography
+                            sx={{
+                              gap: 0.5,
+                              color: "gray.500",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                            variant="caption"
+                            component="span"
+                          >
+                            <Bath size={16} />
+                            {`${BathroomsTotalInteger} Baths`}
+                          </Typography>
+                        )}
 
-                      {VIVA_AdditionalRentSqFt && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
-                          <Table2 size={16} />
-                          {`${VIVA_AdditionalRentSqFt} sq ft`}
-                        </span>
-                      )}
-                    </div>
+                        {VIVA_AdditionalRentSqFt && (
+                          <Typography
+                            sx={{
+                              gap: 0.5,
+                              color: "gray.500",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                            variant="caption"
+                            component="span"
+                          >
+                            <Table2 size={16} />
+                            {`${VIVA_AdditionalRentSqFt} sq ft`}
+                          </Typography>
+                        )}
+                      </Stack>
 
-                    <p className="text-sm text-blue-800">{UnparsedAddress}</p>
-                  </div>
+                      <Typography sx={{ color: "blue.800" }} variant="body2">
+                        {UnparsedAddress}
+                      </Typography>
+                    </Stack>
 
-                  <p className="p-3 text-blue-500 flex items-center justify-center w-full border-t border-solid border-t-gray-300">
-                    View Listing
-                  </p>
-                </Link>
+                    <Typography
+                      sx={{
+                        p: 1.5,
+                        color: "blue.500",
+                        width: "100%",
+                        display: "flex",
+                        borderTop: "1px solid",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderTopColor: "gray.300",
+                      }}
+                    >
+                      View Listing
+                    </Typography>
+                  </Stack>
+                </Grid>
               )
             }
           )}
-        </div>
+        </Grid>
       )}
-    </div>
+    </Stack>
   )
 }
-
-export default Page

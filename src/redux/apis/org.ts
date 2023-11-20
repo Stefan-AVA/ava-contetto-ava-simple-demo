@@ -1,11 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IAgentProfile } from "@/types/agentProfile.types"
-import { IContact } from "@/types/contact.types"
-import { IOrg } from "@/types/org.types"
+import type { IAgentProfile } from "@/types/agentProfile.types"
+import type { IContact } from "@/types/contact.types"
+import type { IOrg } from "@/types/org.types"
 
-import { fetchAuthQuery } from "../fetchAuthQuery"
-import { IBaseResponse } from "./auth"
+import { fetchAuthQuery } from "../fetch-auth-query"
+import type { IBaseResponse } from "./auth"
 
 export interface IRequestWithId {
   id: string

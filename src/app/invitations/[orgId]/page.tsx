@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useAcceptInviteMutation } from "@/redux/apis/org"
 
@@ -9,60 +9,59 @@ type PageProps = {
   params: {
     orgId: string
   }
+
+  searchParams: {
+    code: string
+  }
 }
 
-const Page = ({ params: { orgId } }: PageProps) => {
+const Page = ({ params, searchParams }: PageProps) => {
   const initialized = useRef(false)
+
   const { push, replace } = useRouter()
 
-  const searchParams = useSearchParams()
-  const code = searchParams.get("code")
+  const code = searchParams.code
+  const orgId = params.orgId
 
   const [getme, { isLoading: getMeLoading }] = useLazyGetMeQuery()
   const [acceptInvit, { isLoading: acceptInviteLoading }] =
     useAcceptInviteMutation()
+
   const isLoading = getMeLoading || acceptInviteLoading
 
   useEffect(() => {
-    if (!orgId || !code) {
-      replace("/")
-    }
-  }, [orgId, code])
+    if (!orgId || !code) replace("/")
+  }, [orgId, code, replace])
 
-  const checkAuth = useCallback(async () => {
-    if (!initialized.current) {
-      initialized.current = true
+  useEffect(() => {
+    async function run() {
+      if (!initialized.current) {
+        initialized.current = true
 
-      try {
-        await getme().unwrap()
+        try {
+          await getme().unwrap()
 
-        if (orgId && code) {
-          console.log("code: orgId ==>", code, orgId)
-          try {
-            await acceptInvit({
-              id: orgId,
-              code,
-            })
-            push(`/app/orgs`)
-          } catch (error) {
-            console.log("accept invite error ==>", error)
-            push("/app")
+          if (orgId && code) {
+            try {
+              await acceptInvit({
+                id: orgId,
+                code,
+              })
+              push(`/app/orgs`)
+            } catch (error) {
+              push("/app")
+            }
           }
-        }
-      } catch (error) {
-        console.log("accept getme error ===>", error)
-        if (orgId && code) {
-          replace(`/?_next=/invitations/${orgId}?code=${code}`)
-        } else {
-          replace("/")
+        } catch (error) {
+          replace(
+            orgId && code ? `/?_next=/invitations/${orgId}?code=${code}` : "/"
+          )
         }
       }
     }
-  }, [getme, replace, code, orgId])
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
+    run()
+  }, [code, getme, push, replace, orgId, acceptInvit])
 
   if (!orgId || !code) return <div>No invitation</div>
   if (isLoading) return <div>Loading...</div>

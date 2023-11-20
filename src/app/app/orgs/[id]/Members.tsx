@@ -1,137 +1,195 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { useInviteAgentMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { FormProvider, useForm } from "react-hook-form"
+import formatErrorZodMessage from "@/utils/format-error-zod"
+import { LoadingButton } from "@mui/lab"
+import {
+  Unstable_Grid2 as Grid,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 import { z } from "zod"
 
-import { AgentRole, IAgentProfile } from "@/types/agentProfile.types"
-import Button from "@/components/button"
-import { FormInput } from "@/components/input"
-import { FormSelect, schema as selectSchema } from "@/components/select"
+import { AgentRole, type IAgentProfile } from "@/types/agentProfile.types"
 
 const inviteAgentSchema = z.object({
+  role: z.string().min(1, "Select a role"),
   email: z
     .string()
     .email("Enter your valid email address")
     .min(1, "Enter your email"),
-  role: selectSchema("Select a role"),
 })
 
+const initialForm = {
+  role: "",
+  email: "",
+}
+
 export type InviteAgentSchema = z.infer<typeof inviteAgentSchema>
+
+type FormError = InviteAgentSchema & {
+  request?: string
+}
 
 interface IOrgMembers {
   me?: IAgentProfile
   members: IAgentProfile[]
 }
 
-const OrgMembers = ({ me, members = [] }: IOrgMembers) => {
-  const [reqestError, setRequestError] = useState("")
-
-  const orgMethods = useForm<InviteAgentSchema>({
-    resolver: zodResolver(inviteAgentSchema),
-  })
+export default function OrgMembers({ me, members = [] }: IOrgMembers) {
+  const [form, setForm] = useState<InviteAgentSchema>(initialForm)
+  const [errors, setErrors] = useState<FormError | null>(null)
 
   const [invite, { isLoading }] = useInviteAgentMutation()
 
-  const clearErrors = () => {
-    orgMethods.clearErrors()
-    setRequestError("")
-  }
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  const onSubmit = async (data: InviteAgentSchema) => {
+    setErrors(null)
+
+    const response = inviteAgentSchema.safeParse(form)
+
+    if (!response.success) {
+      const error = formatErrorZodMessage<InviteAgentSchema>(response.error)
+
+      setErrors(error)
+
+      return
+    }
+
     try {
-      clearErrors()
-
       await invite({
         id: me?.orgId as string,
-        email: data.email,
-        role: data.role.value,
+        ...response.data,
       }).unwrap()
     } catch (error) {
-      console.log("Invite error ==>", error)
-      setRequestError(parseError(error))
+      setErrors(
+        (prev) => ({ ...prev, request: parseError(error) }) as FormError
+      )
     }
   }
 
   return (
-    <div className="flex flex-col py-5 gap-6">
+    <Stack sx={{ gap: 3 }}>
       {(me?.role === AgentRole.owner || me?.role === AgentRole.admin) && (
         <>
-          <h3 className="font-bold text-lg mb-1">Invite a member</h3>
+          <Typography sx={{ fontWeight: 700 }} variant="h6">
+            Invite a member
+          </Typography>
 
-          <FormProvider {...orgMethods}>
-            <form
-              onSubmit={orgMethods.handleSubmit(onSubmit)}
-              className="flex flex-col w-full gap-4 max-w-[500px]"
+          <Stack
+            sx={{
+              gap: 3,
+              width: "100%",
+              maxWidth: "32rem",
+            }}
+            onSubmit={submit}
+            component="form"
+          >
+            <TextField
+              label="Email"
+              error={!!errors?.email}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, email: target.value }))
+              }
+              helperText={errors?.email}
+            />
+
+            <TextField
+              label="Role"
+              error={!!errors?.role}
+              select
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, role: target.value }))
+              }
+              helperText={errors?.role}
             >
-              <FormInput
-                name="email"
-                label="Email"
-                placeholder="Enter the email"
-              />
+              {me.role === AgentRole.owner && (
+                <MenuItem value={AgentRole.admin}>{AgentRole.admin}</MenuItem>
+              )}
 
-              <FormSelect
-                name="role"
-                label="Role"
-                options={
-                  me.role === AgentRole.owner
-                    ? [
-                        {
-                          value: AgentRole.admin,
-                          label: AgentRole.admin,
-                        },
-                        {
-                          value: AgentRole.agent,
-                          label: AgentRole.agent,
-                        },
-                      ]
-                    : [
-                        {
-                          value: AgentRole.agent,
-                          label: AgentRole.agent,
-                        },
-                      ]
-                }
-                placeholder="Select a role"
-              />
+              <MenuItem value={AgentRole.agent}>{AgentRole.agent}</MenuItem>
+            </TextField>
 
-              <Button type="submit" loading={isLoading}>
-                Invite
-              </Button>
-            </form>
-          </FormProvider>
+            <LoadingButton type="submit" loading={isLoading}>
+              Invite
+            </LoadingButton>
+          </Stack>
 
-          {reqestError && (
-            <p className="text-sm text-center text-red-500 mt-3">
-              {reqestError}
-            </p>
+          {errors && errors.request && (
+            <Typography
+              sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
+              variant="body2"
+            >
+              {errors.request}
+            </Typography>
           )}
         </>
       )}
 
-      <h3 className="font-bold text-lg mb-2 mt-6 pt-6 border-t border-solid border-t-gray-300">
+      <Typography
+        sx={{
+          pt: 3,
+          borderTop: "1px solid",
+          fontWeight: 700,
+          borderTopColor: "gray.300",
+        }}
+        variant="h6"
+      >
         Members
-      </h3>
+      </Typography>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <Grid spacing={2} container>
         {members.map(({ _id, username, role }) => (
-          <div
+          <Grid
+            sx={{
+              p: 3,
+              gap: 1,
+              width: "100%",
+              border: "1px solid",
+              display: "flex",
+              alignItems: "center",
+              borderColor: "gray.300",
+              borderRadius: ".5rem",
+            }}
+            xs={12}
+            md={4}
             key={_id}
-            className="flex w-full items-center gap-2 p-6 border border-solid border-gray-300 rounded-lg"
           >
-            <span className="font-bold capitalize">{username}</span>
-            <span className="text-xs">({role})</span>
+            <Typography
+              sx={{
+                color: "blue.800",
+                fontWeight: 700,
+                textTransform: "uppercase",
+              }}
+            >
+              {username}
+            </Typography>
+
+            <Typography
+              sx={{ color: "blue.800" }}
+              variant="caption"
+              component="span"
+            >
+              ({role})
+            </Typography>
+
             {username === me?.username && (
-              <span className="text-xs text-gray-500">You</span>
+              <Typography
+                sx={{ color: "gray.500" }}
+                variant="caption"
+                component="span"
+              >
+                You
+              </Typography>
             )}
-          </div>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   )
 }
-
-export default OrgMembers

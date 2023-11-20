@@ -9,6 +9,13 @@ import Link from "next/link"
 import { useGetListingQuery } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import {
+  Box,
+  CircularProgress,
+  Unstable_Grid2 as Grid,
+  Stack,
+  Typography,
+} from "@mui/material"
+import {
   Bath,
   BedDouble,
   Calendar,
@@ -18,8 +25,6 @@ import {
 } from "lucide-react"
 import { Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
-
-import Spinner from "@/components/spinner"
 
 const breakpoints: SwiperProps["breakpoints"] = {
   560: {
@@ -37,7 +42,7 @@ type PageProps = {
   }
 }
 
-const Property = ({ params }: PageProps) => {
+export default function Property({ params }: PageProps) {
   const { data, isLoading } = useGetListingQuery({ id: params.id })
 
   const media = useMemo(() => {
@@ -58,31 +63,62 @@ const Property = ({ params }: PageProps) => {
   }, [data])
 
   return (
-    <div className="flex flex-col items-center justify-center lg:border lg:border-solid lg:border-gray-300 rounded-xl lg:p-4">
+    <Stack
+      sx={{
+        p: {
+          md: 2,
+        },
+        border: {
+          md: "1px solid",
+        },
+        alignItems: "center",
+        borderColor: {
+          md: "gray.300",
+        },
+        borderRadius: ".75rem",
+        justifyContent: "center",
+      }}
+    >
       {isLoading && (
-        <div className="py-20">
-          <Spinner variant="primary" />
-        </div>
+        <Stack sx={{ py: 10 }}>
+          <CircularProgress size="1.25rem" />
+        </Stack>
       )}
 
       {data && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="flex flex-col col-span-2">
-            <div className="flex flex-col gap-3">
+        <Grid sx={{ width: "100%" }} container spacing={2}>
+          <Grid xs={12} md={8}>
+            <Stack sx={{ gap: 1.5 }}>
               {media.banner && (
-                <div className="w-full h-[250px] lg:h-[452px] relative overflow-hidden rounded-xl ">
-                  <Image
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: {
+                      xs: "15.625rem",
+                      md: "30.13rem",
+                    },
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: ".75rem",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
                     src={media.banner}
                     alt=""
                     fill
-                    className="w-auto h-auto object-cover"
+                    component={Image}
                   />
-                </div>
+                </Box>
               )}
 
               <Swiper
+                style={{ width: "100%" }}
                 modules={[Pagination]}
-                className="w-full"
                 pagination={{
                   clickable: true,
                 }}
@@ -92,113 +128,292 @@ const Property = ({ params }: PageProps) => {
                 slidesPerView={2}
               >
                 {media.images.map((image) => (
-                  <SwiperSlide key={image} className="w-fit">
+                  <SwiperSlide key={image} style={{ width: "fit-content" }}>
                     <Image
                       src={image}
                       alt=""
+                      style={{
+                        width: "100%",
+                        height: "10rem",
+                        objectFit: "cover",
+                        borderRadius: ".5rem",
+                      }}
                       width={186}
                       height={160}
-                      className="rounded-lg w-full object-cover h-40"
                     />
                   </SwiperSlide>
                 ))}
               </Swiper>
-            </div>
+            </Stack>
 
-            <div className="flex flex-col py-5 lg:px-3 md:p-8">
-              <h1 className="text-4xl font-medium text-blue-800">
+            <Stack
+              sx={{
+                p: { xs: 2, md: 4 },
+              }}
+            >
+              <Typography
+                sx={{ color: "blue.800", fontWeight: 500 }}
+                variant="h2"
+                component="h1"
+              >
                 {formatMoney(data.ListPrice || data.ClosePrice)}
-              </h1>
+              </Typography>
 
-              <p className="flex flex-col mt-3 mb-6 gap-3 text-xl text-gray-700 md:items-center md:flex-row">
+              <Typography
+                sx={{
+                  mt: 1.5,
+                  mb: 3,
+                  gap: 1.5,
+                  color: "gray.700",
+                  display: "flex",
+                  alignItems: {
+                    xs: "flex-start",
+                    md: "center",
+                  },
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
+                }}
+                variant="h5"
+              >
                 <MapPin />
                 {data.UnparsedAddress}
-              </p>
+              </Typography>
 
-              <div className="flex flex-col gap-4 md:flex-row md:items-center">
+              <Stack
+                sx={{
+                  gap: 2,
+                  alignItems: {
+                    xs: "flex-start",
+                    md: "center",
+                  },
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
+                }}
+              >
                 {data.VIVA_AdditionalRentSqFt && (
-                  <span className="flex items-center rounded-lg bg-gray-200 py-2 px-3 gap-2 font-medium text-gray-600">
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
                     <Table2 size={20} />
                     {`${data.VIVA_AdditionalRentSqFt} sq ft`}
-                  </span>
+                  </Typography>
                 )}
 
                 {data.BedroomsTotal > 0 && (
-                  <span className="flex items-center rounded-lg bg-gray-200 py-2 px-3 gap-2 font-medium text-gray-600">
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
                     <BedDouble size={20} />
                     {`${data.BedroomsTotal} Beds`}
-                  </span>
+                  </Typography>
                 )}
 
                 {data.BathroomsTotalInteger > 0 && (
-                  <span className="flex items-center rounded-lg bg-gray-200 py-2 px-3 gap-2 font-medium text-gray-600">
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
                     <Bath size={20} />
                     {`${data.BathroomsTotalInteger} Baths`}
-                  </span>
+                  </Typography>
                 )}
-              </div>
+              </Stack>
 
               {data.PublicRemarks && (
                 <>
-                  <h2 className="mt-8 mb-4 font-medium text-2xl">
+                  <Typography
+                    sx={{
+                      mt: 4,
+                      mb: 2,
+                      color: "blue.800",
+                      fontWeight: 500,
+                    }}
+                    variant="h4"
+                  >
                     Property Information
-                  </h2>
+                  </Typography>
 
-                  <p className="text-gray-500">{data.PublicRemarks}</p>
+                  <Typography sx={{ color: "gray.500" }}>
+                    {data.PublicRemarks}
+                  </Typography>
                 </>
               )}
-            </div>
-          </div>
+            </Stack>
+          </Grid>
 
-          <div className="flex flex-col gap-10">
-            <div className="flex flex-col pt-4 pl-4 pr-6 pb-8 relative border border-solid border-blue-500 rounded-xl">
-              <h3 className="font-medium text-blue-800">Property Tour</h3>
+          <Grid
+            sx={{ gap: 5, display: "flex", flexDirection: "column" }}
+            xs={12}
+            md={4}
+          >
+            <Stack
+              sx={{
+                pt: 2,
+                pl: 2,
+                pr: 3,
+                pb: 4,
+                border: "1px solid",
+                position: "relative",
+                borderColor: "blue.500",
+                borderRadius: ".75rem",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "blue.800",
+                  fontWeight: 500,
+                }}
+                component="h5"
+              >
+                Property Tour
+              </Typography>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <Typography
+                sx={{
+                  mt: 1,
+                  color: "gray.500",
+                }}
+                variant="body2"
+              >
                 If you want to tour property then feel free to schedule from the
                 calendar. Now you can book as early as 9:00 AM
-              </p>
+              </Typography>
 
-              <button
+              <Box
+                sx={{
+                  py: 1,
+                  px: 1.5,
+                  mx: "auto",
+                  gap: 1.5,
+                  left: 0,
+                  color: "blue.500",
+                  width: "fit-content",
+                  right: 0,
+                  bottom: "-1.5rem",
+                  border: "1px solid",
+                  display: "flex",
+                  bgcolor: "white",
+                  position: "absolute",
+                  fontWeight: 500,
+                  alignItems: "center",
+                  borderColor: "blue.500",
+                  borderRadius: ".5rem",
+                }}
                 type="button"
-                className="py-2 px-3 font-medium rounded-lg bg-white absolute -bottom-6 mx-auto left-0 right-0 w-fit flex items-center gap-3 text-blue-500 border border-solid border-blue-500"
+                component="button"
               >
                 <Calendar />
                 Schedule a tour
-              </button>
-            </div>
+              </Box>
+            </Stack>
 
-            <div className="flex flex-col pt-4 pl-4 pr-6 pb-8 relative border border-solid border-blue-500 rounded-xl">
-              <h3 className="font-medium text-blue-800">Agent Details</h3>
+            <Stack
+              sx={{
+                pt: 2,
+                pl: 2,
+                pr: 3,
+                pb: 4,
+                border: "1px solid",
+                position: "relative",
+                borderColor: "blue.500",
+                borderRadius: ".75rem",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "blue.800",
+                  fontWeight: 500,
+                }}
+                component="h5"
+              >
+                Agent Details
+              </Typography>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <Typography
+                sx={{
+                  mt: 1,
+                  color: "gray.500",
+                }}
+                variant="body2"
+              >
                 {`Contact ${data.ListOfficeAOR} to discuss more about your potential
                 new home.`}
-              </p>
+              </Typography>
 
-              <Link
+              <Box
+                sx={{
+                  py: 1,
+                  px: 1.5,
+                  mx: "auto",
+                  gap: 1.5,
+                  left: 0,
+                  color: "blue.500",
+                  width: "fit-content",
+                  right: 0,
+                  bottom: "-1.5rem",
+                  border: "1px solid",
+                  display: "flex",
+                  bgcolor: "white",
+                  position: "absolute",
+                  fontWeight: 500,
+                  alignItems: "center",
+                  borderColor: "blue.500",
+                  borderRadius: ".5rem",
+                }}
                 href={`tel:${data.ListAgentOfficePhone}`}
-                className="py-2 px-3 font-medium rounded-lg bg-white absolute -bottom-6 mx-auto left-0 right-0 w-fit flex items-center gap-3 text-blue-500 border border-solid border-blue-500"
+                component={Link}
               >
                 <PhoneCall />
                 Contact Agent
-              </Link>
-            </div>
+              </Box>
+            </Stack>
 
-            <iframe
+            <Box
+              sx={{ width: "100%", borderRadius: ".5rem" }}
               src={`//maps.google.com/maps?q=${data.Latitude},${data.Longitude}&z=15&output=embed`}
               style={{ border: 0 }}
               height={284}
               loading="lazy"
-              className="w-full rounded-md"
+              component="iframe"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
       )}
-    </div>
+    </Stack>
   )
 }
-
-export default Property
