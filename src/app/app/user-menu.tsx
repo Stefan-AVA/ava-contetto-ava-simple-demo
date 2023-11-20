@@ -19,19 +19,29 @@ export default function User() {
   const options = [
     {
       label: "Search",
-      action: () => push("/app"),
+      action: () => {
+        setAnchor(null)
+        push("/app")
+      },
     },
     {
       label: "Profile",
-      action: () => push("/app/profile"),
+      action: () => {
+        setAnchor(null)
+        push("/app/profile")
+      },
     },
     {
       label: "Organizations",
-      action: () => push("/app/orgs"),
+      action: () => {
+        setAnchor(null)
+        push("/app/orgs")
+      },
     },
     {
       label: "Logout",
       action: () => {
+        setAnchor(null)
         clearToken()
         push("/")
       },
