@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
+import type { IOrg } from "@/types/org.types"
 import type { IUser } from "@/types/user.types"
 
 import { authApi } from "../apis/auth"
@@ -7,9 +8,11 @@ import { clearToken } from "../fetch-auth-query"
 
 interface IAppState {
   user: IUser | null
+  orgs: IOrg[]
 }
 const initialState: IAppState = {
   user: null,
+  orgs: [],
 }
 
 export const appSlice = createSlice({
@@ -23,6 +26,9 @@ export const appSlice = createSlice({
       state.user = null
       clearToken()
     },
+    setOrgs: (state, action: PayloadAction<IOrg[]>) => {
+      state.orgs = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -34,6 +40,6 @@ export const appSlice = createSlice({
   },
 })
 
-export const { setUser, logout } = appSlice.actions
+export const { setUser, logout, setOrgs } = appSlice.actions
 
 export default appSlice.reducer

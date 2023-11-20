@@ -5,24 +5,38 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
-import { logout } from "@/redux/slices/app"
+import { useLazyGetOrgsQuery } from "@/redux/apis/org"
+import { logout, setOrgs } from "@/redux/slices/app"
 import { useAppDispatch } from "@/redux/store"
-import { Box, Container, Stack } from "@mui/material"
+import { Box, CircularProgress, Container, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 import { Mail } from "lucide-react"
+
+import type { IOrg } from "@/types/org.types"
 
 import Menu from "./user-menu"
 
 export default function Layout({ children }: PropsWithChildren) {
   const { replace } = useRouter()
+
   const dispatch = useAppDispatch()
 
-  const [getme] = useLazyGetMeQuery()
+  const [getme, { isLoading: isLoadingMe }] = useLazyGetMeQuery()
+  const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
 
   useEffect(() => {
     async function run() {
       try {
         await getme().unwrap()
+        const orgs = await getOrgs().unwrap()
+
+        const listOrgs = orgs.agentProfiles.map(({ org }) => org as IOrg)
+
+        dispatch(setOrgs(listOrgs))
+
+        const findOrg = listOrgs[0]._id
+
+        replace(`/app/orgs/${findOrg}/dashboard`)
       } catch (error) {
         dispatch(logout())
         replace("/")
@@ -30,7 +44,7 @@ export default function Layout({ children }: PropsWithChildren) {
     }
 
     run()
-  }, [replace, dispatch, getme])
+  }, [replace, dispatch, getme, getOrgs])
 
   return (
     <Stack>
@@ -102,7 +116,9 @@ export default function Layout({ children }: PropsWithChildren) {
           position: "relative",
         }}
       >
-        {children}
+        {(isLoadingMe || isLoadingOrgs) && <CircularProgress size="1.25rem" />}
+
+        {!(isLoadingMe || isLoadingOrgs) && children}
       </Container>
     </Stack>
   )
