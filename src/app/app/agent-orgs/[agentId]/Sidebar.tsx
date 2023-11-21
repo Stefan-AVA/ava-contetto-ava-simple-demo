@@ -81,7 +81,7 @@ const Sidebar = () => {
             sx={{
               background: active ? "#EBEBEB" : "white",
             }}
-						borderRadius={1}
+            borderRadius={1}
           >
             {icon}
             <Typography variant="body1">{label}</Typography>

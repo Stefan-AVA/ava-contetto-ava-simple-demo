@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type PropsWithChildren } from "react"
+import React, { useEffect, useState, type PropsWithChildren } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
@@ -27,7 +27,7 @@ export default function Layout({ children }: PropsWithChildren) {
   const isLoading = isLoadingMe || isLoadingOrgs
 
   useEffect(() => {
-    setIsDrawerOpen(false)
+    if (agentId || contactId) setIsDrawerOpen(false)
   }, [agentId, contactId])
 
   useEffect(() => {
