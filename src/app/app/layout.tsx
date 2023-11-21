@@ -16,13 +16,7 @@ import type { IOrg } from "@/types/org.types"
 
 import Menu from "./user-menu"
 
-interface LayoutProps extends PropsWithChildren {
-  searchParams: {
-    sidebar: string
-  }
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: PropsWithChildren) {
   const { replace } = useRouter()
 
   const pathname = usePathname()
