@@ -123,6 +123,7 @@ export const {
   useGetOrgsQuery,
   useGetOrgQuery,
   useGetMembersQuery,
+  useLazyGetOrgsQuery,
   useInviteAgentMutation,
   useInviteContactMutation,
   useAcceptInviteMutation,

@@ -4,29 +4,48 @@ import { useEffect, type PropsWithChildren } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
-import { setUser } from "@/redux/slices/app"
+import { useLazyGetOrgsQuery } from "@/redux/apis/org"
+import { setOrgs, setUser } from "@/redux/slices/app"
 import { useAppDispatch } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
 import Background from "~/assets/signup-background.jpg"
+
+import { AgentRole } from "@/types/agentProfile.types"
 
 const LoginLayout = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
   const [getme] = useLazyGetMeQuery()
+  const [getOrgs] = useLazyGetOrgsQuery()
 
   useEffect(() => {
     async function run() {
       try {
         const user = await getme().unwrap()
 
+        const orgs = await getOrgs().unwrap()
+
         dispatch(setUser(user))
+
+        if (orgs) {
+          const ownerAgent = orgs.agentProfiles.find(
+            (agent) => agent.role === AgentRole.owner
+          )
+
+          dispatch(setOrgs(orgs))
+
+          replace(`/app/agent-orgs/${ownerAgent?._id}`)
+
+          return
+        }
+
         replace("/app")
       } catch (error) {}
     }
 
     run()
-  }, [getme, dispatch, replace])
+  }, [getme, dispatch, replace, getOrgs])
 
   return (
     <Stack

@@ -32,13 +32,6 @@ export default function User() {
       },
     },
     {
-      label: "Organizations",
-      action: () => {
-        setAnchor(null)
-        push("/app/orgs")
-      },
-    },
-    {
       label: "Logout",
       action: () => {
         setAnchor(null)

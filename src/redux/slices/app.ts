@@ -1,15 +1,23 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
+import { IAgentProfile } from "@/types/agentProfile.types"
+import { IContact } from "@/types/contact.types"
+import type { IOrg } from "@/types/org.types"
 import type { IUser } from "@/types/user.types"
 
 import { authApi } from "../apis/auth"
+import { orgApi } from "../apis/org"
 import { clearToken } from "../fetch-auth-query"
 
 interface IAppState {
   user: IUser | null
+  agentOrgs: IAgentProfile[]
+  contactOrgs: IContact[]
 }
 const initialState: IAppState = {
   user: null,
+  agentOrgs: [],
+  contactOrgs: [],
 }
 
 export const appSlice = createSlice({
@@ -23,6 +31,16 @@ export const appSlice = createSlice({
       state.user = null
       clearToken()
     },
+    setOrgs: (
+      state,
+      action: PayloadAction<{
+        agentProfiles: IAgentProfile[]
+        contacts: IContact[]
+      }>
+    ) => {
+      state.agentOrgs = action.payload.agentProfiles
+      state.contactOrgs = action.payload.contacts
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -31,9 +49,16 @@ export const appSlice = createSlice({
         state.user = action.payload
       }
     )
+    builder.addMatcher(
+      orgApi.endpoints.getOrgs.matchFulfilled,
+      (state, action) => {
+        state.agentOrgs = action.payload.agentProfiles
+        state.contactOrgs = action.payload.contacts
+      }
+    )
   },
 })
 
-export const { setUser, logout } = appSlice.actions
+export const { setUser, logout, setOrgs } = appSlice.actions
 
 export default appSlice.reducer

@@ -38,7 +38,7 @@ interface IMyContacts {
   contacts: IContact[]
 }
 
-export default function MyContacts({ me, contacts = [] }: IMyContacts) {
+export default function Contacts({ me, contacts = [] }: IMyContacts) {
   const [form, setForm] = useState<InviteContactSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 

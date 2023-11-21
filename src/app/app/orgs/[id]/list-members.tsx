@@ -40,7 +40,7 @@ interface IOrgMembers {
   members: IAgentProfile[]
 }
 
-export default function OrgMembers({ me, members = [] }: IOrgMembers) {
+export default function Members({ me, members = [] }: IOrgMembers) {
   const [form, setForm] = useState<InviteAgentSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
