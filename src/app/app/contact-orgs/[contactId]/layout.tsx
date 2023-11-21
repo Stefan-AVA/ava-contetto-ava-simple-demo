@@ -1,9 +1,7 @@
-"use client"
-
 import { type PropsWithChildren } from "react"
 import { Stack } from "@mui/material"
 
-import Sidebar from "./Sidebar"
+import Sidebar from "./sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
   return (

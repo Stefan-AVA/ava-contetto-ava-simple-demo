@@ -21,7 +21,7 @@ interface ISidebarList {
   expand?: boolean
 }
 
-const SidebarList = ({ expand = false }: ISidebarList) => {
+function SidebarList({ expand = false }: ISidebarList) {
   const { agentId, contactId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
@@ -144,7 +144,12 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
     </>
   )
 }
-const Sidebar = ({ loading, toggleDrawer, isDrawerOpen }: ISidebar) => {
+
+export default function Sidebar({
+  loading,
+  toggleDrawer,
+  isDrawerOpen,
+}: ISidebar) {
   // handle loading status properly
   return (
     <>
@@ -198,5 +203,3 @@ const Sidebar = ({ loading, toggleDrawer, isDrawerOpen }: ISidebar) => {
     </>
   )
 }
-
-export default Sidebar

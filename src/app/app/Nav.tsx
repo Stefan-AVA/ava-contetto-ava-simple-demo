@@ -14,7 +14,7 @@ interface INav {
   toggleDrawer: (event?: React.KeyboardEvent | React.MouseEvent) => void
 }
 
-const Nav = ({ loading, toggleDrawer }: INav) => {
+export default function Nav({ loading, toggleDrawer }: INav) {
   return (
     <Stack
       sx={{
@@ -105,5 +105,3 @@ const Nav = ({ loading, toggleDrawer }: INav) => {
     </Stack>
   )
 }
-
-export default Nav

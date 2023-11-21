@@ -12,8 +12,8 @@ import { Box, Stack } from "@mui/material"
 import { AgentRole } from "@/types/agentProfile.types"
 
 import { SIDEBAR_WIDTH } from "./consts"
-import Nav from "./Nav"
-import Sidebar from "./Sidebar"
+import Nav from "./nav"
+import Sidebar from "./sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
   const { agentId, contactId } = useParams()
