@@ -105,7 +105,7 @@ export const orgApi = createApi({
         body: rest,
       }),
     }),
-    acceptInvite: builder.mutation<IBaseResponse, IAcceptInviteRequest>({
+    acceptInvite: builder.mutation<IAgentProfile, IAcceptInviteRequest>({
       query: ({ id, code }) => ({
         url: `/${id}/invite-accept`,
         method: "POST",

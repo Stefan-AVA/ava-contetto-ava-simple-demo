@@ -43,11 +43,11 @@ const Page = ({ params, searchParams }: PageProps) => {
 
           if (orgId && code) {
             try {
-              await acceptInvit({
+              const agentProfile = await acceptInvit({
                 id: orgId,
                 code,
-              })
-              push(`/app/orgs`)
+              }).unwrap()
+              push(`/app/agent-orgs/${agentProfile._id}`)
             } catch (error) {
               push("/app")
             }
