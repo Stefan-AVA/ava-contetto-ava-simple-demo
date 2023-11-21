@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState, type PropsWithChildren } from "react"
+import { Route } from "next"
 import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
@@ -42,7 +43,7 @@ export default function Layout({ children }: PropsWithChildren) {
           const ownerAgent = orgs.agentProfiles.find(
             (agent) => agent.role === AgentRole.owner
           )
-          replace(`/app/agent-orgs/${ownerAgent?._id}`)
+          replace(`/app/agent-orgs/${ownerAgent?._id}` as Route)
         }
       } catch (error) {
         dispatch(logout())
@@ -73,6 +74,7 @@ export default function Layout({ children }: PropsWithChildren) {
         toggleDrawer={toggleDrawer}
         isDrawerOpen={isDrawerOpen}
       />
+
       <Box
         sx={{
           flex: 1,
@@ -83,6 +85,7 @@ export default function Layout({ children }: PropsWithChildren) {
         }}
       >
         <Nav loading={isLoading} toggleDrawer={toggleDrawer} />
+
         <Stack
           sx={{
             flex: 1,

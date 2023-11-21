@@ -24,7 +24,7 @@ export const palette = {
   gray: {
     100: "#F9F9FB",
     200: "#F5F4F8",
-    300: "#DFDFDF",
+    300: "#D9D9D9",
     400: "#A6A6A6",
     500: "#4B5765",
     600: "#4D4D4D",
@@ -46,6 +46,10 @@ export const palette = {
 
   orange: {
     500: "#FABA8A",
+  },
+
+  purple: {
+    500: "#5A57FF",
   },
 
   transparent: "transparent",

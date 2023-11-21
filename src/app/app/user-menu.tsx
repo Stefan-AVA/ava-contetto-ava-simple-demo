@@ -45,15 +45,8 @@ export default function User() {
     <Box sx={{ position: "relative" }}>
       <Stack
         sx={{
-          p: 0.5,
-          width: {
-            xs: "3rem",
-            md: "4rem",
-          },
-          height: {
-            xs: "3rem",
-            md: "4rem",
-          },
+          width: "3rem",
+          height: "3rem",
           color: "blue.800",
           border: "1px solid",
           alignItems: "center",
@@ -70,8 +63,8 @@ export default function User() {
             sx={{ objectFit: "cover", borderRadius: "50%" }}
             src={user.image}
             alt=""
-            width={60}
-            height={60}
+            width={48}
+            height={48}
             component={Image}
           />
         ) : (

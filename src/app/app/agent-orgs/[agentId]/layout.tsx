@@ -1,23 +1,18 @@
-"use client"
-
 import { type PropsWithChildren } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Stack } from "@mui/material"
+import { Box, Stack } from "@mui/material"
 
-import Sidebar from "./Sidebar"
+import Sidebar from "./sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
-  const { agentId } = useParams()
-  const { push } = useRouter()
-
   return (
     <Stack
-      direction={{ xs: "column", md: "row" }}
       padding={{ xs: 1, md: 0 }}
       spacing={{ xs: 2, md: 0 }}
+      direction={{ xs: "column", md: "row" }}
     >
       <Sidebar />
-      <Stack>{children}</Stack>
+
+      <Box sx={{ p: 5 }}>{children}</Box>
     </Stack>
   )
 }

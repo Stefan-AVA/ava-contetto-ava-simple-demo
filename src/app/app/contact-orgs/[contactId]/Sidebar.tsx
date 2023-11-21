@@ -51,7 +51,7 @@ const Sidebar = () => {
           }}
         >
           {icon}
-          <Typography variant="body1">{label}</Typography>
+          <Typography>{label}</Typography>
         </Stack>
       ))}
     </Stack>

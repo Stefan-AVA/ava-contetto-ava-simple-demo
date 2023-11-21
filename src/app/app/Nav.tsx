@@ -13,25 +13,36 @@ interface INav {
   loading: boolean
   toggleDrawer: (event?: React.KeyboardEvent | React.MouseEvent) => void
 }
+
 const Nav = ({ loading, toggleDrawer }: INav) => {
   return (
     <Stack
       sx={{
-        p: 1,
+        top: 0,
         width: "100%",
+        height: "4rem",
+        bgcolor: "white",
         position: "sticky",
         transition: "all .3s ease-in-out",
         alignItems: "center",
+        borderBottom: "1px solid",
         flexDirection: "row",
         justifyContent: "space-between",
-        borderBottom: "1px solid #D9D9D9",
+        borderBottomColor: "gray.300",
       }}
     >
       <Stack
+        sx={{
+          pl: 3.5,
+          gap: 1,
+          width: "100%",
+          height: "100%",
+          maxWidth: "19.5rem",
+          alignItems: "center",
+          borderRight: "1px solid",
+          borderRightColor: "gray.300",
+        }}
         direction="row"
-        spacing={1}
-        sx={{ width: "100%", height: "100%" }}
-        alignItems="center"
       >
         <IconButton
           sx={{
@@ -58,9 +69,12 @@ const Nav = ({ loading, toggleDrawer }: INav) => {
 
       <Stack
         sx={{
+          pr: 3.5,
           gap: 2,
+          flex: 1,
           alignItems: "center",
           flexDirection: "row",
+          justifyContent: "flex-end",
         }}
       >
         {/* <Stack
