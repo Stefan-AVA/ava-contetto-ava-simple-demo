@@ -1,36 +1,34 @@
 "use client"
 
-import { useEffect, type PropsWithChildren } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState, type PropsWithChildren } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
 import { logout, setOrgs } from "@/redux/slices/app"
 import { useAppDispatch } from "@/redux/store"
-import { Box, CircularProgress, Container, Stack } from "@mui/material"
-import Logo from "~/assets/logo-ava.png"
-import { Mail } from "lucide-react"
+import { Box, Stack } from "@mui/material"
 
-import type { IOrg } from "@/types/org.types"
+import { AgentRole } from "@/types/agentProfile.types"
 
-import Menu from "./user-menu"
+import { SIDEBAR_WIDTH } from "./consts"
+import Nav from "./Nav"
+import Sidebar from "./Sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
+  const { agentId, contactId } = useParams()
   const { replace } = useRouter()
 
-  const pathname = usePathname()
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const dispatch = useAppDispatch()
 
   const [getme, { isLoading: isLoadingMe }] = useLazyGetMeQuery()
   const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
+  const isLoading = isLoadingMe || isLoadingOrgs
 
-  const params = useSearchParams()
-
-  const sidebar = params.get("sidebar")
-
-  const openSidebar = sidebar === "open"
+  useEffect(() => {
+    setIsDrawerOpen(false)
+  }, [agentId, contactId])
 
   useEffect(() => {
     async function run() {
@@ -38,13 +36,14 @@ export default function Layout({ children }: PropsWithChildren) {
         await getme().unwrap()
         const orgs = await getOrgs().unwrap()
 
-        const listOrgs = orgs.agentProfiles.map(({ org }) => org as IOrg)
+        dispatch(setOrgs(orgs))
 
-        dispatch(setOrgs(listOrgs))
-
-        const findOrg = listOrgs[0]._id
-
-        replace(`/app/orgs/${findOrg}/dashboard`)
+        if (!agentId && !contactId) {
+          const ownerAgent = orgs.agentProfiles.find(
+            (agent) => agent.role === AgentRole.owner
+          )
+          replace(`/app/agent-orgs/${ownerAgent?._id}`)
+        }
       } catch (error) {
         dispatch(logout())
         replace("/")
@@ -54,93 +53,44 @@ export default function Layout({ children }: PropsWithChildren) {
     run()
   }, [replace, dispatch, getme, getOrgs])
 
-  function paddingLeftMenu() {
-    if (openSidebar) return 44
+  const toggleDrawer = (event?: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event &&
+      event.type === "keydown" &&
+      ((event as React.KeyboardEvent).key === "Tab" ||
+        (event as React.KeyboardEvent).key === "Shift")
+    ) {
+      return
+    }
 
-    if (pathname.includes("/dashboard")) return 14
-
-    return 8
+    setIsDrawerOpen(!isDrawerOpen)
   }
 
   return (
-    <Stack>
-      <Stack
+    <Box sx={{ display: "flex" }}>
+      <Sidebar
+        loading={isLoading}
+        toggleDrawer={toggleDrawer}
+        isDrawerOpen={isDrawerOpen}
+      />
+      <Box
         sx={{
-          pt: {
-            xs: 2.5,
-            md: 4,
-          },
-          px: {
-            xs: 4,
-            md: 8,
-          },
+          flex: 1,
           pl: {
-            xs: 4,
-            md: paddingLeftMenu(),
+            xs: 0,
+            md: `${SIDEBAR_WIDTH}px`,
           },
-          width: "100%",
-          position: "absolute",
-          transition: "all .3s ease-in-out",
-          alignItems: "center",
-          flexDirection: "row",
-          justifyContent: "space-between",
         }}
       >
-        <Stack href="/" component={Link}>
-          <Box
-            sx={{ width: "100%", height: "2rem" }}
-            src={Logo}
-            alt="Logo Ava"
-            priority
-            component={Image}
-          />
-        </Stack>
-
+        <Nav loading={isLoading} toggleDrawer={toggleDrawer} />
         <Stack
           sx={{
-            gap: 2,
-            alignItems: "center",
-            flexDirection: "row",
+            flex: 1,
           }}
         >
-          <Stack
-            sx={{
-              width: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              height: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              color: "blue.800",
-              border: "1px solid",
-              alignItems: "center",
-              borderColor: "green.500",
-              borderRadius: "50%",
-              justifyContent: "center",
-            }}
-            type="button"
-            component="button"
-          >
-            <Mail />
-          </Stack>
-
-          <Menu />
+          {children}
         </Stack>
-      </Stack>
-
-      <Container
-        sx={{
-          mt: 20,
-          pb: 12,
-          position: "relative",
-        }}
-      >
-        {(isLoadingMe || isLoadingOrgs) && <CircularProgress size="1.25rem" />}
-
-        {!(isLoadingMe || isLoadingOrgs) && children}
-      </Container>
-    </Stack>
+      </Box>
+    </Box>
   )
 }

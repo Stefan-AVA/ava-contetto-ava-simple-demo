@@ -1,18 +1,23 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
+import { IAgentProfile } from "@/types/agentProfile.types"
+import { IContact } from "@/types/contact.types"
 import type { IOrg } from "@/types/org.types"
 import type { IUser } from "@/types/user.types"
 
 import { authApi } from "../apis/auth"
+import { orgApi } from "../apis/org"
 import { clearToken } from "../fetch-auth-query"
 
 interface IAppState {
   user: IUser | null
-  orgs: IOrg[]
+  agentOrgs: IAgentProfile[]
+  contactOrgs: IContact[]
 }
 const initialState: IAppState = {
   user: null,
-  orgs: [],
+  agentOrgs: [],
+  contactOrgs: [],
 }
 
 export const appSlice = createSlice({
@@ -26,8 +31,15 @@ export const appSlice = createSlice({
       state.user = null
       clearToken()
     },
-    setOrgs: (state, action: PayloadAction<IOrg[]>) => {
-      state.orgs = action.payload
+    setOrgs: (
+      state,
+      action: PayloadAction<{
+        agentProfiles: IAgentProfile[]
+        contacts: IContact[]
+      }>
+    ) => {
+      state.agentOrgs = action.payload.agentProfiles
+      state.contactOrgs = action.payload.contacts
     },
   },
   extraReducers: (builder) => {
@@ -35,6 +47,13 @@ export const appSlice = createSlice({
       authApi.endpoints.getMe.matchFulfilled,
       (state, action) => {
         state.user = action.payload
+      }
+    )
+    builder.addMatcher(
+      orgApi.endpoints.getOrgs.matchFulfilled,
+      (state, action) => {
+        state.agentOrgs = action.payload.agentProfiles
+        state.contactOrgs = action.payload.contacts
       }
     )
   },

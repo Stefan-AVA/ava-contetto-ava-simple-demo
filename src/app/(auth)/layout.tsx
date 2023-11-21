@@ -10,7 +10,7 @@ import { useAppDispatch } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
 import Background from "~/assets/signup-background.jpg"
 
-import type { IOrg } from "@/types/org.types"
+import { AgentRole } from "@/types/agentProfile.types"
 
 const LoginLayout = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
@@ -29,13 +29,13 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
         dispatch(setUser(user))
 
         if (orgs) {
-          const listOrgs = orgs.agentProfiles.map(({ org }) => org as IOrg)
+          const ownerAgent = orgs.agentProfiles.find(
+            (agent) => agent.role === AgentRole.owner
+          )
 
-          dispatch(setOrgs(listOrgs))
+          dispatch(setOrgs(orgs))
 
-          const findOrg = listOrgs[0]._id
-
-          replace(`/app/orgs/${findOrg}/dashboard`)
+          replace(`/app/agent-orgs/${ownerAgent?._id}`)
 
           return
         }

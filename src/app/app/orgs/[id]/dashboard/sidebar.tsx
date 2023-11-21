@@ -144,9 +144,9 @@ export default function Sidebar({ orgId }: SidebarProps) {
 
   const sidebar = params.get("sidebar")
 
-  const orgs = useSelector((state: RootState) => state.app.orgs)
+  // const orgs = useSelector((state: RootState) => state.app.orgs)
 
-  const currentOrg = orgs.find((org) => org._id === orgId)
+  // const currentOrg = orgs.find((org) => org._id === orgId)
 
   const openSidebar = sidebar === "open"
 
@@ -189,7 +189,7 @@ export default function Sidebar({ orgId }: SidebarProps) {
         </Box>
       </DrawerHeader>
 
-      {openSidebar && currentOrg && (
+      {/* {openSidebar && currentOrg && (
         <Grid sx={{ px: 3 }} container spacing={2}>
           {orgs.map((org) => (
             <Grid xs={4} key={org._id}>
@@ -240,7 +240,7 @@ export default function Sidebar({ orgId }: SidebarProps) {
           label="(Org) Settings"
           orgId={orgId}
         />
-      </List>
+      </List> */}
     </Drawer>
   )
 }

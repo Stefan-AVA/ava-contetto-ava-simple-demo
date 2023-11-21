@@ -38,7 +38,7 @@ export default function Page({ params, searchParams }: PageProps) {
 
   return (
     <Stack sx={{ flexDirection: "row" }}>
-      <Sidebar orgId={params.id} />
+      {/* <Sidebar orgId={params.id} /> */}
 
       <Stack sx={{ pb: { xs: 11, md: 0 }, flexGrow: 1 }}>
         <Stack
@@ -268,7 +268,7 @@ export default function Page({ params, searchParams }: PageProps) {
           </Grid>
         )}
 
-        <BottomBar orgId={params.id} />
+        {/* <BottomBar orgId={params.id} /> */}
       </Stack>
     </Stack>
   )
