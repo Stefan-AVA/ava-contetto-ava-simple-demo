@@ -15,6 +15,7 @@ import {
 } from "@mui/material"
 import { Bath, BedDouble, Search, Send, Table2 } from "lucide-react"
 
+import BottomBar from "./bottom-bar"
 import Sidebar from "./sidebar"
 
 type PageProps = {
@@ -39,7 +40,7 @@ export default function Page({ params, searchParams }: PageProps) {
     <Stack sx={{ flexDirection: "row" }}>
       <Sidebar orgId={params.id} />
 
-      <Stack sx={{ flexGrow: 1 }}>
+      <Stack sx={{ pb: { xs: 11, md: 0 }, flexGrow: 1 }}>
         <Stack
           sx={{
             mx: "auto",
@@ -266,6 +267,8 @@ export default function Page({ params, searchParams }: PageProps) {
             )}
           </Grid>
         )}
+
+        <BottomBar orgId={params.id} />
       </Stack>
     </Stack>
   )

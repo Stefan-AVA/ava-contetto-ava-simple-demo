@@ -3,7 +3,7 @@
 import { useEffect, type PropsWithChildren } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
 import { logout, setOrgs } from "@/redux/slices/app"
@@ -16,13 +16,27 @@ import type { IOrg } from "@/types/org.types"
 
 import Menu from "./user-menu"
 
-export default function Layout({ children }: PropsWithChildren) {
+interface LayoutProps extends PropsWithChildren {
+  searchParams: {
+    sidebar: string
+  }
+}
+
+export default function Layout({ children }: LayoutProps) {
   const { replace } = useRouter()
+
+  const pathname = usePathname()
 
   const dispatch = useAppDispatch()
 
   const [getme, { isLoading: isLoadingMe }] = useLazyGetMeQuery()
   const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
+
+  const params = useSearchParams()
+
+  const sidebar = params.get("sidebar")
+
+  const openSidebar = sidebar === "open"
 
   useEffect(() => {
     async function run() {
@@ -46,6 +60,14 @@ export default function Layout({ children }: PropsWithChildren) {
     run()
   }, [replace, dispatch, getme, getOrgs])
 
+  function paddingLeftMenu() {
+    if (openSidebar) return 44
+
+    if (pathname.includes("/dashboard")) return 14
+
+    return 8
+  }
+
   return (
     <Stack>
       <Stack
@@ -58,8 +80,13 @@ export default function Layout({ children }: PropsWithChildren) {
             xs: 4,
             md: 8,
           },
+          pl: {
+            xs: 4,
+            md: paddingLeftMenu(),
+          },
           width: "100%",
           position: "absolute",
+          transition: "all .3s ease-in-out",
           alignItems: "center",
           flexDirection: "row",
           justifyContent: "space-between",

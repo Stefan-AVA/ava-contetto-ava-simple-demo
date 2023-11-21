@@ -1,20 +1,28 @@
-import * as React from "react"
 import { Route } from "next"
+import Image, { type ImageProps } from "next/image"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 import type { RootState } from "@/redux/store"
-import { Box, Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
-import Divider from "@mui/material/Divider"
-import MuiDrawer from "@mui/material/Drawer"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
+import {
+  Box,
+  Unstable_Grid2 as Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Drawer as MuiDrawer,
+  Stack,
+  Typography,
+} from "@mui/material"
 import { CSSObject, styled, Theme } from "@mui/material/styles"
-import { ChevronRight } from "lucide-react"
+import IconSettings from "~/assets/icon-settings.svg"
+import { ChevronRight, Plus } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import type { IOrg } from "@/types/org.types"
+
+import routes from "./routes"
 
 const drawerWidth = 312
 
@@ -69,6 +77,13 @@ interface SidebarProps {
   orgId: string
 }
 
+interface MenuItemProps extends SidebarProps {
+  open: boolean
+  path: string
+  icon: ImageProps["src"]
+  label: string
+}
+
 function OrgBlock({ _id, name, selected }: OrgBlockProps) {
   return (
     <Stack
@@ -91,16 +106,63 @@ function OrgBlock({ _id, name, selected }: OrgBlockProps) {
   )
 }
 
+function MenuItem({ icon, open, path, label, orgId }: MenuItemProps) {
+  const { push } = useRouter()
+
+  return (
+    <ListItem
+      sx={{ display: "block" }}
+      key={label}
+      onClick={() => push(`/app/${orgId}/${path}` as Route)}
+      disablePadding
+    >
+      <ListItemButton
+        sx={{
+          px: 3,
+          minHeight: 48,
+          justifyContent: open ? "initial" : "center",
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            mr: open ? 2 : "auto",
+            minWidth: 0,
+            justifyContent: "center",
+          }}
+        >
+          <Image src={icon} alt="" width={32} height={32} />
+        </ListItemIcon>
+
+        <ListItemText primary={label} sx={{ opacity: open ? 1 : 0 }} />
+      </ListItemButton>
+    </ListItem>
+  )
+}
+
 export default function Sidebar({ orgId }: SidebarProps) {
-  const [open, setOpen] = React.useState(false)
+  const params = useSearchParams()
+
+  const sidebar = params.get("sidebar")
 
   const orgs = useSelector((state: RootState) => state.app.orgs)
 
   const currentOrg = orgs.find((org) => org._id === orgId)
 
+  const openSidebar = sidebar === "open"
+
   return (
-    <Drawer variant="permanent" open={open}>
-      <DrawerHeader>
+    <Drawer
+      sx={{
+        display: { xs: "none", md: "inherit" },
+
+        "& .MuiDrawer-paper": {
+          bgcolor: "gray.100",
+        },
+      }}
+      open={openSidebar}
+      variant="permanent"
+    >
+      <DrawerHeader sx={{ mb: 3 }}>
         <Box
           sx={{
             color: "white",
@@ -112,14 +174,13 @@ export default function Sidebar({ orgId }: SidebarProps) {
             borderRadius: "50%",
             justifyContent: "center",
           }}
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          component="button"
+          href={{ query: { sidebar: sidebar ? "" : "open" } }}
+          component={Link}
         >
           <Box
             sx={{
               position: "relative",
-              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              transform: openSidebar ? "rotate(180deg)" : "rotate(0deg)",
               transition: "all .3s ease-in-out",
             }}
             size={16}
@@ -128,70 +189,57 @@ export default function Sidebar({ orgId }: SidebarProps) {
         </Box>
       </DrawerHeader>
 
-      {open && currentOrg && (
+      {openSidebar && currentOrg && (
         <Grid sx={{ px: 3 }} container spacing={2}>
           {orgs.map((org) => (
             <Grid xs={4} key={org._id}>
               <OrgBlock {...org} selected={org._id === currentOrg._id} />
             </Grid>
           ))}
+
+          <Grid xs={4}>
+            <Stack
+              sx={{
+                color: "gray.400",
+                width: "2rem",
+                height: "4rem",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              href="/app/orgs/create"
+              component={Link}
+            >
+              <Plus size={20} />
+            </Stack>
+          </Grid>
         </Grid>
       )}
 
-      {!open && currentOrg && (
+      {!openSidebar && currentOrg && (
         <Box sx={{ px: 1 }}>
           <OrgBlock {...currentOrg} selected />
         </Box>
       )}
 
-      <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem key={text} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
-              </ListItemIcon>
-              <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
+      <List sx={{ mt: 3, gap: 1, display: "flex", flexDirection: "column" }}>
+        {routes.map((route) => (
+          <MenuItem
+            {...route}
+            key={route.label}
+            open={openSidebar}
+            orgId={orgId}
+          />
         ))}
       </List>
-      <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem key={text} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
-              </ListItemIcon>
-              <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+
+      <List sx={{ mt: "auto" }}>
+        <MenuItem
+          icon={IconSettings}
+          open={openSidebar}
+          path="settings"
+          label="(Org) Settings"
+          orgId={orgId}
+        />
       </List>
     </Drawer>
   )
