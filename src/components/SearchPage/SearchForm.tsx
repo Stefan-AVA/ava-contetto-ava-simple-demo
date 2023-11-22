@@ -20,7 +20,7 @@ import { Save } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { ISearchResult } from "@/types/searchResult.types"
-import DropDown from "@/components/DropDown"
+import DropDown from "@/components/drop-down"
 
 interface IError {
   searchName?: string
@@ -38,8 +38,8 @@ const SearchForm = ({ searchResult, orgId, isAgent }: ISearchForm) => {
 
   const [open, setOpen] = useState(false)
   const [form, setFrom] = useState({
-    searchName: "",
     contactId: undefined,
+    searchName: "",
     savedForAgent: true,
   })
   const [errors, setErrors] = useState<IError>({})
@@ -77,7 +77,7 @@ const SearchForm = ({ searchResult, orgId, isAgent }: ISearchForm) => {
     try {
       await saveSearch({
         searchId: String(searchResult?._id),
-        orgId: orgId,
+        orgId,
         searchName: form.searchName,
         contactId: form.contactId,
       }).unwrap()

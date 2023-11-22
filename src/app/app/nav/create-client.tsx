@@ -5,6 +5,7 @@ import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import { Card, IconButton, Stack, TextField, Typography } from "@mui/material"
 import { Plus } from "lucide-react"
+import { useSnackbar } from "notistack"
 import { z } from "zod"
 
 import Dropdown from "@/components/drop-down"
@@ -34,6 +35,8 @@ export default function CreateClient({ orgId }: CreateClientProps) {
   const [open, setOpen] = useState(false)
   const [errors, setErrors] = useState<FormError | null>(null)
 
+  const { enqueueSnackbar } = useSnackbar()
+
   const [create, { isLoading }] = useCreateContactMutation()
 
   function onClose() {
@@ -62,6 +65,8 @@ export default function CreateClient({ orgId }: CreateClientProps) {
         orgId,
         ...response.data,
       }).unwrap()
+
+      enqueueSnackbar("Successfully created", { variant: "success" })
 
       onClose()
     } catch (error) {
