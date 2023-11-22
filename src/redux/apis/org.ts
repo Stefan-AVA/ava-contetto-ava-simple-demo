@@ -30,7 +30,7 @@ interface IAcceptInviteRequest {
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
-  tagTypes: ["Orgs", "Members"],
+  tagTypes: ["Orgs", "Members", "Contacts"],
   endpoints: (builder) => ({
     createOrg: builder.mutation<
       { orgId: string },
@@ -114,6 +114,75 @@ export const orgApi = createApi({
         },
       }),
     }),
+
+    // for contacts
+    createContact: builder.mutation<IContact, Partial<IContact>>({
+      query: ({ orgId, name, note }) => ({
+        url: `/${orgId}/contacts`,
+        method: "POST",
+        body: {
+          name,
+          note,
+        },
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
+    updateContact: builder.mutation<IContact, Partial<IContact>>({
+      query: ({ _id, orgId, name, note }) => ({
+        url: `/${orgId}/contacts/${_id}`,
+        method: "PUT",
+        body: {
+          name,
+          note,
+        },
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
+    getContacts: builder.query<IContact[], Partial<IContact>>({
+      query: ({ orgId }) => ({
+        url: `/${orgId}/contacts`,
+        method: "GET",
+      }),
+      providesTags: ["Contacts"],
+    }),
+    getContact: builder.query<IContact, Partial<IContact>>({
+      query: ({ _id, orgId }) => ({
+        url: `/${orgId}/contacts/${_id}`,
+        method: "GET",
+      }),
+      providesTags: ["Contacts"],
+    }),
+    searchContacts: builder.query<IContact[], Partial<IContact>>({
+      query: ({ _id, orgId }) => ({
+        url: `/${orgId}/contacts/search`,
+        method: "GET",
+      }),
+      providesTags: ["Contacts"],
+    }),
+    deleteContact: builder.mutation<IContact, Partial<IContact>>({
+      query: ({ _id, orgId }) => ({
+        url: `/${orgId}/contacts/${_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
+    shareContact: builder.mutation<IContact, Partial<IContact>>({
+      query: ({ _id, orgId }) => ({
+        url: `/${orgId}/contacts/${_id}/share`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
+    bindContact: builder.mutation<IContact, Partial<IContact>>({
+      query: ({ _id, orgId, inviteCode }) => ({
+        url: `/${orgId}/contacts/${_id}/bind`,
+        method: "POST",
+        body: {
+          inviteCode,
+        },
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
   }),
 })
 
@@ -127,4 +196,7 @@ export const {
   useInviteAgentMutation,
   useInviteContactMutation,
   useAcceptInviteMutation,
+
+  // contacts
+  useBindContactMutation,
 } = orgApi
