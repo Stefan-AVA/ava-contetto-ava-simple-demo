@@ -220,6 +220,19 @@ export default function Sidebar({
           spacing={2}
         >
           <SidebarList expand />
+
+          <Box
+            sx={{
+              p: 3,
+              mt: "auto !important",
+              color: "white",
+              display: "flex",
+            }}
+            onClick={logout}
+            component="button"
+          >
+            <Power />
+          </Box>
         </Stack>
       </Drawer>
     </>
