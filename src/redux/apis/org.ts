@@ -199,4 +199,5 @@ export const {
 
   // contacts
   useBindContactMutation,
+  useCreateContactMutation,
 } = orgApi

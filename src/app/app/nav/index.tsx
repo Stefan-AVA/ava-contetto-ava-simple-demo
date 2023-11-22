@@ -1,11 +1,14 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useParams } from "next/navigation"
+import { type RootState } from "@/redux/store"
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 import { MenuIcon } from "lucide-react"
+import { useSelector } from "react-redux"
 
 import CreateClient from "./create-client"
 import Search from "./search"
@@ -17,6 +20,15 @@ interface INav {
 }
 
 export default function Nav({ loading, toggleDrawer }: INav) {
+  const { agentId } = useParams()
+
+  const state = useSelector((state: RootState) => state.app)
+
+  const agentProfile = useMemo(
+    () => state.agentOrgs.find((agent) => agent._id === agentId),
+    [agentId, state.agentOrgs]
+  )
+
   return (
     <Stack
       sx={{
@@ -84,7 +96,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
           <>
             <Search />
 
-            <CreateClient />
+            {agentProfile && <CreateClient orgId={agentProfile.orgId} />}
 
             <Menu />
           </>

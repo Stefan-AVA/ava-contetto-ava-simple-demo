@@ -17,7 +17,7 @@ import {
 import { Bath, BedDouble, Search, Send, Table2 } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import SearchFrom from "./SearchFrom"
+import SearchFrom from "./search-form"
 
 type PageProps = {
   params: {

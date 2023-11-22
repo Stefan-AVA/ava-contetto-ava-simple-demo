@@ -6,9 +6,7 @@ import {
   Box,
   Button,
   Card,
-  FormControl,
   FormControlLabel,
-  FormLabel,
   Radio,
   RadioGroup,
   Stack,
@@ -17,14 +15,14 @@ import {
 } from "@mui/material"
 import { Save } from "lucide-react"
 
-import DropDown from "@/components/DropDown"
+import DropDown from "@/components/drop-down"
 
 interface IError {
   searchName?: string
   request?: string
 }
 
-const SearchFrom = () => {
+export default function SearchFrom() {
   const [open, setOpen] = useState(false)
   const [form, setFrom] = useState({
     searchName: "",
@@ -89,13 +87,13 @@ const SearchFrom = () => {
             helperText={errors?.searchName}
           />
           <RadioGroup
-            row
-            defaultValue={form.savedForAgent}
             sx={{
               mt: 1,
-							justifyContent: 'space-between'
+              justifyContent: "space-between",
             }}
-						onChange={(e) => console.log(e.target)}
+            row
+            defaultValue={form.savedForAgent}
+            onChange={(e) => console.log(e.target)}
           >
             <FormControlLabel
               value={form.savedForAgent}
@@ -125,5 +123,3 @@ const SearchFrom = () => {
     </DropDown>
   )
 }
-
-export default SearchFrom
