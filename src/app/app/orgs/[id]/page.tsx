@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Route } from "next"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useGetContactsQuery } from "@/redux/apis/agent"
@@ -37,7 +38,7 @@ const Page = ({ params: { id } }: PageProps) => {
   )
 
   useEffect(() => {
-    if (!id || isError) replace("/app/orgs")
+    if (!id || isError) replace("/app/orgs" as Route)
   }, [id, replace, isError])
 
   return (
@@ -68,7 +69,7 @@ const Page = ({ params: { id } }: PageProps) => {
                   color: "cyan.500",
                 },
               }}
-              href="/app/orgs"
+              href={`/app/orgs` as Route}
               component={Link}
             >
               <ChevronLeft size={20} />

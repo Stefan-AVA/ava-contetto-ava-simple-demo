@@ -33,7 +33,7 @@ export default function Page({ params, searchParams }: PageProps) {
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
 
   useEffect(() => {
-    if (search) searchListings({ search: search || "" })
+    if (search) searchListings({ orgId: "", search: search || "" })
   }, [search, searchListings])
 
   return (
@@ -135,7 +135,7 @@ export default function Page({ params, searchParams }: PageProps) {
 
         {data && (
           <Grid sx={{ mt: { xs: 8, md: 14 } }} container spacing={4}>
-            {data.map(
+            {data.properties.map(
               ({
                 _id,
                 Media,
