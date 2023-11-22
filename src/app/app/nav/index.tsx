@@ -3,35 +3,48 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Box, IconButton, Stack } from "@mui/material"
+import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
-import { Mail, MenuIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 
+import CreateClient from "./create-client"
+import Search from "./search"
 import Menu from "./user-menu"
 
 interface INav {
   loading: boolean
   toggleDrawer: (event?: React.KeyboardEvent | React.MouseEvent) => void
 }
-const Nav = ({ loading, toggleDrawer }: INav) => {
+
+export default function Nav({ loading, toggleDrawer }: INav) {
   return (
     <Stack
       sx={{
-        p: 1,
+        top: 0,
         width: "100%",
+        height: "4rem",
+        bgcolor: "white",
         position: "sticky",
         transition: "all .3s ease-in-out",
         alignItems: "center",
+        borderBottom: "1px solid",
         flexDirection: "row",
         justifyContent: "space-between",
-        borderBottom: "1px solid #D9D9D9",
+        borderBottomColor: "gray.300",
       }}
     >
       <Stack
+        sx={{
+          pl: 3.5,
+          gap: 1,
+          width: "100%",
+          height: "100%",
+          maxWidth: "19.5rem",
+          alignItems: "center",
+          borderRight: "1px solid",
+          borderRightColor: "gray.300",
+        }}
         direction="row"
-        spacing={1}
-        sx={{ width: "100%", height: "100%" }}
-        alignItems="center"
       >
         <IconButton
           sx={{
@@ -58,38 +71,25 @@ const Nav = ({ loading, toggleDrawer }: INav) => {
 
       <Stack
         sx={{
+          pr: 3.5,
           gap: 2,
+          flex: 1,
           alignItems: "center",
           flexDirection: "row",
+          justifyContent: "flex-end",
         }}
       >
-        {/* <Stack
-            sx={{
-              width: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              height: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              color: "blue.800",
-              border: "1px solid",
-              alignItems: "center",
-              borderColor: "green.500",
-              borderRadius: "50%",
-              justifyContent: "center",
-            }}
-            type="button"
-            component="button"
-          >
-            <Mail />
-          </Stack> */}
+        {loading && <CircularProgress size="1.25rem" />}
+        {!loading && (
+          <>
+            <Search />
 
-        <Menu />
+            <CreateClient />
+
+            <Menu />
+          </>
+        )}
       </Stack>
     </Stack>
   )
 }
-
-export default Nav
