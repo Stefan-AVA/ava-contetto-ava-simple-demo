@@ -7,6 +7,7 @@ import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 import { MenuIcon } from "lucide-react"
 
+import CreateClient from "./create-client"
 import Search from "./search"
 import Menu from "./user-menu"
 
@@ -82,6 +83,8 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         {!loading && (
           <>
             <Search />
+
+            <CreateClient />
 
             <Menu />
           </>

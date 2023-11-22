@@ -5,7 +5,10 @@ export default function Search() {
     <Autocomplete
       id="searchbox"
       sx={{ maxWidth: "18.5rem" }}
-      options={[]}
+      options={[
+        { label: "Client 1", value: "client-1" },
+        { label: "Client 2", value: "client-2" },
+      ]}
       freeSolo
       fullWidth
       renderInput={(params) => (

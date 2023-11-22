@@ -200,6 +200,33 @@ const theme = createTheme({
       },
     },
 
+    MuiIconButton: {
+      defaultProps: {
+        size: "medium",
+        color: "primary",
+      },
+
+      styleOverrides: {
+        root: {
+          borderRadius: ".75rem",
+        },
+
+        sizeMedium: {
+          padding: ".625rem",
+        },
+
+        colorPrimary: {
+          color: palette.white,
+          backgroundColor: palette.purple[500],
+
+          ":hover": {
+            opacity: 0.9,
+            backgroundColor: palette.purple[500],
+          },
+        },
+      },
+    },
+
     MuiCssBaseline: {
       styleOverrides: {
         ".swiper": {
