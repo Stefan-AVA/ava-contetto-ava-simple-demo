@@ -3,7 +3,7 @@
 import { Stack } from "@mui/material"
 
 const Page = () => {
-  return <Stack>Search results page</Stack>
+  return <Stack>Search result page</Stack>
 }
 
 export default Page

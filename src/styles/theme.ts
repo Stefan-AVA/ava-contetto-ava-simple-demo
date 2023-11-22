@@ -6,6 +6,7 @@ import { dmsans } from "./fonts"
 
 export const palette = {
   red: {
+    200: "#EB5757",
     300: "#FA8792",
     500: "#F5756F",
   },
@@ -35,6 +36,7 @@ export const palette = {
   green: {
     500: "#43A491",
     600: "#8BC83F",
+    700: "#27AE60"
   },
 
   white: "#FFF",
