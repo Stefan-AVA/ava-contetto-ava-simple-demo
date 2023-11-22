@@ -26,7 +26,7 @@ export const palette = {
     200: "#F5F4F8",
     300: "#D9D9D9",
     400: "#A6A6A6",
-    500: "#4B5765",
+    500: "#8C8C8C",
     600: "#4D4D4D",
     700: "#172832",
     800: "#262626",
@@ -167,6 +167,21 @@ const theme = createTheme({
       },
     },
 
+    MuiInputBase: {
+      styleOverrides: {
+        sizeSmall: {
+          paddingTop: ".5rem !important",
+          paddingBottom: ".5rem !important",
+
+          ".MuiOutlinedInput-notchedOutline": {
+            height: "3rem",
+            borderColor: palette.gray[300],
+            backgroundColor: palette.gray[100],
+          },
+        },
+      },
+    },
+
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -175,6 +190,12 @@ const theme = createTheme({
           "&.Mui-focused": {
             color: palette.cyan[500],
           },
+        },
+
+        sizeSmall: {
+          top: 1,
+          color: palette.gray[500],
+          fontWeight: 500,
         },
       },
     },

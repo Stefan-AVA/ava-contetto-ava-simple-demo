@@ -5,8 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
-import { Mail, MenuIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 
+import Search from "./search"
 import Menu from "./user-menu"
 
 interface INav {
@@ -77,31 +78,14 @@ export default function Nav({ loading, toggleDrawer }: INav) {
           justifyContent: "flex-end",
         }}
       >
-        {/* <Stack
-            sx={{
-              width: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              height: {
-                xs: "3rem",
-                md: "4rem",
-              },
-              color: "blue.800",
-              border: "1px solid",
-              alignItems: "center",
-              borderColor: "green.500",
-              borderRadius: "50%",
-              justifyContent: "center",
-            }}
-            type="button"
-            component="button"
-          >
-            <Mail />
-          </Stack> */}
-
         {loading && <CircularProgress size="1.25rem" />}
-        {!loading && <Menu />}
+        {!loading && (
+          <>
+            <Search />
+
+            <Menu />
+          </>
+        )}
       </Stack>
     </Stack>
   )
