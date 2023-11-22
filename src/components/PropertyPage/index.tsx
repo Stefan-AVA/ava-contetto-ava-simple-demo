@@ -6,7 +6,6 @@ import "swiper/css/pagination"
 import { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useGetListingQuery } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import {
   Box,
@@ -26,6 +25,8 @@ import {
 import { Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
 
+import { IListing } from "@/types/listing.types"
+
 const breakpoints: SwiperProps["breakpoints"] = {
   560: {
     slidesPerView: 3,
@@ -36,15 +37,16 @@ const breakpoints: SwiperProps["breakpoints"] = {
   },
 }
 
-type PageProps = {
-  params: {
-    id: string
-  }
+interface IProps {
+  orgId: string
+  agentId?: string
+  contactId?: string
+  searchId: string
+  data?: IListing
+  isLoading: boolean
 }
 
-export default function Property({ params }: PageProps) {
-  const { data, isLoading } = useGetListingQuery({ id: params.id })
-
+const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
   const media = useMemo(() => {
     if (data) {
       const banner = data.Media[0].MediaURL
@@ -417,3 +419,5 @@ export default function Property({ params }: PageProps) {
     </Stack>
   )
 }
+
+export default PropertyPage
