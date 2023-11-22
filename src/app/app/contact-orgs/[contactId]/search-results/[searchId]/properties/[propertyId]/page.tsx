@@ -9,29 +9,29 @@ import PropertyPage from "@/components/PropertyPage"
 
 type PageProps = {
   params: {
-    agentId: string
+    contactId: string
     searchId: string
     propertyId: string
   }
 }
 
 export default function Property({ params }: PageProps) {
-  const { agentId, searchId, propertyId } = params
+  const { contactId, searchId, propertyId } = params
 
-  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-  const agentProfile = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId),
-    [agentId, agentOrgs]
+  const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
+  const contact = useMemo(
+    () => contactOrgs.find((contact) => contact._id === contactId),
+    [contactId, contactOrgs]
   )
   const { data, isLoading } = useGetPropertyQuery(
-    { orgId: String(agentProfile?.orgId), searchId, propertyId },
-    { skip: !agentProfile }
+    { orgId: String(contact?.orgId), searchId, propertyId },
+    { skip: !contact }
   )
 
   return (
     <PropertyPage
-      orgId={String(agentProfile?.orgId)}
-      agentId={agentId}
+      orgId={String(contact?.orgId)}
+      contactId={contactId}
       searchId={searchId}
       data={data?.property}
       isLoading={isLoading}

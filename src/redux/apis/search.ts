@@ -5,7 +5,6 @@ import { ISearchResult } from "@/types/searchResult.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
 import { IBaseResponse } from "./auth"
-import { IRequestWithId } from "./org"
 
 interface ISearchRequest {
   orgId: string
@@ -24,6 +23,16 @@ interface IGetProperyRequest {
   orgId: string
   searchId: string
   propertyId: string
+}
+
+interface IGetSearchResultsRequest {
+  orgId: string
+  contactId?: string
+}
+
+interface IGetSearchResultRequest {
+  orgId: string
+  searchId: string
 }
 
 export const searchApi = createApi({
@@ -55,6 +64,24 @@ export const searchApi = createApi({
         },
       }),
     }),
+    getSearchResults: builder.query<ISearchResult[], IGetSearchResultsRequest>({
+      query: ({ orgId, contactId }) => ({
+        url: `/${orgId}/search-results`,
+        method: "GET",
+        params: {
+          contactId,
+        },
+      }),
+    }),
+    getSearchResult: builder.query<
+      { properties: IListing[]; searchResult: ISearchResult },
+      IGetSearchResultRequest
+    >({
+      query: ({ orgId, searchId }) => ({
+        url: `/${orgId}/search-results/${searchId}`,
+        method: "GET",
+      }),
+    }),
     getProperty: builder.query<
       { property: IListing; searchResult: ISearchResult },
       IGetProperyRequest
@@ -69,6 +96,8 @@ export const searchApi = createApi({
 
 export const {
   useLazySearchQuery,
+  useGetSearchResultsQuery,
+  useGetSearchResultQuery,
   useSaveSearchMutation,
   useGetPropertyQuery,
 } = searchApi
