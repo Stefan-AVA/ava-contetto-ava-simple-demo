@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { clearToken } from "@/redux/fetch-auth-query"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { Box, Menu, MenuItem, Stack, Typography } from "@mui/material"
@@ -29,14 +28,6 @@ export default function User() {
       action: () => {
         setAnchor(null)
         push("/app/profile")
-      },
-    },
-    {
-      label: "Logout",
-      action: () => {
-        setAnchor(null)
-        clearToken()
-        push("/")
       },
     },
   ]

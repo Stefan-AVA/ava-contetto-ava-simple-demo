@@ -2,11 +2,12 @@
 
 import React from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { clearToken } from "@/redux/fetch-auth-query"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { Box, CircularProgress, Drawer, Stack, Typography } from "@mui/material"
-import { Plus } from "lucide-react"
+import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { SIDEBAR_WIDTH } from "./consts"
@@ -150,6 +151,14 @@ export default function Sidebar({
   toggleDrawer,
   isDrawerOpen,
 }: ISidebar) {
+  const { replace } = useRouter()
+
+  function logout() {
+    clearToken()
+
+    replace("/")
+  }
+
   return (
     <>
       <Stack
@@ -176,6 +185,19 @@ export default function Sidebar({
       >
         {loading && <CircularProgress size="1.25rem" />}
         {!loading && <SidebarList />}
+
+        <Box
+          sx={{
+            p: 3,
+            mt: "auto !important",
+            color: "white",
+            display: "flex",
+          }}
+          onClick={logout}
+          component="button"
+        >
+          <Power />
+        </Box>
       </Stack>
 
       <Drawer
