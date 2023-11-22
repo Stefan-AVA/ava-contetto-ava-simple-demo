@@ -2,11 +2,12 @@
 
 import React from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { clearToken } from "@/redux/fetch-auth-query"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
-import { Box, Drawer, Stack, Typography } from "@mui/material"
-import { Plus } from "lucide-react"
+import { Box, CircularProgress, Drawer, Stack, Typography } from "@mui/material"
+import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { SIDEBAR_WIDTH } from "./consts"
@@ -21,7 +22,7 @@ interface ISidebarList {
   expand?: boolean
 }
 
-const SidebarList = ({ expand = false }: ISidebarList) => {
+function SidebarList({ expand = false }: ISidebarList) {
   const { agentId, contactId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
@@ -36,20 +37,19 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
           style={{ width: "100%" }}
         >
           <Stack
-            direction="row"
+            sx={{ color: "white", alignItems: "center" }}
             spacing={2}
-            alignItems="center"
-            sx={{ color: "white" }}
+            direction="row"
           >
             <Box
               sx={{
+                color: "white",
                 width: 64,
                 height: 64,
-                borderRadius: 2,
-                background: "gray",
-                color: "white",
+                bgcolor: "gray.400",
                 display: "flex",
                 alignItems: "center",
+                borderRadius: 2.5,
                 justifyContent: "center",
                 ":hover": {
                   cursor: "pointer",
@@ -63,15 +63,15 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
                 {nameInitials(String(agent.org?.name))}
               </Typography>
             </Box>
+
             <Typography
               sx={{
                 display: expand ? "block" : "none",
-                textOverflow: "ellipsis",
                 overflow: "hidden",
-                whiteSpace: "nowrap",
                 maxWidth: "140px",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
               }}
-              variant="body1"
             >
               {agent.org?.name}
             </Typography>
@@ -93,13 +93,13 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
           >
             <Box
               sx={{
+                color: "white",
                 width: 64,
                 height: 64,
-                borderRadius: 2,
-                background: "gray",
-                color: "white",
+                bgcolor: "gray.400",
                 display: "flex",
                 alignItems: "center",
+                borderRadius: 2.5,
                 justifyContent: "center",
                 ":hover": {
                   cursor: "pointer",
@@ -113,15 +113,15 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
                 {nameInitials(String(contact.org?.name))}
               </Typography>
             </Box>
+
             <Typography
               sx={{
                 display: expand ? "block" : "none",
-                textOverflow: "ellipsis",
+                maxWidth: "140px",
                 overflow: "hidden",
                 whiteSpace: "nowrap",
-                maxWidth: "140px",
+                textOverflow: "ellipsis",
               }}
-              variant="body1"
             >
               {contact.org?.name}
             </Typography>
@@ -132,7 +132,7 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
       <Link href={`/app/orgs/create`}>
         <Box
           sx={{
-            marginTop: 2,
+            mt: 2,
             color: "white",
             ":hover": {
               cursor: "pointer",
@@ -145,57 +145,96 @@ const SidebarList = ({ expand = false }: ISidebarList) => {
     </>
   )
 }
-const Sidebar = ({ loading, toggleDrawer, isDrawerOpen }: ISidebar) => {
-  // handle loading status properly
+
+export default function Sidebar({
+  loading,
+  toggleDrawer,
+  isDrawerOpen,
+}: ISidebar) {
+  const { replace } = useRouter()
+
+  function logout() {
+    clearToken()
+
+    replace("/")
+  }
+
   return (
     <>
       <Stack
         sx={{
-          position: "fixed",
+          p: 1.5,
           top: 0,
           left: 0,
           width: {
             xs: 0,
             md: SIDEBAR_WIDTH,
           },
-          height: "100vh",
-          background: "#5A57FF",
-          padding: 1.5,
           zIndex: 5,
+          height: "100%",
           display: {
             xs: "none",
             md: "flex",
           },
+          bgcolor: "purple.500",
+          position: "fixed",
+          minHeight: "100vh",
+          alignItems: "center",
         }}
         spacing={2}
-        alignItems="center"
       >
-        <SidebarList />
+        {loading && <CircularProgress size="1.25rem" />}
+        {!loading && <SidebarList />}
+
+        <Box
+          sx={{
+            p: 3,
+            mt: "auto !important",
+            color: "white",
+            display: "flex",
+          }}
+          onClick={logout}
+          component="button"
+        >
+          <Power />
+        </Box>
       </Stack>
+
       <Drawer
-        anchor={"left"}
         open={isDrawerOpen}
+        anchor={"left"}
         onClose={() => toggleDrawer()}
       >
         <Stack
           sx={{
-            position: "fixed",
+            p: 1.5,
             top: 0,
             left: 0,
             width: 250,
-            height: "100vh",
-            background: "#5A57FF",
-            padding: 1.5,
             zIndex: 5,
+            height: "100vh",
+            position: "fixed",
+            background: "#5A57FF",
+            alignItems: "center",
           }}
           spacing={2}
-          alignItems="center"
         >
           <SidebarList expand />
+
+          <Box
+            sx={{
+              p: 3,
+              mt: "auto !important",
+              color: "white",
+              display: "flex",
+            }}
+            onClick={logout}
+            component="button"
+          >
+            <Power />
+          </Box>
         </Stack>
       </Drawer>
     </>
   )
 }
-
-export default Sidebar

@@ -1,18 +1,26 @@
 "use client"
 
-import React, { useEffect, useState, type PropsWithChildren } from "react"
+import {
+  useEffect,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PropsWithChildren,
+} from "react"
+import { Route } from "next"
 import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
 import { logout, setOrgs } from "@/redux/slices/app"
-import { useAppDispatch } from "@/redux/store"
-import { Box, Stack } from "@mui/material"
+import { useAppDispatch, type RootState } from "@/redux/store"
+import { Box, CircularProgress, Stack } from "@mui/material"
+import { useSelector } from "react-redux"
 
 import { AgentRole } from "@/types/agentProfile.types"
 
 import { SIDEBAR_WIDTH } from "./consts"
-import Nav from "./Nav"
-import Sidebar from "./Sidebar"
+import Nav from "./nav"
+import Sidebar from "./sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
   const { agentId, contactId } = useParams()
@@ -22,9 +30,15 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const dispatch = useAppDispatch()
 
+  const state = useSelector((state: RootState) => state.app)
+
   const [getme, { isLoading: isLoadingMe }] = useLazyGetMeQuery()
   const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
-  const isLoading = isLoadingMe || isLoadingOrgs
+
+  const isLoading =
+    isLoadingMe ||
+    isLoadingOrgs ||
+    (state.agentOrgs.length <= 0 && state.contactOrgs.length <= 0)
 
   useEffect(() => {
     if (agentId || contactId) setIsDrawerOpen(false)
@@ -42,7 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
           const ownerAgent = orgs.agentProfiles.find(
             (agent) => agent.role === AgentRole.owner
           )
-          replace(`/app/agent-orgs/${ownerAgent?._id}`)
+          replace(`/app/agent-orgs/${ownerAgent?._id}` as Route)
         }
       } catch (error) {
         dispatch(logout())
@@ -53,12 +67,12 @@ export default function Layout({ children }: PropsWithChildren) {
     run()
   }, [replace, dispatch, getme, getOrgs])
 
-  const toggleDrawer = (event?: React.KeyboardEvent | React.MouseEvent) => {
+  const toggleDrawer = (event?: KeyboardEvent | MouseEvent) => {
     if (
       event &&
       event.type === "keydown" &&
-      ((event as React.KeyboardEvent).key === "Tab" ||
-        (event as React.KeyboardEvent).key === "Shift")
+      ((event as KeyboardEvent).key === "Tab" ||
+        (event as KeyboardEvent).key === "Shift")
     ) {
       return
     }
@@ -73,6 +87,7 @@ export default function Layout({ children }: PropsWithChildren) {
         toggleDrawer={toggleDrawer}
         isDrawerOpen={isDrawerOpen}
       />
+
       <Box
         sx={{
           flex: 1,
@@ -83,12 +98,20 @@ export default function Layout({ children }: PropsWithChildren) {
         }}
       >
         <Nav loading={isLoading} toggleDrawer={toggleDrawer} />
+
         <Stack
           sx={{
             flex: 1,
           }}
         >
-          {children}
+          {isLoading && (
+            <Stack
+              sx={{ p: 5, alignItems: "center", justifyContent: "center" }}
+            >
+              <CircularProgress size="1.25rem" />
+            </Stack>
+          )}
+          {!isLoading && children}
         </Stack>
       </Box>
     </Box>

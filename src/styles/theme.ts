@@ -24,9 +24,9 @@ export const palette = {
   gray: {
     100: "#F9F9FB",
     200: "#F5F4F8",
-    300: "#DFDFDF",
+    300: "#D9D9D9",
     400: "#A6A6A6",
-    500: "#4B5765",
+    500: "#8C8C8C",
     600: "#4D4D4D",
     700: "#172832",
     800: "#262626",
@@ -46,6 +46,10 @@ export const palette = {
 
   orange: {
     500: "#FABA8A",
+  },
+
+  purple: {
+    500: "#5A57FF",
   },
 
   transparent: "transparent",
@@ -163,6 +167,21 @@ const theme = createTheme({
       },
     },
 
+    MuiInputBase: {
+      styleOverrides: {
+        sizeSmall: {
+          paddingTop: ".5rem !important",
+          paddingBottom: ".5rem !important",
+
+          ".MuiOutlinedInput-notchedOutline": {
+            height: "3rem",
+            borderColor: palette.gray[300],
+            backgroundColor: palette.gray[100],
+          },
+        },
+      },
+    },
+
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -170,6 +189,39 @@ const theme = createTheme({
 
           "&.Mui-focused": {
             color: palette.cyan[500],
+          },
+        },
+
+        sizeSmall: {
+          top: 1,
+          color: palette.gray[500],
+          fontWeight: 500,
+        },
+      },
+    },
+
+    MuiIconButton: {
+      defaultProps: {
+        size: "medium",
+        color: "primary",
+      },
+
+      styleOverrides: {
+        root: {
+          borderRadius: ".75rem",
+        },
+
+        sizeMedium: {
+          padding: ".625rem",
+        },
+
+        colorPrimary: {
+          color: palette.white,
+          backgroundColor: palette.purple[500],
+
+          ":hover": {
+            opacity: 0.9,
+            backgroundColor: palette.purple[500],
           },
         },
       },
