@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Box, IconButton, Stack } from "@mui/material"
+import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 import { Mail, MenuIcon } from "lucide-react"
 
@@ -100,7 +100,8 @@ export default function Nav({ loading, toggleDrawer }: INav) {
             <Mail />
           </Stack> */}
 
-        <Menu />
+        {loading && <CircularProgress size="1.25rem" />}
+        {!loading && <Menu />}
       </Stack>
     </Stack>
   )

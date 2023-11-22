@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
-import { Box, Drawer, Stack, Typography } from "@mui/material"
+import { Box, CircularProgress, Drawer, Stack, Typography } from "@mui/material"
 import { Plus } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -150,7 +150,6 @@ export default function Sidebar({
   toggleDrawer,
   isDrawerOpen,
 }: ISidebar) {
-  // handle loading status properly
   return (
     <>
       <Stack
@@ -175,7 +174,8 @@ export default function Sidebar({
         }}
         spacing={2}
       >
-        <SidebarList />
+        {loading && <CircularProgress size="1.25rem" />}
+        {!loading && <SidebarList />}
       </Stack>
 
       <Drawer
