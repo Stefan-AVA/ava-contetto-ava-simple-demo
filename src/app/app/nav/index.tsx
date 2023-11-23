@@ -94,7 +94,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         {loading && <CircularProgress size="1.25rem" />}
         {!loading && (
           <>
-            <Search />
+            {agentProfile && <Search orgId={agentProfile.orgId} />}
 
             {agentProfile && <CreateClient orgId={agentProfile.orgId} />}
 
