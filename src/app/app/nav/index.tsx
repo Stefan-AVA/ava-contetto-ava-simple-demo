@@ -22,11 +22,11 @@ interface INav {
 export default function Nav({ loading, toggleDrawer }: INav) {
   const { agentId } = useParams()
 
-  const state = useSelector((state: RootState) => state.app)
+  const state = useSelector((state: RootState) => state.app.agentOrgs)
 
   const agentProfile = useMemo(
-    () => state.agentOrgs.find((agent) => agent._id === agentId),
-    [agentId, state.agentOrgs]
+    () => state.find((agent) => agent._id === agentId),
+    [agentId, state]
   )
 
   return (
