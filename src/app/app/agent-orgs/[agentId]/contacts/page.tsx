@@ -5,6 +5,7 @@ import { Route } from "next"
 import Link from "next/link"
 import { useDeleteContactMutation, useGetContactsQuery } from "@/redux/apis/org"
 import { type RootState } from "@/redux/store"
+import { getDatefromUnix } from "@/utils/format-date"
 import { nameInitials } from "@/utils/format-name"
 import { Avatar, CircularProgress, Stack, Typography } from "@mui/material"
 import {
@@ -13,6 +14,7 @@ import {
   type GridRowParams,
   type GridRowsProp,
 } from "@mui/x-data-grid"
+import { format } from "date-fns"
 import { Eye, Trash2 } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -46,8 +48,11 @@ export default function Page({ params }: IPage) {
     ? data.map((contact) => ({
         id: contact._id,
         name: contact.name,
-        note: contact.note,
         orgId: contact.orgId,
+        createdAt: format(
+          new Date(getDatefromUnix(contact.createdAt)),
+          "MMM dd, yyyy"
+        ),
       }))
     : []
 
@@ -68,10 +73,10 @@ export default function Page({ params }: IPage) {
     },
     {
       flex: 1,
-      field: "note",
+      field: "createdAt",
       sortable: false,
       filterable: false,
-      headerName: "Note",
+      headerName: "Contact Added",
     },
     {
       type: "actions",
