@@ -10,19 +10,26 @@ import { Box, CircularProgress, Drawer, Stack, Typography } from "@mui/material"
 import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import { SIDEBAR_WIDTH } from "./consts"
+import { SIDEBAR_WIDTH } from "../consts"
 
 interface ISidebar {
   loading: boolean
   toggleDrawer: (event?: React.KeyboardEvent | React.MouseEvent) => void
   isDrawerOpen: boolean
+  setOpenCreateOrgModal: Function
 }
 
 interface ISidebarList {
   expand?: boolean
+  toggleDrawer?: (event?: React.KeyboardEvent | React.MouseEvent) => void
+  setOpenCreateOrgModal: Function
 }
 
-function SidebarList({ expand = false }: ISidebarList) {
+function SidebarList({
+  expand = false,
+  toggleDrawer,
+  setOpenCreateOrgModal,
+}: ISidebarList) {
   const { agentId, contactId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
@@ -34,6 +41,9 @@ function SidebarList({ expand = false }: ISidebarList) {
         <Link
           key={agent._id}
           href={`/app/agent-orgs/${agent._id}`}
+          onClick={() => {
+            if (toggleDrawer) toggleDrawer()
+          }}
           style={{ width: "100%" }}
         >
           <Stack
@@ -84,6 +94,9 @@ function SidebarList({ expand = false }: ISidebarList) {
           key={contact._id}
           href={`/app/contact-orgs/${contact._id}`}
           style={{ width: "100%" }}
+          onClick={() => {
+            if (toggleDrawer) toggleDrawer()
+          }}
         >
           <Stack
             direction="row"
@@ -129,19 +142,22 @@ function SidebarList({ expand = false }: ISidebarList) {
         </Link>
       ))}
 
-      <Link href={`/app/orgs/create`}>
-        <Box
-          sx={{
-            mt: 2,
-            color: "white",
-            ":hover": {
-              cursor: "pointer",
-            },
-          }}
-        >
-          <Plus />
-        </Box>
-      </Link>
+      <Box
+        sx={{
+          mt: 2,
+          color: "white",
+          ":hover": {
+            cursor: "pointer",
+          },
+        }}
+        component={"button"}
+        onClick={() => {
+          setOpenCreateOrgModal(true)
+          if (toggleDrawer) toggleDrawer()
+        }}
+      >
+        <Plus />
+      </Box>
     </>
   )
 }
@@ -150,6 +166,7 @@ export default function Sidebar({
   loading,
   toggleDrawer,
   isDrawerOpen,
+  setOpenCreateOrgModal,
 }: ISidebar) {
   const { replace } = useRouter()
 
@@ -184,7 +201,7 @@ export default function Sidebar({
         spacing={2}
       >
         {loading && <CircularProgress size="1.25rem" />}
-        {!loading && <SidebarList />}
+        {!loading && <SidebarList setOpenCreateOrgModal={setOpenCreateOrgModal} />}
 
         <Box
           sx={{
@@ -219,7 +236,11 @@ export default function Sidebar({
           }}
           spacing={2}
         >
-          <SidebarList expand />
+          <SidebarList
+            expand
+            toggleDrawer={toggleDrawer}
+            setOpenCreateOrgModal={setOpenCreateOrgModal}
+          />
 
           <Box
             sx={{

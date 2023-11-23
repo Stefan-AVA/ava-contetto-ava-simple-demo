@@ -33,7 +33,7 @@ export const orgApi = createApi({
   tagTypes: ["Orgs", "Members", "Contacts"],
   endpoints: (builder) => ({
     createOrg: builder.mutation<
-      { orgId: string },
+      { orgId: string; agentProfileId: string },
       Omit<IOrg, "_id" | "owner" | "deleted">
     >({
       query: (data) => ({

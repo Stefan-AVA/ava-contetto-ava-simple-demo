@@ -20,13 +20,15 @@ import { AgentRole } from "@/types/agentProfile.types"
 
 import { SIDEBAR_WIDTH } from "./consts"
 import Nav from "./nav"
-import Sidebar from "./sidebar"
+import CreateOrgModal from "./nav/createOrg"
+import Sidebar from "./nav/sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
   const { agentId, contactId } = useParams()
   const { replace } = useRouter()
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [openCreateOrgModal, setOpenCreateOrgModal] = useState(false)
 
   const dispatch = useAppDispatch()
 
@@ -86,6 +88,7 @@ export default function Layout({ children }: PropsWithChildren) {
         loading={isLoading}
         toggleDrawer={toggleDrawer}
         isDrawerOpen={isDrawerOpen}
+        setOpenCreateOrgModal={setOpenCreateOrgModal}
       />
 
       <Box
@@ -114,6 +117,11 @@ export default function Layout({ children }: PropsWithChildren) {
           {!isLoading && children}
         </Stack>
       </Box>
+
+      <CreateOrgModal
+        open={openCreateOrgModal}
+        setOpenCreateOrgModal={setOpenCreateOrgModal}
+      />
     </Box>
   )
 }
