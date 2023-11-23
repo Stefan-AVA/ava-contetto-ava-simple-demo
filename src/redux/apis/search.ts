@@ -38,6 +38,7 @@ interface IGetSearchResultRequest {
 export const searchApi = createApi({
   reducerPath: "searchApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
+  tagTypes: ["Searches", "Properties"],
   endpoints: (builder) => ({
     search: builder.query<
       { properties: IListing[]; searchResult: ISearchResult },
@@ -63,6 +64,7 @@ export const searchApi = createApi({
           contactId,
         },
       }),
+      invalidatesTags: ["Searches"],
     }),
     getSearchResults: builder.query<ISearchResult[], IGetSearchResultsRequest>({
       query: ({ orgId, contactId }) => ({
@@ -72,6 +74,7 @@ export const searchApi = createApi({
           contactId,
         },
       }),
+      providesTags: ["Searches"],
     }),
     getSearchResult: builder.query<
       { properties: IListing[]; searchResult: ISearchResult },
@@ -81,7 +84,20 @@ export const searchApi = createApi({
         url: `/${orgId}/search-results/${searchId}`,
         method: "GET",
       }),
+      providesTags: ["Searches"],
     }),
+    deleteSearchResult: builder.mutation<
+      IBaseResponse,
+      IGetSearchResultRequest
+    >({
+      query: ({ orgId, searchId }) => ({
+        url: `/${orgId}/search-results/${searchId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Searches"],
+    }),
+
+    // ========== property ==========
     getProperty: builder.query<
       { property: IListing; searchResult: ISearchResult },
       IGetProperyRequest
@@ -90,6 +106,37 @@ export const searchApi = createApi({
         url: `/${orgId}/search-results/${searchId}/property/${propertyId}`,
         method: "GET",
       }),
+      providesTags: ["Properties"],
+    }),
+    shortlistProperty: builder.mutation<
+      { property: IListing; searchResult: ISearchResult },
+      IGetProperyRequest
+    >({
+      query: ({ orgId, searchId, propertyId }) => ({
+        url: `/${orgId}/search-results/${searchId}/property/${propertyId}/shortlist`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Searches", "Properties"],
+    }),
+    rejectProperty: builder.mutation<
+      { property: IListing; searchResult: ISearchResult },
+      IGetProperyRequest
+    >({
+      query: ({ orgId, searchId, propertyId }) => ({
+        url: `/${orgId}/search-results/${searchId}/property/${propertyId}/reject`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Searches", "Properties"],
+    }),
+    undoProperty: builder.mutation<
+      { property: IListing; searchResult: ISearchResult },
+      IGetProperyRequest
+    >({
+      query: ({ orgId, searchId, propertyId }) => ({
+        url: `/${orgId}/search-results/${searchId}/property/${propertyId}/undo`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Searches", "Properties"],
     }),
   }),
 })
@@ -99,5 +146,10 @@ export const {
   useGetSearchResultsQuery,
   useGetSearchResultQuery,
   useSaveSearchMutation,
+  useDeleteSearchResultMutation,
+
   useGetPropertyQuery,
+  useShortlistPropertyMutation,
+  useRejectPropertyMutation,
+  useUndoPropertyMutation,
 } = searchApi

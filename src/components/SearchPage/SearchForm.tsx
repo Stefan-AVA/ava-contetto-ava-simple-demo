@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useSaveSearchMutation } from "@/redux/apis/search"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
@@ -30,10 +31,17 @@ interface IError {
 interface ISearchForm {
   searchResult?: ISearchResult
   orgId: string
-  isAgent: boolean
+  agentId?: string
+  contactId?: string
 }
 
-const SearchForm = ({ searchResult, orgId, isAgent }: ISearchForm) => {
+const SearchForm = ({
+  searchResult,
+  orgId,
+  agentId,
+  contactId,
+}: ISearchForm) => {
+  const { push } = useRouter()
   const { enqueueSnackbar } = useSnackbar()
 
   const [open, setOpen] = useState(false)
@@ -83,6 +91,15 @@ const SearchForm = ({ searchResult, orgId, isAgent }: ISearchForm) => {
       }).unwrap()
       enqueueSnackbar("Successfully saved", { variant: "success" })
       onClose()
+
+      // navigate to the result page
+      if (agentId) {
+        push(`/app/agent-orgs/${agentId}/search-results/${searchResult?._id}`)
+      } else if (contactId) {
+        push(
+          `/app/contact-orgs/${contactId}/search-results/${searchResult?._id}`
+        )
+      }
     } catch (error) {
       console.log("save search error ===>", error)
       setErrors((prev) => ({ ...prev, request: parseError(error) }))
@@ -131,7 +148,7 @@ const SearchForm = ({ searchResult, orgId, isAgent }: ISearchForm) => {
             helperText={errors?.searchName}
           />
 
-          {isAgent && (
+          {!!agentId && (
             <>
               <RadioGroup
                 row

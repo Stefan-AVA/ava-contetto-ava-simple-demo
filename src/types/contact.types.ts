@@ -16,7 +16,5 @@ export interface IContact {
   agent?: IAgentProfile
   createdAt: number
   updatedAt: number
-  deleted: boolean
-  deletedAt?: number
   inviteCode?: string
 }

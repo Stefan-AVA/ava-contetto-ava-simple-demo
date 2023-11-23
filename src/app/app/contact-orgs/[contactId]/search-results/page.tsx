@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { RootState } from "@/redux/store"
 import { useSelector } from "react-redux"
 
-import SearchResultPage from "@/components/SearchResultPage"
+import SearchResultsPage from "@/components/SearchResultsPage"
 
 type PageProps = {
   params: {
@@ -22,7 +22,7 @@ const Page = ({ params }: PageProps) => {
   )
 
   return (
-    <SearchResultPage orgId={String(contact?.orgId)} contactId={contactId} />
+    <SearchResultsPage orgId={String(contact?.orgId)} contactId={contactId} />
   )
 }
 

@@ -1,26 +1,38 @@
 "use client"
 
+import { MouseEventHandler } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import formatMoney from "@/utils/format-money"
+import { LoadingButton } from "@mui/lab"
 import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
 import { Bath, BedDouble, Table2 } from "lucide-react"
 
 import { IListing } from "@/types/listing.types"
+import { ISearchResult } from "@/types/searchResult.types"
 
 interface IProps extends IListing {
   orgId: string
-  searchId: string
+  searchResult?: ISearchResult
   agentId?: string
   contactId?: string
+  reject?: Function
+  shortlist?: Function
+  undo?: Function
+  loading?: boolean
 }
 
 const Property = ({
   orgId,
-  searchId,
+  searchResult,
   agentId,
   contactId,
+  reject,
+  shortlist,
+  undo,
+  loading,
+
   _id,
   Media,
   ListPrice,
@@ -44,11 +56,54 @@ const Property = ({
         <Stack
           href={
             (agentId
-              ? `/app/agent-orgs/${agentId}/search-results/${searchId}/properties/${_id}`
-              : `/app/contact-orgs/${contactId}/search-results/${searchId}/properties/${_id}`) as Route
+              ? `/app/agent-orgs/${agentId}/search-results/${searchResult?._id}/properties/${_id}`
+              : `/app/contact-orgs/${contactId}/search-results/${searchResult?._id}/properties/${_id}`) as Route
           }
           component={Link}
+          position="relative"
         >
+          {searchResult?.shortlists.includes(_id) && (
+            <Stack
+              sx={{
+                width: 120,
+                height: 32,
+                alignItems: "center",
+                justifyContent: "center",
+
+                position: "absolute",
+                top: 12,
+                left: 0,
+                borderRadius: "0px 4px 4px 0px",
+                bgcolor: "green.700",
+              }}
+            >
+              <Typography variant="body1" color="white" fontWeight="600">
+                Shortlisted
+              </Typography>
+            </Stack>
+          )}
+
+          {searchResult?.rejects.includes(_id) && (
+            <Stack
+              sx={{
+                width: 120,
+                height: 32,
+                alignItems: "center",
+                justifyContent: "center",
+
+                position: "absolute",
+                top: 12,
+                left: 0,
+                borderRadius: "0px 4px 4px 0px",
+                bgcolor: "red.200",
+              }}
+            >
+              <Typography variant="body1" color="white" fontWeight="600">
+                Rejected
+              </Typography>
+            </Stack>
+          )}
+
           {findMedia && (
             <Image
               src={findMedia.MediaURL}
@@ -137,46 +192,104 @@ const Property = ({
           </Stack>
         </Stack>
 
-        <Stack
-          sx={{
-            width: "100%",
-            justifyContent: "center",
-            borderTop: "1px solid",
-            borderTopColor: "gray.300",
-          }}
-          direction="row"
-        >
-          <Typography
-            sx={{
-              p: 1.5,
-              color: "red.200",
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            component={"button"}
-            onClick={() => {}}
-          >
-            Reject
-          </Typography>
-          <Typography
-            sx={{
-              p: 1.5,
-              color: "green.700",
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderLeft: "1px solid",
-              borderLeftColor: "gray.300",
-            }}
-            component={"button"}
-            onClick={() => {}}
-          >
-            Shortlist
-          </Typography>
-        </Stack>
+        {searchResult?.searchName &&
+          ([...searchResult.shortlists, ...searchResult.rejects].includes(
+            _id
+          ) ? (
+            <Stack
+              sx={{
+                width: "100%",
+                justifyContent: "center",
+                borderTop: "1px solid",
+                borderTopColor: "gray.300",
+              }}
+              direction="row"
+            >
+              <LoadingButton
+                sx={{
+                  p: 1.5,
+                  color: "blue.900",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  height: 50,
+                  ":hover": {
+                    background: "transparent",
+                    opacity: 0.8,
+                  },
+                }}
+                onClick={(e) => {
+                  if (e.preventDefault) e.preventDefault()
+                  if (undo) undo(_id)
+                }}
+                loading={loading}
+              >
+                Undo
+              </LoadingButton>
+            </Stack>
+          ) : (
+            <Stack
+              sx={{
+                width: "100%",
+                justifyContent: "center",
+                borderTop: "1px solid",
+                borderTopColor: "gray.300",
+              }}
+              direction="row"
+            >
+              <LoadingButton
+                sx={{
+                  p: 1.5,
+                  color: "red.200",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  height: 50,
+                  ":hover": {
+                    background: "transparent",
+                    opacity: 0.8,
+                  },
+                }}
+                onClick={(e) => {
+                  if (e.preventDefault) e.preventDefault()
+                  if (reject) reject(_id)
+                }}
+                loading={loading}
+              >
+                Reject
+              </LoadingButton>
+              <LoadingButton
+                sx={{
+                  p: 1.5,
+                  color: "green.700",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 0,
+                  borderLeft: "1px solid",
+                  borderLeftColor: "gray.300",
+                  background: "transparent",
+                  height: 50,
+                  ":hover": {
+                    background: "transparent",
+                    opacity: 0.8,
+                  },
+                }}
+                onClick={(e) => {
+                  if (e.preventDefault) e.preventDefault()
+                  if (shortlist) shortlist(_id)
+                }}
+                loading={loading}
+              >
+                Shortlist
+              </LoadingButton>
+            </Stack>
+          ))}
       </Stack>
     </Grid>
   )

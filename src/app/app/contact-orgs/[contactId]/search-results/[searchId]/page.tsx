@@ -1,9 +1,34 @@
 "use client"
 
-import { Stack } from "@mui/material"
+import { useMemo } from "react"
+import { RootState } from "@/redux/store"
+import { useSelector } from "react-redux"
 
-const Page = () => {
-  return <Stack>Search result page</Stack>
+import SearchResultPage from "@/components/SearchResultPage"
+
+type PageProps = {
+  params: {
+    contactId: string
+    searchId: string
+  }
+}
+
+const Page = ({ params }: PageProps) => {
+  const { contactId, searchId } = params
+
+  const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
+  const contact = useMemo(
+    () => contactOrgs.find((contact) => contact._id === contactId),
+    [contactId, contactOrgs]
+  )
+
+  return (
+    <SearchResultPage
+      orgId={String(contact?.orgId)}
+      searchId={searchId}
+      agentId={contactId}
+    />
+  )
 }
 
 export default Page

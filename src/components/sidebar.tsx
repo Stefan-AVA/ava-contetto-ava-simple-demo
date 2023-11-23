@@ -24,7 +24,7 @@ export default function Sidebar({ routes }: SidebarProps) {
           height: "100%",
           display: { xs: "none", md: "flex" },
           minWidth: "16rem",
-          minHeight: "100vh",
+          minHeight: "calc(100vh - 4rem)",
           borderRight: "1px solid",
           borderRightColor: "gray.300",
         }}

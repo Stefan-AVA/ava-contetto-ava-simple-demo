@@ -127,7 +127,8 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
             <SearchForm
               orgId={orgId}
-              isAgent={!!agentId}
+              agentId={agentId}
+              contactId={contactId}
               searchResult={data?.searchResult}
             />
           </Stack>
@@ -143,7 +144,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               orgId={orgId}
               agentId={agentId}
               contactId={contactId}
-              searchId={data.searchResult._id}
+              searchResult={data.searchResult}
             />
           ))}
         </Grid>

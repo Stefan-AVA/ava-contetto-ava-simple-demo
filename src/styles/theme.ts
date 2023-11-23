@@ -15,6 +15,7 @@ export const palette = {
     300: "#A1A5C1",
     500: "#3A4188",
     800: "#252B5C",
+    900: "#5A57FF",
   },
 
   cyan: {

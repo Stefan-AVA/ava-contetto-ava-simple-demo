@@ -1,6 +1,7 @@
 import { differenceInMilliseconds, formatDistance } from "date-fns"
 
-export const getDatefromUnix = (timeStamp: number) => {
+export const getDatefromUnix = (timeStamp?: number) => {
+  if (!timeStamp) return ""
   return new Date(timeStamp * 1000).toDateString()
 }
 
