@@ -1,9 +1,13 @@
 "use client"
 
-import { MouseEventHandler } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import {
+  useRejectPropertyMutation,
+  useShortlistPropertyMutation,
+  useUndoPropertyMutation,
+} from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
 import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
@@ -14,24 +18,18 @@ import { ISearchResult } from "@/types/searchResult.types"
 
 interface IProps extends IListing {
   orgId: string
-  searchResult?: ISearchResult
   agentId?: string
   contactId?: string
-  reject?: Function
-  shortlist?: Function
-  undo?: Function
-  loading?: boolean
+  searchResult?: ISearchResult
+  setSearchResult?: Function
 }
 
 const Property = ({
   orgId,
-  searchResult,
   agentId,
   contactId,
-  reject,
-  shortlist,
-  undo,
-  loading,
+  searchResult,
+  setSearchResult,
 
   _id,
   Media,
@@ -43,6 +41,52 @@ const Property = ({
   VIVA_AdditionalRentSqFt,
 }: IProps) => {
   const findMedia = Media.find(({ MediaURL }) => MediaURL)
+
+  const [shortlist, { isLoading: isShortlistLoading }] =
+    useShortlistPropertyMutation()
+  const [reject, { isLoading: isRejectLoading }] = useRejectPropertyMutation()
+  const [undo, { isLoading: isUndoLoading }] = useUndoPropertyMutation()
+
+  const loading = isShortlistLoading || isRejectLoading || isUndoLoading
+
+  const onShortlist = async () => {
+    try {
+      const result = await shortlist({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: _id,
+      }).unwrap()
+      if (setSearchResult) setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onShortlist error ===>", error)
+    }
+  }
+
+  const onReject = async () => {
+    try {
+      const result = await reject({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: _id,
+      }).unwrap()
+      if (setSearchResult) setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onReject error ===>", error)
+    }
+  }
+
+  const onUndo = async () => {
+    try {
+      const result = await undo({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: _id,
+      }).unwrap()
+      if (setSearchResult) setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onUndo error ===>", error)
+    }
+  }
 
   return (
     <Grid xs={12} sm={6} md={4} xl={3} key={_id}>
@@ -220,10 +264,7 @@ const Property = ({
                     opacity: 0.8,
                   },
                 }}
-                onClick={(e) => {
-                  if (e.preventDefault) e.preventDefault()
-                  if (undo) undo(_id)
-                }}
+                onClick={onUndo}
                 loading={loading}
               >
                 Undo
@@ -254,10 +295,7 @@ const Property = ({
                     opacity: 0.8,
                   },
                 }}
-                onClick={(e) => {
-                  if (e.preventDefault) e.preventDefault()
-                  if (reject) reject(_id)
-                }}
+                onClick={onReject}
                 loading={loading}
               >
                 Reject
@@ -280,10 +318,7 @@ const Property = ({
                     opacity: 0.8,
                   },
                 }}
-                onClick={(e) => {
-                  if (e.preventDefault) e.preventDefault()
-                  if (shortlist) shortlist(_id)
-                }}
+                onClick={onShortlist}
                 loading={loading}
               >
                 Shortlist

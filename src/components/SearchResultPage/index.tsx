@@ -1,12 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import {
-  useGetSearchResultQuery,
-  useRejectPropertyMutation,
-  useShortlistPropertyMutation,
-  useUndoPropertyMutation,
-} from "@/redux/apis/search"
+import { useGetSearchResultQuery } from "@/redux/apis/search"
 import { getDatefromUnix } from "@/utils/format-date"
 import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
 import { Folder, User } from "lucide-react"
@@ -33,13 +28,6 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
     { orgId, searchId },
     { skip: !orgId }
   )
-
-  const [shortlist, { isLoading: isShortlistLoading }] =
-    useShortlistPropertyMutation()
-  const [reject, { isLoading: isRejectLoading }] = useRejectPropertyMutation()
-  const [undo, { isLoading: isUndoLoading }] = useUndoPropertyMutation()
-
-  const loading = isShortlistLoading || isRejectLoading || isUndoLoading
 
   useEffect(() => {
     if (data?.searchResult) {
@@ -85,33 +73,6 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
 
     return []
   }, [data?.properties, searchResult])
-
-  const onShortlist = async (propertyId: string) => {
-    try {
-      const result = await shortlist({ orgId, searchId, propertyId }).unwrap()
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onShortlist error ===>", error)
-    }
-  }
-
-  const onReject = async (propertyId: string) => {
-    try {
-      const result = await reject({ orgId, searchId, propertyId }).unwrap()
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onReject error ===>", error)
-    }
-  }
-
-  const onUndo = async (propertyId: string) => {
-    try {
-      const result = await undo({ orgId, searchId, propertyId }).unwrap()
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onUndo error ===>", error)
-    }
-  }
 
   return isLoading ? (
     <Loading />
@@ -214,10 +175,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               agentId={agentId}
               contactId={contactId}
               searchResult={searchResult}
-              shortlist={onShortlist}
-              reject={onReject}
-              undo={onUndo}
-              loading={loading}
+              setSearchResult={setSearchResult}
             />
           ))}
         </Grid>
@@ -233,10 +191,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               agentId={agentId}
               contactId={contactId}
               searchResult={searchResult}
-              shortlist={onShortlist}
-              reject={onReject}
-              undo={onUndo}
-              loading={loading}
+              setSearchResult={setSearchResult}
             />
           ))}
         </Grid>
@@ -252,10 +207,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               agentId={agentId}
               contactId={contactId}
               searchResult={searchResult}
-              shortlist={onShortlist}
-              reject={onReject}
-              undo={onUndo}
-              loading={loading}
+              setSearchResult={setSearchResult}
             />
           ))}
         </Grid>
