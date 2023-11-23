@@ -98,7 +98,6 @@ export default function OrgInfo({
     <Stack
       sx={{
         p: isCreate ? 2.5 : 0,
-        mx: "auto",
         gap: 3,
         width: "100%",
         maxWidth: "32rem",

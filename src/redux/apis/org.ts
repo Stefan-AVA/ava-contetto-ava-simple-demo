@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
 import type { IContact } from "@/types/contact.types"
+import { IInvite } from "@/types/invite.types"
 import type { IOrg } from "@/types/org.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
@@ -84,7 +85,10 @@ export const orgApi = createApi({
       }),
       providesTags: ["Orgs"],
     }),
-    getMembers: builder.query<IAgentProfile[], IRequestWithId>({
+    getMembers: builder.query<
+      { members: IAgentProfile[]; invitations: IInvite[] },
+      IRequestWithId
+    >({
       query: ({ id }) => ({
         url: `/${id}/members`,
         method: "GET",

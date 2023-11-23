@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
-import { useInviteAgentMutation } from "@/redux/apis/org"
+import { useGetMembersQuery, useInviteAgentMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
+import { getTimeDifference } from "@/utils/format-date"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -12,6 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
+import { useSnackbar } from "notistack"
 import { z } from "zod"
 
 import { AgentRole, type IAgentProfile } from "@/types/agentProfile.types"
@@ -37,13 +39,18 @@ type FormError = InviteAgentSchema & {
 
 interface IOrgMembers {
   me?: IAgentProfile
-  members: IAgentProfile[]
 }
 
-export default function OrgMembers({ me, members = [] }: IOrgMembers) {
+export default function OrgMembers({ me }: IOrgMembers) {
+  const { enqueueSnackbar } = useSnackbar()
+
   const [form, setForm] = useState<InviteAgentSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
+  const { data, refetch } = useGetMembersQuery(
+    { id: String(me?.orgId) },
+    { skip: !me }
+  )
   const [invite, { isLoading }] = useInviteAgentMutation()
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -66,6 +73,12 @@ export default function OrgMembers({ me, members = [] }: IOrgMembers) {
         id: me?.orgId as string,
         ...response.data,
       }).unwrap()
+
+      refetch()
+
+      enqueueSnackbar(`Sent an invitation to ${response.data.email}`, {
+        variant: "success",
+      })
     } catch (error) {
       setErrors(
         (prev) => ({ ...prev, request: parseError(error) }) as FormError
@@ -90,30 +103,34 @@ export default function OrgMembers({ me, members = [] }: IOrgMembers) {
             onSubmit={submit}
             component="form"
           >
-            <TextField
-              label="Email"
-              error={!!errors?.email}
-              onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, email: target.value }))
-              }
-              helperText={errors?.email}
-            />
+            <Stack spacing={2} direction={{ xs: "column", md: "row" }}>
+              <TextField
+                label="Email"
+                error={!!errors?.email}
+                onChange={({ target }) =>
+                  setForm((prev) => ({ ...prev, email: target.value }))
+                }
+                helperText={errors?.email}
+                fullWidth
+              />
 
-            <TextField
-              label="Role"
-              error={!!errors?.role}
-              select
-              onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, role: target.value }))
-              }
-              helperText={errors?.role}
-            >
-              {me.role === AgentRole.owner && (
-                <MenuItem value={AgentRole.admin}>{AgentRole.admin}</MenuItem>
-              )}
+              <TextField
+                label="Role"
+                error={!!errors?.role}
+                select
+                onChange={({ target }) =>
+                  setForm((prev) => ({ ...prev, role: target.value }))
+                }
+                fullWidth
+                helperText={errors?.role}
+              >
+                {me.role === AgentRole.owner && (
+                  <MenuItem value={AgentRole.admin}>{AgentRole.admin}</MenuItem>
+                )}
 
-              <MenuItem value={AgentRole.agent}>{AgentRole.agent}</MenuItem>
-            </TextField>
+                <MenuItem value={AgentRole.agent}>{AgentRole.agent}</MenuItem>
+              </TextField>
+            </Stack>
 
             <LoadingButton type="submit" loading={isLoading}>
               Invite
@@ -143,8 +160,8 @@ export default function OrgMembers({ me, members = [] }: IOrgMembers) {
         Members
       </Typography>
 
-      <Grid spacing={2} container>
-        {members.map(({ _id, username, role }) => (
+      <Grid spacing={2} container sx={{ maxWidth: "32rem" }}>
+        {data?.members.map(({ _id, username, role }) => (
           <Grid
             sx={{
               p: 3,
@@ -157,7 +174,7 @@ export default function OrgMembers({ me, members = [] }: IOrgMembers) {
               borderRadius: ".5rem",
             }}
             xs={12}
-            md={4}
+            md={6}
             key={_id}
           >
             <Typography
@@ -190,6 +207,80 @@ export default function OrgMembers({ me, members = [] }: IOrgMembers) {
           </Grid>
         ))}
       </Grid>
+
+      {(data?.invitations || []).length > 0 && (
+        <>
+          <Typography
+            sx={{
+              pt: 3,
+              borderTop: "1px solid",
+              borderTopColor: "gray.300",
+            }}
+            variant="h6"
+          >
+            <b>Active</b> (pending) <b>Invitations</b>
+          </Typography>
+
+          <Stack spacing={2} sx={{ maxWidth: "32rem" }}>
+            {data?.invitations.map(
+              ({ _id, email, createdAt, invitor, role }) => (
+                <Stack
+                  key={_id}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{
+                    borderBottom: "1px solid",
+                    borderColor: "gray.300",
+                    py: 1,
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography
+                      sx={{
+                        color: "blue.800",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {email}
+                    </Typography>
+
+                    <Typography
+                      sx={{ color: "blue.800" }}
+                      variant="caption"
+                      component="span"
+                    >
+                      ({role})
+                    </Typography>
+                  </Stack>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    display={{ xs: "none", md: "flex" }}
+                  >
+                    <Typography
+                      sx={{ color: "blue.800" }}
+                      variant="body2"
+                      component="span"
+                    >
+                      Invited:
+                    </Typography>
+
+                    <Typography
+                      sx={{ color: "blue.800" }}
+                      variant="caption"
+                      component="span"
+                    >
+                      {getTimeDifference(createdAt)}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              )
+            )}
+          </Stack>
+        </>
+      )}
     </Stack>
   )
 }

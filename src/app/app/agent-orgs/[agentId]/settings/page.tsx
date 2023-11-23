@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useGetMembersQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
 import { TabContext, TabList, TabPanel } from "@mui/lab"
 import { Box, Stack, Tab, Typography } from "@mui/material"
@@ -27,13 +26,8 @@ const Page = ({ params }: PageProps) => {
     [agentId, agentOrgs]
   )
 
-  const { data: members = [] } = useGetMembersQuery(
-    { id: String(agentProfile?.orgId) },
-    { skip: !agentProfile }
-  )
-
   return (
-    <Stack sx={{ gap: 5 }}>
+    <Stack sx={{ gap: 3 }}>
       <Stack
         sx={{
           gap: 1,
@@ -62,7 +56,7 @@ const Page = ({ params }: PageProps) => {
           <OrgInfo org={agentProfile?.org} role={agentProfile?.role} />
         </TabPanel>
         <TabPanel value="2">
-          <OrgMembers me={agentProfile} members={members} />
+          <OrgMembers me={agentProfile} />
         </TabPanel>
       </TabContext>
     </Stack>
