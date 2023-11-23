@@ -73,6 +73,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
         border: {
           md: "1px solid",
         },
+        width: "100%",
         alignItems: "center",
         borderColor: {
           md: "gray.300",
@@ -130,7 +131,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                 slidesPerView={2}
               >
                 {media.images.map((image) => (
-                  <SwiperSlide key={image} style={{ width: "fit-content" }}>
+                  <SwiperSlide key={image} style={{ width: "100%" }}>
                     <Image
                       src={image}
                       alt=""

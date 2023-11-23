@@ -49,12 +49,8 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         sx={{
           pl: 3.5,
           gap: 1,
-          width: "100%",
           height: "100%",
-          maxWidth: "19.5rem",
           alignItems: "center",
-          borderRight: "1px solid",
-          borderRightColor: "gray.300",
         }}
         direction="row"
       >
