@@ -201,7 +201,9 @@ export default function Sidebar({
         spacing={2}
       >
         {loading && <CircularProgress size="1.25rem" />}
-        {!loading && <SidebarList setOpenCreateOrgModal={setOpenCreateOrgModal} />}
+        {!loading && (
+          <SidebarList setOpenCreateOrgModal={setOpenCreateOrgModal} />
+        )}
 
         <Box
           sx={{
