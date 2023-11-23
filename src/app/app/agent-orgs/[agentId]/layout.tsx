@@ -68,7 +68,17 @@ export default function Layout({ children }: PropsWithChildren) {
     >
       <Sidebar routes={routes} />
 
-      <Box sx={{ p: {xs: 1, md:5}, width: "100%" }}>{children}</Box>
+      <Box
+        sx={{
+          p: { xs: 1, md: 5 },
+          width: "100%",
+          height: "calc(100vh - 4rem)",
+          overflowY: "auto",
+          overflowX: "hidden",
+        }}
+      >
+        {children}
+      </Box>
     </Stack>
   )
 }

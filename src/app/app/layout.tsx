@@ -90,11 +90,11 @@ export default function Layout({ children }: PropsWithChildren) {
 
       <Box
         sx={{
-          flex: 1,
           pl: {
             xs: 0,
             md: `${SIDEBAR_WIDTH}px`,
           },
+          width: "100%",
         }}
       >
         <Nav loading={isLoading} toggleDrawer={toggleDrawer} />

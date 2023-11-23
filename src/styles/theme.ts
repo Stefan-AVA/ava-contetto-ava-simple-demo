@@ -36,7 +36,7 @@ export const palette = {
   green: {
     500: "#43A491",
     600: "#8BC83F",
-    700: "#27AE60"
+    700: "#27AE60",
   },
 
   white: "#FFF",

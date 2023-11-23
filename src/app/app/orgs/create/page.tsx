@@ -1,3 +1,4 @@
+import { Route } from "next"
 import Link from "next/link"
 import { Box, Stack, Typography } from "@mui/material"
 import { ChevronLeft } from "lucide-react"
@@ -29,7 +30,7 @@ const CreateOrgPage = () => {
               color: "cyan.500",
             },
           }}
-          href="/app/orgs"
+          href={`/app/orgs` as Route}
           component={Link}
         >
           <ChevronLeft size={20} />

@@ -21,9 +21,9 @@ export default function Sidebar({ routes }: SidebarProps) {
         sx={{
           py: 3.5,
           px: 3,
-          width: "19.5rem",
           height: "100%",
           display: { xs: "none", md: "flex" },
+          minWidth: "16rem",
           minHeight: "100vh",
           borderRight: "1px solid",
           borderRightColor: "gray.300",

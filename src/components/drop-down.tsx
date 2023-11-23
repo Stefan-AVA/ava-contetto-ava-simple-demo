@@ -1,6 +1,6 @@
-import { PropsWithChildren, ReactNode, useId, useRef } from "react"
+import { useId, useRef, type PropsWithChildren, type ReactNode } from "react"
 import { Box } from "@mui/material"
-import Popover, { PopoverOrigin } from "@mui/material/Popover"
+import Popover, { type PopoverOrigin } from "@mui/material/Popover"
 
 interface IDropDown extends PropsWithChildren {
   open: boolean
@@ -10,22 +10,20 @@ interface IDropDown extends PropsWithChildren {
   transformOrigin?: PopoverOrigin
 }
 
-const DropDown = ({
+export default function Dropdown({
   open,
   onClose,
   ancher,
   children,
   anchorOrigin,
   transformOrigin,
-}: IDropDown) => {
+}: IDropDown) {
   const ancherRef = useRef(null)
   const id = useId()
 
   return (
-    <div>
-      <Box ref={ancherRef}>
-        {ancher}
-      </Box>
+    <>
+      <Box ref={ancherRef}>{ancher}</Box>
       <Popover
         id={id}
         open={open}
@@ -46,8 +44,6 @@ const DropDown = ({
       >
         {children}
       </Popover>
-    </div>
+    </>
   )
 }
-
-export default DropDown
