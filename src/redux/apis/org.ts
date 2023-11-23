@@ -202,7 +202,9 @@ export const {
   useAcceptInviteMutation,
 
   // contacts
+  useGetContactsQuery,
   useSearchContactsQuery,
   useBindContactMutation,
+  useDeleteContactMutation,
   useCreateContactMutation,
 } = orgApi
