@@ -10,7 +10,7 @@ import Logo from "~/assets/logo-ava.png"
 import { MenuIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import CreateClient from "./create-client"
+import CreateClient from "./create-contact"
 import Search from "./search"
 import Menu from "./user-menu"
 

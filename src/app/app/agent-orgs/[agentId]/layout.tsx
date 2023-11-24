@@ -9,6 +9,7 @@ import {
   LayoutDashboardIcon,
   Search,
   SettingsIcon,
+  UserPlus,
 } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -39,6 +40,12 @@ export default function Layout({ children }: PropsWithChildren) {
         icon: <Contact />,
         label: "Contacts",
         active: pathName.includes("contacts"),
+      },
+      {
+        path: `/app/agent-orgs/${agentId}/create-contact`,
+        icon: <UserPlus />,
+        label: "Create Contact",
+        active: pathName.includes("create-contact"),
       },
       {
         path: `/app/agent-orgs/${agentId}/search-results`,
