@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import { useGetContactQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
+import { nameInitials } from "@/utils/format-name"
 import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
 import { ChevronRight, Mail } from "lucide-react"
 import { useSelector } from "react-redux"
@@ -72,15 +73,17 @@ export default function ContactLayout({ children }: PropsWithChildren) {
         >
           {isLoading && <Loading />}
 
-          {!isLoading && (
+          {data && !isLoading && (
             <>
-              <Avatar sx={{ width: "6.25rem", height: "6.25rem" }}>YU</Avatar>
+              <Avatar sx={{ width: "6.25rem", height: "6.25rem" }}>
+                {nameInitials(data.name)}
+              </Avatar>
 
               <Typography
                 sx={{ mt: 3, textAlign: "center", fontWeight: 700 }}
                 variant="h5"
               >
-                Yuri Martins
+                {data.name}
               </Typography>
 
               <Typography
@@ -109,7 +112,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                 <Box sx={{ color: "purple.500" }} size={20} component={Mail} />
 
                 <Typography sx={{ color: "gray.800" }}>
-                  develop@yumartins.com.br
+                  Email not provided
                 </Typography>
               </Stack>
 

@@ -34,7 +34,7 @@ export default function Page({ params }: PageProps) {
         borderRadius: ".75rem",
       }}
     >
-      <CreateContactForm orgId={String(agentProfile?.orgId)} withInvite />
+      <CreateContactForm orgId={String(agentProfile?.orgId)} />
     </Stack>
   )
 }
