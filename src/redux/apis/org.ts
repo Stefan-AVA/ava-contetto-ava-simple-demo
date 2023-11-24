@@ -32,6 +32,11 @@ interface IShareContactResponse {
   link: string
 }
 
+interface ISearchContactRequest {
+  orgId: string
+  search: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -160,10 +165,13 @@ export const orgApi = createApi({
       }),
       providesTags: ["Contacts"],
     }),
-    searchContacts: builder.query<IContact[], Partial<IContact>>({
-      query: ({ _id, orgId }) => ({
+    searchContacts: builder.query<IContact[], ISearchContactRequest>({
+      query: ({ orgId, search }) => ({
         url: `/${orgId}/contacts/search`,
         method: "GET",
+        params: {
+          search,
+        },
       }),
       providesTags: ["Contacts"],
     }),

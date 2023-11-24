@@ -3,15 +3,16 @@
 import React, { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { type RootState } from "@/redux/store"
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
 import Logo from "~/assets/logo-ava.png"
 import { MenuIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import CreateClient from "./create-contact"
-import Search from "./search"
+import { IContact } from "@/types/contact.types"
+import ContactSearch from "@/components/ContactSearch"
+
 import Menu from "./user-menu"
 
 interface INav {
@@ -21,6 +22,7 @@ interface INav {
 
 export default function Nav({ loading, toggleDrawer }: INav) {
   const { agentId } = useParams()
+  const { push } = useRouter()
 
   const state = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -47,7 +49,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
     >
       <Stack
         sx={{
-          pl: 3.5,
+          pl: 1.5,
           gap: 1,
           height: "100%",
           alignItems: "center",
@@ -59,6 +61,12 @@ export default function Nav({ loading, toggleDrawer }: INav) {
             display: {
               xs: "flex",
               md: "none",
+            },
+            padding: 1,
+            background: "white",
+            color: "black",
+            ":hover": {
+              background: "white",
             },
           }}
           onClick={toggleDrawer}
@@ -90,9 +98,14 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         {loading && <CircularProgress size="1.25rem" />}
         {!loading && (
           <>
-            {agentProfile && <Search orgId={agentProfile.orgId} />}
-
-            {agentProfile && <CreateClient orgId={agentProfile.orgId} />}
+            {agentProfile && (
+              <ContactSearch
+                orgId={agentProfile.orgId}
+                onContactChanged={(contact: IContact) => {
+                  push(`/app/agent-orgs/${agentId}/contacts/${contact._id}`)
+                }}
+              />
+            )}
 
             <Menu />
           </>
