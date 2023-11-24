@@ -1,7 +1,9 @@
 "use client"
 
 import { useMemo, type PropsWithChildren } from "react"
-import { useParams } from "next/navigation"
+import { Route } from "next"
+import Link from "next/link"
+import { useParams, usePathname } from "next/navigation"
 import { useGetContactQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
 import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
@@ -13,12 +15,16 @@ import Loading from "@/components/Loading"
 export default function ContactLayout({ children }: PropsWithChildren) {
   const { agentId, contact_id: contactId } = useParams()
 
+  const pathname = usePathname()
+
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]
   )
+
+  const basePath = `/app/agent-orgs/${agentId}/contacts/${contactId}` as Route
 
   const { data, isLoading } = useGetContactQuery(
     {
@@ -183,7 +189,59 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             borderRadius: ".625rem",
           }}
         >
-          {children}
+          <Stack
+            sx={{
+              p: 3,
+              color: "gray.600",
+              fontWeight: 700,
+              alignItems: "center",
+              borderBottom: "1px solid",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderBottomColor: "gray.300",
+            }}
+          >
+            <Typography
+              sx={{
+                color: pathname === basePath ? "purple.500" : "gray.600",
+                fontWeight: 700,
+              }}
+              href={basePath}
+              component={Link}
+            >
+              Notes
+            </Typography>
+
+            <Typography
+              sx={{
+                color:
+                  pathname === `${basePath}/saved-searches`
+                    ? "purple.500"
+                    : "gray.600",
+                fontWeight: 700,
+              }}
+              href={`${basePath}/saved-searches` as Route}
+              component={Link}
+            >
+              Saved Searches
+            </Typography>
+
+            <Typography
+              sx={{
+                color:
+                  pathname === `${basePath}/saved-searches`
+                    ? "purple.500"
+                    : "gray.600",
+                fontWeight: 700,
+              }}
+              href={`${basePath}/all-activities` as Route}
+              component={Link}
+            >
+              All Activities
+            </Typography>
+          </Stack>
+
+          <Stack sx={{ p: 3 }}>{children}</Stack>
         </Stack>
       </Stack>
     </Stack>
