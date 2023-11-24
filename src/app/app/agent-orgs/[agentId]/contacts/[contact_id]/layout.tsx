@@ -8,7 +8,7 @@ import { useGetContactQuery, useShareContactMutation } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { LoadingButton } from "@mui/lab"
-import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
+import { Avatar, Box, Stack, Switch, Typography } from "@mui/material"
 import { Mail } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
@@ -238,7 +238,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             <Typography
               sx={{
                 color:
-                  pathname === `${basePath}/saved-searches`
+                  pathname === `${basePath}/all-activities`
                     ? "purple.500"
                     : "gray.600",
                 fontWeight: 700,

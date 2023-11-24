@@ -96,6 +96,16 @@ export const searchApi = createApi({
       }),
       invalidatesTags: ["Searches"],
     }),
+    getSearchResultsByContact: builder.query<
+      ISearchResult[],
+      IGetSearchResultsRequest
+    >({
+      query: ({ orgId, contactId }) => ({
+        url: `/${orgId}/search-results/contacts/${contactId}`,
+        method: "GET",
+      }),
+      providesTags: ["Searches"],
+    }),
 
     // ========== property ==========
     getProperty: builder.query<
@@ -147,6 +157,7 @@ export const {
   useGetSearchResultQuery,
   useSaveSearchMutation,
   useDeleteSearchResultMutation,
+  useGetSearchResultsByContactQuery,
 
   useGetPropertyQuery,
   useShortlistPropertyMutation,
