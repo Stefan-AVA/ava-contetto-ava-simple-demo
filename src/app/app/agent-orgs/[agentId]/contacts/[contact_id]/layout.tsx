@@ -4,11 +4,13 @@ import { useMemo, type PropsWithChildren } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
-import { useGetContactQuery } from "@/redux/apis/org"
+import { useGetContactQuery, useShareContactMutation } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
+import { LoadingButton } from "@mui/lab"
 import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
 import { Mail } from "lucide-react"
+import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
 import Loading from "@/components/Loading"
@@ -22,6 +24,8 @@ export default function ContactLayout({ children }: PropsWithChildren) {
   const pathname = usePathname()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const { enqueueSnackbar } = useSnackbar()
 
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
@@ -39,6 +43,20 @@ export default function ContactLayout({ children }: PropsWithChildren) {
       skip: !contactId || !agentProfile,
     }
   )
+
+  const [shareContact, { isLoading: isLoadingShareContact }] =
+    useShareContactMutation({})
+
+  async function share() {
+    const response = await shareContact({
+      _id: contactId as string,
+      orgId: agentProfile?.orgId,
+    }).unwrap()
+
+    navigator.clipboard.writeText(response.link)
+
+    enqueueSnackbar("Link copied successfully", { variant: "success" })
+  }
 
   return (
     <Stack>
@@ -159,9 +177,15 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                 contactId={contactId as string}
               />
 
-              <Button sx={{ mt: 4 }} variant="outlined" fullWidth>
-                Copy Link Invite
-              </Button>
+              <LoadingButton
+                sx={{ mt: 4 }}
+                variant="outlined"
+                onClick={share}
+                loading={isLoadingShareContact}
+                fullWidth
+              >
+                Copy Link Share
+              </LoadingButton>
             </>
           )}
         </Stack>
