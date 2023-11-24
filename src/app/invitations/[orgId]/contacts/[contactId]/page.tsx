@@ -44,12 +44,12 @@ const Page = ({ params, searchParams }: PageProps) => {
 
           if (orgId && contactId && inviteCode) {
             try {
-              const agentProfile = await bindContact({
+              const contact = await bindContact({
                 _id: contactId,
                 orgId,
                 inviteCode,
               }).unwrap()
-              push(`/app/agent-orgs/${agentProfile._id}`)
+              push(`/app/contact-orgs/${contact._id}`)
             } catch (error) {
               push("/app")
             }
@@ -57,7 +57,7 @@ const Page = ({ params, searchParams }: PageProps) => {
         } catch (error) {
           replace(
             orgId && contactId && inviteCode
-              ? `/?_next=/invitations/${orgId}/contacts/${contactId}?code=${inviteCode}`
+              ? `/?_next=/invitations/${orgId}/contacts/${contactId}?inviteCode=${inviteCode}`
               : "/"
           )
         }
