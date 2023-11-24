@@ -8,10 +8,13 @@ import { useGetContactQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
-import { ChevronRight, Mail } from "lucide-react"
+import { Mail } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import Loading from "@/components/Loading"
+
+import DeleteContact from "./delete-contact"
+import EditContact from "./edit-contact"
 
 export default function ContactLayout({ children }: PropsWithChildren) {
   const { agentId, contact_id: contactId } = useParams()
@@ -145,37 +148,16 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                 <Switch />
               </Stack>
 
-              <Stack
-                sx={{
-                  mt: 2.5,
-                  gap: 2,
-                  width: "100%",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography sx={{ color: "gray.800" }}>Edit Contact</Typography>
+              <EditContact
+                orgId={String(agentProfile?.orgId)}
+                contactId={contactId as string}
+              />
 
-                <ChevronRight size={20} />
-              </Stack>
-
-              <Stack
-                sx={{
-                  mt: 2.5,
-                  gap: 2,
-                  width: "100%",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography sx={{ color: "gray.800" }}>
-                  Delete Contact
-                </Typography>
-
-                <ChevronRight size={20} />
-              </Stack>
+              <DeleteContact
+                orgId={String(agentProfile?.orgId)}
+                agentId={agentId as string}
+                contactId={contactId as string}
+              />
 
               <Button sx={{ mt: 4 }} variant="outlined" fullWidth>
                 Copy Link Invite

@@ -27,14 +27,14 @@ type FormError = FormSchema & {
   request?: string
 }
 
-type Ipage = {
+type IPage = {
   params: {
     agentId: string
     contact_id: string
   }
 }
 
-export default function Page({ params }: Ipage) {
+export default function Page({ params }: IPage) {
   const [form, setForm] = useState<FormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
@@ -86,8 +86,6 @@ export default function Page({ params }: Ipage) {
       }).unwrap()
 
       enqueueSnackbar("Note updated successfully", { variant: "success" })
-
-      close()
     } catch (error) {
       setErrors(
         (prev) => ({ ...prev, request: parseError(error) }) as FormError
