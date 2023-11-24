@@ -10,13 +10,18 @@ import {
 } from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
-import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
+import {
+  Unstable_Grid2 as Grid,
+  Stack,
+  Typography,
+  type Grid2Props,
+} from "@mui/material"
 import { Bath, BedDouble, Table2 } from "lucide-react"
 
 import { IListing } from "@/types/listing.types"
 import { ISearchResult } from "@/types/searchResult.types"
 
-interface IProps extends IListing {
+interface IProps extends IListing, Grid2Props {
   orgId: string
   agentId?: string
   contactId?: string
@@ -39,6 +44,8 @@ const Property = ({
   UnparsedAddress,
   BathroomsTotalInteger,
   VIVA_AdditionalRentSqFt,
+
+  ...rest
 }: IProps) => {
   const findMedia = Media.find(({ MediaURL }) => MediaURL)
 
@@ -89,7 +96,7 @@ const Property = ({
   }
 
   return (
-    <Grid xs={12} sm={6} md={4} xl={3} key={_id}>
+    <Grid xs={12} sm={6} md={4} xl={3} key={_id} {...rest}>
       <Stack
         sx={{
           border: "1px solid",

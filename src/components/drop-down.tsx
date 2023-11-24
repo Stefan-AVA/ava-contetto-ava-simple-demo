@@ -1,8 +1,8 @@
 import { useId, useRef, type PropsWithChildren, type ReactNode } from "react"
-import { Box } from "@mui/material"
+import { Box, BoxProps } from "@mui/material"
 import Popover, { type PopoverOrigin } from "@mui/material/Popover"
 
-interface IDropDown extends PropsWithChildren {
+interface IDropDown extends BoxProps, PropsWithChildren {
   open: boolean
   onClose: (event: {}, reason: "backdropClick" | "escapeKeyDown") => void
   ancher: ReactNode
@@ -12,18 +12,21 @@ interface IDropDown extends PropsWithChildren {
 
 export default function Dropdown({
   open,
-  onClose,
   ancher,
+  onClose,
   children,
   anchorOrigin,
   transformOrigin,
+  ...rest
 }: IDropDown) {
   const ancherRef = useRef(null)
   const id = useId()
 
   return (
     <>
-      <Box ref={ancherRef}>{ancher}</Box>
+      <Box ref={ancherRef} {...rest}>
+        {ancher}
+      </Box>
       <Popover
         id={id}
         open={open}

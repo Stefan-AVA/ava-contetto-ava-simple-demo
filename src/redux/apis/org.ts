@@ -221,4 +221,5 @@ export const {
   useShareContactMutation,
   useDeleteContactMutation,
   useCreateContactMutation,
+  useUpdateContactMutation,
 } = orgApi
