@@ -4,7 +4,8 @@ import { useMemo, type PropsWithChildren } from "react"
 import { useParams } from "next/navigation"
 import { useGetContactQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
-import { Stack, Typography } from "@mui/material"
+import { Avatar, Box, Button, Stack, Switch, Typography } from "@mui/material"
+import { ChevronRight, Mail } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import Loading from "@/components/Loading"
@@ -64,6 +65,114 @@ export default function ContactLayout({ children }: PropsWithChildren) {
           }}
         >
           {isLoading && <Loading />}
+
+          {!isLoading && (
+            <>
+              <Avatar sx={{ width: "6.25rem", height: "6.25rem" }}>YU</Avatar>
+
+              <Typography
+                sx={{ mt: 3, textAlign: "center", fontWeight: 700 }}
+                variant="h5"
+              >
+                Yuri Martins
+              </Typography>
+
+              <Typography
+                sx={{
+                  pt: 3,
+                  mt: 3,
+                  width: "100%",
+                  color: "gray.500",
+                  borderTop: "1px solid",
+                  borderTopColor: "gray.300",
+                }}
+                variant="body2"
+              >
+                CONTACT DETAILS
+              </Typography>
+
+              <Stack
+                sx={{
+                  mr: "auto",
+                  mt: 2.5,
+                  gap: 2,
+                  alignItems: "center",
+                  flexDirection: "row",
+                }}
+              >
+                <Box sx={{ color: "purple.500" }} size={20} component={Mail} />
+
+                <Typography sx={{ color: "gray.800" }}>
+                  develop@yumartins.com.br
+                </Typography>
+              </Stack>
+
+              <Typography
+                sx={{
+                  pt: 3,
+                  mt: 3,
+                  width: "100%",
+                  color: "gray.500",
+                  borderTop: "1px solid",
+                  borderTopColor: "gray.300",
+                }}
+                variant="body2"
+              >
+                CONTACT SETTINGS
+              </Typography>
+
+              <Stack
+                sx={{
+                  mt: 2.5,
+                  gap: 2,
+                  width: "100%",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography sx={{ color: "gray.800" }}>App Access</Typography>
+
+                <Switch />
+              </Stack>
+
+              <Stack
+                sx={{
+                  mt: 2.5,
+                  gap: 2,
+                  width: "100%",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography sx={{ color: "gray.800" }}>Edit Contact</Typography>
+
+                <ChevronRight size={20} />
+              </Stack>
+
+              <Stack
+                sx={{
+                  mt: 2.5,
+                  gap: 2,
+                  width: "100%",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography sx={{ color: "gray.800" }}>
+                  Delete Contact
+                </Typography>
+
+                <ChevronRight size={20} />
+              </Stack>
+
+              <Button sx={{ mt: 4 }} variant="outlined" fullWidth>
+                Copy Link Invite
+              </Button>
+            </>
+          )}
         </Stack>
 
         <Stack
