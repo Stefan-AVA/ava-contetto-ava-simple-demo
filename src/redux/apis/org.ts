@@ -206,6 +206,7 @@ export const {
   useAcceptInviteMutation,
 
   // contacts
+  useGetContactQuery,
   useGetContactsQuery,
   useSearchContactsQuery,
   useBindContactMutation,

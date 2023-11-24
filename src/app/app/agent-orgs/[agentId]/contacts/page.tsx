@@ -19,7 +19,7 @@ import {
   type GridRowsProp,
 } from "@mui/x-data-grid"
 import { format } from "date-fns"
-import { Eye, Share, Trash2 } from "lucide-react"
+import { Eye, Share2, Trash2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
@@ -112,7 +112,7 @@ export default function Page({ params }: IPage) {
             onClick={() => share({ _id: item.row.id, orgId: item.row.orgId })}
           >
             {isLoadingShareContact && <CircularProgress size="1.25rem" />}
-            {!isLoadingShareContact && <Share size={20} />}
+            {!isLoadingShareContact && <Share2 size={20} />}
           </button>
         </>,
       ],
