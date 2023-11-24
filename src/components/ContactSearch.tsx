@@ -101,11 +101,16 @@ const ContactSearch = ({
                   setContact(null)
                 })
               } else {
+                // setContact(newValue)
+
                 setTimeout(() => {
                   setOpen(false)
                   setNewContactname("")
-                  setContact(newValue)
-                  if (onContactChanged) onContactChanged(newValue)
+
+                  if (onContactChanged && newValue) {
+                    setContact(null)
+                    onContactChanged(newValue)
+                  }
                 })
               }
             }}

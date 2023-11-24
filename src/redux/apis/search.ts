@@ -96,6 +96,19 @@ export const searchApi = createApi({
       }),
       invalidatesTags: ["Searches"],
     }),
+    shareSearchResult: builder.mutation<
+      ISearchResult,
+      Omit<ISaveSearchRequest, "searchName">
+    >({
+      query: ({ orgId, searchId, contactId }) => ({
+        url: `/${orgId}/search-results/${searchId}/share`,
+        method: "POST",
+        body: {
+          contactId,
+        },
+      }),
+      invalidatesTags: ["Searches"],
+    }),
 
     // ========== property ==========
     getProperty: builder.query<
@@ -147,6 +160,7 @@ export const {
   useGetSearchResultQuery,
   useSaveSearchMutation,
   useDeleteSearchResultMutation,
+  useShareSearchResultMutation,
 
   useGetPropertyQuery,
   useShortlistPropertyMutation,

@@ -1,13 +1,19 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useGetSearchResultQuery } from "@/redux/apis/search"
+import {
+  useGetSearchResultQuery,
+  useShareSearchResultMutation,
+} from "@/redux/apis/search"
 import { getDatefromUnix } from "@/utils/format-date"
+import { LoadingButton } from "@mui/lab"
 import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
 import { Folder, User } from "lucide-react"
 
+import { IContact } from "@/types/contact.types"
 import { ISearchResult } from "@/types/searchResult.types"
 
+import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
 import Property from "../SearchPage/Property"
 
@@ -28,6 +34,8 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
     { orgId, searchId },
     { skip: !orgId }
   )
+
+  const [shareSearch, { isLoading: isSharing }] = useShareSearchResultMutation()
 
   useEffect(() => {
     if (data?.searchResult) {
@@ -74,6 +82,19 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
     return []
   }, [data?.properties, searchResult])
 
+  const onShareSearchResult = async (contact: IContact) => {
+    try {
+      const searchResult = await shareSearch({
+        orgId,
+        searchId,
+        contactId: contact._id,
+      }).unwrap()
+      setSearchResult(searchResult)
+    } catch (error) {
+      console.log("onShare error ===>", error)
+    }
+  }
+
   return isLoading ? (
     <Loading />
   ) : (
@@ -107,10 +128,28 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             </Stack>
             <Stack direction="row" spacing={2} alignItems="center">
               <Typography variant="body1">Saved For:</Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <User size={20} />
-                <Typography variant="body2">{savedFor}</Typography>
-              </Stack>
+              <ContactSearch
+                orgId={orgId}
+                ancher={
+                  <Stack
+                    sx={{
+                      padding: 0,
+                      height: "unset",
+                      ":hover": { cursor: "pointer" },
+                    }}
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    loading={isSharing}
+                    variant="text"
+                    component={LoadingButton}
+                  >
+                    <User size={20} />
+                    <Typography variant="body2">{savedFor}</Typography>
+                  </Stack>
+                }
+                onContactChanged={onShareSearchResult}
+              />
             </Stack>
             <Stack
               direction="row"
