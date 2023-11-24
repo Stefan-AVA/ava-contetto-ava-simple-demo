@@ -30,7 +30,11 @@ export default function Layout({ children }: PropsWithChildren) {
   )
 
   return (
-    <Stack direction="row">
+    <Stack
+      padding={{ xs: 1, md: 0 }}
+      spacing={{ xs: 2, md: 0 }}
+      direction={{ xs: "column", md: "row" }}
+    >
       <Sidebar routes={routes} />
 
       <Box

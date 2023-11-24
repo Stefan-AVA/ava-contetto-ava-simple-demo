@@ -148,10 +148,10 @@ const SearchForm = ({
             onChange={({ target }) => onChange("searchName", target.value)}
             helperText={errors?.searchName}
           />
+          {!!agentId && (
+            <Stack direction="row" spacing={2} mt={2} alignItems="center">
+              <Typography variant="body1">Save For:</Typography>
 
-          <Stack direction="row" spacing={2} mt={2} alignItems="center">
-            <Typography variant="body1">Save For:</Typography>
-            {!!agentId && (
               <ContactSearch
                 orgId={orgId}
                 ancher={
@@ -183,9 +183,8 @@ const SearchForm = ({
                 }
                 onContactChanged={(contact: IContact) => setContact(contact)}
               />
-            )}
-          </Stack>
-
+            </Stack>
+          )}
           <Stack direction="row" spacing={1} width="100%" marginTop={3}>
             <Button
               variant="outlined"

@@ -26,7 +26,7 @@ const Page = ({ params }: PageProps) => {
     <SearchResultPage
       orgId={String(contact?.orgId)}
       searchId={searchId}
-      agentId={contactId}
+      contactId={contactId}
     />
   )
 }
