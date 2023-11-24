@@ -41,6 +41,10 @@ export default function Dropdown({
             horizontal: "left",
           }
         }
+        onClick={(e) => {
+          if (e.preventDefault) e.preventDefault()
+          if (e.stopPropagation) e.stopPropagation()
+        }}
       >
         {children}
       </Popover>

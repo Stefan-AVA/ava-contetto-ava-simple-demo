@@ -4,10 +4,13 @@ import { Route } from "next"
 import Link from "next/link"
 import { useGetSearchResultsQuery } from "@/redux/apis/search"
 import { getDatefromUnix } from "@/utils/format-date"
+import { LoadingButton } from "@mui/lab"
 import { Stack, Typography } from "@mui/material"
 import { Folder } from "lucide-react"
 
+import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
+import SearchResultItem from "./ResultItem"
 
 interface IProps {
   orgId: string
@@ -30,38 +33,15 @@ const SearchResultsPage = ({ orgId, agentId, contactId }: IProps) => {
         <Loading />
       ) : (
         <Stack spacing={2} py={3} px={{ xs: 0, md: 5 }}>
-          {results.map(
-            ({ _id, searchName, timestamp, rejects, shortlists }) => (
-              <Stack
-                key={_id}
-                width="100%"
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                href={
-                  (agentId
-                    ? `/app/agent-orgs/${agentId}/search-results/${_id}`
-                    : `/app/contact-orgs/${contactId}/search-results/${_id}`) as Route
-                }
-                component={Link}
-              >
-                <Stack direction="row" alignItems="center" spacing={3}>
-                  <Folder />
-                  <Stack>
-                    <Typography variant="h5">{searchName}</Typography>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="body2">{`Shortlisted:  ${shortlists.length}`}</Typography>
-                      <Typography variant="body2">{`Rejected:  ${rejects.length}`}</Typography>
-                    </Stack>
-                  </Stack>
-                </Stack>
-                <Typography
-                  variant="body2"
-                  sx={{ display: { xs: "none", md: "block" } }}
-                >{`Created: ${getDatefromUnix(timestamp)}`}</Typography>
-              </Stack>
-            )
-          )}
+          {results.map((result) => (
+            <SearchResultItem
+              key={result._id}
+              orgId={orgId}
+              agentId={agentId}
+              contactId={contactId}
+              result={result}
+            />
+          ))}
         </Stack>
       )}
     </Stack>

@@ -61,7 +61,14 @@ const ContactSearch = ({
       <Dropdown
         open={open}
         ancher={
-          <Box onClick={() => setOpen(true)}>
+          <Box
+            onClick={(e) => {
+              if (e.preventDefault) e.preventDefault()
+              if (e.stopPropagation) e.stopPropagation()
+
+              setOpen(true)
+            }}
+          >
             {ancher || (
               <IconButton
                 sx={{
@@ -88,7 +95,13 @@ const ContactSearch = ({
           horizontal: "right",
         }}
       >
-        <Card sx={{ p: 2, overflow: "hidden" }}>
+        <Card
+          sx={{ p: 2, overflow: "hidden" }}
+          onClick={(e) => {
+            if (e.preventDefault) e.preventDefault()
+            if (e.stopPropagation) e.stopPropagation()
+          }}
+        >
           <Autocomplete
             value={contact}
             sx={{ width: "18.5rem" }}
