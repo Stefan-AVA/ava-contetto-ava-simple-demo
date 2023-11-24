@@ -8,15 +8,13 @@ import {
   Card,
   CircularProgress,
   Dialog,
-  DialogContent,
-  DialogTitle,
   IconButton,
   ListItem,
   ListItemAvatar,
   ListItemText,
   TextField,
 } from "@mui/material"
-import { Plus, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 import { IContact } from "@/types/contact.types"
 import Dropdown from "@/components/drop-down"

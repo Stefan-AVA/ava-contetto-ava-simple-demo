@@ -17,11 +17,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Save } from "lucide-react"
+import { Save, User } from "lucide-react"
 import { useSnackbar } from "notistack"
 
+import { IContact } from "@/types/contact.types"
 import { ISearchResult } from "@/types/searchResult.types"
 import DropDown from "@/components/drop-down"
+
+import ContactSearch from "../ContactSearch"
 
 interface IError {
   searchName?: string
@@ -46,22 +49,20 @@ const SearchForm = ({
 
   const [open, setOpen] = useState(false)
   const [form, setFrom] = useState({
-    contactId: undefined,
     searchName: "",
-    savedForAgent: true,
   })
   const [errors, setErrors] = useState<IError>({})
+  const [contact, setContact] = useState<IContact | null>(null)
 
   const [saveSearch, { isLoading }] = useSaveSearchMutation()
 
   const onClose = () => {
     setFrom({
       searchName: "",
-      contactId: undefined,
-      savedForAgent: true,
     })
     setErrors({})
     setOpen(false)
+    setContact(null)
   }
 
   const onChange = (name: string, value: any) => {
@@ -87,7 +88,7 @@ const SearchForm = ({
         searchId: String(searchResult?._id),
         orgId,
         searchName: form.searchName,
-        contactId: form.contactId,
+        contactId: contact?._id,
       }).unwrap()
       enqueueSnackbar("Successfully saved", { variant: "success" })
       onClose()
@@ -148,35 +149,42 @@ const SearchForm = ({
             helperText={errors?.searchName}
           />
 
-          {!!agentId && (
-            <>
-              <RadioGroup
-                row
-                value={form.savedForAgent}
-                sx={{
-                  mt: 1,
-                  justifyContent: "space-between",
-                }}
-                onChange={({ target }) =>
-                  setFrom((prev) => ({
-                    ...prev,
-                    savedForAgent: target.value === "true",
-                  }))
+          <Stack direction="row" spacing={2} mt={2} alignItems="center">
+            <Typography variant="body1">Save For:</Typography>
+            {!!agentId && (
+              <ContactSearch
+                orgId={orgId}
+                ancher={
+                  <Stack
+                    sx={{
+                      padding: 0,
+                      height: "unset",
+                      ":hover": { cursor: "pointer" },
+                    }}
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    variant="text"
+                    component={LoadingButton}
+                  >
+                    <User size={20} />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        width: 90,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {contact ? contact.name : "For me"}
+                    </Typography>
+                  </Stack>
                 }
-              >
-                <FormControlLabel
-                  value={true}
-                  control={<Radio />}
-                  label="For me"
-                />
-                <FormControlLabel
-                  value={false}
-                  control={<Radio />}
-                  label="For contact"
-                />
-              </RadioGroup>
-            </>
-          )}
+                onContactChanged={(contact: IContact) => setContact(contact)}
+              />
+            )}
+          </Stack>
 
           <Stack direction="row" spacing={1} width="100%" marginTop={3}>
             <Button
