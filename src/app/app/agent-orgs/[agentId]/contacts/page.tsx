@@ -3,7 +3,11 @@
 import { useMemo } from "react"
 import { Route } from "next"
 import Link from "next/link"
-import { useDeleteContactMutation, useGetContactsQuery } from "@/redux/apis/org"
+import {
+  useDeleteContactMutation,
+  useGetContactsQuery,
+  useShareContactMutation,
+} from "@/redux/apis/org"
 import { type RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
 import { nameInitials } from "@/utils/format-name"
@@ -15,8 +19,11 @@ import {
   type GridRowsProp,
 } from "@mui/x-data-grid"
 import { format } from "date-fns"
-import { Eye, Trash2 } from "lucide-react"
+import { Eye, Share2, Trash2 } from "lucide-react"
+import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
+
+import type { IContact } from "@/types/contact.types"
 
 interface IPage {
   params: {
@@ -32,6 +39,8 @@ export default function Page({ params }: IPage) {
     [state, params]
   )
 
+  const { enqueueSnackbar } = useSnackbar()
+
   const { data, isLoading } = useGetContactsQuery(
     {
       orgId: agentProfile?.orgId,
@@ -41,8 +50,19 @@ export default function Page({ params }: IPage) {
     }
   )
 
+  const [shareContact, { isLoading: isLoadingShareContact }] =
+    useShareContactMutation({})
+
   const [deleteContact, { isLoading: isLoadingDeleteContact }] =
     useDeleteContactMutation({})
+
+  async function share(props: Partial<IContact>) {
+    const response = await shareContact(props).unwrap()
+
+    navigator.clipboard.writeText(response.link)
+
+    enqueueSnackbar("Link copied successfully", { variant: "success" })
+  }
 
   const rows: GridRowsProp = data
     ? data.map((contact) => ({
@@ -77,6 +97,25 @@ export default function Page({ params }: IPage) {
       sortable: false,
       filterable: false,
       headerName: "Contact Added",
+    },
+    {
+      flex: 1,
+      type: "actions",
+      field: "share",
+      sortable: false,
+      filterable: false,
+      headerName: "Invite Link",
+      getActions: (item: GridRowParams) => [
+        <>
+          <button
+            type="button"
+            onClick={() => share({ _id: item.row.id, orgId: item.row.orgId })}
+          >
+            {isLoadingShareContact && <CircularProgress size="1.25rem" />}
+            {!isLoadingShareContact && <Share2 size={20} />}
+          </button>
+        </>,
+      ],
     },
     {
       type: "actions",

@@ -16,6 +16,7 @@ const Page = ({ params }: PageProps) => {
   const { agentId } = params
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]

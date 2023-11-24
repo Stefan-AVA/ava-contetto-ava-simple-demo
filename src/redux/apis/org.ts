@@ -28,6 +28,10 @@ interface IAcceptInviteRequest {
   code: string
 }
 
+interface IShareContactResponse {
+  link: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -170,7 +174,7 @@ export const orgApi = createApi({
       }),
       invalidatesTags: ["Contacts"],
     }),
-    shareContact: builder.mutation<IContact, Partial<IContact>>({
+    shareContact: builder.mutation<IShareContactResponse, Partial<IContact>>({
       query: ({ _id, orgId }) => ({
         url: `/${orgId}/contacts/${_id}/share`,
         method: "POST",
@@ -202,9 +206,11 @@ export const {
   useAcceptInviteMutation,
 
   // contacts
+  useGetContactQuery,
   useGetContactsQuery,
   useSearchContactsQuery,
   useBindContactMutation,
+  useShareContactMutation,
   useDeleteContactMutation,
   useCreateContactMutation,
 } = orgApi
