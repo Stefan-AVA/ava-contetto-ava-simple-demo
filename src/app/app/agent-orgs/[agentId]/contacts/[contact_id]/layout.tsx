@@ -84,8 +84,11 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             pt: 6,
             px: 3,
             pb: 3,
+            top: 0,
             width: "100%",
+            height: "fit-content",
             border: "1px solid",
+            position: "sticky",
             maxWidth: "23.75rem",
             alignItems: "center",
             borderColor: "gray.300",
@@ -223,10 +226,9 @@ export default function ContactLayout({ children }: PropsWithChildren) {
 
             <Typography
               sx={{
-                color:
-                  pathname === `${basePath}/saved-searches`
-                    ? "purple.500"
-                    : "gray.600",
+                color: pathname.includes(`${basePath}/saved-searches`)
+                  ? "purple.500"
+                  : "gray.600",
                 fontWeight: 700,
               }}
               href={`${basePath}/saved-searches` as Route}
