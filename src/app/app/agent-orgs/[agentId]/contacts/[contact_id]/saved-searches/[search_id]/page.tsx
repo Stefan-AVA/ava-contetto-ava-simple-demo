@@ -37,8 +37,6 @@ export default function SavedSearches({ params }: IPage) {
     { skip: !agentProfile?.orgId }
   )
 
-  console.log({ data })
-
   const filterByType = useMemo(() => {
     if (data) {
       if (selected === "All") return data.properties
