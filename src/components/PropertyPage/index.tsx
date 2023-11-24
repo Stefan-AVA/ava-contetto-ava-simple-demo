@@ -3,10 +3,17 @@
 import "swiper/css"
 import "swiper/css/pagination"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import {
+  useGetPropertyQuery,
+  useRejectPropertyMutation,
+  useShortlistPropertyMutation,
+  useUndoPropertyMutation,
+} from "@/redux/apis/search"
 import formatMoney from "@/utils/format-money"
+import { LoadingButton } from "@mui/lab"
 import {
   Box,
   CircularProgress,
@@ -25,7 +32,7 @@ import {
 import { Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
 
-import { IListing } from "@/types/listing.types"
+import { ISearchResult } from "@/types/searchResult.types"
 
 const breakpoints: SwiperProps["breakpoints"] = {
   560: {
@@ -42,15 +49,38 @@ interface IProps {
   agentId?: string
   contactId?: string
   searchId: string
-  data?: IListing
-  isLoading: boolean
+  propertyId: string
 }
 
-const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
+const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
+  const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
+    undefined
+  )
+
+  const { data, isLoading } = useGetPropertyQuery(
+    { orgId: orgId, searchId, propertyId },
+    { skip: !orgId }
+  )
+
+  const [shortlist, { isLoading: isShortlistLoading }] =
+    useShortlistPropertyMutation()
+  const [reject, { isLoading: isRejectLoading }] = useRejectPropertyMutation()
+  const [undo, { isLoading: isUndoLoading }] = useUndoPropertyMutation()
+
+  const actionLoading = isShortlistLoading || isRejectLoading || isUndoLoading
+
+  useEffect(() => {
+    if (data?.searchResult) {
+      setSearchResult(data.searchResult)
+    }
+  }, [data, setSearchResult])
+
   const media = useMemo(() => {
     if (data) {
-      const banner = data.Media[0].MediaURL
-      const images = data.Media.slice(1).map(({ MediaURL }) => MediaURL)
+      const banner = data.property.Media[0].MediaURL
+      const images = data.property.Media.slice(1).map(
+        ({ MediaURL }) => MediaURL
+      )
 
       return {
         banner,
@@ -63,6 +93,48 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
       images: [],
     }
   }, [data])
+
+  const onShortlist = async () => {
+    try {
+      const result = await shortlist({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: propertyId,
+      }).unwrap()
+
+      setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onShortlist error ===>", error)
+    }
+  }
+
+  const onReject = async () => {
+    try {
+      const result = await reject({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: propertyId,
+      }).unwrap()
+
+      setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onReject error ===>", error)
+    }
+  }
+
+  const onUndo = async () => {
+    try {
+      const result = await undo({
+        orgId,
+        searchId: String(searchResult?._id),
+        propertyId: propertyId,
+      }).unwrap()
+
+      setSearchResult(result.searchResult)
+    } catch (error) {
+      console.log("onUndo error ===>", error)
+    }
+  }
 
   return (
     <Stack
@@ -80,6 +152,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
         },
         borderRadius: ".75rem",
         justifyContent: "center",
+        pb: 15,
       }}
     >
       {isLoading && (
@@ -91,7 +164,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
       {data && (
         <Grid sx={{ width: "100%" }} container spacing={2}>
           <Grid xs={12} md={8}>
-            <Stack sx={{ gap: 1.5 }}>
+            <Stack sx={{ gap: 1.5 }} position="relative">
               {media.banner && (
                 <Box
                   sx={{
@@ -117,6 +190,48 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                     component={Image}
                   />
                 </Box>
+              )}
+
+              {searchResult?.shortlists.includes(propertyId) && (
+                <Stack
+                  sx={{
+                    width: 120,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+
+                    position: "absolute",
+                    top: 15,
+                    left: 0,
+                    borderRadius: "0px 4px 4px 0px",
+                    bgcolor: "green.700",
+                  }}
+                >
+                  <Typography variant="body1" color="white" fontWeight="600">
+                    Shortlisted
+                  </Typography>
+                </Stack>
+              )}
+
+              {searchResult?.rejects.includes(propertyId) && (
+                <Stack
+                  sx={{
+                    width: 120,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+
+                    position: "absolute",
+                    top: 15,
+                    left: 0,
+                    borderRadius: "0px 4px 4px 0px",
+                    bgcolor: "red.200",
+                  }}
+                >
+                  <Typography variant="body1" color="white" fontWeight="600">
+                    Rejected
+                  </Typography>
+                </Stack>
               )}
 
               <Swiper
@@ -159,7 +274,9 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                 variant="h2"
                 component="h1"
               >
-                {formatMoney(data.ListPrice || data.ClosePrice)}
+                {formatMoney(
+                  data.property.ListPrice || data.property.ClosePrice
+                )}
               </Typography>
 
               <Typography
@@ -181,7 +298,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                 variant="h5"
               >
                 <MapPin />
-                {data.UnparsedAddress}
+                {data.property.UnparsedAddress}
               </Typography>
 
               <Stack
@@ -197,7 +314,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                   },
                 }}
               >
-                {data.VIVA_AdditionalRentSqFt && (
+                {data.property.VIVA_AdditionalRentSqFt && (
                   <Typography
                     sx={{
                       py: 1,
@@ -212,11 +329,11 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                     }}
                   >
                     <Table2 size={20} />
-                    {`${data.VIVA_AdditionalRentSqFt} sq ft`}
+                    {`${data.property.VIVA_AdditionalRentSqFt} sq ft`}
                   </Typography>
                 )}
 
-                {data.BedroomsTotal > 0 && (
+                {data.property.BedroomsTotal > 0 && (
                   <Typography
                     sx={{
                       py: 1,
@@ -231,11 +348,11 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                     }}
                   >
                     <BedDouble size={20} />
-                    {`${data.BedroomsTotal} Beds`}
+                    {`${data.property.BedroomsTotal} Beds`}
                   </Typography>
                 )}
 
-                {data.BathroomsTotalInteger > 0 && (
+                {data.property.BathroomsTotalInteger > 0 && (
                   <Typography
                     sx={{
                       py: 1,
@@ -250,12 +367,12 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                     }}
                   >
                     <Bath size={20} />
-                    {`${data.BathroomsTotalInteger} Baths`}
+                    {`${data.property.BathroomsTotalInteger} Baths`}
                   </Typography>
                 )}
               </Stack>
 
-              {data.PublicRemarks && (
+              {data.property.PublicRemarks && (
                 <>
                   <Typography
                     sx={{
@@ -270,7 +387,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                   </Typography>
 
                   <Typography sx={{ color: "gray.500" }}>
-                    {data.PublicRemarks}
+                    {data.property.PublicRemarks}
                   </Typography>
                 </>
               )}
@@ -372,7 +489,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                 }}
                 variant="body2"
               >
-                {`Contact ${data.ListOfficeAOR} to discuss more about your potential
+                {`Contact ${data.property.ListOfficeAOR} to discuss more about your potential
                 new home.`}
               </Typography>
 
@@ -396,7 +513,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
                   borderColor: "blue.500",
                   borderRadius: ".5rem",
                 }}
-                href={`tel:${data.ListAgentOfficePhone}`}
+                href={`tel:${data.property.ListAgentOfficePhone}`}
                 component={Link}
               >
                 <PhoneCall />
@@ -406,7 +523,7 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
 
             <Box
               sx={{ width: "100%", borderRadius: ".5rem" }}
-              src={`//maps.google.com/maps?q=${data.Latitude},${data.Longitude}&z=15&output=embed`}
+              src={`//maps.google.com/maps?q=${data.property.Latitude},${data.property.Longitude}&z=15&output=embed`}
               style={{ border: 0 }}
               height={284}
               loading="lazy"
@@ -414,6 +531,109 @@ const PropertyPage = ({ data, isLoading, orgId, searchId }: IProps) => {
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
+
+            <Box
+              sx={{
+                position: { xs: "fixed", md: "relative" },
+                bottom: 10,
+                left: 0,
+                width: "100%",
+                px: { xs: 2, md: 0 },
+              }}
+            >
+              {searchResult?.searchName &&
+                ([...searchResult.shortlists, ...searchResult.rejects].includes(
+                  propertyId
+                ) ? (
+                  <Stack
+                    sx={{
+                      width: "100%",
+                      justifyContent: "center",
+                    }}
+                    direction="row"
+                  >
+                    <LoadingButton
+                      sx={{
+                        p: 1.5,
+                        color: "blue.900",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "white",
+                        height: 50,
+                        border: "1px solid",
+                        borderColor: "blue.900",
+                        borderRadius: 2,
+                        ":hover": {
+                          background: "white",
+                          opacity: 0.8,
+                        },
+                      }}
+                      onClick={onUndo}
+                      loading={actionLoading}
+                    >
+                      Undo
+                    </LoadingButton>
+                  </Stack>
+                ) : (
+                  <Stack
+                    sx={{
+                      width: "100%",
+                      justifyContent: "center",
+                    }}
+                    direction="row"
+                    spacing={1}
+                  >
+                    <LoadingButton
+                      sx={{
+                        p: 1.5,
+                        color: "red.200",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "white",
+                        height: 50,
+                        border: "1px solid",
+                        borderColor: "red.200",
+                        borderRadius: 2,
+                        ":hover": {
+                          background: "white",
+                          opacity: 0.8,
+                        },
+                      }}
+                      onClick={onReject}
+                      loading={actionLoading}
+                    >
+                      Reject
+                    </LoadingButton>
+                    <LoadingButton
+                      sx={{
+                        p: 1.5,
+                        color: "green.700",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "white",
+                        border: "1px solid",
+                        borderColor: "green.700",
+                        borderRadius: 2,
+                        height: 50,
+                        ":hover": {
+                          background: "white",
+                          opacity: 0.8,
+                        },
+                      }}
+                      onClick={onShortlist}
+                      loading={actionLoading}
+                    >
+                      Shortlist
+                    </LoadingButton>
+                  </Stack>
+                ))}
+            </Box>
           </Grid>
         </Grid>
       )}

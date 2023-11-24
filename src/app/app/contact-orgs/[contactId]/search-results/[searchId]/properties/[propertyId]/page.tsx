@@ -23,18 +23,13 @@ export default function Property({ params }: PageProps) {
     () => contactOrgs.find((contact) => contact._id === contactId),
     [contactId, contactOrgs]
   )
-  const { data, isLoading } = useGetPropertyQuery(
-    { orgId: String(contact?.orgId), searchId, propertyId },
-    { skip: !contact }
-  )
 
   return (
     <PropertyPage
       orgId={String(contact?.orgId)}
       contactId={contactId}
       searchId={searchId}
-      data={data?.property}
-      isLoading={isLoading}
+      propertyId={propertyId}
     />
   )
 }

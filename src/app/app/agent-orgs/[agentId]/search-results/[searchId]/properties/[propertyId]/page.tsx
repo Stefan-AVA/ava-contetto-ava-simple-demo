@@ -23,18 +23,13 @@ export default function Property({ params }: PageProps) {
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]
   )
-  const { data, isLoading } = useGetPropertyQuery(
-    { orgId: String(agentProfile?.orgId), searchId, propertyId },
-    { skip: !agentProfile }
-  )
 
   return (
     <PropertyPage
       orgId={String(agentProfile?.orgId)}
       agentId={agentId}
       searchId={searchId}
-      data={data?.property}
-      isLoading={isLoading}
+      propertyId={propertyId}
     />
   )
 }

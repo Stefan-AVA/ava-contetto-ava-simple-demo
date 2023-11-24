@@ -76,6 +76,7 @@ export default function Sidebar({ routes }: SidebarProps) {
               borderBottom: "1px solid",
               borderBottomColor: "gray.300",
               bgcolor: "gray.200",
+              borderRadius: 2
             }}
           >
             <Stack direction="row" alignItems="center" spacing={2}>
