@@ -77,7 +77,7 @@ const SearchResultItem = ({ orgId, agentId, contactId, result }: IProps) => {
           <Typography
             variant="h5"
             sx={{
-              maxWidth: 200,
+              width: { xs: 150, md: 300 },
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -91,8 +91,8 @@ const SearchResultItem = ({ orgId, agentId, contactId, result }: IProps) => {
           </Stack>
         </Stack>
       </Stack>
-      <Stack direction="row" alignItems="center" spacing={2}>
-        <Typography variant="body1">For:</Typography>
+      <Stack spacing={1}>
+        <Typography variant="body1">Saved For:</Typography>
         <ContactSearch
           orgId={orgId}
           ancher={
@@ -110,7 +110,17 @@ const SearchResultItem = ({ orgId, agentId, contactId, result }: IProps) => {
               component={LoadingButton}
             >
               <User size={20} />
-              <Typography variant="body2">{savedFor}</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  width: 90,
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {savedFor}
+              </Typography>
             </Stack>
           }
           onContactChanged={onShareSearchResult}
