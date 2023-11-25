@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react"
-import { useUpdateContactMutation } from "@/redux/apis/org"
+import { useEffect, useState } from "react"
+import { useGetContactQuery, useUpdateContactMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
@@ -12,10 +12,12 @@ import Dropdown from "@/components/drop-down"
 
 const schema = z.object({
   name: z.string().min(1, "Enter the name"),
+  note: z.string().optional(),
 })
 
 const initialForm = {
   name: "",
+  note: "",
 }
 
 type FormSchema = z.infer<typeof schema>
@@ -38,9 +40,21 @@ export default function EditContact({ orgId, contactId }: IPage) {
 
   const [update, { isLoading }] = useUpdateContactMutation()
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  const { data } = useGetContactQuery(
+    {
+      _id: contactId,
+      orgId,
+    },
+    {
+      skip: !contactId || !orgId,
+    }
+  )
 
+  useEffect(() => {
+    if (data) setForm((prev) => ({ ...prev, name: data.name, note: data.note }))
+  }, [data])
+
+  async function submit() {
     setErrors(null)
 
     const response = schema.safeParse(form)
@@ -103,10 +117,11 @@ export default function EditContact({ orgId, contactId }: IPage) {
       }}
     >
       <Card sx={{ width: "20rem" }}>
-        <Stack sx={{ p: 2, width: "100%" }} onSubmit={submit} component="form">
+        <Stack sx={{ p: 2, width: "100%" }}>
           <TextField
             label="Name"
             error={!!errors?.name}
+            value={form.name}
             onChange={({ target }) =>
               setForm((prev) => ({ ...prev, name: target.value }))
             }
@@ -115,7 +130,7 @@ export default function EditContact({ orgId, contactId }: IPage) {
 
           <LoadingButton
             sx={{ mt: 2, ml: "auto" }}
-            type="submit"
+            onClick={submit}
             loading={isLoading}
           >
             Update name

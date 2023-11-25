@@ -68,9 +68,9 @@ export default function Page({ params }: IPage) {
     ? data.map((contact) => ({
         id: contact._id,
         name: contact.name,
-        username: contact.username,
         email: contact.email,
         orgId: contact.orgId,
+        username: contact.username,
         createdAt: format(
           new Date(getDatefromUnix(contact.createdAt)),
           "MMM dd, yyyy"

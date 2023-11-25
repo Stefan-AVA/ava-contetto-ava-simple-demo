@@ -103,6 +103,7 @@ export default function Page({ params }: IPage) {
         <TextField
           label="Note"
           rows={6}
+          value={form.note}
           error={!!errors?.note}
           onChange={({ target }) =>
             setForm((prev) => ({ ...prev, note: target.value }))
