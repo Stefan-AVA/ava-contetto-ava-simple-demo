@@ -39,18 +39,16 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
     })
   }, [params, sliceRoute])
 
-  console.log({ replaceWithParams })
-
   return (
-    <Breadcrumbs aria-label="breadcrumb">
+    <Breadcrumbs sx={{ mb: 1 }} aria-label="breadcrumb">
       {replaceWithParams.map((_, index) => {
-        const last = index === pathnames.length - 1
+        const last = index === sliceRoute.length - 1
         const href = `/${sliceRoute.slice(0, index + 1).join("/")}`
 
         const name = `/${replaceWithParams.slice(0, index + 1).join("/")}`
 
         return last ? (
-          <Typography color="text.primary" key={href}>
+          <Typography sx={{ color: "purple.500", fontWeight: 600 }} key={href}>
             {breadcrumbNameMap[name]}
           </Typography>
         ) : (
