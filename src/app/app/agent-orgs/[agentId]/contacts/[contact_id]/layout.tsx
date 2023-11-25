@@ -76,7 +76,10 @@ export default function ContactLayout({ children }: PropsWithChildren) {
       <Stack
         sx={{
           gap: 2.5,
-          flexDirection: "row",
+          flexDirection: {
+            xs: "column",
+            lg: "row",
+          },
         }}
       >
         <Stack
@@ -88,8 +91,14 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             width: "100%",
             height: "fit-content",
             border: "1px solid",
-            position: "sticky",
-            maxWidth: "23.75rem",
+            position: {
+              xs: "inherit",
+              lg: "sticky",
+            },
+            maxWidth: {
+              xs: "100%",
+              lg: "23.75rem",
+            },
             alignItems: "center",
             borderColor: "gray.300",
             borderRadius: ".625rem",
