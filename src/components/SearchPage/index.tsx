@@ -78,6 +78,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               outline: "none",
               fontWeight: 500,
               backgroundColor: "transparent",
+              border: "none",
 
               "::placeholder": {
                 color: "blue.300",
