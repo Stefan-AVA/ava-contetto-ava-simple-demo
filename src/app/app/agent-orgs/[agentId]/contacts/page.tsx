@@ -68,6 +68,8 @@ export default function Page({ params }: IPage) {
     ? data.map((contact) => ({
         id: contact._id,
         name: contact.name,
+        username: contact.username,
+        email: contact.email,
         orgId: contact.orgId,
         createdAt: format(
           new Date(getDatefromUnix(contact.createdAt)),
@@ -90,6 +92,20 @@ export default function Page({ params }: IPage) {
           <Typography sx={{ fontWeight: 500 }}>{params.row.name}</Typography>
         </Stack>
       ),
+    },
+    {
+      flex: 1,
+      field: "username",
+      sortable: false,
+      filterable: false,
+      headerName: "Username",
+    },
+    {
+      flex: 1,
+      field: "email",
+      sortable: false,
+      filterable: false,
+      headerName: "Email",
     },
     {
       flex: 1,

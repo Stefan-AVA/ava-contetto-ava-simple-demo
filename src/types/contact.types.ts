@@ -8,6 +8,8 @@ export interface IContact {
   note: string
   username?: string // shared username
   user?: IUser
+  email?: string;
+  phone?: string;
   image?: string
   orgId: string
   org?: IOrg

@@ -84,6 +84,7 @@ export default function SavedSearches({ params }: IPage) {
               orgId={agentProfile?.orgId as string}
               agentId={params.agentId}
               contactId={params.contact_id}
+              searchResult={data.searchResult}
             />
           ))}
         </Grid>

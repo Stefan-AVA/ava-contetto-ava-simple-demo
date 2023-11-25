@@ -6,11 +6,24 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import { Breadcrumbs, Typography } from "@mui/material"
 
-const breadcrumbNameMap: { [key: string]: string } = {
-  "/contacts": "Contacts",
-  "/contacts/contact_id": "Contact",
-  "/contacts/contact_id/saved-searches": "Saved Searches",
-  "/contacts/contact_id/saved-searches/search_id": "Saved Search",
+const breadcrumbNameMap: { [key: string]: { label: string; link: boolean } } = {
+  // "/search-results": { label: "My Searches", link: true },
+  // "/search-results/searchId": { label: "Search", link: true },
+  // "/search-results/searchId/properties": { label: "Properties", link: false },
+  // "/search-results/searchId/properties/propertyId": {
+  //   label: "Property",
+  //   link: true,
+  // },
+  "/contacts": { label: "Contacts", link: true },
+  "/contacts/contact_id": { label: "Contact", link: true },
+  "/contacts/contact_id/saved-searches": {
+    label: "Saved Searches",
+    link: true,
+  },
+  "/contacts/contact_id/saved-searches/search_id": {
+    label: "Saved Search",
+    link: true,
+  },
 }
 
 interface IBreadcrumb {
@@ -40,7 +53,7 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
   }, [params, sliceRoute])
 
   return (
-    <Breadcrumbs sx={{ mb: 1 }} aria-label="breadcrumb">
+    <Breadcrumbs sx={{ mb: 2 }} aria-label="breadcrumb">
       {replaceWithParams.map((_, index) => {
         const last = index === sliceRoute.length - 1
         const href = `/${sliceRoute.slice(0, index + 1).join("/")}`
@@ -49,12 +62,14 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
 
         return last ? (
           <Typography sx={{ color: "purple.500", fontWeight: 600 }} key={href}>
-            {breadcrumbNameMap[name]}
+            {breadcrumbNameMap[name]?.label}
           </Typography>
-        ) : (
+        ) : breadcrumbNameMap[name]?.link ? (
           <Link href={`/${initialRoute.join("/")}${href}` as Route} key={href}>
-            {breadcrumbNameMap[name]}
+            {breadcrumbNameMap[name]?.label}
           </Link>
+        ) : (
+          <Typography key={href}>{breadcrumbNameMap[name]?.label}</Typography>
         )
       })}
     </Breadcrumbs>

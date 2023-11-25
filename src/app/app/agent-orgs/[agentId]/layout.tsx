@@ -15,6 +15,7 @@ import { useSelector } from "react-redux"
 
 import { AgentRole } from "@/types/agentProfile.types"
 import Sidebar from "@/components/sidebar"
+import Breadcrumb from "@/components/breadcrumb"
 
 export default function Layout({ children }: PropsWithChildren) {
   const pathName = usePathname()
@@ -84,6 +85,7 @@ export default function Layout({ children }: PropsWithChildren) {
           overflowX: "hidden",
         }}
       >
+         <Breadcrumb initialPosition={3} />
         {children}
       </Box>
     </Stack>
