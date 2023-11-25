@@ -149,7 +149,7 @@ const Property = ({
                 bgcolor: "red.200",
               }}
             >
-              <Typography variant="body1" color="white" fontWeight="600">
+              <Typography color="white" fontWeight="600">
                 Rejected
               </Typography>
             </Stack>
