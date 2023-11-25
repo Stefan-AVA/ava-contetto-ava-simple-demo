@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   useGetSearchResultQuery,
   useShareSearchResultMutation,
@@ -25,6 +26,8 @@ interface IProps {
 }
 
 const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
+  const { replace } = useRouter()
+
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
@@ -40,6 +43,9 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
   useEffect(() => {
     if (data?.searchResult) {
       setSearchResult(data.searchResult)
+      if (!data.searchResult.searchName) {
+        replace(`/app/agent-orgs/${agentId}`)
+      }
     }
   }, [setSearchResult, data])
 
