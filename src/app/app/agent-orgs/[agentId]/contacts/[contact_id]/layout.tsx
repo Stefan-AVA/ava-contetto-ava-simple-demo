@@ -9,7 +9,7 @@ import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { LoadingButton } from "@mui/lab"
 import { Avatar, Box, Stack, Switch, Typography } from "@mui/material"
-import { Mail } from "lucide-react"
+import { Mail, User2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
@@ -142,10 +142,26 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                   flexDirection: "row",
                 }}
               >
+                <Box sx={{ color: "purple.500" }} size={20} component={User2} />
+
+                <Typography sx={{ color: "gray.800" }}>
+                  {data.username || "Username not provided"}
+                </Typography>
+              </Stack>
+
+              <Stack
+                sx={{
+                  mr: "auto",
+                  mt: 1.5,
+                  gap: 2,
+                  alignItems: "center",
+                  flexDirection: "row",
+                }}
+              >
                 <Box sx={{ color: "purple.500" }} size={20} component={Mail} />
 
                 <Typography sx={{ color: "gray.800" }}>
-                  Email not provided
+                  {data.email || "Email not provided"}
                 </Typography>
               </Stack>
 
