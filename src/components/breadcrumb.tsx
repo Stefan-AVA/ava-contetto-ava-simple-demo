@@ -7,13 +7,13 @@ import { useParams, usePathname } from "next/navigation"
 import { Breadcrumbs, Typography } from "@mui/material"
 
 const breadcrumbNameMap: { [key: string]: { label: string; link: boolean } } = {
-  // "/search-results": { label: "My Searches", link: true },
-  // "/search-results/searchId": { label: "Search", link: true },
-  // "/search-results/searchId/properties": { label: "Properties", link: false },
-  // "/search-results/searchId/properties/propertyId": {
-  //   label: "Property",
-  //   link: true,
-  // },
+  "/search-results": { label: "My Searches", link: true },
+  "/search-results/searchId": { label: "Search", link: true },
+  "/search-results/searchId/properties": { label: "Properties", link: false },
+  "/search-results/searchId/properties/propertyId": {
+    label: "Property",
+    link: true,
+  },
   "/contacts": { label: "Contacts", link: true },
   "/contacts/contact_id": { label: "Contact", link: true },
   "/contacts/contact_id/saved-searches": {
