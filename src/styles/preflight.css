@@ -1,6 +1,7 @@
 *,
 ::before,
 ::after {
+  border: inherit;
   border-width: 0;
   border-style: solid;
   border-color: theme('borderColor.DEFAULT', currentColor);
@@ -13,6 +14,7 @@ a {
 
 button {
   cursor: pointer;
+  border: inherit;
   background-color: inherit;
 }
 
