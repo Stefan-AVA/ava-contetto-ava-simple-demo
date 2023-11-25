@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { useGetSearchResultsByContactQuery } from "@/redux/apis/search"
 import { RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
