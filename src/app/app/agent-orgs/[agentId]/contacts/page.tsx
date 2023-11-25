@@ -85,12 +85,18 @@ export default function Page({ params }: IPage) {
       sortable: false,
       filterable: false,
       headerName: "Name",
-      renderCell: (params) => (
-        <Stack sx={{ gap: 2, alignItems: "center", flexDirection: "row" }}>
-          <Avatar>{nameInitials(params.row.name)}</Avatar>
+      renderCell: (item) => (
+        <Link
+          href={
+            `/app/agent-orgs/${params.agentId}/contacts/${item.row.id}` as Route
+          }
+        >
+          <Stack sx={{ gap: 2, alignItems: "center", flexDirection: "row" }}>
+            <Avatar>{nameInitials(item.row.name)}</Avatar>
 
-          <Typography sx={{ fontWeight: 500 }}>{params.row.name}</Typography>
-        </Stack>
+            <Typography sx={{ fontWeight: 500 }}>{item.row.name}</Typography>
+          </Stack>
+        </Link>
       ),
     },
     {
