@@ -8,6 +8,10 @@ const config = {
         protocol: "https",
         hostname: "dvvjkgh94f2v6.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "ddfcdn.realtor.ca",
+      },
     ],
   },
 

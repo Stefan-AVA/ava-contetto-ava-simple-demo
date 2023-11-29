@@ -77,10 +77,8 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
 
   const media = useMemo(() => {
     if (data) {
-      const banner = data.property.Media[0].MediaURL
-      const images = data.property.Media.slice(1).map(
-        ({ MediaURL }) => MediaURL
-      )
+      const banner = data.property.photos[0].url
+      const images = data.property.photos.slice(1).map(({ url }) => url)
 
       return {
         banner,
@@ -274,9 +272,9 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                 variant="h2"
                 component="h1"
               >
-                {formatMoney(
-                  data.property.ListPrice || data.property.ClosePrice
-                )}
+                {data.property.ListPrice
+                  ? formatMoney(data.property.ListPrice)
+                  : "--"}
               </Typography>
 
               <Typography
@@ -314,7 +312,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                   },
                 }}
               >
-                {data.property.VIVA_AdditionalRentSqFt && (
+                {data.property.BuildingAreaTotal && (
                   <Typography
                     sx={{
                       py: 1,
@@ -329,11 +327,11 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                     }}
                   >
                     <Table2 size={20} />
-                    {`${data.property.VIVA_AdditionalRentSqFt} sq ft`}
+                    {`${data.property.BuildingAreaTotal} sq ft`}
                   </Typography>
                 )}
 
-                {data.property.BedroomsTotal > 0 && (
+                {Number(data.property.BedroomsTotal) > 0 && (
                   <Typography
                     sx={{
                       py: 1,
@@ -352,7 +350,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                   </Typography>
                 )}
 
-                {data.property.BathroomsTotalInteger > 0 && (
+                {Number(data.property.BathroomsTotal) > 0 && (
                   <Typography
                     sx={{
                       py: 1,
@@ -367,7 +365,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                     }}
                   >
                     <Bath size={20} />
-                    {`${data.property.BathroomsTotalInteger} Baths`}
+                    {`${data.property.BathroomsTotal} Baths`}
                   </Typography>
                 )}
               </Stack>
@@ -489,7 +487,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                 }}
                 variant="body2"
               >
-                {`Contact ${data.property.ListOfficeAOR} to discuss more about your potential
+                {`Contact ${data.property.ListOfficeURL} to discuss more about your potential
                 new home.`}
               </Typography>
 
@@ -523,7 +521,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
 
             <Box
               sx={{ width: "100%", borderRadius: ".5rem" }}
-              src={`//maps.google.com/maps?q=${data.property.Latitude},${data.property.Longitude}&z=15&output=embed`}
+              src={`//maps.google.com/maps?q=${data.property.location.coordinates[1]},${data.property.location.coordinates[0]}&z=15&output=embed`}
               style={{ border: 0 }}
               height={284}
               loading="lazy"

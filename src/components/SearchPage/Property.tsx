@@ -37,17 +37,16 @@ const Property = ({
   setSearchResult,
 
   _id,
-  Media,
+  photos,
   ListPrice,
-  ClosePrice,
   BedroomsTotal,
   UnparsedAddress,
-  BathroomsTotalInteger,
-  VIVA_AdditionalRentSqFt,
+  BathroomsTotal,
+  BuildingAreaTotal,
 
   ...rest
 }: IProps) => {
-  const findMedia = Media.find(({ MediaURL }) => MediaURL)
+  const findMedia = photos.find(({ url }) => url)
 
   const [shortlist, { isLoading: isShortlistLoading }] =
     useShortlistPropertyMutation()
@@ -157,7 +156,7 @@ const Property = ({
 
           {findMedia && (
             <Image
-              src={findMedia.MediaURL}
+              src={findMedia.url}
               alt=""
               style={{
                 width: "100%",
@@ -176,7 +175,7 @@ const Property = ({
               sx={{ color: "blue.800", fontWeight: 500 }}
               variant="h5"
             >
-              {formatMoney(ListPrice || ClosePrice)}
+              {ListPrice ? formatMoney(ListPrice) : "--"}
             </Typography>
 
             <Stack
@@ -188,7 +187,7 @@ const Property = ({
                 flexDirection: "row",
               }}
             >
-              {BedroomsTotal > 0 && (
+              {Number(BedroomsTotal) > 0 && (
                 <Typography
                   sx={{
                     gap: 0.5,
@@ -204,7 +203,7 @@ const Property = ({
                 </Typography>
               )}
 
-              {BathroomsTotalInteger > 0 && (
+              {Number(BathroomsTotal) > 0 && (
                 <Typography
                   sx={{
                     gap: 0.5,
@@ -216,11 +215,11 @@ const Property = ({
                   component="span"
                 >
                   <Bath size={16} />
-                  {`${BathroomsTotalInteger} Baths`}
+                  {`${BathroomsTotal} Baths`}
                 </Typography>
               )}
 
-              {VIVA_AdditionalRentSqFt && (
+              {BuildingAreaTotal && (
                 <Typography
                   sx={{
                     gap: 0.5,
@@ -232,7 +231,7 @@ const Property = ({
                   component="span"
                 >
                   <Table2 size={16} />
-                  {`${VIVA_AdditionalRentSqFt} sq ft`}
+                  {`${BuildingAreaTotal} sq ft`}
                 </Typography>
               )}
             </Stack>
