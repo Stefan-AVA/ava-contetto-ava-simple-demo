@@ -6,7 +6,15 @@ import { useParams, useRouter } from "next/navigation"
 import { clearToken } from "@/redux/fetch-auth-query"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
-import { Box, CircularProgress, Drawer, Stack, Typography } from "@mui/material"
+import {
+  Box,
+  CircularProgress,
+  Drawer,
+  Stack,
+  Tooltip,
+  Typography,
+  Zoom,
+} from "@mui/material"
 import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -35,6 +43,8 @@ function SidebarList({
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
+  console.log({ agentOrgs })
+
   return (
     <>
       {agentOrgs.map((agent) => (
@@ -51,28 +61,50 @@ function SidebarList({
             spacing={2}
             direction="row"
           >
-            <Box
-              sx={{
-                color: "white",
-                width: 64,
-                height: 64,
-                bgcolor: "gray.400",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: 2.5,
-                justifyContent: "center",
-                ":hover": {
-                  cursor: "pointer",
-                },
-                ...(agentId === agent._id && {
-                  border: "4px solid rgba(255, 255, 255, 0.8)",
-                }),
-              }}
+            <Tooltip
+              arrow
+              title={
+                <Box sx={{ p: 1 }}>
+                  <Typography
+                    sx={{
+                      mb: 0.5,
+                      fontWeight: 600,
+                      textTransform: "captilize",
+                    }}
+                  >
+                    {agent.org?.name}
+                  </Typography>
+                  <Typography sx={{ color: "gray.500" }} variant="body2">
+                    {agent.role}
+                  </Typography>
+                </Box>
+              }
+              placement="right"
+              TransitionComponent={Zoom}
             >
-              <Typography variant="h4">
-                {nameInitials(String(agent.org?.name))}
-              </Typography>
-            </Box>
+              <Box
+                sx={{
+                  color: "white",
+                  width: 64,
+                  height: 64,
+                  bgcolor: "gray.400",
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: 2.5,
+                  justifyContent: "center",
+                  ":hover": {
+                    cursor: "pointer",
+                  },
+                  ...(agentId === agent._id && {
+                    border: "4px solid rgba(255, 255, 255, 0.8)",
+                  }),
+                }}
+              >
+                <Typography variant="h4">
+                  {nameInitials(String(agent.org?.name))}
+                </Typography>
+              </Box>
+            </Tooltip>
 
             <Typography
               sx={{
@@ -104,28 +136,50 @@ function SidebarList({
             alignItems="center"
             sx={{ color: "white" }}
           >
-            <Box
-              sx={{
-                color: "white",
-                width: 64,
-                height: 64,
-                bgcolor: "gray.400",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: 2.5,
-                justifyContent: "center",
-                ":hover": {
-                  cursor: "pointer",
-                },
-                ...(contactId === contact._id && {
-                  border: "4px solid rgba(255, 255, 255, 0.8)",
-                }),
-              }}
+            <Tooltip
+              arrow
+              title={
+                <Box sx={{ p: 1 }}>
+                  <Typography
+                    sx={{
+                      mb: 0.5,
+                      fontWeight: 600,
+                      textTransform: "captilize",
+                    }}
+                  >
+                    {contact.org?.name}
+                  </Typography>
+                  <Typography sx={{ color: "gray.500" }} variant="body2">
+                    {contact.agentName} ({contact.agent?.role || "-"})
+                  </Typography>
+                </Box>
+              }
+              placement="right"
+              TransitionComponent={Zoom}
             >
-              <Typography variant="h4">
-                {nameInitials(String(contact.org?.name))}
-              </Typography>
-            </Box>
+              <Box
+                sx={{
+                  color: "white",
+                  width: 64,
+                  height: 64,
+                  bgcolor: "gray.400",
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: 2.5,
+                  justifyContent: "center",
+                  ":hover": {
+                    cursor: "pointer",
+                  },
+                  ...(contactId === contact._id && {
+                    border: "4px solid rgba(255, 255, 255, 0.8)",
+                  }),
+                }}
+              >
+                <Typography variant="h4">
+                  {nameInitials(String(contact.org?.name))}
+                </Typography>
+              </Box>
+            </Tooltip>
 
             <Typography
               sx={{
