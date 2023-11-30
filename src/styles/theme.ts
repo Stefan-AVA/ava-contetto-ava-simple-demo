@@ -161,14 +161,14 @@ const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         arrow: {
-          color: palette.white,
+          color: palette.gray[300],
         },
 
         tooltip: {
           color: palette.gray[800],
           boxShadow: "0 8px 32px rgba(0, 0, 0, .14)",
           borderRadius: ".75rem",
-          backgroundColor: palette.white,
+          backgroundColor: palette.gray[300],
         },
       },
     },

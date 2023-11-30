@@ -148,7 +148,7 @@ function SidebarList({
                     {contact.org?.name}
                   </Typography>
                   <Typography sx={{ color: "gray.500" }} variant="body2">
-                    {contact.agentName} ({contact.agent?.role || "-"})
+                    Contact of {contact.agentName}
                   </Typography>
                 </Box>
               }
