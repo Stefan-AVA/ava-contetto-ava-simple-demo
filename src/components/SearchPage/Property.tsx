@@ -219,7 +219,7 @@ const Property = ({
                 </Typography>
               )}
 
-              {BuildingAreaTotal && (
+              {BuildingAreaTotal && BuildingAreaTotal > 0 && (
                 <Typography
                   sx={{
                     gap: 0.5,
