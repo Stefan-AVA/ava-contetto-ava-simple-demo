@@ -13,7 +13,6 @@ import {
   ListItemAvatar,
   ListItemText,
   TextField,
-  type BoxProps,
 } from "@mui/material"
 import { Search } from "lucide-react"
 
@@ -56,9 +55,9 @@ const ContactSearch = ({
   const loading = isLoading || isFetching
 
   const SearchContactsAutoComplete = useCallback(
-    (sx?: BoxProps["sx"]) => (
+    () => (
       <Autocomplete
-        sx={{ width: "18.5rem", ...sx }}
+        sx={{ width: "18.5rem" }}
         value={contact}
         loading={loading}
         options={contacts as IOption[]}
@@ -87,13 +86,13 @@ const ContactSearch = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Search Contacts"
-            size="small"
             sx={{
               ".MuiOutlinedInput-input": {
                 zIndex: 1,
               },
             }}
+            size="small"
+            label="Search Contacts"
             InputProps={{
               ...params.InputProps,
               type: "search",
@@ -143,9 +142,9 @@ const ContactSearch = ({
 
   return (
     <>
-      <SearchContactsAutoComplete
-        sx={{ display: { xs: "none", md: "flex" } }}
-      />
+      <Box sx={{ display: { xs: "none", md: "flex" } }}>
+        <SearchContactsAutoComplete />
+      </Box>
 
       <Dropdown
         sx={{ display: { xs: "flex", md: "none" } }}

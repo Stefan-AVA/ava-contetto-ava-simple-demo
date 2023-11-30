@@ -219,7 +219,7 @@ const Property = ({
                 </Typography>
               )}
 
-              {BuildingAreaTotal && BuildingAreaTotal > 0 && (
+              {BuildingAreaTotal && BuildingAreaTotal > 0 ? (
                 <Typography
                   sx={{
                     gap: 0.5,
@@ -233,7 +233,7 @@ const Property = ({
                   <Table2 size={16} />
                   {`${BuildingAreaTotal} sq ft`}
                 </Typography>
-              )}
+              ) : null}
             </Stack>
 
             <Typography sx={{ color: "blue.800" }} variant="body2">
