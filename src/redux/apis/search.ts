@@ -9,6 +9,8 @@ import { IBaseResponse } from "./auth"
 interface ISearchRequest {
   orgId: string
   search?: string
+  cityId: string
+  range: string
   contactId?: string
 }
 
@@ -44,12 +46,14 @@ export const searchApi = createApi({
       { properties: IListing[]; searchResult: ISearchResult },
       ISearchRequest
     >({
-      query: ({ orgId, search, contactId }) => ({
+      query: ({ orgId, search, contactId, cityId, range }) => ({
         url: `/${orgId}/search`,
         method: "GET",
         params: {
           search,
           contactId,
+          cityId,
+          range,
         },
       }),
     }),

@@ -1,11 +1,16 @@
 import { IAgentProfile } from "./agentProfile.types"
+import { ICity } from "./city.types"
 import { IContact } from "./contact.types"
 import { IOrg } from "./org.types"
 
 export interface ISearchResult {
   _id: string
   userQueryString: string /// the string they typed
-  userQueryJson?: any /// options what user choose
+  userQueryJson: {
+    cityId: string
+    city: ICity
+    range: string
+  } /// options what user choose
   queryJSON: any /// GPT interpreted version
   orgId: string // orgId
   org?: IOrg

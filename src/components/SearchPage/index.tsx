@@ -31,6 +31,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   const [search, setSearch] = useState("")
   const [cities, setCities] = useState<ICity[]>([])
   const [city, setCity] = useState<ICity | undefined>(undefined)
+  const [range, setRange] = useState("10") // kilometers
 
   const { location, loading } = useGetCurrentPosition()
 
@@ -44,6 +45,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         lat: location.lat,
         lng: location.lng,
       }).unwrap()
+      setCity(cities[0])
       setCities(cities)
     }
   }
@@ -55,8 +57,25 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   }, [location])
 
   const onSearch = () => {
+    if (!city) {
+      // error message
+      return
+    }
+
+    if (!Number(range)) {
+      // error message
+
+      return
+    }
+
     if (search && orgId) {
-      searchListings({ orgId, search: search || "", contactId })
+      searchListings({
+        orgId,
+        search: search || "",
+        cityId: city._id,
+        range,
+        contactId,
+      })
     }
   }
 

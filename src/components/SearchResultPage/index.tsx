@@ -10,16 +10,14 @@ import { getDatefromUnix } from "@/utils/format-date"
 import { LoadingButton } from "@mui/lab"
 import {
   Unstable_Grid2 as Grid,
-  InputAdornment,
   Stack,
   TextField,
   Typography,
 } from "@mui/material"
-import { Folder, Loader, User } from "lucide-react"
+import { Folder, User } from "lucide-react"
 
 import { IContact } from "@/types/contact.types"
 import { ISearchResult } from "@/types/searchResult.types"
-import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
 import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
@@ -34,13 +32,11 @@ interface IProps {
 
 const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
   const [tab, setTab] = useState(1)
-  const [form, setForm] = useState({ km: "", city: "" })
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
 
   const { replace } = useRouter()
-  const localization = useGetCurrentPosition()
 
   const { data, isLoading } = useGetSearchResultQuery(
     { orgId, searchId },
@@ -48,11 +44,6 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
   )
 
   const [shareSearch, { isLoading: isSharing }] = useShareSearchResultMutation()
-
-  useEffect(() => {
-    if (localization.data)
-      setForm((prev) => ({ ...prev, city: localization.data?.city || "" }))
-  }, [localization.data])
 
   useEffect(() => {
     if (data?.searchResult) {
@@ -189,23 +180,8 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             alignItems={{ xs: "flex-start", md: "center" }}
           >
             <Stack direction="row" spacing={2} alignItems="center">
-              <Typography>Localization:</Typography>
-
-              <TextField
-                size="small"
-                label="City"
-                value={form.city}
-                onChange={({ target }) =>
-                  setForm((prev) => ({ ...prev, city: target.value }))
-                }
-                InputProps={{
-                  endAdornment: localization.loading ? (
-                    <InputAdornment position="end">
-                      <Loader />
-                    </InputAdornment>
-                  ) : undefined,
-                }}
-              />
+              <Typography>City:</Typography>
+              <Typography>{`${data?.searchResult.userQueryJson.city.city}, ${data?.searchResult.userQueryJson.city.admin_name}, ${data?.searchResult.userQueryJson.city.country}`}</Typography>
             </Stack>
 
             <TextField
