@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react"
+import { ReactNode, useCallback, useState } from "react"
 import { useGetContactsQuery } from "@/redux/apis/org"
 import { nameInitials } from "@/utils/format-name"
 import {
@@ -54,9 +54,100 @@ const ContactSearch = ({
   })
   const loading = isLoading || isFetching
 
+  const SearchContactsAutoComplete = useCallback(
+    () => (
+      <Autocomplete
+        sx={{ width: "18.5rem" }}
+        value={contact}
+        loading={loading}
+        options={contacts as IOption[]}
+        onChange={(_, newValue) => {
+          if (newValue?.inputValue) {
+            setTimeout(() => {
+              setNewContactname(String(newValue.inputValue))
+              setOpen(false)
+              setModalOpen(true)
+              setContact(null)
+            })
+          } else {
+            setTimeout(() => {
+              setOpen(false)
+              setNewContactname("")
+
+              if (onContactChanged && newValue) {
+                setContact(null)
+                onContactChanged(newValue)
+              }
+            })
+          }
+        }}
+        fullWidth
+        clearOnBlur
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            sx={{
+              ".MuiOutlinedInput-input": {
+                zIndex: 1,
+              },
+            }}
+            size="small"
+            label="Search Contacts"
+            InputProps={{
+              ...params.InputProps,
+              type: "search",
+              endAdornment: (
+                <>
+                  {loading ? <CircularProgress size="1.25rem" /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
+        )}
+        renderOption={({ key, ...props }: any, option) => (
+          <ListItem key={option._id} {...props}>
+            {!option.inputValue && (
+              <ListItemAvatar>
+                <Avatar alt={option.name}>{nameInitials(option.name)}</Avatar>
+              </ListItemAvatar>
+            )}
+
+            <ListItemText>{option.name}</ListItemText>
+          </ListItem>
+        )}
+        noOptionsText="No Contacts"
+        filterOptions={(options, params) => {
+          const filtered = options.filter((option) =>
+            option.name.includes(params.inputValue)
+          )
+
+          if (params.inputValue && filtered.length === 0) {
+            filtered.push({
+              _id: `Add "${params.inputValue}"`,
+              name: `Add "${params.inputValue}"`,
+              inputValue: params.inputValue,
+            })
+          }
+
+          return filtered
+        }}
+        selectOnFocus
+        getOptionLabel={(option) => option.name}
+        handleHomeEndKeys
+      />
+    ),
+    [loading, contact, contacts, onContactChanged]
+  )
+
   return (
     <>
+      <Box sx={{ display: { xs: "none", md: "flex" } }}>
+        <SearchContactsAutoComplete />
+      </Box>
+
       <Dropdown
+        sx={{ display: { xs: "flex", md: "none" } }}
         open={open}
         ancher={
           <Box
@@ -100,104 +191,18 @@ const ContactSearch = ({
             if (e.stopPropagation) e.stopPropagation()
           }}
         >
-          <Autocomplete
-            value={contact}
-            sx={{ width: "18.5rem" }}
-            onChange={(_, newValue: IOption | null) => {
-              if (newValue?.inputValue) {
-                setTimeout(() => {
-                  setNewContactname(String(newValue.inputValue))
-                  setOpen(false)
-                  setModalOpen(true)
-                  setContact(null)
-                })
-              } else {
-                // setContact(newValue)
-
-                setTimeout(() => {
-                  setOpen(false)
-                  setNewContactname("")
-
-                  if (onContactChanged && newValue) {
-                    setContact(null)
-                    onContactChanged(newValue)
-                  }
-                })
-              }
-            }}
-            loading={loading}
-            options={contacts as IOption[]}
-            selectOnFocus
-            clearOnBlur
-            handleHomeEndKeys
-            fullWidth
-            getOptionLabel={(option) => option.name}
-            filterOptions={(options, params) => {
-              const filtered = options.filter((option) =>
-                option.name.includes(params.inputValue)
-              )
-
-              if (params.inputValue && filtered.length === 0) {
-                filtered.push({
-                  _id: `Add "${params.inputValue}"`,
-                  name: `Add "${params.inputValue}"`,
-                  inputValue: params.inputValue,
-                })
-              }
-
-              return filtered
-            }}
-            renderOption={({ key, ...props }: any, option) => (
-              <ListItem key={option._id} {...props}>
-                {!option.inputValue && (
-                  <ListItemAvatar>
-                    <Avatar alt={option.name}>
-                      {nameInitials(option.name)}
-                    </Avatar>
-                  </ListItemAvatar>
-                )}
-
-                <ListItemText>{option.name}</ListItemText>
-              </ListItem>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search Contacts"
-                size="small"
-                sx={{
-                  ".MuiOutlinedInput-input": {
-                    zIndex: 1,
-                  },
-                }}
-                InputProps={{
-                  ...params.InputProps,
-                  type: "search",
-                  endAdornment: (
-                    <>
-                      {loading ? <CircularProgress size="1.25rem" /> : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            noOptionsText="No Contacts"
-            // freeSolo
-            // disableClearable
-          />
+          <SearchContactsAutoComplete />
         </Card>
       </Dropdown>
+
       <Dialog
-        open={modalOpen}
-        onClose={() => {
-          setModalOpen(false)
-        }}
         sx={{
           "& .MuiPaper-root": {
             width: { xs: "calc(100vw - 16px)", md: 400 },
           },
         }}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
       >
         <CreateContactForm
           orgId={orgId}

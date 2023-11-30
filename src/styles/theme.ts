@@ -158,6 +158,21 @@ const theme = createTheme({
       },
     },
 
+    MuiTooltip: {
+      styleOverrides: {
+        arrow: {
+          color: palette.white,
+        },
+
+        tooltip: {
+          color: palette.gray[800],
+          boxShadow: "0 8px 32px rgba(0, 0, 0, .14)",
+          borderRadius: ".75rem",
+          backgroundColor: palette.white,
+        },
+      },
+    },
+
     MuiCheckbox: {
       styleOverrides: {
         root: {
@@ -173,9 +188,6 @@ const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         sizeSmall: {
-          paddingTop: ".5rem !important",
-          paddingBottom: ".5rem !important",
-
           ".MuiOutlinedInput-notchedOutline": {
             height: "3rem",
             borderColor: palette.gray[300],
@@ -274,6 +286,14 @@ const theme = createTheme({
         color: "primary",
         variant: "contained",
         disableElevation: true,
+      },
+    },
+
+    MuiInputAdornment: {
+      styleOverrides: {
+        root: {
+          zIndex: 2,
+        },
       },
     },
 

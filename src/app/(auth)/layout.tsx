@@ -8,6 +8,7 @@ import { useLazyGetOrgsQuery } from "@/redux/apis/org"
 import { setOrgs, setUser } from "@/redux/slices/app"
 import { useAppDispatch } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
+import Logo from "~/assets/logo-ava.png"
 import Background from "~/assets/signup-background.jpg"
 
 import { AgentRole } from "@/types/agentProfile.types"
@@ -102,6 +103,13 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
           alignItems: "center",
         }}
       >
+        <Box
+          sx={{ mb: 5, height: "3rem", objectFit: "contain" }}
+          src={Logo}
+          alt="Logo Ava"
+          component={Image}
+        />
+
         {children}
       </Stack>
     </Stack>

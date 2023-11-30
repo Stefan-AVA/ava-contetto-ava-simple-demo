@@ -59,26 +59,16 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             flexDirection: "row",
           }}
         >
-          <Box
-            sx={{
-              py: 1,
-              pl: 2.5,
-              mr: 1.5,
-              color: "blue.800",
-            }}
-          >
-            <SearchIcon size={20} />
-          </Box>
-
           <Typography
             sx={{
+              pl: 4,
               color: "blue.800",
               width: "100%",
               height: "auto",
+              border: "none",
               outline: "none",
               fontWeight: 500,
               backgroundColor: "transparent",
-              border: "none",
 
               "::placeholder": {
                 color: "blue.300",
@@ -120,7 +110,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                       },
                     }}
                     size={20}
-                    component={Send}
+                    component={SearchIcon}
                   />
                 </button>
               )}

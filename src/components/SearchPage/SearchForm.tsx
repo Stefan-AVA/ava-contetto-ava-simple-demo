@@ -149,8 +149,8 @@ const SearchForm = ({
             helperText={errors?.searchName}
           />
           {!!agentId && (
-            <Stack direction="row" spacing={2} mt={2} alignItems="center">
-              <Typography variant="body1">Save For:</Typography>
+            <Stack sx={{ mt: 2, gap: 1 }}>
+              <Typography>Save For:</Typography>
 
               <ContactSearch
                 orgId={orgId}

@@ -58,7 +58,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
   )
 
   const { data, isLoading } = useGetPropertyQuery(
-    { orgId: orgId, searchId, propertyId },
+    { orgId, searchId, propertyId },
     { skip: !orgId }
   )
 
@@ -97,7 +97,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
       const result = await shortlist({
         orgId,
         searchId: String(searchResult?._id),
-        propertyId: propertyId,
+        propertyId,
       }).unwrap()
 
       setSearchResult(result.searchResult)
@@ -111,7 +111,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
       const result = await reject({
         orgId,
         searchId: String(searchResult?._id),
-        propertyId: propertyId,
+        propertyId,
       }).unwrap()
 
       setSearchResult(result.searchResult)
@@ -125,7 +125,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
       const result = await undo({
         orgId,
         searchId: String(searchResult?._id),
-        propertyId: propertyId,
+        propertyId,
       }).unwrap()
 
       setSearchResult(result.searchResult)
@@ -312,24 +312,25 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                   },
                 }}
               >
-                {data.property.BuildingAreaTotal && (
-                  <Typography
-                    sx={{
-                      py: 1,
-                      px: 1.5,
-                      gap: 1,
-                      color: "gray.600",
-                      display: "flex",
-                      bgcolor: "gray.200",
-                      fontWeight: 500,
-                      alignItems: "center",
-                      borderRadius: ".5rem",
-                    }}
-                  >
-                    <Table2 size={20} />
-                    {`${data.property.BuildingAreaTotal} sq ft`}
-                  </Typography>
-                )}
+                {data.property.BuildingAreaTotal &&
+                  data.property.BuildingAreaTotal > 0 && (
+                    <Typography
+                      sx={{
+                        py: 1,
+                        px: 1.5,
+                        gap: 1,
+                        color: "gray.600",
+                        display: "flex",
+                        bgcolor: "gray.200",
+                        fontWeight: 500,
+                        alignItems: "center",
+                        borderRadius: ".5rem",
+                      }}
+                    >
+                      <Table2 size={20} />
+                      {`${data.property.BuildingAreaTotal} sq ft`}
+                    </Typography>
+                  )}
 
                 {Number(data.property.BedroomsTotal) > 0 && (
                   <Typography
