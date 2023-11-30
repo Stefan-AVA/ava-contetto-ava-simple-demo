@@ -43,8 +43,6 @@ function SidebarList({
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
-  console.log({ agentOrgs })
-
   return (
     <>
       {agentOrgs.map((agent) => (

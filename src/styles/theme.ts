@@ -188,9 +188,6 @@ const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         sizeSmall: {
-          paddingTop: ".5rem !important",
-          paddingBottom: ".5rem !important",
-
           ".MuiOutlinedInput-notchedOutline": {
             height: "3rem",
             borderColor: palette.gray[300],
@@ -289,6 +286,14 @@ const theme = createTheme({
         color: "primary",
         variant: "contained",
         disableElevation: true,
+      },
+    },
+
+    MuiInputAdornment: {
+      styleOverrides: {
+        root: {
+          zIndex: 2,
+        },
       },
     },
 

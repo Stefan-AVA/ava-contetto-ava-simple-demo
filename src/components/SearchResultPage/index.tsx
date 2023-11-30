@@ -8,11 +8,18 @@ import {
 } from "@/redux/apis/search"
 import { getDatefromUnix } from "@/utils/format-date"
 import { LoadingButton } from "@mui/lab"
-import { Unstable_Grid2 as Grid, Stack, Typography } from "@mui/material"
-import { Folder, User } from "lucide-react"
+import {
+  Unstable_Grid2 as Grid,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
+import { Folder, Loader, User } from "lucide-react"
 
 import { IContact } from "@/types/contact.types"
 import { ISearchResult } from "@/types/searchResult.types"
+import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
 import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
@@ -26,12 +33,14 @@ interface IProps {
 }
 
 const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
-  const { replace } = useRouter()
-
+  const [tab, setTab] = useState(1)
+  const [form, setForm] = useState({ km: "", city: "" })
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
-  const [tab, setTab] = useState(1)
+
+  const { replace } = useRouter()
+  const localization = useGetCurrentPosition()
 
   const { data, isLoading } = useGetSearchResultQuery(
     { orgId, searchId },
@@ -41,13 +50,18 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
   const [shareSearch, { isLoading: isSharing }] = useShareSearchResultMutation()
 
   useEffect(() => {
+    if (localization.data)
+      setForm((prev) => ({ ...prev, city: localization.data?.city || "" }))
+  }, [localization.data])
+
+  useEffect(() => {
     if (data?.searchResult) {
       setSearchResult(data.searchResult)
       if (!data.searchResult.searchName) {
         replace(`/app/agent-orgs/${agentId}`)
       }
     }
-  }, [setSearchResult, data])
+  }, [setSearchResult, data, agentId, replace])
 
   const savedFor = useMemo(() => {
     if (searchResult) {
@@ -60,9 +74,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
       }
 
       // contact dashboard
-      if (contactId) {
-        return "For you"
-      }
+      if (contactId) return "For you"
     }
 
     return ""
@@ -116,7 +128,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             alignItems={{ xs: "flex-start", md: "center" }}
           >
             <Stack direction="row" spacing={2} alignItems="center">
-              <Typography variant="body1">Saved Search:</Typography>
+              <Typography>Saved Search:</Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Folder size={20} />
                 <Typography
@@ -132,8 +144,9 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
                 </Typography>
               </Stack>
             </Stack>
+
             <Stack direction="row" spacing={2} alignItems="center">
-              <Typography variant="body1">Saved For:</Typography>
+              <Typography>Saved For:</Typography>
               <ContactSearch
                 orgId={orgId}
                 ancher={
@@ -157,52 +170,79 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
                 onContactChanged={onShareSearchResult}
               />
             </Stack>
+
             <Stack
               direction="row"
               spacing={2}
               display={{ xs: "none", md: "flex" }}
             >
-              <Typography variant="body1">Created:</Typography>
+              <Typography>Created:</Typography>
               <Typography variant="body2">
                 {getDatefromUnix(data?.searchResult.timestamp)}
               </Typography>
             </Stack>
           </Stack>
 
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={{ xs: 1, md: 2 }}
+            alignItems={{ xs: "flex-start", md: "center" }}
+          >
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography>Localization:</Typography>
+
+              <TextField
+                size="small"
+                label="City"
+                value={form.city}
+                onChange={({ target }) =>
+                  setForm((prev) => ({ ...prev, city: target.value }))
+                }
+                InputProps={{
+                  endAdornment: localization.loading ? (
+                    <InputAdornment position="end">
+                      <Loader />
+                    </InputAdornment>
+                  ) : undefined,
+                }}
+              />
+            </Stack>
+
+            <TextField
+              size="small"
+              label="KM Radius"
+              InputProps={{ type: "number" }}
+            />
+          </Stack>
+
           <Stack direction="row" spacing={{ xs: 1, md: 4 }} alignItems="center">
-            <Typography
-              variant="body1"
-              sx={{ display: { xs: "none", md: "block" } }}
-            >
+            <Typography sx={{ display: { xs: "none", md: "block" } }}>
               Saved Results:
             </Typography>
             <Typography
-              variant="body1"
-              component={"button"}
-              onClick={() => setTab(1)}
               sx={{
                 color: tab === 1 ? "blue.900" : "gray.700",
               }}
+              onClick={() => setTab(1)}
+              component="button"
             >
               All ({data?.properties.length || 0})
             </Typography>
             <Typography
-              variant="body1"
-              component={"button"}
-              onClick={() => setTab(2)}
               sx={{
                 color: tab === 2 ? "blue.900" : "gray.500",
               }}
+              onClick={() => setTab(2)}
+              component="button"
             >
               Shortlisted ({shortlists.length})
             </Typography>
             <Typography
-              variant="body1"
-              component={"button"}
-              onClick={() => setTab(3)}
               sx={{
                 color: tab === 3 ? "blue.900" : "gray.500",
               }}
+              onClick={() => setTab(3)}
+              component="button"
             >
               Rejected ({rejects.length})
             </Typography>
