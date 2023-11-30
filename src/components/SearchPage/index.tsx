@@ -1,6 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import {
+  useLazyNearestCitiesQuery,
+  useLazySearchCitiesQuery,
+} from "@/redux/apis/city"
 import { useLazySearchQuery } from "@/redux/apis/search"
 import {
   Box,
@@ -10,6 +14,9 @@ import {
   Typography,
 } from "@mui/material"
 import { Search as SearchIcon, Send } from "lucide-react"
+
+import { ICity } from "@/types/city.types"
+import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
 import Property from "./Property"
 import SearchForm from "./SearchForm"
@@ -22,8 +29,30 @@ interface ISearch {
 
 const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   const [search, setSearch] = useState("")
+  const [cities, setCities] = useState<ICity[]>([])
+  const [city, setCity] = useState<ICity | undefined>(undefined)
+
+  const { location, loading } = useGetCurrentPosition()
 
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
+  const [getNearestCities] = useLazyNearestCitiesQuery()
+  const [searchCities] = useLazySearchCitiesQuery()
+
+  const initializeCities = async () => {
+    if (location) {
+      const cities = await getNearestCities({
+        lat: location.lat,
+        lng: location.lng,
+      }).unwrap()
+      setCities(cities)
+    }
+  }
+
+  useEffect(() => {
+    if (location) {
+      initializeCities()
+    }
+  }, [location])
 
   const onSearch = () => {
     if (search && orgId) {

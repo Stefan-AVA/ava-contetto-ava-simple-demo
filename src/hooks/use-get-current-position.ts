@@ -2,13 +2,12 @@ import { useEffect, useState } from "react"
 import { useSnackbar } from "notistack"
 
 type Data = {
-  city: string
-  state: string
-  country: string
+  lat: number
+  lng: number
 }
 
 export default function useGetCurrentPosition() {
-  const [data, setData] = useState<Data | null>(null)
+  const [location, setLocation] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
 
   const { enqueueSnackbar } = useSnackbar()
@@ -19,18 +18,11 @@ export default function useGetCurrentPosition() {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
-        const request = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}`
-        )
-
-        const response = await request.json()
-
         setLoading(false)
 
-        setData({
-          city: response.city,
-          state: response.principalSubdivision,
-          country: response.countryCode,
+        setLocation({
+          lat: coords.latitude,
+          lng: coords.longitude,
         })
       },
       (error) => {
@@ -55,10 +47,8 @@ export default function useGetCurrentPosition() {
     )
   }, [enqueueSnackbar])
 
-  console.log({ loading, data })
-
   return {
-    data,
+    location,
     loading,
   }
 }

@@ -8,6 +8,7 @@ import {
 
 import { agentApi } from "./apis/agent"
 import { authApi } from "./apis/auth"
+import { cityApi } from "./apis/city"
 import { orgApi } from "./apis/org"
 import { searchApi } from "./apis/search"
 import appReducer from "./slices/app"
@@ -19,13 +20,15 @@ export const store = configureStore({
     [orgApi.reducerPath]: orgApi.reducer,
     [agentApi.reducerPath]: agentApi.reducer,
     [searchApi.reducerPath]: searchApi.reducer,
+    [cityApi.reducerPath]: cityApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
       orgApi.middleware,
       agentApi.middleware,
-      searchApi.middleware
+      searchApi.middleware,
+      cityApi.middleware
     ),
 })
 
