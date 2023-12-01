@@ -1,21 +1,26 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
 } from "@/redux/apis/city"
 import { useLazySearchQuery } from "@/redux/apis/search"
 import {
+  Autocomplete,
   Box,
   CircularProgress,
   Unstable_Grid2 as Grid,
+  InputAdornment,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon, Send } from "lucide-react"
+import { Search as SearchIcon } from "lucide-react"
+import { useSnackbar } from "notistack"
 
 import { ICity } from "@/types/city.types"
+import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
 import Property from "./Property"
@@ -28,42 +33,65 @@ interface ISearch {
 }
 
 const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
+  const [city, setCity] = useState<ICity | null>(null)
+  const [range, setRange] = useState("10") // kilometers
   const [search, setSearch] = useState("")
   const [cities, setCities] = useState<ICity[]>([])
-  const [city, setCity] = useState<ICity | undefined>(undefined)
-  const [range, setRange] = useState("10") // kilometers
+  const [searchCityInput, setSearchCityInput] = useState("")
 
-  const { location, loading } = useGetCurrentPosition()
+  const { enqueueSnackbar } = useSnackbar()
 
+  const { location } = useGetCurrentPosition()
+
+  const [searchCities, { isFetching: isLoadingSearchCities }] =
+    useLazySearchCitiesQuery()
   const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
-  const [getNearestCities] = useLazyNearestCitiesQuery()
-  const [searchCities] = useLazySearchCitiesQuery()
+  const [getNearestCities, { isFetching: isLoadingGetNearestCities }] =
+    useLazyNearestCitiesQuery()
 
-  const initializeCities = async () => {
-    if (location) {
-      const cities = await getNearestCities({
-        lat: location.lat,
-        lng: location.lng,
-      }).unwrap()
-      setCity(cities[0])
-      setCities(cities)
+  const debouncedSearchCity = useDebounce(searchCityInput)
+
+  useEffect(() => {
+    if (debouncedSearchCity) {
+      const fetchSearchCities = async () => {
+        const cities = await searchCities({
+          search: debouncedSearchCity,
+        }).unwrap()
+
+        setCities(cities)
+      }
+
+      fetchSearchCities()
     }
-  }
+  }, [searchCities, debouncedSearchCity])
 
   useEffect(() => {
     if (location) {
-      initializeCities()
-    }
-  }, [location])
+      const fetchCitiesByLocation = async () => {
+        const cities = await getNearestCities({
+          lat: location.lat,
+          lng: location.lng,
+        }).unwrap()
 
-  const onSearch = () => {
+        setCity(cities[0])
+        setCities(cities)
+      }
+
+      fetchCitiesByLocation()
+    }
+  }, [location, getNearestCities])
+
+  const onSearch = async () => {
     if (!city) {
-      // error message
+      enqueueSnackbar("Select the city you want to search", {
+        variant: "error",
+      })
+
       return
     }
 
     if (!Number(range)) {
-      // error message
+      enqueueSnackbar("Enter the search radius", { variant: "error" })
 
       return
     }
@@ -86,7 +114,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           mx: "auto",
           gap: 4.5,
           width: "100%",
-          maxWidth: "48rem",
+          maxWidth: "56rem",
         }}
       >
         <Typography
@@ -103,12 +131,14 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             color: "blue.300",
             width: "100%",
             bgcolor: "gray.200",
-            borderRadius: "999px",
-            flexDirection: "row",
+            borderRadius: { xs: "1rem", lg: "999px" },
+            flexDirection: { xs: "column", lg: "row" },
           }}
         >
           <Typography
             sx={{
+              py: { xs: 2, lg: 0 },
+              pr: { xs: 4, lg: 0 },
               pl: 4,
               color: "blue.800",
               width: "100%",
@@ -123,27 +153,72 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               },
             }}
             name="search"
+            value={search}
             variant="body2"
+            onChange={(e) => setSearch(e.target.value)}
             component="input"
             placeholder="Type in your search criteria"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
             // defaultValue={searchParams.search}
           />
 
           <Stack
             sx={{
-              py: 1,
+              py: { xs: 2, lg: 1 },
               pr: 3,
               pl: 2,
               ml: 2,
               gap: 2,
               alignItems: "center",
-              borderLeft: "1px solid rgb(166 166 166 / 0.2)",
+              borderLeft: {
+                xs: "none",
+                lg: "1px solid rgb(166 166 166 / 0.2)",
+              },
               flexDirection: "row",
             }}
           >
-            <Stack alignItems="center">
+            <Autocomplete
+              sx={{ width: { xs: "8rem", sm: "10.75rem" } }}
+              value={city}
+              loading={isLoadingGetNearestCities}
+              options={cities}
+              onChange={(_, newValue) => setCity(newValue)}
+              fullWidth
+              clearOnBlur
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  label="City"
+                  onChange={({ target }) => setSearchCityInput(target.value)}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {isLoadingSearchCities || isLoadingGetNearestCities ? (
+                          <CircularProgress size="1.25rem" />
+                        ) : null}
+
+                        {params.InputProps.endAdornment}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+              noOptionsText="No Cities"
+              selectOnFocus
+              getOptionLabel={(option) => option.city}
+            />
+
+            <TextField
+              sx={{ width: "5.5rem" }}
+              size="small"
+              label="KM Radius"
+              value={range}
+              onChange={({ target }) => setRange(target.value)}
+              InputProps={{ type: "number" }}
+            />
+
+            <Stack sx={{ ml: { xs: "auto", lg: 0 }, alignItems: "center" }}>
               {(isLoading || isFetching) && <CircularProgress size="1.25rem" />}
 
               {!(isLoading || isFetching) && (

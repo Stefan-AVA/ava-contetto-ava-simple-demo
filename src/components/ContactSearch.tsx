@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Dialog,
   IconButton,
+  InputAdornment,
   ListItem,
   ListItemAvatar,
   ListItemText,
@@ -86,21 +87,15 @@ const ContactSearch = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            sx={{
-              ".MuiOutlinedInput-input": {
-                zIndex: 1,
-              },
-            }}
             size="small"
             label="Search Contacts"
             InputProps={{
               ...params.InputProps,
-              type: "search",
               endAdornment: (
-                <>
+                <InputAdornment position="end">
                   {loading ? <CircularProgress size="1.25rem" /> : null}
                   {params.InputProps.endAdornment}
-                </>
+                </InputAdornment>
               ),
             }}
           />

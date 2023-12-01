@@ -187,6 +187,10 @@ const theme = createTheme({
 
     MuiInputBase: {
       styleOverrides: {
+        input: {
+          zIndex: 2,
+        },
+
         sizeSmall: {
           ".MuiOutlinedInput-notchedOutline": {
             height: "3rem",
@@ -252,6 +256,29 @@ const theme = createTheme({
             "&-active": {
               opacity: "1 !important",
               backgroundColor: `${palette.white} !important`,
+            },
+          },
+        },
+      },
+    },
+
+    MuiAutocomplete: {
+      styleOverrides: {
+        endAdornment: {
+          gap: 1,
+          zIndex: 2,
+          display: "flex",
+          transform: "translateY(4px)",
+          alignItems: "center",
+
+          ".MuiIconButton-root": {
+            color: palette.gray[400],
+            padding: 0,
+            backgroundColor: "transparent",
+
+            ":hover": {
+              color: palette.purple[500],
+              backgroundColor: "transparent",
             },
           },
         },
