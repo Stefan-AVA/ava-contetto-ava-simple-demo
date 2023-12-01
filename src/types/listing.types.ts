@@ -3,6 +3,11 @@ export enum ListingSource {
   kvcore = "kvcore",
 }
 
+export enum AreaUnitType {
+  sm = "square meters",
+  sf = "square feet",
+}
+
 export interface IListing {
   _id: string
   source: ListingSource
@@ -15,7 +20,7 @@ export interface IListing {
   BathroomsTotal?: number
   BedroomsTotal?: number
   BuildingAreaTotal?: number
-  BuildingAreaUnits?: string
+  BuildingAreaUnits?: AreaUnitType
   CarportSpaces?: string
   CarportYN: boolean
   City: string

@@ -12,6 +12,7 @@ import {
   useShortlistPropertyMutation,
   useUndoPropertyMutation,
 } from "@/redux/apis/search"
+import { formatAreaUint } from "@/utils/format-area-unit"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -296,7 +297,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                 variant="h5"
               >
                 <MapPin />
-                {data.property.UnparsedAddress}
+                {`${data.property.UnparsedAddress}, ${data.property.City}`}
               </Typography>
 
               <Stack
@@ -312,25 +313,28 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                   },
                 }}
               >
-                {data.property.BuildingAreaTotal &&
-                  data.property.BuildingAreaTotal > 0 && (
-                    <Typography
-                      sx={{
-                        py: 1,
-                        px: 1.5,
-                        gap: 1,
-                        color: "gray.600",
-                        display: "flex",
-                        bgcolor: "gray.200",
-                        fontWeight: 500,
-                        alignItems: "center",
-                        borderRadius: ".5rem",
-                      }}
-                    >
-                      <Table2 size={20} />
-                      {`${data.property.BuildingAreaTotal} sq ft`}
-                    </Typography>
-                  )}
+                {Number(data.property.BuildingAreaTotal) > 0 ? (
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
+                    <Table2 size={20} />
+                    {`${data.property.BuildingAreaTotal} ${formatAreaUint(
+                      data.property.BuildingAreaUnits
+                    )}`}
+                  </Typography>
+                ) : (
+                  ""
+                )}
 
                 {Number(data.property.BedroomsTotal) > 0 && (
                   <Typography

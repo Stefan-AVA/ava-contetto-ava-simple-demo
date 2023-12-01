@@ -165,7 +165,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             <Stack
               direction="row"
               spacing={2}
-              display={{ xs: "none", md: "flex" }}
+              display={{ xs: "none", lg: "flex" }}
             >
               <Typography>Created:</Typography>
               <Typography variant="body2">

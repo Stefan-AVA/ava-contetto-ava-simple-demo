@@ -8,6 +8,7 @@ import {
   useShortlistPropertyMutation,
   useUndoPropertyMutation,
 } from "@/redux/apis/search"
+import { formatAreaUint } from "@/utils/format-area-unit"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -43,6 +44,7 @@ const Property = ({
   UnparsedAddress,
   BathroomsTotal,
   BuildingAreaTotal,
+  BuildingAreaUnits,
 }: IProps) => {
   const findMedia = photos.find(({ url }) => url)
 
@@ -225,7 +227,7 @@ const Property = ({
                 component="span"
               >
                 <Table2 size={16} />
-                {`${BuildingAreaTotal} sq ft`}
+                {`${BuildingAreaTotal} ${formatAreaUint(BuildingAreaUnits)}`}
               </Typography>
             ) : null}
           </Stack>
