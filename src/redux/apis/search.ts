@@ -35,6 +35,7 @@ interface IGetSearchResultsRequest {
 interface IGetSearchResultRequest {
   orgId: string
   searchId: string
+  page: number
 }
 
 export const searchApi = createApi({
@@ -43,7 +44,7 @@ export const searchApi = createApi({
   tagTypes: ["Searches", "Properties"],
   endpoints: (builder) => ({
     search: builder.query<
-      { properties: IListing[]; searchResult: ISearchResult },
+      { properties: IListing[]; total: number; searchResult: ISearchResult },
       ISearchRequest
     >({
       query: ({ orgId, search, contactId, cityId, range }) => ({
@@ -81,12 +82,21 @@ export const searchApi = createApi({
       providesTags: ["Searches"],
     }),
     getSearchResult: builder.query<
-      { properties: IListing[]; searchResult: ISearchResult },
+      {
+        properties: IListing[]
+        total: number
+        rejects: IListing[]
+        shortlists: IListing[]
+        searchResult: ISearchResult
+      },
       IGetSearchResultRequest
     >({
-      query: ({ orgId, searchId }) => ({
+      query: ({ orgId, searchId, page }) => ({
         url: `/${orgId}/search-results/${searchId}`,
         method: "GET",
+        params: {
+          page,
+        },
       }),
       providesTags: ["Searches"],
     }),
@@ -172,6 +182,7 @@ export const {
   useLazySearchQuery,
   useGetSearchResultsQuery,
   useGetSearchResultQuery,
+  useLazyGetSearchResultQuery,
   useSaveSearchMutation,
   useDeleteSearchResultMutation,
   useGetSearchResultsByContactQuery,

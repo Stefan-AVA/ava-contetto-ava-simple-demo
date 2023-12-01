@@ -9,9 +9,11 @@ import {
 import { getDatefromUnix } from "@/utils/format-date"
 import { LoadingButton } from "@mui/lab"
 import {
+  CircularProgress,
   Unstable_Grid2 as Grid,
+  Pagination,
+  PaginationItem,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material"
 import { Folder, User } from "lucide-react"
@@ -32,35 +34,39 @@ interface IProps {
 
 const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
   const [tab, setTab] = useState(1)
-  const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
-    undefined
-  )
+  const [page, setPage] = useState(1)
 
   const { replace } = useRouter()
 
-  const { data, isLoading } = useGetSearchResultQuery(
-    { orgId, searchId },
+  const { data, isLoading, refetch, isFetching } = useGetSearchResultQuery(
+    { orgId, searchId, page: page - 1 },
     { skip: !orgId }
   )
+
+  const pageCount = useMemo(() => {
+    if (data) return Math.ceil(data.total / 12)
+    return 0
+  }, [data])
 
   const [shareSearch, { isLoading: isSharing }] = useShareSearchResultMutation()
 
   useEffect(() => {
     if (data?.searchResult) {
-      setSearchResult(data.searchResult)
       if (!data.searchResult.searchName) {
         replace(`/app/agent-orgs/${agentId}`)
       }
     }
-  }, [setSearchResult, data, agentId, replace])
+  }, [data, data, agentId, replace])
 
   const savedFor = useMemo(() => {
-    if (searchResult) {
+    if (data?.searchResult) {
       // agent dashboard
       if (agentId) {
-        if (!searchResult.contactId) return "For you"
-        else if (searchResult.contact)
-          return searchResult.contact.username || searchResult.contact.name
+        if (!data.searchResult.contactId) return "For you"
+        else if (data.searchResult.contact)
+          return (
+            data.searchResult.contact.username || data.searchResult.contact.name
+          )
         else return ""
       }
 
@@ -69,27 +75,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
     }
 
     return ""
-  }, [searchResult, agentId, contactId])
-
-  const shortlists = useMemo(() => {
-    if (data && searchResult) {
-      return data.properties.filter((property) =>
-        searchResult.shortlists.includes(property._id)
-      )
-    }
-
-    return []
-  }, [data?.properties, searchResult])
-
-  const rejects = useMemo(() => {
-    if (data && searchResult) {
-      return data.properties.filter((property) =>
-        searchResult.rejects.includes(property._id)
-      )
-    }
-
-    return []
-  }, [data?.properties, searchResult])
+  }, [data, agentId, contactId])
 
   const onShareSearchResult = async (contact: IContact) => {
     try {
@@ -98,7 +84,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
         searchId,
         contactId: contact._id,
       }).unwrap()
-      setSearchResult(searchResult)
+      refetch()
     } catch (error) {
       console.log("onShare error ===>", error)
     }
@@ -110,7 +96,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
     <Stack alignItems="center">
       <Stack>
         <Typography variant="h4" fontSize={28}>
-          {`Saved Search "${searchResult?.searchName}"`}
+          {`Saved Search "${data?.searchResult.searchName}"`}
         </Typography>
         <Stack spacing={2} mt={3}>
           <Stack
@@ -131,7 +117,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {searchResult?.searchName}
+                  {data?.searchResult?.searchName}
                 </Typography>
               </Stack>
             </Stack>
@@ -189,13 +175,17 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
                   whiteSpace: "nowrap",
                 }}
               >
-                {`${data?.searchResult.userQueryJson.city.city}, ${data?.searchResult.userQueryJson.city.admin_name}, ${data?.searchResult.userQueryJson.city.country}`}
+                {data
+                  ? `${data.searchResult.userQueryJson.city.city}, ${data.searchResult.userQueryJson.city.admin_name}, ${data.searchResult.userQueryJson.city.country}`
+                  : ""}
               </Typography>
             </Stack>
 
             <Stack direction="row" spacing={2} alignItems="center">
               <Typography>Range:</Typography>
-              <Typography>{data?.searchResult.userQueryJson.range}</Typography>
+              <Typography>
+                {data?.searchResult.userQueryJson.range} km
+              </Typography>
             </Stack>
           </Stack>
 
@@ -210,7 +200,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               onClick={() => setTab(1)}
               component="button"
             >
-              All ({data?.properties.length || 0})
+              All ({data?.total || 0})
             </Typography>
             <Typography
               sx={{
@@ -219,7 +209,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               onClick={() => setTab(2)}
               component="button"
             >
-              Shortlisted ({shortlists.length})
+              Shortlisted ({data?.shortlists.length})
             </Typography>
             <Typography
               sx={{
@@ -228,40 +218,57 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
               onClick={() => setTab(3)}
               component="button"
             >
-              Rejected ({rejects.length})
+              Rejected ({data?.rejects.length})
             </Typography>
           </Stack>
         </Stack>
       </Stack>
 
       {data && tab === 1 && (
-        <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
-          {data.properties.map((property) => (
-            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
-              <Property
-                {...property}
-                orgId={orgId}
-                agentId={agentId}
-                contactId={contactId}
-                searchResult={searchResult}
-                setSearchResult={setSearchResult}
+        <>
+          <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
+            {data.properties.map((property) => (
+              <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+                <Property
+                  {...property}
+                  orgId={orgId}
+                  agentId={agentId}
+                  contactId={contactId}
+                  searchResult={data?.searchResult}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          {pageCount ? (
+            <Stack alignItems="center" width="100%" mt={3} mb={3}>
+              <Pagination
+                count={pageCount}
+                page={page}
+                onChange={(e, value) => setPage(value)}
+                renderItem={(item) =>
+                  item.selected && isFetching ? (
+                    <CircularProgress size="0.8rem" sx={{ mx: 2 }} />
+                  ) : (
+                    <PaginationItem {...item} />
+                  )
+                }
               />
-            </Grid>
-          ))}
-        </Grid>
+            </Stack>
+          ) : null}
+        </>
       )}
 
       {data && tab === 2 && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
-          {shortlists.map((property) => (
+          {data?.shortlists.map((property) => (
             <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
               <Property
                 {...property}
                 orgId={orgId}
                 agentId={agentId}
                 contactId={contactId}
-                searchResult={searchResult}
-                setSearchResult={setSearchResult}
+                searchResult={data?.searchResult}
               />
             </Grid>
           ))}
@@ -270,15 +277,14 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
 
       {data && tab === 3 && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
-          {rejects.map((property) => (
+          {data?.rejects.map((property) => (
             <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
               <Property
                 {...property}
                 orgId={orgId}
                 agentId={agentId}
                 contactId={contactId}
-                searchResult={searchResult}
-                setSearchResult={setSearchResult}
+                searchResult={data?.searchResult}
               />
             </Grid>
           ))}

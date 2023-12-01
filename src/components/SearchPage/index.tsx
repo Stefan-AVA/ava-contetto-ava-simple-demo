@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
 } from "@/redux/apis/city"
-import { useLazySearchQuery } from "@/redux/apis/search"
+import {
+  useLazyGetSearchResultQuery,
+  useLazySearchQuery,
+} from "@/redux/apis/search"
 import {
   Autocomplete,
   Box,
@@ -14,6 +17,8 @@ import {
   InputAdornment,
   ListItem,
   ListItemText,
+  Pagination,
+  PaginationItem,
   Stack,
   TextField,
   Typography,
@@ -22,6 +27,8 @@ import { Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { ICity } from "@/types/city.types"
+import { IListing } from "@/types/listing.types"
+import { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
@@ -35,11 +42,19 @@ interface ISearch {
 }
 
 const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
+  const [search, setSearch] = useState("")
+
   const [city, setCity] = useState<ICity | null>(null)
   const [range, setRange] = useState("10") // kilometers
-  const [search, setSearch] = useState("")
   const [cities, setCities] = useState<ICity[]>([])
   const [searchCityInput, setSearchCityInput] = useState("")
+
+  const [properties, setProperties] = useState<IListing[]>([])
+  const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
+    undefined
+  )
+  const [page, setPage] = useState(1)
+  const [pageCount, setPageCount] = useState(0)
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -47,9 +62,14 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
   const [searchCities, { isFetching: isLoadingSearchCities }] =
     useLazySearchCitiesQuery()
-  const [searchListings, { data, isLoading, isFetching }] = useLazySearchQuery()
   const [getNearestCities, { isFetching: isLoadingGetNearestCities }] =
     useLazyNearestCitiesQuery()
+
+  const [searchListings, { isLoading, isFetching }] = useLazySearchQuery()
+  const [
+    getResult,
+    { isLoading: isSearchResultsLoading, isFetching: isSearchResultFetching },
+  ] = useLazyGetSearchResultQuery()
 
   const debouncedSearchCity = useDebounce(searchCityInput)
 
@@ -84,7 +104,6 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   }, [location, getNearestCities])
 
   const onSearch = async () => {
-    console.log(city, range)
     if (!city) {
       enqueueSnackbar("Select the city you want to search", {
         variant: "error",
@@ -100,13 +119,34 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
     }
 
     if (orgId) {
-      searchListings({
+      const data = await searchListings({
         orgId,
         search: search || "",
         cityId: city._id,
         range,
         contactId,
-      })
+      }).unwrap()
+
+      setProperties(data.properties)
+      setSearchResult(data.searchResult)
+      setPageCount(Math.ceil(data.total / 12))
+    }
+  }
+
+  const handlePageChange = async (
+    _: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value)
+    if (searchResult) {
+      const data = await getResult({
+        orgId,
+        searchId: searchResult?._id,
+        page: value - 1,
+      }).unwrap()
+
+      setProperties(data.properties)
+      setPageCount(Math.ceil(data.total / 12))
     }
   }
 
@@ -268,27 +308,43 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               orgId={orgId}
               agentId={agentId}
               contactId={contactId}
-              searchResult={data?.searchResult}
+              searchResult={searchResult}
             />
           </Stack>
         </Stack>
       </Stack>
 
-      {data && (
-        <Grid sx={{ mt: 3 }} container spacing={4}>
-          {data.properties.map((property) => (
-            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
-              <Property
-                {...property}
-                orgId={orgId}
-                agentId={agentId}
-                contactId={contactId}
-                searchResult={data.searchResult}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      <Grid sx={{ mt: 3 }} container spacing={4}>
+        {properties.map((property) => (
+          <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+            <Property
+              {...property}
+              orgId={orgId}
+              agentId={agentId}
+              contactId={contactId}
+              searchResult={searchResult}
+            />
+          </Grid>
+        ))}
+      </Grid>
+
+      {pageCount ? (
+        <Stack alignItems="center" width="100%" mt={3} mb={3}>
+          <Pagination
+            count={pageCount}
+            page={page}
+            onChange={handlePageChange}
+            renderItem={(item) =>
+              item.selected &&
+              (isSearchResultsLoading || isSearchResultFetching) ? (
+                <CircularProgress size="0.8rem" sx={{ mx: 2 }} />
+              ) : (
+                <PaginationItem {...item} />
+              )
+            }
+          />
+        </Stack>
+      ) : null}
     </Stack>
   )
 }

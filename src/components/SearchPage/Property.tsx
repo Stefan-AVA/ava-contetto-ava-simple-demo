@@ -27,7 +27,7 @@ interface IProps extends IListing, Grid2Props {
   agentId?: string
   contactId?: string
   searchResult?: ISearchResult
-  setSearchResult?: Function
+  refetch?: Function
 }
 
 const Property = ({
@@ -35,7 +35,7 @@ const Property = ({
   agentId,
   contactId,
   searchResult,
-  setSearchResult,
+  refetch,
 
   _id,
   photos,
@@ -63,7 +63,7 @@ const Property = ({
         searchId: String(searchResult?._id),
         propertyId: _id,
       }).unwrap()
-      if (setSearchResult) setSearchResult(result.searchResult)
+      if (refetch) refetch()
     } catch (error) {
       console.log("onShortlist error ===>", error)
     }
@@ -76,7 +76,7 @@ const Property = ({
         searchId: String(searchResult?._id),
         propertyId: _id,
       }).unwrap()
-      if (setSearchResult) setSearchResult(result.searchResult)
+      if (refetch) refetch()
     } catch (error) {
       console.log("onReject error ===>", error)
     }
@@ -89,7 +89,7 @@ const Property = ({
         searchId: String(searchResult?._id),
         propertyId: _id,
       }).unwrap()
-      if (setSearchResult) setSearchResult(result.searchResult)
+      if (refetch) refetch()
     } catch (error) {
       console.log("onUndo error ===>", error)
     }
