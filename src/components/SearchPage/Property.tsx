@@ -42,6 +42,7 @@ const Property = ({
   ListPrice,
   BedroomsTotal,
   UnparsedAddress,
+  City,
   BathroomsTotal,
   BuildingAreaTotal,
   BuildingAreaUnits,
@@ -233,7 +234,7 @@ const Property = ({
           </Stack>
 
           <Typography sx={{ color: "blue.800" }} variant="body2">
-            {UnparsedAddress}
+            {`${UnparsedAddress}, ${City}`}
           </Typography>
         </Stack>
       </Stack>
