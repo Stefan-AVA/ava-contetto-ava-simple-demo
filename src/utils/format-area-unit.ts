@@ -5,6 +5,9 @@ export const formatAreaUint = (unit?: AreaUnitType) => {
     case AreaUnitType.sm:
       return "sq m."
 
+    case AreaUnitType.acres:
+      return "acres"
+
     case AreaUnitType.sf:
     default:
       return "sq ft."

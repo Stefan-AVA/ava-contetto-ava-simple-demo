@@ -6,6 +6,7 @@ export enum ListingSource {
 export enum AreaUnitType {
   sm = "square meters",
   sf = "square feet",
+  acres = "acres",
 }
 
 export interface IListing {
