@@ -136,41 +136,49 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             bgcolor: "gray.200",
             borderRadius: { xs: "1rem", lg: "999px" },
             flexDirection: { xs: "column", lg: "row" },
+            alignItems: { xs: "none", lg: "center" },
           }}
         >
-          <Typography
+          <Box
             sx={{
               py: { xs: 2, lg: 0 },
-              pr: { xs: 4, lg: 0 },
-              pl: 4,
-              color: "blue.800",
+              pr: { xs: 2, lg: 0 },
+              pl: { xs: 2, lg: 4 },
               width: "100%",
-              height: "auto",
-              border: "none",
-              outline: "none",
-              fontWeight: 500,
-              backgroundColor: "transparent",
-
-              "::placeholder": {
-                color: "blue.300",
-              },
+              height: "100%",
             }}
-            name="search"
-            value={search}
-            variant="body2"
-            onChange={(e) => setSearch(e.target.value)}
-            component="input"
-            placeholder="Type in your search criteria"
-            // defaultValue={searchParams.search}
-          />
+          >
+            <Typography
+              sx={{
+                color: "blue.800",
+                height: "auto",
+                border: "none",
+                outline: "none",
+                fontWeight: 500,
+                width: "100%",
+                backgroundColor: "transparent",
+
+                "::placeholder": {
+                  color: "blue.300",
+                },
+              }}
+              name="search"
+              value={search}
+              variant="body2"
+              onChange={(e) => setSearch(e.target.value)}
+              component="input"
+              placeholder="Type in your search criteria"
+              // defaultValue={searchParams.search}
+            />
+          </Box>
 
           <Stack
             sx={{
-              py: { xs: 2, lg: 1 },
-              pr: 3,
-              pl: 2,
-              ml: 2,
-              gap: 2,
+              py: { xs: 2, md: 1 },
+              pr: { xs: 2, md: 3 },
+              pl: { xs: 2, md: 2 },
+              ml: { xs: 0, md: 2 },
+              gap: { xs: 1, md: 2 },
               alignItems: "center",
               borderLeft: {
                 xs: "none",
@@ -180,7 +188,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             }}
           >
             <Autocomplete
-              sx={{ width: { xs: "8rem", sm: "16rem" } }}
+              sx={{ width: { xs: "100%", sm: "14rem" } }}
               value={city}
               loading={isLoadingGetNearestCities}
               options={cities}

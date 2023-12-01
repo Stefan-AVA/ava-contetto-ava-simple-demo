@@ -104,6 +104,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
                 onContactChanged={(contact: IContact) => {
                   push(`/app/agent-orgs/${agentId}/contacts/${contact._id}`)
                 }}
+                showOnlyDropdown={false}
               />
             )}
 

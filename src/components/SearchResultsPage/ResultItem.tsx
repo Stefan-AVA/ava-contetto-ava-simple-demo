@@ -117,6 +117,7 @@ const SearchResultItem = ({ orgId, agentId, contactId, result }: IProps) => {
                   overflow: "hidden",
                   whiteSpace: "nowrap",
                   textOverflow: "ellipsis",
+                  textAlign: "start",
                 }}
               >
                 {savedFor}

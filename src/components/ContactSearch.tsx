@@ -26,6 +26,7 @@ interface CreateContactProps {
   orgId: string
   ancher?: ReactNode
   onContactChanged?: Function
+  showOnlyDropdown?: boolean
 }
 
 interface IOption extends Partial<IContact> {
@@ -38,6 +39,7 @@ const ContactSearch = ({
   orgId,
   onContactChanged,
   ancher,
+  showOnlyDropdown = true,
 }: CreateContactProps) => {
   const [open, setOpen] = useState(false)
   const [contact, setContact] = useState<IOption | null>(null)
@@ -137,12 +139,14 @@ const ContactSearch = ({
 
   return (
     <>
-      <Box sx={{ display: { xs: "none", md: "flex" } }}>
-        <SearchContactsAutoComplete />
-      </Box>
+      {!showOnlyDropdown && (
+        <Box sx={{ display: { xs: "none", md: "flex" } }}>
+          <SearchContactsAutoComplete />
+        </Box>
+      )}
 
       <Dropdown
-        sx={{ display: { xs: "flex", md: "none" } }}
+        sx={{ display: showOnlyDropdown ? "flex" : { xs: "flex", md: "none" } }}
         open={open}
         ancher={
           <Box

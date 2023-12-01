@@ -149,7 +149,7 @@ const SearchForm = ({
             helperText={errors?.searchName}
           />
           {!!agentId && (
-            <Stack sx={{ mt: 2, gap: 1 }}>
+            <Stack sx={{ mt: 2 }} spacing={2} direction="row">
               <Typography>Save For:</Typography>
 
               <ContactSearch
@@ -175,6 +175,7 @@ const SearchForm = ({
                         overflow: "hidden",
                         whiteSpace: "nowrap",
                         textOverflow: "ellipsis",
+                        textAlign: "start",
                       }}
                     >
                       {contact ? contact.name : "For me"}
