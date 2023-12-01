@@ -12,6 +12,8 @@ import {
   CircularProgress,
   Unstable_Grid2 as Grid,
   InputAdornment,
+  ListItem,
+  ListItemText,
   Stack,
   TextField,
   Typography,
@@ -82,6 +84,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   }, [location, getNearestCities])
 
   const onSearch = async () => {
+    console.log(city, range)
     if (!city) {
       enqueueSnackbar("Select the city you want to search", {
         variant: "error",
@@ -96,7 +99,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       return
     }
 
-    if (search && orgId) {
+    if (orgId) {
       searchListings({
         orgId,
         search: search || "",
@@ -177,7 +180,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             }}
           >
             <Autocomplete
-              sx={{ width: { xs: "8rem", sm: "10.75rem" } }}
+              sx={{ width: { xs: "8rem", sm: "16rem" } }}
               value={city}
               loading={isLoadingGetNearestCities}
               options={cities}
@@ -204,9 +207,23 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                   }}
                 />
               )}
-              noOptionsText="No Cities"
+              noOptionsText={
+                isLoadingSearchCities || isLoadingGetNearestCities ? (
+                  <CircularProgress size="1.25rem" />
+                ) : (
+                  "No Cities"
+                )
+              }
               selectOnFocus
-              getOptionLabel={(option) => option.city}
+              getOptionLabel={(option) =>
+                `${option.city}, ${option.admin_name}`
+              }
+              renderOption={({ key, ...props }: any, option) => (
+                <ListItem key={option._id} {...props}>
+                  <ListItemText>{`${option.city}, ${option.admin_name}`}</ListItemText>
+                </ListItem>
+              )}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
             />
 
             <TextField
@@ -252,14 +269,15 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       {data && (
         <Grid sx={{ mt: 3 }} container spacing={4}>
           {data.properties.map((property) => (
-            <Property
-              key={property._id}
-              {...property}
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={data.searchResult}
-            />
+            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+              <Property
+                {...property}
+                orgId={orgId}
+                agentId={agentId}
+                contactId={contactId}
+                searchResult={data.searchResult}
+              />
+            </Grid>
           ))}
         </Grid>
       )}

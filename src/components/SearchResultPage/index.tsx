@@ -175,20 +175,28 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
           </Stack>
 
           <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={{ xs: 1, md: 2 }}
+            direction="row"
+            spacing={{ xs: 1, md: 3 }}
             alignItems={{ xs: "flex-start", md: "center" }}
           >
             <Stack direction="row" spacing={2} alignItems="center">
               <Typography>City:</Typography>
-              <Typography>{`${data?.searchResult.userQueryJson.city.city}, ${data?.searchResult.userQueryJson.city.admin_name}, ${data?.searchResult.userQueryJson.city.country}`}</Typography>
+              <Typography
+                sx={{
+                  maxWidth: { xs: 130, md: "unset" },
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {`${data?.searchResult.userQueryJson.city.city}, ${data?.searchResult.userQueryJson.city.admin_name}, ${data?.searchResult.userQueryJson.city.country}`}
+              </Typography>
             </Stack>
 
-            <TextField
-              size="small"
-              label="KM Radius"
-              InputProps={{ type: "number" }}
-            />
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography>Range:</Typography>
+              <Typography>{data?.searchResult.userQueryJson.range}</Typography>
+            </Stack>
           </Stack>
 
           <Stack direction="row" spacing={{ xs: 1, md: 4 }} alignItems="center">
@@ -229,15 +237,16 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
       {data && tab === 1 && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
           {data.properties.map((property) => (
-            <Property
-              key={property._id}
-              {...property}
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={searchResult}
-              setSearchResult={setSearchResult}
-            />
+            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+              <Property
+                {...property}
+                orgId={orgId}
+                agentId={agentId}
+                contactId={contactId}
+                searchResult={searchResult}
+                setSearchResult={setSearchResult}
+              />
+            </Grid>
           ))}
         </Grid>
       )}
@@ -245,15 +254,16 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
       {data && tab === 2 && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
           {shortlists.map((property) => (
-            <Property
-              key={property._id}
-              {...property}
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={searchResult}
-              setSearchResult={setSearchResult}
-            />
+            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+              <Property
+                {...property}
+                orgId={orgId}
+                agentId={agentId}
+                contactId={contactId}
+                searchResult={searchResult}
+                setSearchResult={setSearchResult}
+              />
+            </Grid>
           ))}
         </Grid>
       )}
@@ -261,15 +271,16 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
       {data && tab === 3 && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={4}>
           {rejects.map((property) => (
-            <Property
-              key={property._id}
-              {...property}
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={searchResult}
-              setSearchResult={setSearchResult}
-            />
+            <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+              <Property
+                {...property}
+                orgId={orgId}
+                agentId={agentId}
+                contactId={contactId}
+                searchResult={searchResult}
+                setSearchResult={setSearchResult}
+              />
+            </Grid>
           ))}
         </Grid>
       )}

@@ -8,6 +8,7 @@ import {
   ButtonGroup,
   Unstable_Grid2 as Grid,
   Stack,
+  Typography,
 } from "@mui/material"
 import { useSelector } from "react-redux"
 
@@ -57,6 +58,26 @@ export default function SavedSearches({ params }: IPage) {
 
   return (
     <Stack>
+      <Stack direction="row" alignItems="center" spacing={3} marginBottom={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography>City:</Typography>
+          <Typography
+            sx={{
+              maxWidth: { xs: 130, md: "unset" },
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {`${data?.searchResult.userQueryJson.city.city}, ${data?.searchResult.userQueryJson.city.admin_name}, ${data?.searchResult.userQueryJson.city.country}`}
+          </Typography>
+        </Stack>
+
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography>Range:</Typography>
+          <Typography>{data?.searchResult.userQueryJson.range}</Typography>
+        </Stack>
+      </Stack>
       <ButtonGroup size="small" disableElevation>
         {["All", "Shortlisted", "Rejected"].map((field) => (
           <Button
@@ -74,18 +95,15 @@ export default function SavedSearches({ params }: IPage) {
       {data && !isLoading && (
         <Grid sx={{ mt: 3, width: "100%" }} container spacing={3}>
           {filterByType.map((property) => (
-            <Property
-              {...property}
-              xs={12}
-              sm={6}
-              md={6}
-              xl={6}
-              key={property._id}
-              orgId={agentProfile?.orgId as string}
-              agentId={params.agentId}
-              contactId={params.contact_id}
-              searchResult={data.searchResult}
-            />
+            <Grid xs={12} sm={12} md={6} xl={6} key={property._id}>
+              <Property
+                {...property}
+                orgId={agentProfile?.orgId as string}
+                agentId={params.agentId}
+                contactId={params.contact_id}
+                searchResult={data.searchResult}
+              />
+            </Grid>
           ))}
         </Grid>
       )}
