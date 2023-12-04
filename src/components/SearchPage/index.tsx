@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { FormEvent, useEffect, useState } from "react"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
@@ -9,6 +9,7 @@ import {
   useLazyGetSearchResultQuery,
   useLazySearchQuery,
 } from "@/redux/apis/search"
+import { parseError } from "@/utils/error"
 import {
   Autocomplete,
   Box,
@@ -23,7 +24,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Search as SearchIcon } from "lucide-react"
+import { Frown, Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { ICity } from "@/types/city.types"
@@ -103,7 +104,9 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
     }
   }, [location, getNearestCities])
 
-  const onSearch = async () => {
+  const onSearch = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
     if (!city) {
       enqueueSnackbar("Select the city you want to search", {
         variant: "error",
@@ -119,17 +122,21 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
     }
 
     if (orgId) {
-      const data = await searchListings({
-        orgId,
-        search: search || "",
-        cityId: city._id,
-        range,
-        contactId,
-      }).unwrap()
+      try {
+        const data = await searchListings({
+          orgId,
+          search: search || "",
+          cityId: city._id,
+          range,
+          contactId,
+        }).unwrap()
 
-      setProperties(data.properties)
-      setSearchResult(data.searchResult)
-      setPageCount(Math.ceil(data.total / 12))
+        setProperties(data.properties)
+        setSearchResult(data.searchResult)
+        setPageCount(Math.ceil(data.total / 12))
+      } catch (error) {
+        enqueueSnackbar(parseError(error), { variant: "error" })
+      }
     }
   }
 
@@ -178,6 +185,8 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             flexDirection: { xs: "column", lg: "row" },
             alignItems: { xs: "none", lg: "center" },
           }}
+          onSubmit={onSearch}
+          component="form"
         >
           <Box
             sx={{
@@ -287,7 +296,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               {(isLoading || isFetching) && <CircularProgress size="1.25rem" />}
 
               {!(isLoading || isFetching) && (
-                <button onClick={onSearch}>
+                <button type="submit">
                   <Box
                     sx={{
                       color: "cyan.500",
@@ -314,37 +323,62 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         </Stack>
       </Stack>
 
-      <Grid sx={{ mt: 3 }} container spacing={4}>
-        {properties.map((property) => (
-          <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
-            <Property
-              {...property}
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={searchResult}
-            />
-          </Grid>
-        ))}
-      </Grid>
-
-      {pageCount ? (
-        <Stack alignItems="center" width="100%" mt={3} mb={3}>
-          <Pagination
-            count={pageCount}
-            page={page}
-            onChange={handlePageChange}
-            renderItem={(item) =>
-              item.selected &&
-              (isSearchResultsLoading || isSearchResultFetching) ? (
-                <CircularProgress size="0.8rem" sx={{ mx: 2 }} />
-              ) : (
-                <PaginationItem {...item} />
-              )
+      {properties && properties.length <= 0 && (
+        <Stack
+          sx={{
+            px: 3,
+            mt: 10,
+            mb: 3,
+            mx: "auto",
+            gap: 3,
+            maxWidth: "22rem",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ color: "purple.500" }} size={40} component={Frown} />
+          <Typography sx={{ color: "gray.600", textAlign: "center" }}>
+            {
+              "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
             }
-          />
+          </Typography>
         </Stack>
-      ) : null}
+      )}
+
+      {properties && properties.length > 0 && (
+        <>
+          <Grid sx={{ mt: 3 }} container spacing={4}>
+            {properties.map((property) => (
+              <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
+                <Property
+                  {...property}
+                  orgId={orgId}
+                  agentId={agentId}
+                  contactId={contactId}
+                  searchResult={searchResult}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          {pageCount ? (
+            <Stack sx={{ my: 3, width: "100%", alignItems: "center" }}>
+              <Pagination
+                count={pageCount}
+                page={page}
+                onChange={handlePageChange}
+                renderItem={(item) =>
+                  item.selected &&
+                  (isSearchResultsLoading || isSearchResultFetching) ? (
+                    <CircularProgress size="0.8rem" sx={{ mx: 2 }} />
+                  ) : (
+                    <PaginationItem {...item} />
+                  )
+                }
+              />
+            </Stack>
+          ) : null}
+        </>
+      )}
     </Stack>
   )
 }

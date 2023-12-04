@@ -275,6 +275,7 @@ export default function Sidebar({
         open={isDrawerOpen}
         anchor={"left"}
         onClose={() => toggleDrawer()}
+        keepMounted
       >
         <Stack
           sx={{
