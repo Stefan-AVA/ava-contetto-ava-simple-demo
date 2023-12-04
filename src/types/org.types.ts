@@ -12,8 +12,9 @@ export interface IOrg {
   _id: string
   name: string
   owner: string // username
-  primaryColor?: string
-  secondaryColor?: string
+  sidebarFontColor?: string
+  sidebarBgColor?: string
+  fontFamily?: string
   logoUrl?: string
   mlsFeeds?: IMLSFeed[]
   deleted: boolean
