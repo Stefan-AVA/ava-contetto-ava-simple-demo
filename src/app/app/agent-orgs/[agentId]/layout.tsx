@@ -4,6 +4,7 @@ import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
+import { createTheme, ThemeProvider } from "@mui/material/styles"
 import {
   Contact,
   LayoutDashboardIcon,
@@ -16,6 +17,7 @@ import { useSelector } from "react-redux"
 import { AgentRole } from "@/types/agentProfile.types"
 import Breadcrumb from "@/components/breadcrumb"
 import Sidebar from "@/components/sidebar"
+import { components, palette, typography } from "@/styles/theme"
 
 export default function Layout({ children }: PropsWithChildren) {
   const pathName = usePathname()
@@ -68,26 +70,47 @@ export default function Layout({ children }: PropsWithChildren) {
     [pathName, agentId, role]
   )
 
-  return (
-    <Stack
-      padding={{ xs: 1, md: 0 }}
-      spacing={{ xs: 2, md: 0 }}
-      direction={{ xs: "column", md: "row" }}
-    >
-      <Sidebar routes={routes} />
+  const theme = useMemo(() => {
+    const colors = {
+      ...palette,
+      // title: "#172832",
+      cyan: {
+        ...palette.cyan,
+        500: "#5A57FF",
+      },
+      // background: "#FFF",
+      // description: "#8C8C8C",
+    }
 
-      <Box
-        sx={{
-          p: { xs: 1, md: 5 },
-          width: "100%",
-          height: "calc(100vh - 4rem)",
-          overflowY: "auto",
-          overflowX: "hidden",
-        }}
+    return createTheme({
+      palette: colors,
+      components: components(colors),
+      typography,
+    })
+  }, [])
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Stack
+        padding={{ xs: 1, md: 0 }}
+        spacing={{ xs: 2, md: 0 }}
+        direction={{ xs: "column", md: "row" }}
       >
-        <Breadcrumb initialPosition={3} />
-        {children}
-      </Box>
-    </Stack>
+        <Sidebar routes={routes} />
+
+        <Box
+          sx={{
+            p: { xs: 1, md: 5 },
+            width: "100%",
+            height: "calc(100vh - 4rem)",
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}
+        >
+          <Breadcrumb initialPosition={3} />
+          {children}
+        </Box>
+      </Stack>
+    </ThemeProvider>
   )
 }
