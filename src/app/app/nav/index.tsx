@@ -76,7 +76,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
 
         <Stack href="/" component={Link}>
           <Box
-            sx={{ width: "100%", height: "2rem" }}
+            sx={{ width: "100%", height: "2rem", objectFit: "contain" }}
             src={Logo}
             alt="Logo Ava"
             priority
