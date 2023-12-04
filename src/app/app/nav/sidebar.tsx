@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { clearToken } from "@/redux/fetch-auth-query"
@@ -89,6 +90,7 @@ function SidebarList({
                   display: "flex",
                   alignItems: "center",
                   borderRadius: 2.5,
+                  overflow: "hidden",
                   justifyContent: "center",
                   ":hover": {
                     cursor: "pointer",
@@ -98,9 +100,18 @@ function SidebarList({
                   }),
                 }}
               >
-                <Typography variant="h4">
-                  {nameInitials(String(agent.org?.name))}
-                </Typography>
+                {agent.org?.logoUrl ? (
+                  <Image
+                    src={agent.org.logoUrl}
+                    alt="logo"
+                    width={64}
+                    height={64}
+                  />
+                ) : (
+                  <Typography variant="h4">
+                    {nameInitials(String(agent.org?.name))}
+                  </Typography>
+                )}
               </Box>
             </Tooltip>
 
@@ -164,6 +175,7 @@ function SidebarList({
                   display: "flex",
                   alignItems: "center",
                   borderRadius: 2.5,
+                  overflow: "hidden",
                   justifyContent: "center",
                   ":hover": {
                     cursor: "pointer",
@@ -173,9 +185,18 @@ function SidebarList({
                   }),
                 }}
               >
-                <Typography variant="h4">
-                  {nameInitials(String(contact.org?.name))}
-                </Typography>
+                {contact.org?.logoUrl ? (
+                  <Image
+                    src={contact.org.logoUrl}
+                    alt="logo"
+                    width={64}
+                    height={64}
+                  />
+                ) : (
+                  <Typography variant="h4">
+                    {nameInitials(String(contact.org?.name))}
+                  </Typography>
+                )}
               </Box>
             </Tooltip>
 

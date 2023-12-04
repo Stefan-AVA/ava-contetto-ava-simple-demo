@@ -9,6 +9,7 @@ import {
 } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
+import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
 import { Stack, TextField, Typography } from "@mui/material"
 import { z } from "zod"
@@ -16,15 +17,7 @@ import { z } from "zod"
 import { AgentRole } from "@/types/agentProfile.types"
 import type { IOrg } from "@/types/org.types"
 
-const orgSchema = z.object({
-  name: z.string().min(1, "Enter name"),
-})
-
-const initialForm = {
-  name: "",
-}
-
-export type OrgSchema = z.infer<typeof orgSchema>
+import ImageUpload from "../ImageUpload"
 
 interface IOrgInfo {
   org?: IOrg
@@ -33,7 +26,20 @@ interface IOrgInfo {
   setOpenCreateOrgModal?: Function
 }
 
-type FormError = OrgSchema & {
+interface IForm {
+  name: string
+  logoUrl: string
+  logoFileType?: string
+}
+
+const initialForm: IForm = {
+  name: "",
+  logoUrl: "",
+  logoFileType: undefined,
+}
+
+interface IError {
+  name?: string
   request?: string
 }
 
@@ -45,8 +51,8 @@ export default function OrgInfo({
 }: IOrgInfo) {
   const { push } = useRouter()
 
-  const [form, setForm] = useState<OrgSchema>(initialForm)
-  const [errors, setErrors] = useState<FormError | null>(null)
+  const [form, setForm] = useState<IForm>(initialForm)
+  const [errors, setErrors] = useState<IError>({})
 
   const [updateOrg, { isLoading: isUpdateLoading }] = useUpdateOrgMutation()
   const [createOrg, { isLoading: isCreateLoading }] = useCreateOrgMutation()
@@ -55,31 +61,62 @@ export default function OrgInfo({
   const isLoading = isCreateLoading || isUpdateLoading || isLoadingOrgs
 
   useEffect(() => {
-    if (org) setForm((prev) => ({ ...prev, name: org.name }))
+    if (org)
+      setForm((prev) => ({
+        ...prev,
+        name: org.name,
+        logoUrl: org.logoUrl || "",
+      }))
   }, [org])
+
+  const onChange = (name: string, value: any) => {
+    setErrors({})
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const isValidated = () => {
+    const errs: IError = {}
+    if (!form.name) errs.name = "This field is required"
+    setErrors(errs)
+
+    return Object.keys(errs).length === 0
+  }
+
+  const onLogoFileChange = async (files: File[]) => {
+    const file = files[0]
+    if (!file) return
+
+    const base64 = await toBase64(file)
+
+    setForm((prev) => ({
+      ...prev,
+      logoUrl: String(base64),
+      logoFileType: file.type,
+    }))
+  }
+
+  const onLogoDelete = () => {
+    setForm((prev) => ({
+      ...prev,
+      logoUrl: "",
+      logoFileType: undefined,
+    }))
+  }
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    setErrors(null)
+    setErrors({})
 
-    const response = orgSchema.safeParse(form)
-
-    if (!response.success) {
-      const error = formatErrorZodMessage<OrgSchema>(response.error)
-
-      setErrors(error)
-
-      return
-    }
+    if (!isValidated()) return
 
     try {
       if (!isCreate && org) {
-        await updateOrg({ ...org, name: response.data.name }).unwrap()
+        await updateOrg({ ...org, ...form }).unwrap()
       }
 
       if (isCreate) {
-        const res = await createOrg({ name: response.data.name }).unwrap()
+        const res = await createOrg(form).unwrap()
         await getOrgs().unwrap()
 
         setForm(initialForm)
@@ -88,9 +125,7 @@ export default function OrgInfo({
         push(`/app/agent-orgs/${res.agentProfileId}/settings`)
       }
     } catch (error) {
-      setErrors(
-        (prev) => ({ ...prev, request: parseError(error) }) as FormError
-      )
+      setErrors((prev) => ({ ...prev, request: parseError(error) }))
     }
   }
 
@@ -101,6 +136,7 @@ export default function OrgInfo({
         gap: 3,
         width: "100%",
         maxWidth: "32rem",
+        alignItems: "center",
       }}
       onSubmit={submit}
       component="form"
@@ -109,15 +145,24 @@ export default function OrgInfo({
         label="Organization Name"
         value={form.name}
         error={!!errors?.name}
-        onChange={({ target }) =>
-          setForm((prev) => ({ ...prev, name: target.value }))
-        }
+        onChange={({ target }) => onChange("name", target.value)}
         disabled={!isCreate && role !== AgentRole.owner}
         helperText={errors?.name}
+        fullWidth
+      />
+
+      <ImageUpload
+        images={[form.logoUrl]}
+        onDelete={onLogoDelete}
+        onChange={onLogoFileChange}
+        width={200}
+        height={200}
+        multiple
+        dragInactiveText={"jpeg, png"}
       />
 
       {(isCreate || (!isCreate && role === AgentRole.owner)) && (
-        <LoadingButton type="submit" loading={isLoading}>
+        <LoadingButton type="submit" loading={isLoading} fullWidth>
           {isCreate ? "Create a new Organization" : "Update"}
         </LoadingButton>
       )}

@@ -1,3 +1,4 @@
+import { formatFormdata } from "@/utils/format-formdata"
 import { createApi } from "@reduxjs/toolkit/query/react"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
@@ -37,6 +38,13 @@ interface ISearchContactRequest {
   search: string
 }
 
+interface IUpdateOrgRequest {
+  _id: string
+  name: string
+  logoUrl?: string
+  logoFileType?: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -44,7 +52,7 @@ export const orgApi = createApi({
   endpoints: (builder) => ({
     createOrg: builder.mutation<
       { orgId: string; agentProfileId: string },
-      Omit<IOrg, "_id" | "owner" | "deleted">
+      Omit<IUpdateOrgRequest, "_id">
     >({
       query: (data) => ({
         url: "",
@@ -53,7 +61,7 @@ export const orgApi = createApi({
       }),
       invalidatesTags: ["Orgs"],
     }),
-    updateOrg: builder.mutation<IBaseResponse, IOrg>({
+    updateOrg: builder.mutation<IBaseResponse, IUpdateOrgRequest>({
       query: ({ _id, ...rest }) => ({
         url: `/${_id}`,
         method: "PUT",

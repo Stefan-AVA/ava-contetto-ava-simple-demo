@@ -46,9 +46,10 @@ export const fetchAuthQuery =
       ...(args as FetchArgs),
       headers: token
         ? {
+            ...((args as FetchArgs).headers && (args as FetchArgs).headers),
             Authorization: `Bearer ${token}`,
           }
-        : {},
+        : { ...((args as FetchArgs).headers && (args as FetchArgs).headers) },
     }
 
     const result = await getBaseQuery({
