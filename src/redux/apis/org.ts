@@ -43,6 +43,9 @@ interface IUpdateOrgRequest {
   name: string
   logoUrl?: string
   logoFileType?: string
+  sidebarFontColor?: string
+  sidebarBgColor?: string
+  fontFamily?: string
 }
 
 export const orgApi = createApi({
