@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState, type FormEvent } from "react"
-import { useGetContactQuery, useUpdateContactMutation } from "@/redux/apis/org"
+import { useMemo, useState, type FormEvent } from "react"
+import { useGetContactQuery } from "@/redux/apis/org"
 import type { RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
@@ -40,8 +40,6 @@ export default function Page({ params }: IPage) {
 
   const { enqueueSnackbar } = useSnackbar()
 
-  const [update, { isLoading }] = useUpdateContactMutation()
-
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
   const agentProfile = useMemo(
@@ -59,10 +57,6 @@ export default function Page({ params }: IPage) {
     }
   )
 
-  useEffect(() => {
-    if (data) setForm((prev) => ({ ...prev, name: data.name, note: data.note }))
-  }, [data])
-
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
@@ -79,12 +73,6 @@ export default function Page({ params }: IPage) {
     }
 
     try {
-      await update({
-        _id: params.contact_id,
-        ...form,
-        orgId: agentProfile?.orgId,
-      }).unwrap()
-
       enqueueSnackbar("Note updated successfully", { variant: "success" })
     } catch (error) {
       setErrors(
@@ -112,11 +100,7 @@ export default function Page({ params }: IPage) {
           helperText={errors?.note}
         />
 
-        <LoadingButton
-          sx={{ mt: 4.5, ml: "auto" }}
-          type="submit"
-          loading={isLoading}
-        >
+        <LoadingButton sx={{ mt: 4.5, ml: "auto" }} type="submit">
           Update note
         </LoadingButton>
 
