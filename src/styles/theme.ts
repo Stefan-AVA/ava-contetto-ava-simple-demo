@@ -1,5 +1,6 @@
 import type {} from "@mui/lab/themeAugmentation"
 
+import colorMapper from "@/utils/color-mapper"
 import {
   createTheme,
   type Components,
@@ -35,8 +36,7 @@ export const palette = {
     400: "#A6A6A6",
     500: "#8C8C8C",
     600: "#4D4D4D",
-    700: "#172832",
-    800: "#262626",
+    700: "#262626",
   },
 
   green: {
@@ -58,6 +58,11 @@ export const palette = {
 
   purple: {
     500: "#5A57FF",
+  },
+
+  background: {
+    paper: "#FFF",
+    default: "#FFF",
   },
 
   transparent: "transparent",
@@ -119,18 +124,6 @@ export const components = (
     styleOverrides: {
       textColorPrimary: {
         color: colors.gray[500],
-
-        "&.Mui-selected": {
-          color: colors.cyan[500],
-        },
-      },
-    },
-  },
-
-  MuiTabs: {
-    styleOverrides: {
-      indicator: {
-        backgroundColor: colors.cyan[500],
       },
     },
   },
@@ -155,11 +148,6 @@ export const components = (
 
       containedPrimary: {
         color: colors.white,
-        backgroundColor: colors.cyan[500],
-
-        ":hover": {
-          backgroundColor: colors.cyan[600],
-        },
       },
     },
   },
@@ -167,14 +155,14 @@ export const components = (
   MuiTooltip: {
     styleOverrides: {
       arrow: {
-        color: colors.gray[300],
+        color: colors.gray[100],
       },
 
       tooltip: {
-        color: colors.gray[800],
+        color: colors.gray[700],
         boxShadow: "0 8px 32px rgba(0, 0, 0, .14)",
         borderRadius: ".75rem",
-        backgroundColor: colors.gray[300],
+        backgroundColor: colors.gray[100],
       },
     },
   },
@@ -183,10 +171,6 @@ export const components = (
     styleOverrides: {
       root: {
         color: colors.gray[400],
-
-        "&.Mui-checked": {
-          color: colors.cyan[600],
-        },
       },
     },
   },
@@ -211,10 +195,6 @@ export const components = (
     styleOverrides: {
       root: {
         color: colors.gray[400],
-
-        "&.Mui-focused": {
-          color: colors.cyan[500],
-        },
       },
 
       sizeSmall: {
@@ -242,18 +222,16 @@ export const components = (
 
       colorPrimary: {
         color: colors.white,
-        backgroundColor: colors.purple[500],
-
-        ":hover": {
-          opacity: 0.9,
-          backgroundColor: colors.purple[500],
-        },
       },
     },
   },
 
   MuiCssBaseline: {
     styleOverrides: {
+      body: {
+        backgroundColor: colors.background?.default,
+      },
+
       ".swiper": {
         "&-pagination-bullet": {
           opacity: ".4 !important",
@@ -283,7 +261,7 @@ export const components = (
           backgroundColor: "transparent",
 
           ":hover": {
-            color: colors.purple[500],
+            color: colors.gray[500],
             backgroundColor: "transparent",
           },
         },
@@ -295,18 +273,6 @@ export const components = (
     styleOverrides: {
       root: {
         borderRadius: ".5rem",
-
-        ":hover": {
-          ".MuiOutlinedInput-notchedOutline": {
-            borderColor: `${colors.gray[400]}`,
-          },
-        },
-
-        "&.Mui-focused": {
-          ".MuiOutlinedInput-notchedOutline": {
-            borderColor: `${colors.cyan[500]}`,
-          },
-        },
       },
       notchedOutline: {
         borderColor: colors.gray[300],
@@ -330,18 +296,10 @@ export const components = (
     },
   },
 
-  MuiCircularProgress: {
-    styleOverrides: {
-      root: {
-        color: colors.cyan[500],
-      },
-    },
-  },
-
   MuiFormControlLabel: {
     styleOverrides: {
       label: {
-        color: colors.gray[800],
+        color: colors.gray[700],
         fontSize: ".875rem",
         lineHeight: "1.5rem",
       },
@@ -350,7 +308,11 @@ export const components = (
 })
 
 const theme = createTheme({
-  palette,
+  palette: {
+    ...palette,
+    primary: colorMapper({ main: palette.cyan[500], dark: palette.cyan[600] }),
+    secondary: colorMapper({ main: palette.purple[500] }),
+  },
   typography,
   components: components(palette),
 })

@@ -141,7 +141,7 @@ export default function SignupPage({ searchParams }: PageProps) {
   return (
     <>
       <Typography
-        sx={{ mb: 1, color: "gray.800", fontWeight: 700 }}
+        sx={{ mb: 1, color: "gray.700", fontWeight: 700 }}
         variant="h3"
         component="h1"
       >

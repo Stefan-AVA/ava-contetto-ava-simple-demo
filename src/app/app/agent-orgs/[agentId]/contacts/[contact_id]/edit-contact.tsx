@@ -101,7 +101,7 @@ export default function EditContact({ orgId, contactId }: IPage) {
           }}
           onClick={() => setOpen(true)}
         >
-          <Typography sx={{ color: "gray.800" }}>Edit Contact</Typography>
+          <Typography sx={{ color: "gray.700" }}>Edit Contact</Typography>
 
           <ChevronRight size={20} />
         </Stack>

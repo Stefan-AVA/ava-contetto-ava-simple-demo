@@ -3,6 +3,7 @@
 import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
+import colorMapper from "@/utils/color-mapper"
 import { Box, Stack } from "@mui/material"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import {
@@ -81,11 +82,12 @@ export default function Layout({ children }: PropsWithChildren) {
         500: defaultTheme.description,
         700: defaultTheme.title,
       },
-      cyan: {
-        ...palette.cyan,
-        500: defaultTheme.primary,
+      primary: colorMapper({ main: defaultTheme.primary }),
+      secondary: colorMapper({ main: defaultTheme.secondary }),
+      background: {
+        paper: defaultTheme.background,
+        default: defaultTheme.background,
       },
-      // background: "#FFF",
     }
 
     return createTheme({

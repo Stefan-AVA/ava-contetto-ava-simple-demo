@@ -61,7 +61,10 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
         const name = `/${replaceWithParams.slice(0, index + 1).join("/")}`
 
         return last ? (
-          <Typography sx={{ color: "purple.500", fontWeight: 600 }} key={href}>
+          <Typography
+            sx={{ color: "secondary.main", fontWeight: 600 }}
+            key={href}
+          >
             {breadcrumbNameMap[name]?.label}
           </Typography>
         ) : breadcrumbNameMap[name]?.link ? (

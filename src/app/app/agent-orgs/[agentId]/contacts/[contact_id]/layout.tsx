@@ -142,9 +142,13 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                   flexDirection: "row",
                 }}
               >
-                <Box sx={{ color: "purple.500" }} size={20} component={User2} />
+                <Box
+                  sx={{ color: "secondary.main" }}
+                  size={20}
+                  component={User2}
+                />
 
-                <Typography sx={{ color: "gray.800" }}>
+                <Typography sx={{ color: "gray.700" }}>
                   {data.username || "Username not provided"}
                 </Typography>
               </Stack>
@@ -158,9 +162,13 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                   flexDirection: "row",
                 }}
               >
-                <Box sx={{ color: "purple.500" }} size={20} component={Mail} />
+                <Box
+                  sx={{ color: "secondary.main" }}
+                  size={20}
+                  component={Mail}
+                />
 
-                <Typography sx={{ color: "gray.800" }}>
+                <Typography sx={{ color: "gray.700" }}>
                   {data.email || "Email not provided"}
                 </Typography>
               </Stack>
@@ -189,7 +197,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                   justifyContent: "space-between",
                 }}
               >
-                <Typography sx={{ color: "gray.800" }}>App Access</Typography>
+                <Typography sx={{ color: "gray.700" }}>App Access</Typography>
 
                 <Switch />
               </Stack>
@@ -240,7 +248,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
           >
             <Typography
               sx={{
-                color: pathname === basePath ? "purple.500" : "gray.600",
+                color: pathname === basePath ? "secondary.main" : "gray.500",
                 fontWeight: 700,
               }}
               href={basePath}
@@ -252,8 +260,8 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             <Typography
               sx={{
                 color: pathname.includes(`${basePath}/saved-searches`)
-                  ? "purple.500"
-                  : "gray.600",
+                  ? "secondary.main"
+                  : "gray.500",
                 fontWeight: 700,
               }}
               href={`${basePath}/saved-searches` as Route}
@@ -266,8 +274,8 @@ export default function ContactLayout({ children }: PropsWithChildren) {
               sx={{
                 color:
                   pathname === `${basePath}/all-activities`
-                    ? "purple.500"
-                    : "gray.600",
+                    ? "secondary.main"
+                    : "gray.500",
                 fontWeight: 700,
               }}
               href={`${basePath}/all-activities` as Route}

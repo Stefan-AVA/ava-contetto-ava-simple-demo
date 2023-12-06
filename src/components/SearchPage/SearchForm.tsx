@@ -115,11 +115,11 @@ const SearchForm = ({
       ancher={
         <Box
           sx={{
-            color: "cyan.500",
+            color: "primary.main",
             transition: "all .3s ease-in-out",
 
             ":hover": {
-              color: "cyan.600",
+              color: "primary.dark",
               cursor: "pointer",
             },
           }}

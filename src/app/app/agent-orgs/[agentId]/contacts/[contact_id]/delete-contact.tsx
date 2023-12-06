@@ -62,7 +62,7 @@ export default function DeleteContact({ orgId, agentId, contactId }: IPage) {
           }}
           onClick={() => setOpen(true)}
         >
-          <Typography sx={{ color: "gray.800" }}>Delete Contact</Typography>
+          <Typography sx={{ color: "gray.700" }}>Delete Contact</Typography>
 
           <ChevronRight size={20} />
         </Stack>

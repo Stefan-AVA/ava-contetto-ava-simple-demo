@@ -195,7 +195,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             </Typography>
             <Typography
               sx={{
-                color: tab === 1 ? "purple.500" : "gray.700",
+                color: tab === 1 ? "secondary.main" : "gray.700",
               }}
               onClick={() => setTab(1)}
               component="button"
@@ -204,7 +204,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             </Typography>
             <Typography
               sx={{
-                color: tab === 2 ? "purple.500" : "gray.500",
+                color: tab === 2 ? "secondary.main" : "gray.500",
               }}
               onClick={() => setTab(2)}
               component="button"
@@ -213,7 +213,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
             </Typography>
             <Typography
               sx={{
-                color: tab === 3 ? "purple.500" : "gray.500",
+                color: tab === 3 ? "secondary.main" : "gray.500",
               }}
               onClick={() => setTab(3)}
               component="button"

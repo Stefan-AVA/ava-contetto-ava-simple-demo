@@ -55,6 +55,18 @@ export default function WhiteLabel() {
 
         <Grid xs={12} md={6}>
           <MuiColorInput
+            value={theme.secondary}
+            label="Color secondary"
+            format="rgb"
+            onChange={(value) =>
+              setTheme((prev) => ({ ...prev, secondary: value }))
+            }
+            fullWidth
+          />
+        </Grid>
+
+        <Grid xs={12} md={6}>
+          <MuiColorInput
             value={theme.background}
             label="Background color"
             format="rgb"
