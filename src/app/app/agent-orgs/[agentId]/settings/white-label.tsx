@@ -12,6 +12,8 @@ import {
 import { MuiColorInput } from "mui-color-input"
 import { useSelector } from "react-redux"
 
+import { dmsans } from "@/styles/fonts"
+
 export default function WhiteLabel() {
   const [theme, setTheme] = useState(initialTheme)
 
@@ -36,7 +38,7 @@ export default function WhiteLabel() {
           setTheme((prev) => ({ ...prev, fontFamily: target.value }))
         }
       >
-        <MenuItem value="DM Sans">DM Sans</MenuItem>
+        <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
         <MenuItem value="Inter">Inter</MenuItem>
       </TextField>
 

@@ -93,15 +93,21 @@ export default function Layout({ children }: PropsWithChildren) {
     return createTheme({
       palette: colors,
       components: components(colors),
-      typography,
+      typography: {
+        ...typography,
+        fontFamily: defaultTheme.fontFamily,
+      },
     })
-  }, [])
+  }, [defaultTheme])
 
   return (
     <ThemeProvider theme={theme}>
       <Stack
-        padding={{ xs: 1, md: 0 }}
-        spacing={{ xs: 2, md: 0 }}
+        sx={{
+          p: { xs: 1, md: 0 },
+          gap: { xs: 2, md: 0 },
+          bgcolor: "background.default",
+        }}
         direction={{ xs: "column", md: "row" }}
       >
         <Sidebar routes={routes} />

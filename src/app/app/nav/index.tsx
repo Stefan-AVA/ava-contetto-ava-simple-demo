@@ -37,7 +37,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         top: 0,
         width: "100%",
         height: "4rem",
-        bgcolor: "white",
+        bgcolor: "background.default",
         position: "sticky",
         transition: "all .3s ease-in-out",
         alignItems: "center",
@@ -58,15 +58,16 @@ export default function Nav({ loading, toggleDrawer }: INav) {
       >
         <IconButton
           sx={{
+            p: 1,
+            color: "gray.700",
+            bgcolor: "white",
             display: {
               xs: "flex",
               md: "none",
             },
-            padding: 1,
-            background: "white",
-            color: "black",
+
             ":hover": {
-              background: "white",
+              bgcolor: "white",
             },
           }}
           onClick={toggleDrawer}

@@ -7,8 +7,6 @@ type ColorMapper = {
 }
 
 export default function ({ main, dark, light }: ColorMapper) {
-  console.log({ x: getContrastRatio(main, "#FFF") })
-
   return {
     main,
     dark: dark ?? alpha(main, 0.9),
