@@ -253,7 +253,7 @@ const Property = ({
             <LoadingButton
               sx={{
                 p: 1.5,
-                color: "blue.900",
+                color: "purple.500",
                 width: "100%",
                 display: "flex",
                 alignItems: "center",

@@ -558,7 +558,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                     <LoadingButton
                       sx={{
                         p: 1.5,
-                        color: "blue.900",
+                        color: "purple.500",
                         width: "100%",
                         display: "flex",
                         alignItems: "center",
@@ -566,7 +566,7 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                         background: "white",
                         height: 50,
                         border: "1px solid",
-                        borderColor: "blue.900",
+                        borderColor: "purple.500",
                         borderRadius: 2,
                         ":hover": {
                           background: "white",

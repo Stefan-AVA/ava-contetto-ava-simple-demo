@@ -1,4 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { setTheme as setDefaultTheme } from "@/redux/slices/app"
+import { initialTheme } from "@/redux/slices/theme"
+import { useAppDispatch, type RootState } from "@/redux/store"
 import {
   Button,
   Unstable_Grid2 as Grid,
@@ -7,26 +10,34 @@ import {
   TextField,
 } from "@mui/material"
 import { MuiColorInput } from "mui-color-input"
-
-const initialTheme = {
-  title: "#172832",
-  primary: "#5A57FF",
-  background: "#FFF",
-  description: "#8C8C8C",
-}
+import { useSelector } from "react-redux"
 
 export default function WhiteLabel() {
   const [theme, setTheme] = useState(initialTheme)
 
-  async function submit() {
-    //
+  const state = useSelector((state: RootState) => state.app.theme)
+
+  const dispatch = useAppDispatch()
+
+  useEffect(() => setTheme(state), [state])
+
+  function submit() {
+    dispatch(setDefaultTheme(theme))
   }
 
   return (
     <Stack>
-      <TextField sx={{ mb: 3 }} select label="Select a font">
-        <MenuItem>Font 1</MenuItem>
-        <MenuItem>Font 2</MenuItem>
+      <TextField
+        sx={{ mb: 3 }}
+        select
+        label="Select a font"
+        value={theme.fontFamily}
+        onChange={({ target }) =>
+          setTheme((prev) => ({ ...prev, fontFamily: target.value }))
+        }
+      >
+        <MenuItem value="DM Sans">DM Sans</MenuItem>
+        <MenuItem value="Inter">Inter</MenuItem>
       </TextField>
 
       <Grid spacing={3} container>

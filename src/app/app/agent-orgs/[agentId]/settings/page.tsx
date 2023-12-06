@@ -38,7 +38,7 @@ const Page = ({ params }: PageProps) => {
         }}
       >
         <Typography
-          sx={{ color: "blue.800", fontWeight: 500 }}
+          sx={{ color: "gray.700", fontWeight: 500 }}
           variant="h4"
           component="h1"
         >

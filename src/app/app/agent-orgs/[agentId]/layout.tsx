@@ -21,7 +21,10 @@ import { components, palette, typography } from "@/styles/theme"
 
 export default function Layout({ children }: PropsWithChildren) {
   const pathName = usePathname()
+
   const { agentId } = useParams()
+
+  const defaultTheme = useSelector((state: RootState) => state.app.theme)
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -73,13 +76,16 @@ export default function Layout({ children }: PropsWithChildren) {
   const theme = useMemo(() => {
     const colors = {
       ...palette,
-      // title: "#172832",
+      gray: {
+        ...palette.gray,
+        500: defaultTheme.description,
+        700: defaultTheme.title,
+      },
       cyan: {
         ...palette.cyan,
-        500: "#5A57FF",
+        500: defaultTheme.primary,
       },
       // background: "#FFF",
-      // description: "#8C8C8C",
     }
 
     return createTheme({
