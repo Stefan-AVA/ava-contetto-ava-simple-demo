@@ -11,7 +11,7 @@ import {
 import { type RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
 import { nameInitials } from "@/utils/format-name"
-import { Avatar, CircularProgress, Stack, Typography } from "@mui/material"
+import { CircularProgress, Stack, Typography } from "@mui/material"
 import {
   DataGrid,
   type GridColDef,
@@ -24,6 +24,7 @@ import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
 import type { IContact } from "@/types/contact.types"
+import Avatar from "@/components/Avatar"
 
 interface IPage {
   params: {
@@ -66,11 +67,8 @@ export default function Page({ params }: IPage) {
 
   const rows: GridRowsProp = data
     ? data.map((contact) => ({
+        ...contact,
         id: contact._id,
-        name: contact.name,
-        email: contact.email,
-        orgId: contact.orgId,
-        username: contact.username,
         createdAt: format(
           new Date(getDatefromUnix(contact.createdAt)),
           "MMM dd, yyyy"
@@ -92,7 +90,13 @@ export default function Page({ params }: IPage) {
           }
         >
           <Stack sx={{ gap: 2, alignItems: "center", flexDirection: "row" }}>
-            <Avatar>{nameInitials(item.row.name)}</Avatar>
+            <Avatar
+              name={item.row.name}
+              image={item.row.image}
+              width={40}
+              height={40}
+              fontSize={20}
+            />
 
             <Typography sx={{ fontWeight: 500 }}>{item.row.name}</Typography>
           </Stack>
@@ -101,17 +105,17 @@ export default function Page({ params }: IPage) {
     },
     {
       flex: 1,
-      field: "username",
-      sortable: false,
-      filterable: false,
-      headerName: "Username",
-    },
-    {
-      flex: 1,
       field: "email",
       sortable: false,
       filterable: false,
       headerName: "Email",
+    },
+    {
+      flex: 1,
+      field: "username",
+      sortable: false,
+      filterable: false,
+      headerName: "User",
     },
     {
       flex: 1,

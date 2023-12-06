@@ -234,15 +234,15 @@ const theme = createTheme({
           padding: ".625rem",
         },
 
-        colorPrimary: {
-          color: palette.white,
-          backgroundColor: palette.purple[500],
+        // colorPrimary: {
+        //   color: palette.white,
+        //   backgroundColor: palette.purple[500],
 
-          ":hover": {
-            opacity: 0.9,
-            backgroundColor: palette.purple[500],
-          },
-        },
+        //   ":hover": {
+        //     opacity: 0.9,
+        //     backgroundColor: palette.purple[500],
+        //   },
+        // },
       },
     },
 

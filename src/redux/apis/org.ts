@@ -48,6 +48,17 @@ interface IUpdateOrgRequest {
   fontFamily?: string
 }
 
+interface ICreateContactRequest {
+  orgId: string
+  name: string
+  _id?: string
+  email?: string
+  phone?: string
+  image?: string
+  imageFileType?: string
+  note?: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -140,25 +151,19 @@ export const orgApi = createApi({
     }),
 
     // for contacts
-    createContact: builder.mutation<IContact, Partial<IContact>>({
-      query: ({ orgId, name, note }) => ({
+    createContact: builder.mutation<IContact, ICreateContactRequest>({
+      query: ({ orgId, ...rest }) => ({
         url: `/${orgId}/contacts`,
         method: "POST",
-        body: {
-          name,
-          note,
-        },
+        body: rest,
       }),
       invalidatesTags: ["Contacts"],
     }),
-    updateContact: builder.mutation<IContact, Partial<IContact>>({
-      query: ({ _id, orgId, name, note }) => ({
+    updateContact: builder.mutation<IContact, ICreateContactRequest>({
+      query: ({ _id, orgId, ...rest }) => ({
         url: `/${orgId}/contacts/${_id}`,
         method: "PUT",
-        body: {
-          name,
-          note,
-        },
+        body: rest,
       }),
       invalidatesTags: ["Contacts"],
     }),

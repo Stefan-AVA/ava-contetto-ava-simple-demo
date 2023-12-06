@@ -50,31 +50,22 @@ export default function DeleteContact({ orgId, agentId, contactId }: IPage) {
       sx={{ width: "100%" }}
       open={open}
       ancher={
-        <Stack
-          sx={{
-            mt: 2.5,
-            gap: 2,
-            width: "100%",
-            cursor: "pointer",
-            alignItems: "center",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
+        <Button
+          sx={{ bgcolor: "red.500", ":hover": { bgcolor: "red.300" } }}
+          fullWidth
           onClick={() => setOpen(true)}
         >
-          <Typography sx={{ color: "gray.800" }}>Delete Contact</Typography>
-
-          <ChevronRight size={20} />
-        </Stack>
+          Delete
+        </Button>
       }
       onClose={() => setOpen(false)}
       anchorOrigin={{
         vertical: "bottom",
-        horizontal: "left",
+        horizontal: "right",
       }}
       transformOrigin={{
         vertical: "top",
-        horizontal: "left",
+        horizontal: "right",
       }}
     >
       <Card sx={{ width: "20rem" }}>

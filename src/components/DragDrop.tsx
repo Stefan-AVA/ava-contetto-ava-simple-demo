@@ -12,6 +12,7 @@ export interface IDragDropProps
   errorText?: string
   height?: number | string
   width?: number | string
+  circle?: boolean
 }
 
 const DragDrop = ({
@@ -23,6 +24,7 @@ const DragDrop = ({
   errorText,
   height,
   width,
+  circle,
 }: IDragDropProps) => {
   const [error, setError] = useState("")
 
@@ -52,8 +54,7 @@ const DragDrop = ({
         justifyContent: "center",
         flexDirection: "column",
         border: "dashed 2px #0658c2",
-        borderRadius: "6px",
-        margin: "5px 0",
+        borderRadius: circle ? "100%" : 4,
         background: isDragActive ? "#00000055" : "White",
         ":hover": {
           cursor: "pointer",
@@ -66,13 +67,10 @@ const DragDrop = ({
           {errorText || error}
         </Typography>
       ) : isDragActive ? (
-        <Typography variant="body2">
-          {dragActiveText || "Drop the files here ..."}
-        </Typography>
+        <Typography variant="body2">{dragActiveText || ""}</Typography>
       ) : (
         <Typography variant="body2" sx={{ "&:hover": { cursor: "pointer" } }}>
-          {dragInactiveText ||
-            "Drag & drop some files here, or click to select files (jpeg, png, gif)"}
+          {dragInactiveText || ""}
         </Typography>
       )}
     </Box>

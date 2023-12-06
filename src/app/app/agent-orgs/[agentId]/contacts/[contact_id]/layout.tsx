@@ -1,25 +1,51 @@
 "use client"
 
-import { useMemo, type PropsWithChildren } from "react"
+import { useEffect, useMemo, useState, type PropsWithChildren } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
-import { useGetContactQuery, useShareContactMutation } from "@/redux/apis/org"
+import {
+  useGetContactQuery,
+  useShareContactMutation,
+  useUpdateContactMutation,
+} from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
-import { nameInitials } from "@/utils/format-name"
+import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
-import { Avatar, Box, Stack, Switch, Typography } from "@mui/material"
+import { Box, Stack, Switch, TextField, Typography } from "@mui/material"
 import { Mail, User2 } from "lucide-react"
+import { MuiTelInput } from "mui-tel-input"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
+import Avatar from "@/components/Avatar"
 import Loading from "@/components/Loading"
 
 import DeleteContact from "./delete-contact"
-import EditContact from "./edit-contact"
+
+interface IForm {
+  name: string
+  email: string
+  phone: string
+  image: string
+  imageFileType?: string
+}
+
+interface IError {
+  name?: string
+  request?: string
+}
 
 export default function ContactLayout({ children }: PropsWithChildren) {
   const { agentId, contact_id: contactId } = useParams()
+  const [form, setForm] = useState<IForm>({
+    name: "",
+    email: "",
+    phone: "",
+    image: "",
+    imageFileType: undefined,
+  })
+  const [errors, setErrors] = useState<IError>({})
 
   const pathname = usePathname()
 
@@ -34,7 +60,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
 
   const basePath = `/app/agent-orgs/${agentId}/contacts/${contactId}` as Route
 
-  const { data, isLoading } = useGetContactQuery(
+  const { data: contact, isLoading } = useGetContactQuery(
     {
       _id: contactId as string,
       orgId: agentProfile?.orgId,
@@ -44,8 +70,72 @@ export default function ContactLayout({ children }: PropsWithChildren) {
     }
   )
 
+  const [updateContact, { isLoading: isContactUpdating }] =
+    useUpdateContactMutation()
+
+  useEffect(() => {
+    if (contact) {
+      setForm({
+        name: contact.name,
+        email: contact.email || "",
+        phone: contact.phone || "+12344567456",
+        image: contact.image || "",
+        imageFileType: undefined,
+      })
+    }
+  }, [contact])
+
   const [shareContact, { isLoading: isLoadingShareContact }] =
     useShareContactMutation({})
+
+  const onChange = (name: string, value: any) => {
+    setErrors({})
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const onAvatarFileChange = async (file: File) => {
+    const base64 = await toBase64(file)
+
+    setForm((prev) => ({
+      ...prev,
+      image: String(base64),
+      imageFileType: file.type,
+    }))
+  }
+
+  const onAvatarDelete = () => {
+    setForm((prev) => ({
+      ...prev,
+      image: contact?.image || "",
+      imageFileType: undefined,
+    }))
+  }
+
+  const isValidated = () => {
+    const errs: IError = {}
+    if (!form.name) errs.name = "This field is required"
+
+    setErrors(errs)
+
+    return Object.keys(errs).length === 0
+  }
+
+  const onUpdate = async () => {
+    setErrors({})
+
+    if (!isValidated()) return
+
+    try {
+      await updateContact({
+        ...form,
+        orgId: String(agentProfile?.orgId),
+        _id: String(contact?._id),
+        phone: form.phone.replace(" ", ""),
+      })
+
+      enqueueSnackbar("Successfully updated", { variant: "success" })
+    } catch (error) {}
+  }
 
   async function share() {
     const response = await shareContact({
@@ -106,17 +196,21 @@ export default function ContactLayout({ children }: PropsWithChildren) {
         >
           {isLoading && <Loading />}
 
-          {data && !isLoading && (
+          {contact && !isLoading && (
             <>
-              <Avatar sx={{ width: "6.25rem", height: "6.25rem" }}>
-                {nameInitials(data.name)}
-              </Avatar>
+              <Avatar
+                name={contact.name}
+                image={form.image}
+                editable
+                onChange={onAvatarFileChange}
+                onCancel={onAvatarDelete}
+              />
 
               <Typography
                 sx={{ mt: 3, textAlign: "center", fontWeight: 700 }}
                 variant="h5"
               >
-                {data.name}
+                {contact.name}
               </Typography>
 
               <Typography
@@ -133,36 +227,43 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                 CONTACT DETAILS
               </Typography>
 
-              <Stack
-                sx={{
-                  mr: "auto",
-                  mt: 2.5,
-                  gap: 2,
-                  alignItems: "center",
-                  flexDirection: "row",
-                }}
-              >
-                <Box sx={{ color: "purple.500" }} size={20} component={User2} />
-
-                <Typography sx={{ color: "gray.800" }}>
-                  {data.username || "Username not provided"}
-                </Typography>
+              <Stack spacing={2} width="100%" mt={2}>
+                <TextField
+                  label="Contact Name"
+                  value={form.name}
+                  error={!!errors?.name}
+                  onChange={({ target }) => onChange("name", target.value)}
+                  helperText={errors?.name}
+                  fullWidth
+                />
+                <TextField
+                  label="Email"
+                  value={form.email}
+                  onChange={({ target }) => onChange("email", target.value)}
+                  fullWidth
+                />
+                <MuiTelInput
+                  sx={{ my: 3, bgcolor: "white" }}
+                  label="Phone Number"
+                  defaultCountry="CA"
+                  value={form.phone}
+                  onChange={(value) => onChange("phone", value)}
+                />
               </Stack>
 
-              <Stack
-                sx={{
-                  mr: "auto",
-                  mt: 1.5,
-                  gap: 2,
-                  alignItems: "center",
-                  flexDirection: "row",
-                }}
-              >
-                <Box sx={{ color: "purple.500" }} size={20} component={Mail} />
-
-                <Typography sx={{ color: "gray.800" }}>
-                  {data.email || "Email not provided"}
-                </Typography>
+              <Stack direction="row" spacing={2} width="100%" mt={2}>
+                <LoadingButton
+                  fullWidth
+                  onClick={onUpdate}
+                  loading={isContactUpdating}
+                >
+                  Update
+                </LoadingButton>
+                <DeleteContact
+                  orgId={String(agentProfile?.orgId)}
+                  agentId={agentId as string}
+                  contactId={contactId as string}
+                />
               </Stack>
 
               <Typography
@@ -176,44 +277,84 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                 }}
                 variant="body2"
               >
-                CONTACT SETTINGS
+                USER DETAILS
               </Typography>
 
-              <Stack
-                sx={{
-                  mt: 2.5,
-                  gap: 2,
-                  width: "100%",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography sx={{ color: "gray.800" }}>App Access</Typography>
+              {!contact.username ? (
+                <>
+                  <Typography sx={{ color: "gray.800", mt: 2 }}>
+                    No user assigned
+                  </Typography>
+                  <LoadingButton
+                    sx={{ mt: 4 }}
+                    variant="outlined"
+                    onClick={share}
+                    loading={isLoadingShareContact}
+                    fullWidth
+                  >
+                    Copy Link Share
+                  </LoadingButton>
+                </>
+              ) : (
+                <>
+                  <Stack
+                    sx={{
+                      mr: "auto",
+                      mt: 2.5,
+                      gap: 2,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Box
+                      sx={{ color: "purple.500" }}
+                      size={20}
+                      component={User2}
+                    />
 
-                <Switch />
-              </Stack>
+                    <Typography sx={{ color: "gray.800" }}>
+                      {contact.username || "Username not provided"}
+                    </Typography>
+                  </Stack>
 
-              <EditContact
-                orgId={String(agentProfile?.orgId)}
-                contactId={contactId as string}
-              />
+                  <Stack
+                    sx={{
+                      mr: "auto",
+                      mt: 1.5,
+                      gap: 2,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Box
+                      sx={{ color: "purple.500" }}
+                      size={20}
+                      component={Mail}
+                    />
 
-              <DeleteContact
-                orgId={String(agentProfile?.orgId)}
-                agentId={agentId as string}
-                contactId={contactId as string}
-              />
+                    <Typography sx={{ color: "gray.800" }}>
+                      {contact.userEmail || "Email not provided"}
+                    </Typography>
+                  </Stack>
 
-              <LoadingButton
-                sx={{ mt: 4 }}
-                variant="outlined"
-                onClick={share}
-                loading={isLoadingShareContact}
-                fullWidth
-              >
-                Copy Link Share
-              </LoadingButton>
+                  <Stack
+                    sx={{
+                      mt: 2.5,
+                      gap: 2,
+                      width: "100%",
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography sx={{ color: "gray.800" }}>
+                      App Access
+                    </Typography>
+
+                    <Switch />
+                  </Stack>
+                </>
+              )}
             </>
           )}
         </Stack>
