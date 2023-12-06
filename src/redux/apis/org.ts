@@ -2,7 +2,7 @@ import { formatFormdata } from "@/utils/format-formdata"
 import { createApi } from "@reduxjs/toolkit/query/react"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
-import type { IContact } from "@/types/contact.types"
+import type { IContact, IContactNote } from "@/types/contact.types"
 import { IInvite } from "@/types/invite.types"
 import type { IOrg } from "@/types/org.types"
 
@@ -59,10 +59,17 @@ interface ICreateContactRequest {
   note?: string
 }
 
+interface IContactRequest {
+  orgId: string
+  contactId: string
+  _id?: string
+  note?: string
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
-  tagTypes: ["Orgs", "Members", "Contacts"],
+  tagTypes: ["Orgs", "Members", "Contacts", "Notes"],
   endpoints: (builder) => ({
     createOrg: builder.mutation<
       { orgId: string; agentProfileId: string },
@@ -215,6 +222,42 @@ export const orgApi = createApi({
       }),
       invalidatesTags: ["Contacts"],
     }),
+
+    // contact notes
+    createNote: builder.mutation<IBaseResponse, IContactRequest>({
+      query: ({ orgId, contactId, note }) => ({
+        url: `/${orgId}/contacts/${contactId}/notes`,
+        method: "POST",
+        body: {
+          note,
+        },
+      }),
+      invalidatesTags: ["Notes"],
+    }),
+    updateNote: builder.mutation<IBaseResponse, IContactRequest>({
+      query: ({ _id, orgId, contactId, note }) => ({
+        url: `/${orgId}/contacts/${contactId}/notes/${_id}`,
+        method: "PUT",
+        body: {
+          note,
+        },
+      }),
+      invalidatesTags: ["Notes"],
+    }),
+    deleteNote: builder.mutation<IBaseResponse, IContactRequest>({
+      query: ({ _id, orgId, contactId }) => ({
+        url: `/${orgId}/contacts/${contactId}/notes/${_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Notes"],
+    }),
+    getNotes: builder.query<IContactNote[], IContactRequest>({
+      query: ({ orgId, contactId }) => ({
+        url: `/${orgId}/contacts/${contactId}/notes`,
+        method: "GET",
+      }),
+      providesTags: ["Notes"],
+    }),
   }),
 })
 
@@ -238,4 +281,10 @@ export const {
   useDeleteContactMutation,
   useCreateContactMutation,
   useUpdateContactMutation,
+
+  // contact notes
+  useGetNotesQuery,
+  useCreateNoteMutation,
+  useUpdateNoteMutation,
+  useDeleteNoteMutation,
 } = orgApi

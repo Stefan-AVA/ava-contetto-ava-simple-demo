@@ -1,31 +1,29 @@
 "use client"
 
-import { useMemo, useState, type FormEvent } from "react"
-import { useGetContactQuery } from "@/redux/apis/org"
+import { useMemo, useState } from "react"
+import { useDeleteNoteMutation, useGetNotesQuery } from "@/redux/apis/org"
 import type { RootState } from "@/redux/store"
-import { parseError } from "@/utils/error"
-import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
-import { Stack, TextField, Typography } from "@mui/material"
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material"
+import { format } from "date-fns"
+import { Edit, Trash2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
-import { z } from "zod"
 
-const schema = z.object({
-  name: z.string().optional(),
-  note: z.string().min(1, "Enter the note"),
-})
+import { IContactNote } from "@/types/contact.types"
+import Loading from "@/components/Loading"
 
-const initialForm = {
-  note: "",
-  name: "",
-}
-
-type FormSchema = z.infer<typeof schema>
-
-type FormError = FormSchema & {
-  request?: string
-}
+import ContactNoteForm from "./ContactNoteForm"
 
 type IPage = {
   params: {
@@ -35,10 +33,11 @@ type IPage = {
 }
 
 export default function Page({ params }: IPage) {
-  const [form, setForm] = useState<FormSchema>(initialForm)
-  const [errors, setErrors] = useState<FormError | null>(null)
-
   const { enqueueSnackbar } = useSnackbar()
+
+  const [noteView, setNoteView] = useState(false)
+  const [note, setNote] = useState<IContactNote | undefined>(undefined)
+  const [remove, setRemove] = useState<string | null>(null)
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -47,72 +46,148 @@ export default function Page({ params }: IPage) {
     [params, agentOrgs]
   )
 
-  const { data } = useGetContactQuery(
+  const {
+    data: notes = [],
+    isLoading,
+    refetch,
+    isFetching,
+  } = useGetNotesQuery(
     {
-      _id: params.contact_id,
-      orgId: agentProfile?.orgId,
+      orgId: String(agentProfile?.orgId),
+      contactId: params.contact_id,
     },
     {
       skip: !params.contact_id || !agentProfile,
     }
   )
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation()
 
-    setErrors(null)
-
-    const response = schema.safeParse(form)
-
-    if (!response.success) {
-      const error = formatErrorZodMessage<FormSchema>(response.error)
-
-      setErrors(error)
-
-      return
-    }
-
+  const onDeleteNote = async () => {
     try {
-      enqueueSnackbar("Note updated successfully", { variant: "success" })
+      await deleteNote({
+        _id: String(remove),
+        orgId: String(agentProfile?.orgId),
+        contactId: params.contact_id,
+      }).unwrap()
+      await refetch()
+      enqueueSnackbar("Successfully deleted", { variant: "success" })
+      setRemove(null)
     } catch (error) {
-      setErrors(
-        (prev) => ({ ...prev, request: parseError(error) }) as FormError
-      )
+      console.log(error)
+      enqueueSnackbar("Deleted error!", { variant: "error" })
     }
   }
 
-  return (
+  return isLoading ? (
+    <Loading />
+  ) : noteView ? (
+    <ContactNoteForm
+      orgId={String(agentProfile?.orgId)}
+      contactId={params.contact_id}
+      contactNote={note}
+      setNoteView={setNoteView}
+      refetch={refetch}
+      isFetching={isFetching}
+    />
+  ) : (
     <Stack>
-      <Typography sx={{ fontWeight: 500 }} variant="h5">
-        Update Note
-      </Typography>
-
-      <Stack sx={{ mt: 2, width: "100%" }} onSubmit={submit} component="form">
-        <TextField
-          label="Note"
-          rows={6}
-          value={form.note}
-          error={!!errors?.note}
-          onChange={({ target }) =>
-            setForm((prev) => ({ ...prev, note: target.value }))
-          }
-          multiline
-          helperText={errors?.note}
-        />
-
-        <LoadingButton sx={{ mt: 4.5, ml: "auto" }} type="submit">
-          Update note
-        </LoadingButton>
-
-        {errors && errors.request && (
-          <Typography
-            sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
-            variant="body2"
-          >
-            {errors.request}
-          </Typography>
-        )}
+      <Stack direction="row" justifyContent="flex-end">
+        <Button
+          variant="text"
+          sx={{ p: 0, height: "fit-content" }}
+          onClick={() => {
+            setNote(undefined)
+            setNoteView(true)
+          }}
+        >
+          Create a Note
+        </Button>
       </Stack>
+      <Stack spacing={2} mt={2} minHeight={400}>
+        {notes.map((note) => (
+          <Stack
+            key={note._id}
+            spacing={1}
+            sx={{
+              width: "100%",
+              p: 1,
+              borderRadius: "10px",
+              bgcolor: "gray.200",
+              borderLeft: "4px solid",
+              borderLeftColor: "blue.900",
+            }}
+          >
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              width="100%"
+            >
+              <Typography variant="caption">
+                {format(
+                  new Date(note.timestamp * 1000),
+                  "MM/dd/yyyy hh:mm:ss p"
+                )}
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <IconButton
+                  onClick={() => {
+                    setNote(note)
+                    setNoteView(true)
+                  }}
+                  sx={{
+                    p: 0,
+                  }}
+                >
+                  <Edit size={15} />
+                </IconButton>
+
+                <IconButton
+                  onClick={() => setRemove(note._id)}
+                  sx={{
+                    p: 0,
+                  }}
+                >
+                  <Trash2 size={15} />
+                </IconButton>
+              </Stack>
+            </Stack>
+
+            <Typography variant="caption">{note.note}</Typography>
+          </Stack>
+        ))}
+      </Stack>
+
+      <Dialog
+        open={!!remove}
+        onClose={() => setRemove(null)}
+        maxWidth="xs"
+        fullWidth
+        keepMounted
+      >
+        <DialogTitle>Delete Note</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Do you really want to delete this Note?
+            <br />
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button color="inherit" onClick={() => setRemove(null)}>
+            Cancel
+          </Button>
+
+          <LoadingButton
+            color="error"
+            onClick={onDeleteNote}
+            loading={isDeleting || isFetching}
+          >
+            Delete
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Stack>
   )
 }
