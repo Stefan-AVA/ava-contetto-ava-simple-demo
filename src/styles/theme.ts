@@ -228,10 +228,6 @@ export const components = (
 
   MuiCssBaseline: {
     styleOverrides: {
-      body: {
-        backgroundColor: colors.background?.default,
-      },
-
       ".swiper": {
         "&-pagination-bullet": {
           opacity: ".4 !important",
@@ -259,11 +255,6 @@ export const components = (
           color: colors.gray[400],
           padding: 0,
           backgroundColor: "transparent",
-
-          ":hover": {
-            color: colors.gray[500],
-            backgroundColor: "transparent",
-          },
         },
       },
     },

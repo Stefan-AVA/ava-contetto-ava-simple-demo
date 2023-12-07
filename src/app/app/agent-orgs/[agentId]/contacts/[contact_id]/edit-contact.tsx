@@ -51,7 +51,8 @@ export default function EditContact({ orgId, contactId }: IPage) {
   )
 
   useEffect(() => {
-    if (data) setForm((prev) => ({ ...prev, name: data.name, note: data.note }))
+    if (data)
+      setForm((prev) => ({ ...prev, name: data.name, note: data.notes }))
   }, [data])
 
   async function submit() {

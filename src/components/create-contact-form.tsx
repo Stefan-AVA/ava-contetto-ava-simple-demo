@@ -1,20 +1,25 @@
 import { useState, type FormEvent } from "react"
 import { useCreateContactMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
-import formatErrorZodMessage from "@/utils/format-error-zod"
+import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
 import { Stack, TextField, Typography } from "@mui/material"
+import { MuiTelInput } from "mui-tel-input"
 import { useSnackbar } from "notistack"
-import { z } from "zod"
 
-const schemaContact = z.object({
-  name: z.string().min(1, "Enter the name"),
-  note: z.string().optional(),
-})
+import Avatar from "./Avatar"
 
-type FormContactSchema = z.infer<typeof schemaContact>
+interface IForm {
+  name: string
+  email: string
+  phone: string
+  note: string
+  image: string
+  imageFileType?: string
+}
 
-type FormError = FormContactSchema & {
+interface IError {
+  name?: string
   request?: string
 }
 
@@ -29,11 +34,15 @@ export default function CreateContactForm({
   contactName,
   contactCreated,
 }: CreateContactFormProps) {
-  const [form, setForm] = useState<FormContactSchema>({
+  const [form, setForm] = useState<IForm>({
     name: contactName || "",
+    email: "",
+    phone: "",
     note: "",
+    image: "",
+    imageFileType: undefined,
   })
-  const [errors, setErrors] = useState<FormError | null>(null)
+  const [errors, setErrors] = useState<IError>({})
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -42,30 +51,57 @@ export default function CreateContactForm({
   function close() {
     setForm({
       name: "",
+      email: "",
+      phone: "",
       note: "",
+      image: "",
+      imageFileType: undefined,
     })
     if (contactCreated) contactCreated()
   }
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
+  const onChange = (name: string, value: any) => {
+    setErrors({})
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const isValidated = () => {
+    const errs: IError = {}
+    if (!form.name) errs.name = "This field is required"
+
+    setErrors(errs)
+
+    return Object.keys(errs).length === 0
+  }
+
+  const onAvatarFileChange = async (file: File) => {
+    const base64 = await toBase64(file)
+
+    setForm((prev) => ({
+      ...prev,
+      image: String(base64),
+      imageFileType: file.type,
+    }))
+  }
+
+  const onAvatarDelete = () => {
+    setForm((prev) => ({
+      ...prev,
+      image: "",
+      imageFileType: undefined,
+    }))
+  }
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    setErrors(null)
+    setErrors({})
 
-    const response = schemaContact.safeParse(form)
-
-    if (!response.success) {
-      const error = formatErrorZodMessage<FormContactSchema>(response.error)
-
-      setErrors(error)
-
-      return
-    }
+    if (!isValidated()) return
 
     try {
       await create({
-        name: form.name,
-        note: form.note,
+        ...form,
         orgId,
       }).unwrap()
 
@@ -73,9 +109,7 @@ export default function CreateContactForm({
 
       close()
     } catch (error) {
-      setErrors(
-        (prev) => ({ ...prev, request: parseError(error) }) as FormError
-      )
+      setErrors((prev) => ({ ...prev, request: parseError(error) }))
     }
   }
 
@@ -94,9 +128,23 @@ export default function CreateContactForm({
         {"Create Client's Contact"}
       </Typography>
 
-      <Stack sx={{ p: 4, width: "100%" }} onSubmit={submit} component="form">
+      <Stack
+        sx={{ p: 4, width: "100%" }}
+        onSubmit={submit}
+        component="form"
+        alignItems="center"
+      >
+        <Avatar
+          image={form.image}
+          editable
+          onChange={onAvatarFileChange}
+          onCancel={onAvatarDelete}
+          width={200}
+          height={200}
+        />
+
         <TextField
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, mt: 2 }}
           label="Name"
           error={!!errors?.name}
           value={form.name}
@@ -104,24 +152,41 @@ export default function CreateContactForm({
             setForm((prev) => ({ ...prev, name: target.value }))
           }
           helperText={errors?.name}
+          fullWidth
+        />
+
+        <TextField
+          label="Email"
+          value={form.email}
+          onChange={({ target }) => onChange("email", target.value)}
+          fullWidth
+        />
+
+        <MuiTelInput
+          sx={{ my: 3, bgcolor: "white" }}
+          label="Phone Number"
+          defaultCountry="CA"
+          value={form.phone}
+          onChange={(value) => onChange("phone", value)}
+          fullWidth
         />
 
         <TextField
           label="Notes"
           rows={5}
-          error={!!errors?.note}
           value={form.note}
           onChange={({ target }) =>
             setForm((prev) => ({ ...prev, note: target.value }))
           }
           multiline
-          helperText={errors?.note}
+          fullWidth
         />
 
         <LoadingButton
           sx={{ mt: 4.5 }}
           type="submit"
           loading={isLoadingContact}
+          fullWidth
         >
           Create Contact
         </LoadingButton>

@@ -41,7 +41,7 @@ export default function Layout({ children }: PropsWithChildren) {
         sx={{
           p: { xs: 1, md: 5 },
           width: "100%",
-          height: "calc(100vh - 4rem)",
+          height: { xs: "calc(100vh - 11rem)", md: "calc(100vh - 4rem)" },
           overflowY: "auto",
           overflowX: "hidden",
         }}
