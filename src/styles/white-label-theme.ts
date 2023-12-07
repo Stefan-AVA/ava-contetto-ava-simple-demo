@@ -1,4 +1,4 @@
-import { dmsans } from "@/styles/fonts"
+import { dmsans } from "./fonts"
 
 export interface DefaultAvaOrgTheme {
   title: string

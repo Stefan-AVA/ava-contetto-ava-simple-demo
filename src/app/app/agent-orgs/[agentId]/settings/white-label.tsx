@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { setTheme as setDefaultTheme } from "@/redux/slices/app"
-import { initialTheme } from "@/redux/slices/theme"
-import { useAppDispatch, type RootState } from "@/redux/store"
+import { useSetWhiteLabelMutation } from "@/redux/apis/org"
+import { type RootState } from "@/redux/store"
+import { LoadingButton } from "@mui/lab"
 import {
   Button,
   Unstable_Grid2 as Grid,
@@ -12,19 +12,28 @@ import {
 import { MuiColorInput } from "mui-color-input"
 import { useSelector } from "react-redux"
 
+import type { IAgentProfile } from "@/types/agentProfile.types"
 import { dmsans } from "@/styles/fonts"
+import { initialTheme } from "@/styles/white-label-theme"
 
-export default function WhiteLabel() {
+interface WhiteLabelProps {
+  orgId: string
+  agentProfile: IAgentProfile | null
+}
+
+export default function WhiteLabel({ orgId, agentProfile }: WhiteLabelProps) {
   const [theme, setTheme] = useState(initialTheme)
 
-  const state = useSelector((state: RootState) => state.app.theme)
+  const [setWhiteLabel, { isLoading }] = useSetWhiteLabelMutation()
 
-  const dispatch = useAppDispatch()
+  useEffect(() => {
+    if (agentProfile && agentProfile.org?.whiteLabel) {
+      setTheme((prev) => ({ ...prev, ...agentProfile.org?.whiteLabel }))
+    }
+  }, [agentProfile])
 
-  useEffect(() => setTheme(state), [state])
-
-  function submit() {
-    dispatch(setDefaultTheme(theme))
+  async function submit() {
+    await setWhiteLabel({ ...theme, orgId })
   }
 
   return (
@@ -123,7 +132,9 @@ export default function WhiteLabel() {
           Cancel
         </Button>
 
-        <Button onClick={submit}>Save</Button>
+        <LoadingButton onClick={submit} loading={isLoading}>
+          Save
+        </LoadingButton>
       </Stack>
     </Stack>
   )

@@ -8,11 +8,9 @@ import {
   useUpdateOrgMutation,
 } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
-import formatErrorZodMessage from "@/utils/format-error-zod"
 import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
 import { Stack, TextField, Typography } from "@mui/material"
-import { z } from "zod"
 
 import { AgentRole } from "@/types/agentProfile.types"
 import type { IOrg } from "@/types/org.types"
