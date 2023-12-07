@@ -38,7 +38,7 @@ export default function Layout({ children }: PropsWithChildren) {
         }}
       >
         <Typography
-          sx={{ color: "gray.800", textAlign: "center", fontWeight: 700 }}
+          sx={{ color: "gray.700", textAlign: "center", fontWeight: 700 }}
           variant="h3"
           component="h1"
         >

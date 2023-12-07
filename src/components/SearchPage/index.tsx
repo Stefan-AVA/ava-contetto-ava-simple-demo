@@ -299,11 +299,11 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                 <button type="submit">
                   <Box
                     sx={{
-                      color: "cyan.500",
+                      color: "primary.main",
                       transition: "all .3s ease-in-out",
 
                       ":hover": {
-                        color: "cyan.600",
+                        color: "primary.dark",
                       },
                     }}
                     size={20}
@@ -335,7 +335,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             alignItems: "center",
           }}
         >
-          <Box sx={{ color: "purple.500" }} size={40} component={Frown} />
+          <Box sx={{ color: "secondary.main" }} size={40} component={Frown} />
           <Typography sx={{ color: "gray.600", textAlign: "center" }}>
             {
               "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"

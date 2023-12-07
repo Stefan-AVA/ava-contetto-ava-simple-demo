@@ -253,16 +253,17 @@ const Property = ({
             <LoadingButton
               sx={{
                 p: 1.5,
-                color: "blue.900",
+                color: "secondary.main",
                 width: "100%",
+                height: 50,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
                 background: "transparent",
-                height: 50,
+                justifyContent: "center",
+
                 ":hover": {
-                  background: "transparent",
                   opacity: 0.8,
+                  background: "transparent",
                 },
               }}
               onClick={onUndo}

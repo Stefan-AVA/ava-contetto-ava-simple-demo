@@ -126,7 +126,7 @@ export default function Setup() {
         )}
 
         {step === 3 && (
-          <Typography sx={{ color: "gray.800" }}>
+          <Typography sx={{ color: "gray.700" }}>
             I agree to the Terms of Service and Privacy Policy of the AVA
             platform to start using it.
           </Typography>

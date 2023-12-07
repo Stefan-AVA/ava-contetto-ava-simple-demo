@@ -76,7 +76,7 @@ export default function Page() {
   }
 
   return (
-    <Stack sx={{ width: "100%", alignItems: "center" }}>
+    <Stack sx={{ mt: 10, width: "100%", alignItems: "center" }}>
       <Stack
         sx={{ width: "100%", maxWidth: "32rem" }}
         onSubmit={submit}

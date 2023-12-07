@@ -381,7 +381,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
           >
             <Typography
               sx={{
-                color: pathname === basePath ? "purple.500" : "gray.600",
+                color: pathname === basePath ? "secondary.main" : "gray.500",
                 fontWeight: 700,
               }}
               href={basePath}
@@ -393,8 +393,8 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             <Typography
               sx={{
                 color: pathname.includes(`${basePath}/saved-searches`)
-                  ? "purple.500"
-                  : "gray.600",
+                  ? "secondary.main"
+                  : "gray.500",
                 fontWeight: 700,
               }}
               href={`${basePath}/saved-searches` as Route}
@@ -407,8 +407,8 @@ export default function ContactLayout({ children }: PropsWithChildren) {
               sx={{
                 color:
                   pathname === `${basePath}/all-activities`
-                    ? "purple.500"
-                    : "gray.600",
+                    ? "secondary.main"
+                    : "gray.500",
                 fontWeight: 700,
               }}
               href={`${basePath}/all-activities` as Route}

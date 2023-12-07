@@ -5,7 +5,6 @@ import { useDeleteContactMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
 import { Button, Card, Stack, Typography } from "@mui/material"
-import { ChevronRight } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import Dropdown from "@/components/drop-down"
