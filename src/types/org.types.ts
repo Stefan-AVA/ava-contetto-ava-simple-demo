@@ -1,3 +1,5 @@
+import { DefaultAvaOrgTheme } from "@/redux/slices/theme"
+
 export enum MLSSource {
   crea = "crea",
   kvcore = "kvcore",
@@ -12,11 +14,9 @@ export interface IOrg {
   _id: string
   name: string
   owner: string // username
-  sidebarFontColor?: string
-  sidebarBgColor?: string
-  fontFamily?: string
   logoUrl?: string
   mlsFeeds?: IMLSFeed[]
   deleted: boolean
   deletedAt?: number
+  whiteLabel?: DefaultAvaOrgTheme
 }

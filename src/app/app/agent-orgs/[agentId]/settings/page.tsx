@@ -6,6 +6,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab"
 import { Box, Stack, Tab, Typography } from "@mui/material"
 import { useSelector } from "react-redux"
 
+import { AgentRole } from "@/types/agentProfile.types"
 import OrgInfo from "@/components/org/info"
 import OrgMembers from "@/components/org/members"
 
@@ -51,7 +52,10 @@ const Page = ({ params }: PageProps) => {
           <TabList onChange={(_, value) => setTab(value)}>
             <Tab label="Info" value="1" />
             <Tab label="Members" value="2" />
-            <Tab label="White Label" value="3" />
+            {(agentProfile?.role === AgentRole.owner ||
+              agentProfile?.role === AgentRole.admin) && (
+              <Tab label="White Label" value="3" />
+            )}
           </TabList>
         </Box>
 
@@ -61,9 +65,12 @@ const Page = ({ params }: PageProps) => {
         <TabPanel value="2">
           <OrgMembers me={agentProfile} />
         </TabPanel>
-        <TabPanel value="3">
-          <WhiteLabel />
-        </TabPanel>
+        {(agentProfile?.role === AgentRole.owner ||
+          agentProfile?.role === AgentRole.admin) && (
+          <TabPanel value="3">
+            <WhiteLabel />
+          </TabPanel>
+        )}
       </TabContext>
     </Stack>
   )

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { type RootState } from "@/redux/store"
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
-import Logo from "~/assets/logo-ava.png"
+import AVALogo from "~/assets/logo-ava.png"
 import { MenuIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -21,14 +21,25 @@ interface INav {
 }
 
 export default function Nav({ loading, toggleDrawer }: INav) {
-  const { agentId } = useParams()
+  const { agentId, contactId } = useParams()
   const { push } = useRouter()
 
-  const state = useSelector((state: RootState) => state.app.agentOrgs)
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+  const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
   const agentProfile = useMemo(
-    () => state.find((agent) => agent._id === agentId),
-    [agentId, state]
+    () => agentOrgs.find((agent) => agent._id === agentId),
+    [agentId, agentOrgs]
+  )
+
+  const contact = useMemo(
+    () => contactOrgs.find((contact) => contact._id === contactId),
+    [agentId, contactOrgs]
+  )
+
+  const orgLogo = useMemo(
+    () => agentProfile?.org?.logoUrl || contact?.org?.logoUrl,
+    [agentProfile, contact]
   )
 
   return (
@@ -77,13 +88,15 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         </IconButton>
 
         <Stack href="/" component={Link}>
-          <Box
-            sx={{ width: "100%", height: "2rem", objectFit: "contain" }}
-            src={Logo}
-            alt="Logo Ava"
-            priority
-            component={Image}
-          />
+          <Box sx={{ width: "100px", height: "2rem", position: "relative" }}>
+            <Image
+              src={orgLogo || AVALogo}
+              alt="logo"
+              fill
+              objectFit="contain"
+              priority
+            />
+          </Box>
         </Stack>
       </Stack>
 

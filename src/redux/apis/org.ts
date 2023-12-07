@@ -7,6 +7,7 @@ import { IInvite } from "@/types/invite.types"
 import type { IOrg } from "@/types/org.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
+import { DefaultAvaOrgTheme } from "../slices/theme"
 import type { IBaseResponse } from "./auth"
 
 export interface IRequestWithId {
@@ -43,9 +44,6 @@ interface IUpdateOrgRequest {
   name: string
   logoUrl?: string
   logoFileType?: string
-  sidebarFontColor?: string
-  sidebarBgColor?: string
-  fontFamily?: string
 }
 
 interface ICreateContactRequest {
@@ -64,6 +62,10 @@ interface IContactRequest {
   contactId: string
   _id?: string
   note?: string
+}
+
+interface ISetWhiteLableRequest extends DefaultAvaOrgTheme {
+  orgId: string
 }
 
 export const orgApi = createApi({
@@ -123,6 +125,16 @@ export const orgApi = createApi({
       }),
       providesTags: ["Orgs"],
     }),
+    setWhiteLabel: builder.mutation<IAgentProfile, ISetWhiteLableRequest>({
+      query: ({ orgId, ...rest }) => ({
+        url: `/${orgId}/set-whitelabel`,
+        method: "POST",
+        body: rest,
+      }),
+      invalidatesTags: ["Orgs"],
+    }),
+
+    // agent
     getMembers: builder.query<
       { members: IAgentProfile[]; invitations: IInvite[] },
       IRequestWithId
@@ -266,6 +278,9 @@ export const {
   useUpdateOrgMutation,
   useGetOrgsQuery,
   useGetOrgQuery,
+  useSetWhiteLabelMutation,
+
+  // agent
   useGetMembersQuery,
   useLazyGetOrgsQuery,
   useInviteAgentMutation,
