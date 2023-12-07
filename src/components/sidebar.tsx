@@ -47,7 +47,7 @@ export default function Sidebar({ routes }: SidebarProps) {
               mb: 1,
               gap: 1.5,
               color: "gray.700",
-              bgcolor: active ? "gray.200" : "white",
+              bgcolor: active ? "gray.200" : "background.default",
               alignItems: "center",
               borderRadius: 1.5,
             }}

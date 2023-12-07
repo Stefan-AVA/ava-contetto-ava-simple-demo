@@ -33,6 +33,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
 
   return (
     <Stack
+      id="navbar"
       sx={{
         top: 0,
         width: "100%",

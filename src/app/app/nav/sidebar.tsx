@@ -252,6 +252,7 @@ export default function Sidebar({
   return (
     <>
       <Stack
+        id="sidebar"
         sx={{
           p: 1.5,
           top: 0,

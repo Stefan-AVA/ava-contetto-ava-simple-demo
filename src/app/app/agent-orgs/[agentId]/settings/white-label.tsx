@@ -40,6 +40,12 @@ export default function WhiteLabel() {
       >
         <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
         <MenuItem value="Inter">Inter</MenuItem>
+        <MenuItem value="Roboto">Roboto</MenuItem>
+        <MenuItem value="Open Sans">Open Sans</MenuItem>
+        <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
+        <MenuItem value="Lato">Lato</MenuItem>
+        <MenuItem value="Raleway">Raleway</MenuItem>
+        <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
       </TextField>
 
       <Grid spacing={3} container>
