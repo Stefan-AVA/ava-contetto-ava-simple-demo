@@ -93,7 +93,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
               src={orgLogo || AVALogo}
               alt="logo"
               fill
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               priority
             />
           </Box>

@@ -1,13 +1,12 @@
-import { formatFormdata } from "@/utils/format-formdata"
 import { createApi } from "@reduxjs/toolkit/query/react"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
 import type { IContact, IContactNote } from "@/types/contact.types"
 import { IInvite } from "@/types/invite.types"
 import type { IOrg } from "@/types/org.types"
+import type { DefaultAvaOrgTheme } from "@/styles/white-label-theme"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
-import { DefaultAvaOrgTheme } from "../slices/theme"
 import type { IBaseResponse } from "./auth"
 
 export interface IRequestWithId {

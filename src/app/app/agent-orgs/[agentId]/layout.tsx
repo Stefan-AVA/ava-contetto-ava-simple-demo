@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
-import { initialTheme } from "@/redux/slices/theme"
 import { RootState } from "@/redux/store"
 import colorMapper from "@/utils/color-mapper"
 import { Box, Stack } from "@mui/material"
@@ -20,19 +19,18 @@ import { AgentRole } from "@/types/agentProfile.types"
 import Breadcrumb from "@/components/breadcrumb"
 import Sidebar from "@/components/sidebar"
 import { dmsans } from "@/styles/fonts"
-import { components, palette, typography } from "@/styles/theme"
+import defaultTheme, { components, palette, typography } from "@/styles/theme"
+import { initialTheme } from "@/styles/white-label-theme"
 
 export default function Layout({ children }: PropsWithChildren) {
   const pathName = usePathname()
 
   const { agentId } = useParams()
 
-  const defaultTheme = useSelector((state: RootState) => state.app.theme)
-
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
-  const role = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId)?.role,
+  const currentOrg = useMemo(
+    () => agentOrgs.find((agent) => agent._id === agentId)!,
     [agentId, agentOrgs]
   )
 
@@ -62,7 +60,8 @@ export default function Layout({ children }: PropsWithChildren) {
         label: "My Searches",
         active: pathName.includes("search-results"),
       },
-      ...(role === AgentRole.owner || role === AgentRole.admin
+      ...(currentOrg.role === AgentRole.owner ||
+      currentOrg.role === AgentRole.admin
         ? [
             {
               path: `/app/agent-orgs/${agentId}/settings`,
@@ -73,29 +72,35 @@ export default function Layout({ children }: PropsWithChildren) {
           ]
         : []),
     ],
-    [pathName, agentId, role]
+    [pathName, agentId, currentOrg.role]
   )
+
+  const hasWhiteLabelDefined = currentOrg.org?.whiteLabel
 
   useEffect(() => {
     const navbar = document.getElementById("navbar")!
     const sidebar = document.getElementById("sidebar")!
 
-    if (defaultTheme.background !== initialTheme.background) {
-      navbar.style.backgroundColor = defaultTheme.background
+    if (!hasWhiteLabelDefined) return
+
+    if (hasWhiteLabelDefined.background !== initialTheme.background) {
+      navbar.style.backgroundColor = hasWhiteLabelDefined.background
     }
 
-    if (defaultTheme.secondary !== initialTheme.secondary) {
-      sidebar.style.backgroundColor = defaultTheme.secondary
+    if (hasWhiteLabelDefined.secondary !== initialTheme.secondary) {
+      sidebar.style.backgroundColor = hasWhiteLabelDefined.secondary
     }
 
     return () => {
       navbar.style.backgroundColor = initialTheme.background
       sidebar.style.backgroundColor = initialTheme.secondary
     }
-  }, [defaultTheme.secondary, defaultTheme.background])
+  }, [hasWhiteLabelDefined])
 
   const theme = useMemo(() => {
-    if (defaultTheme.fontFamily !== dmsans.style.fontFamily) {
+    if (!hasWhiteLabelDefined) return defaultTheme
+
+    if (hasWhiteLabelDefined.fontFamily !== dmsans.style.fontFamily) {
       const link = document.createElement("link")
 
       link.type = "text/css"
@@ -103,7 +108,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
       document.head.appendChild(link)
 
-      link.href = `https://fonts.googleapis.com/css2?family=${defaultTheme.fontFamily.replaceAll(
+      link.href = `https://fonts.googleapis.com/css2?family=${hasWhiteLabelDefined.fontFamily.replaceAll(
         " ",
         "+"
       )}:wght@400;500;600;700&display=swap`
@@ -113,14 +118,18 @@ export default function Layout({ children }: PropsWithChildren) {
       ...palette,
       gray: {
         ...palette.gray,
-        500: defaultTheme.description,
-        700: defaultTheme.title,
+        500: hasWhiteLabelDefined.description || initialTheme.description,
+        700: hasWhiteLabelDefined.title || initialTheme.title,
       },
-      primary: colorMapper({ main: defaultTheme.primary }),
-      secondary: colorMapper({ main: defaultTheme.secondary }),
+      primary: colorMapper({
+        main: hasWhiteLabelDefined.primary || initialTheme.primary,
+      }),
+      secondary: colorMapper({
+        main: hasWhiteLabelDefined.secondary || initialTheme.secondary,
+      }),
       background: {
-        paper: defaultTheme.background,
-        default: defaultTheme.background,
+        paper: hasWhiteLabelDefined.background || initialTheme.background,
+        default: hasWhiteLabelDefined.background || initialTheme.background,
       },
     }
 
@@ -129,10 +138,10 @@ export default function Layout({ children }: PropsWithChildren) {
       components: components(colors),
       typography: {
         ...typography,
-        fontFamily: defaultTheme.fontFamily,
+        fontFamily: hasWhiteLabelDefined.fontFamily || initialTheme.fontFamily,
       },
     })
-  }, [defaultTheme])
+  }, [hasWhiteLabelDefined])
 
   return (
     <>

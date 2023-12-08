@@ -7,18 +7,15 @@ import type { IUser } from "@/types/user.types"
 import { authApi } from "../apis/auth"
 import { orgApi } from "../apis/org"
 import { clearToken } from "../fetch-auth-query"
-import { initialTheme, type DefaultAvaOrgTheme } from "./theme"
 
 interface IAppState {
   user: IUser | null
-  theme: DefaultAvaOrgTheme
   agentOrgs: IAgentProfile[]
   contactOrgs: IContact[]
 }
 
 const initialState: IAppState = {
   user: null,
-  theme: initialTheme,
   agentOrgs: [],
   contactOrgs: [],
 }
@@ -44,12 +41,6 @@ export const appSlice = createSlice({
       state.agentOrgs = action.payload.agentProfiles
       state.contactOrgs = action.payload.contacts
     },
-    setTheme: (state, action: PayloadAction<DefaultAvaOrgTheme>) => {
-      state.theme = {
-        ...state.theme,
-        ...action.payload,
-      }
-    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -68,6 +59,6 @@ export const appSlice = createSlice({
   },
 })
 
-export const { setUser, logout, setOrgs, setTheme } = appSlice.actions
+export const { setUser, logout, setOrgs } = appSlice.actions
 
 export default appSlice.reducer

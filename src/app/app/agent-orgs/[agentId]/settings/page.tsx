@@ -24,6 +24,7 @@ const Page = ({ params }: PageProps) => {
   const [tab, setTab] = useState("1")
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]
@@ -68,7 +69,10 @@ const Page = ({ params }: PageProps) => {
         {(agentProfile?.role === AgentRole.owner ||
           agentProfile?.role === AgentRole.admin) && (
           <TabPanel value="3">
-            <WhiteLabel />
+            <WhiteLabel
+              orgId={agentProfile.orgId}
+              agentProfile={agentProfile}
+            />
           </TabPanel>
         )}
       </TabContext>

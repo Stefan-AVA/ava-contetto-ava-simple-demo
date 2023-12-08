@@ -1,9 +1,10 @@
-import { DefaultAvaOrgTheme } from "@/redux/slices/theme"
+import type { DefaultAvaOrgTheme } from "@/styles/white-label-theme"
 
 export enum MLSSource {
   crea = "crea",
   kvcore = "kvcore",
 }
+
 export interface IMLSFeed {
   source: MLSSource
   api_key: string
@@ -15,8 +16,8 @@ export interface IOrg {
   name: string
   owner: string // username
   logoUrl?: string
-  mlsFeeds?: IMLSFeed[]
   deleted: boolean
+  mlsFeeds?: IMLSFeed[]
   deletedAt?: number
   whiteLabel?: DefaultAvaOrgTheme
 }
