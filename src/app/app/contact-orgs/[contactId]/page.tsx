@@ -16,6 +16,7 @@ const Page = ({ params }: PageProps) => {
   const { contactId } = params
 
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
+
   const contact = useMemo(
     () => contactOrgs.find((contact) => contact._id === contactId),
     [contactId, contactOrgs]

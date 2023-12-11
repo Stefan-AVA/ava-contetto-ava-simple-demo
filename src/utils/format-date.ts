@@ -25,7 +25,7 @@ export const getTimeDifference = (
     { label: "second", divisor: 1000 }, // 1 second = 1000 milliseconds
   ]
 
-  for (const { label, divisor } of intervals) {
+  for (const { divisor } of intervals) {
     const value = Math.floor(timeDifference / divisor)
     if (value >= 1) {
       return formatDistance(currentTimestamp, pastTimestamp, {
