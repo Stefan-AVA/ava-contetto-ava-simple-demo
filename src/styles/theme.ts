@@ -253,6 +253,12 @@ export const components = (
           },
         },
       },
+
+      ".truncate": {
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+      },
     },
   },
 

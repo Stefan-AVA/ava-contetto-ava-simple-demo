@@ -19,8 +19,10 @@ export default function Messages() {
         <MessageField
           icon={Lock}
           title="Lead Generation"
+          sendedAt={new Date().toISOString()}
           onNavigate={() => null}
           numberOfMembers={1}
+          unreadMessages={10}
         />
       </ListMessages>
 

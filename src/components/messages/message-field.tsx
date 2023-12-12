@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material"
+import { format } from "date-fns"
 import type { LucideIcon } from "lucide-react"
 
 interface MessageFieldProps {
@@ -53,14 +54,18 @@ export default function MessageField({
         )}
       </Stack>
 
-      <Stack sx={{ gap: 0.25 }}>
-        <Typography sx={{ color: "gray.700", fontWeight: 600 }}>
+      <Stack sx={{ gap: 0.25, overflow: "hidden" }}>
+        <Typography
+          sx={{ color: "gray.700", fontWeight: 600 }}
+          className="truncate"
+        >
           {title}
         </Typography>
 
         <Typography
           sx={{ color: "gray.500", fontWeight: 500, lineHeight: ".875rem" }}
           variant="body2"
+          className="truncate"
         >
           {lastMessage}
 
@@ -73,7 +78,20 @@ export default function MessageField({
       </Stack>
 
       {(sendedAt || unreadMessages) && (
-        <Stack sx={{ ml: "auto" }}>
+        <Stack sx={{ ml: "auto", alignItems: "flex-end" }}>
+          {sendedAt && (
+            <Typography
+              sx={{
+                color: "gray.500",
+                textAlign: "right",
+                whiteSpace: "nowrap",
+              }}
+              variant="caption"
+            >
+              {format(new Date(sendedAt), "HH:mm aa")}
+            </Typography>
+          )}
+
           {unreadMessages && (
             <Stack
               sx={{

@@ -10,7 +10,6 @@ import {
 } from "@/redux/apis/org"
 import { type RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
-import { nameInitials } from "@/utils/format-name"
 import { CircularProgress, Stack, Typography } from "@mui/material"
 import {
   DataGrid,
