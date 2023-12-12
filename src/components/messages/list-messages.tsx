@@ -1,13 +1,15 @@
+import type { PropsWithChildren } from "react"
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
+  Stack,
   Typography,
 } from "@mui/material"
 import { ChevronDown, CircleUserRound, Hash } from "lucide-react"
 
-interface ListMessagesProps {
+interface ListMessagesProps extends PropsWithChildren {
   type: "CHANNELS" | "DIRECT_CHATS"
 }
 
@@ -23,7 +25,7 @@ const types = {
   },
 }
 
-export default function ListMessages({ type }: ListMessagesProps) {
+export default function ListMessages({ type, children }: ListMessagesProps) {
   const element = types[type as keyof typeof types]
 
   const Icon = element.icon
@@ -39,7 +41,7 @@ export default function ListMessages({ type }: ListMessagesProps) {
       </AccordionSummary>
 
       <AccordionDetails>
-        <Typography>Hello world</Typography>
+        <Stack sx={{ gap: 2 }}>{children}</Stack>
       </AccordionDetails>
     </Accordion>
   )

@@ -16,6 +16,7 @@ export const palette = {
     200: "#EB5757",
     300: "#FA8792",
     500: "#F5756F",
+    700: "#CB0B00",
   },
 
   blue: {
@@ -296,6 +297,15 @@ export const components = (
     styleOverrides: {
       root: {
         zIndex: 2,
+      },
+    },
+  },
+
+  MuiAccordionDetails: {
+    styleOverrides: {
+      root: {
+        paddingRight: 0,
+        paddingBottom: 0,
       },
     },
   },
