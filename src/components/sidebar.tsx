@@ -5,6 +5,7 @@ import { Card, Stack, Typography } from "@mui/material"
 import { ListFilter } from "lucide-react"
 
 import Dropdown from "./drop-down"
+import Messages from "./messages"
 
 type Router = {
   icon: JSX.Element
@@ -34,7 +35,7 @@ export default function Sidebar({ routes }: SidebarProps) {
         }}
       >
         <Typography
-          sx={{ mb: 2, color: "gray.500", fontWeight: 500 }}
+          sx={{ mb: 3, color: "gray.500", fontWeight: 500 }}
           variant="body2"
         >
           MAIN MENU
@@ -60,7 +61,25 @@ export default function Sidebar({ routes }: SidebarProps) {
             <Typography sx={{ fontWeight: 500 }}>{label}</Typography>
           </Stack>
         ))}
+
+        <Typography
+          sx={{
+            mb: 3,
+            mt: 4,
+            pt: 4,
+            color: "gray.500",
+            borderTop: "1px solid",
+            fontWeight: 500,
+            borderTopColor: "gray.300",
+          }}
+          variant="body2"
+        >
+          MESSAGING
+        </Typography>
+
+        <Messages />
       </Stack>
+
       <Dropdown
         open={open}
         onClose={() => setOpen(false)}

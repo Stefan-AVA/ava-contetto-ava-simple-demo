@@ -175,6 +175,19 @@ export const components = (
     },
   },
 
+  MuiAccordion: {
+    styleOverrides: {
+      root: {
+        boxShadow: "none",
+        backgroundColor: "transparent",
+
+        "&::before": {
+          display: "none",
+        },
+      },
+    },
+  },
+
   MuiInputBase: {
     styleOverrides: {
       input: {
@@ -283,6 +296,26 @@ export const components = (
     styleOverrides: {
       root: {
         zIndex: 2,
+      },
+    },
+  },
+
+  MuiAccordionSummary: {
+    styleOverrides: {
+      root: {
+        padding: 0,
+
+        "&, &.Mui-expanded": {
+          minHeight: "auto",
+        },
+      },
+
+      content: {
+        margin: 0,
+
+        "&.Mui-expanded": {
+          margin: ".5rem 0",
+        },
       },
     },
   },
