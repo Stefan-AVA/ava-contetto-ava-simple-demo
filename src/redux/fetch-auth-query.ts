@@ -34,7 +34,7 @@ export const clearToken = () => {
 export const getBaseQuery = (args: FetchBaseQueryArgs) =>
   fetchBaseQuery({
     baseUrl: args.baseUrl || `${process.env.NEXT_PUBLIC_API_URL}`,
-    credentials: "include",
+    // credentials: "include",
     ...args,
   })
 
