@@ -7,7 +7,7 @@ import { User } from "lucide-react"
 import Footer from "./footer"
 import ListMessages from "./list-messages"
 
-export default function Chat() {
+export default function Channel() {
   const data = {
     avatar: null,
     name: "Jane Doe",
