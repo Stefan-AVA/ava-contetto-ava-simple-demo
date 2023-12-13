@@ -5,39 +5,10 @@ import { useRouter } from "next/navigation"
 import { LoadingButton } from "@mui/lab"
 import { MenuItem, Stack, TextField, Typography } from "@mui/material"
 import { MuiTelInput } from "mui-tel-input"
-import { z } from "zod"
 
 import { Upload } from "@/components/upload"
 
 import Steps from "./steps"
-
-const first = z.object({
-  name: z.string().min(1, "Enter your full name"),
-  phone: z.string().min(1, "Enter your phone number"),
-  avatar: z.custom<FileList>(),
-  country: z.string().min(1, "Enter your country"),
-  username: z.string().min(1, "Enter your user name"),
-})
-
-const second = z.object({
-  company: z.string().min(1, "Enter your company name"),
-  industry: z.string().min(1, "Select the industry"),
-  headCount: z.string().min(1, "Enter the head count"),
-  companyAddress: z.string().min(1, "Enter the company address"),
-})
-
-const third = z.object({})
-
-const schema = {
-  1: first,
-  2: second,
-  3: third,
-}
-
-type FirstFormSchema = z.infer<typeof first>
-type SecondFormSchema = z.infer<typeof second>
-
-type FormSchema = FirstFormSchema & SecondFormSchema
 
 const options = [
   { value: "industry-1", label: "Industry 1" },
