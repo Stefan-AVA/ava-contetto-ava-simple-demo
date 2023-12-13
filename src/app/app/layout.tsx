@@ -67,7 +67,7 @@ export default function Layout({ children }: PropsWithChildren) {
     }
 
     run()
-  }, [replace, dispatch, getme, getOrgs])
+  }, [replace, dispatch, getme, getOrgs, agentId, contactId])
 
   const toggleDrawer = (event?: KeyboardEvent | MouseEvent) => {
     if (

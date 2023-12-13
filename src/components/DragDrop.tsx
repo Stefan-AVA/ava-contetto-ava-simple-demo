@@ -28,10 +28,13 @@ const DragDrop = ({
 }: IDragDropProps) => {
   const [error, setError] = useState("")
 
-  const onDrop = useCallback((files: File[]) => {
-    if (files.length > 0) onChange(files)
-    else setError("Can't use this type of files!")
-  }, [])
+  const onDrop = useCallback(
+    (files: File[]) => {
+      if (files.length > 0) onChange(files)
+      else setError("Can't use this type of files!")
+    },
+    [onChange]
+  )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

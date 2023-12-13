@@ -19,7 +19,6 @@ import {
 import { Folder, User } from "lucide-react"
 
 import { IContact } from "@/types/contact.types"
-import { ISearchResult } from "@/types/searchResult.types"
 
 import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
@@ -56,7 +55,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
         replace(`/app/agent-orgs/${agentId}`)
       }
     }
-  }, [data, data, agentId, replace])
+  }, [data, agentId, replace])
 
   const savedFor = useMemo(() => {
     if (data?.searchResult) {
@@ -79,7 +78,7 @@ const SearchResultPage = ({ orgId, searchId, agentId, contactId }: IProps) => {
 
   const onShareSearchResult = async (contact: IContact) => {
     try {
-      const searchResult = await shareSearch({
+      await shareSearch({
         orgId,
         searchId,
         contactId: contact._id,

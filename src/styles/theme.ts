@@ -16,6 +16,7 @@ export const palette = {
     200: "#EB5757",
     300: "#FA8792",
     500: "#F5756F",
+    700: "#CB0B00",
   },
 
   blue: {
@@ -175,6 +176,19 @@ export const components = (
     },
   },
 
+  MuiAccordion: {
+    styleOverrides: {
+      root: {
+        boxShadow: "none",
+        backgroundColor: "transparent",
+
+        "&::before": {
+          display: "none",
+        },
+      },
+    },
+  },
+
   MuiInputBase: {
     styleOverrides: {
       input: {
@@ -239,6 +253,12 @@ export const components = (
           },
         },
       },
+
+      ".truncate": {
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+      },
     },
   },
 
@@ -283,6 +303,35 @@ export const components = (
     styleOverrides: {
       root: {
         zIndex: 2,
+      },
+    },
+  },
+
+  MuiAccordionDetails: {
+    styleOverrides: {
+      root: {
+        paddingRight: 0,
+        paddingBottom: 0,
+      },
+    },
+  },
+
+  MuiAccordionSummary: {
+    styleOverrides: {
+      root: {
+        padding: 0,
+
+        "&, &.Mui-expanded": {
+          minHeight: "auto",
+        },
+      },
+
+      content: {
+        margin: 0,
+
+        "&.Mui-expanded": {
+          margin: ".5rem 0",
+        },
       },
     },
   },

@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo } from "react"
-import { useGetPropertyQuery } from "@/redux/apis/search"
 import { RootState } from "@/redux/store"
 import { useSelector } from "react-redux"
 
