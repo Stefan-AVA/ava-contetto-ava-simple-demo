@@ -31,7 +31,7 @@ export default function ListMessages({ type, children }: ListMessagesProps) {
   const Icon = element.icon
 
   return (
-    <Accordion>
+    <Accordion defaultExpanded>
       <AccordionSummary expandIcon={<ChevronDown />}>
         <Box sx={{ mr: 2, color: "gray.700" }} component={Icon} />
 

@@ -1,28 +1,34 @@
+import { Route } from "next"
+import Image from "next/image"
+import Link from "next/link"
+import { useParams } from "next/navigation"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
-import type { LucideIcon } from "lucide-react"
+import { User, type LucideIcon } from "lucide-react"
 
 interface MessageFieldProps {
+  id: string
   icon?: LucideIcon
   title: string
   avatar?: string
   sendedAt?: string
-  onNavigate: () => void
   lastMessage?: string
   unreadMessages?: number
   numberOfMembers?: number
 }
 
 export default function MessageField({
-  icon: Icon,
+  id,
+  icon: Icon = User,
   title,
   avatar,
   sendedAt,
-  onNavigate,
   lastMessage,
   unreadMessages,
   numberOfMembers,
 }: MessageFieldProps) {
+  const { agentId } = useParams()
+
   return (
     <Stack
       sx={{
@@ -31,12 +37,14 @@ export default function MessageField({
         alignItems: "center",
         flexDirection: "row",
       }}
-      onClick={onNavigate}
+      href={`/app/agent-orgs/${agentId}/messages/${id}` as Route}
+      component={Link}
     >
       <Stack
         sx={{
           width: "2.25rem",
           height: "2.25rem",
+          position: "relative",
           alignItems: "center",
           aspectRatio: 1 / 1,
           borderRadius: "50%",
@@ -44,7 +52,16 @@ export default function MessageField({
           backgroundColor: "gray.200",
         }}
       >
-        {Icon && (
+        {avatar && (
+          <Image
+            src={avatar}
+            alt=""
+            fill
+            style={{ objectFit: "cover", borderRadius: "50%" }}
+          />
+        )}
+
+        {!avatar && (
           <Box
             sx={{ color: "gray.500" }}
             size={16}
@@ -78,7 +95,7 @@ export default function MessageField({
       </Stack>
 
       {(sendedAt || unreadMessages) && (
-        <Stack sx={{ ml: "auto", alignItems: "flex-end" }}>
+        <Stack sx={{ ml: "auto", gap: 0.25, alignItems: "flex-end" }}>
           {sendedAt && (
             <Typography
               sx={{

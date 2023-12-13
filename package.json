@@ -19,6 +19,7 @@
     "@mui/x-data-grid": "^6.18.4",
     "@reduxjs/toolkit": "^2.0.1",
     "date-fns": "^2.30.0",
+    "emoji-picker-react": "^4.5.16",
     "lucide-react": "^0.294.0",
     "mui-color-input": "^2.0.1",
     "mui-tel-input": "^5.0.0",
