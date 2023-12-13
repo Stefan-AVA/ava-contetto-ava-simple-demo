@@ -11,12 +11,7 @@ import {
 import { formatAreaUint } from "@/utils/format-area-unit"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
-import {
-  Unstable_Grid2 as Grid,
-  Stack,
-  Typography,
-  type Grid2Props,
-} from "@mui/material"
+import { Stack, Typography, type Grid2Props } from "@mui/material"
 import { Bath, BedDouble, Table2 } from "lucide-react"
 
 import { IListing } from "@/types/listing.types"
@@ -58,7 +53,7 @@ const Property = ({
 
   const onShortlist = async () => {
     try {
-      const result = await shortlist({
+      await shortlist({
         orgId,
         searchId: String(searchResult?._id),
         propertyId: _id,
@@ -71,7 +66,7 @@ const Property = ({
 
   const onReject = async () => {
     try {
-      const result = await reject({
+      await reject({
         orgId,
         searchId: String(searchResult?._id),
         propertyId: _id,
@@ -84,7 +79,7 @@ const Property = ({
 
   const onUndo = async () => {
     try {
-      const result = await undo({
+      await undo({
         orgId,
         searchId: String(searchResult?._id),
         propertyId: _id,

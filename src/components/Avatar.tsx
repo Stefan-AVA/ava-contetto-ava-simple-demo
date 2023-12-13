@@ -34,10 +34,10 @@ const Avatar = ({
   return !name && !image ? (
     <Box
       sx={{
-        position: "relative",
-        width: width,
-        height: height,
+        width,
+        height,
         border: "dashed 2px #0658c2",
+        position: "relative",
         borderRadius: circle ? "100%" : 4,
       }}
     >
@@ -60,8 +60,8 @@ const Avatar = ({
     <Box
       sx={{
         position: "relative",
-        width: width,
-        height: height,
+        width,
+        height,
       }}
     >
       {image ? (

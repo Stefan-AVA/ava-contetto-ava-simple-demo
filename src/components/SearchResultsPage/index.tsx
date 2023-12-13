@@ -1,14 +1,8 @@
 "use client"
 
-import { Route } from "next"
-import Link from "next/link"
 import { useGetSearchResultsQuery } from "@/redux/apis/search"
-import { getDatefromUnix } from "@/utils/format-date"
-import { LoadingButton } from "@mui/lab"
 import { Stack, Typography } from "@mui/material"
-import { Folder } from "lucide-react"
 
-import ContactSearch from "../ContactSearch"
 import Loading from "../Loading"
 import SearchResultItem from "./ResultItem"
 

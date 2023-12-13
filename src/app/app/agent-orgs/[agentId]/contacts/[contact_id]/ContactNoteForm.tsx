@@ -1,11 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import {
-  useCreateNoteMutation,
-  useGetNotesQuery,
-  useUpdateNoteMutation,
-} from "@/redux/apis/org"
+import { useCreateNoteMutation, useUpdateNoteMutation } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
 import { Stack, TextField, Typography } from "@mui/material"
@@ -57,7 +53,7 @@ const ContactNoteForm = ({
         await updateNote({
           _id: contactNote._id,
           orgId,
-          contactId: contactId,
+          contactId,
           note,
         }).unwrap()
       } else {

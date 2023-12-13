@@ -34,7 +34,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
 
   const contact = useMemo(
     () => contactOrgs.find((contact) => contact._id === contactId),
-    [agentId, contactOrgs]
+    [contactId, contactOrgs]
   )
 
   const orgLogo = useMemo(

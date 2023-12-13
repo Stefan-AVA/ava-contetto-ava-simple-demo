@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { useSetWhiteLabelMutation } from "@/redux/apis/org"
-import { type RootState } from "@/redux/store"
 import { LoadingButton } from "@mui/lab"
 import {
   Button,
@@ -10,7 +9,6 @@ import {
   TextField,
 } from "@mui/material"
 import { MuiColorInput } from "mui-color-input"
-import { useSelector } from "react-redux"
 
 import type { IAgentProfile } from "@/types/agentProfile.types"
 import { dmsans } from "@/styles/fonts"

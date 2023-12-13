@@ -65,7 +65,7 @@ const Page = ({ params, searchParams }: PageProps) => {
     }
 
     run()
-  }, [inviteCode, getme, push, replace, orgId, contactId])
+  }, [inviteCode, getme, push, replace, orgId, bindContact, contactId])
 
   if (!orgId || !contactId || !inviteCode) return <div>No invitation</div>
   if (isLoading) return <div>Loading...</div>
