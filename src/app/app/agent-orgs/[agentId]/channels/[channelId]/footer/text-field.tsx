@@ -1,9 +1,12 @@
-import { useRef } from "react"
+import { CSSProperties, useMemo, useRef } from "react"
+import { useGetContactsQuery } from "@/redux/apis/org"
+import { useGetAllRoomsQuery } from "@/redux/apis/room"
 import { Stack } from "@mui/material"
 import { Mention, MentionsInput, type MentionsInputProps } from "react-mentions"
 
 interface TextFieldProps
   extends Pick<MentionsInputProps, "value" | "onChange"> {
+  orgId: string
   onSend: () => Promise<void>
 }
 
@@ -22,8 +25,61 @@ const users = [
   },
 ]
 
-export default function TextField({ onSend, ...rest }: TextFieldProps) {
+const styles = {
+  "&multiLine": {
+    input: {
+      padding: ".875rem 1.5rem",
+      outline: "none",
+
+      "&::placeholder": {
+        color: "gray.400",
+      },
+    },
+
+    highlighter: {
+      padding: ".875rem 1.5rem",
+    },
+  },
+
+  suggestions: {
+    list: {
+      border: "1px solid #F5F4F8",
+      fontSize: 14,
+      borderRadius: ".25rem",
+      backgroundColor: "#FFF",
+    },
+    item: {
+      padding: ".5rem 1rem",
+      borderBottom: "1px solid #F5F4F8",
+
+      "&focused": {
+        color: "#FFF",
+        backgroundColor: "#5A57FF",
+      },
+    },
+  },
+} as CSSProperties
+
+export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
   const ref = useRef<HTMLTextAreaElement>(null)
+
+  const { data: rooms } = useGetAllRoomsQuery(
+    {
+      orgId,
+    },
+    {
+      skip: !orgId,
+    }
+  )
+
+  const { data: contacts } = useGetContactsQuery(
+    {
+      orgId,
+    },
+    {
+      skip: !orgId,
+    }
+  )
 
   async function onKeyDown(code: string, shiftKey: boolean) {
     if (code === "Enter" && !shiftKey) {
@@ -37,33 +93,59 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
     }
   }
 
+  const formatRooms = useMemo(() => {
+    if (rooms && rooms.length > 0) {
+      return rooms.map((room) => ({
+        id: room.name!,
+        display: room.name!,
+      }))
+    }
+
+    return []
+  }, [rooms])
+
+  const formatContacts = useMemo(() => {
+    if (contacts && contacts.length > 0) {
+      return contacts.map((contact) => ({
+        id: contact.username || contact.name,
+        display: contact.name,
+      }))
+    }
+
+    return []
+  }, [contacts])
+
   return (
     <Stack
       {...rest}
       sx={{
-        py: 1.75,
-        px: 3,
         width: "100%",
         color: "gray.700",
-        outline: "none",
         fontSize: ".875rem",
+        minHeight: "2.75rem",
         fontWeight: 500,
         lineHeight: "1rem",
         borderRadius: ".5rem",
         backgroundColor: "gray.200",
-
-        "&::placeholder": {
-          color: "gray.400",
-        },
       }}
       ref={ref as any}
       rows={1}
+      style={styles}
       component={MentionsInput}
       onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
       placeholder="Write your message here."
     >
-      <Mention trigger="@" data={users} displayTransform={(id) => `@${id}`} />
-      <Mention trigger="#" data={users} displayTransform={(id) => `#${id}`} />
+      <Mention
+        data={formatContacts}
+        trigger="@"
+        displayTransform={(id) => `@${id}`}
+      />
+
+      <Mention
+        trigger="#"
+        data={formatRooms}
+        displayTransform={(id) => `#${id}`}
+      />
     </Stack>
   )
 }

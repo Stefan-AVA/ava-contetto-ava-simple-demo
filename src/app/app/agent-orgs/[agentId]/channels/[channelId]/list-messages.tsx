@@ -52,7 +52,6 @@ export default function ListMessages() {
       sx={{
         pt: 5,
         px: 5,
-        pb: 3,
         gap: 1.5,
         height: "calc(100vh - 25.5rem)",
         overflowY: "auto",
