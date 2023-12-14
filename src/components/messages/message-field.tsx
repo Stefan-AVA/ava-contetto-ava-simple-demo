@@ -37,7 +37,7 @@ export default function MessageField({
         alignItems: "center",
         flexDirection: "row",
       }}
-      href={`/app/agent-orgs/${agentId}/messages/${id}` as Route}
+      href={`/app/agent-orgs/${agentId}/channels/${id}` as Route}
       component={Link}
     >
       <Stack
