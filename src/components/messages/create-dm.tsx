@@ -54,7 +54,7 @@ export default function CreateDM({ orgId }: CreateChannelProps) {
 
     try {
       await create({
-        ...form,
+        usernames: [],
         orgId,
       }).unwrap()
 
