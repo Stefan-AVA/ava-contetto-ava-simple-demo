@@ -1,16 +1,20 @@
-import { useState, type FormEvent } from "react"
-import { Box, Stack } from "@mui/material"
+import { useState } from "react"
+import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
 
 import EmojiPicker from "./emoji-picker"
+import TextField from "./text-field"
 
 export default function Footer() {
+  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  async function submit() {
+    setLoading(true)
 
     // send message.
+
+    setLoading(false)
 
     setMessage("")
   }
@@ -19,39 +23,14 @@ export default function Footer() {
     <Stack sx={{ px: 5, pb: 3, gap: 4, flexDirection: "row" }}>
       <EmojiPicker onMessage={setMessage} />
 
-      <Box
-        sx={{
-          flex: 1,
-        }}
-        onSubmit={submit}
-        component="form"
-      >
-        <Stack
-          sx={{
-            py: 1.75,
-            px: 3,
-            width: "100%",
-            color: "gray.700",
-            outline: "none",
-            fontSize: ".875rem",
-            fontWeight: 500,
-            lineHeight: "1rem",
-            borderRadius: ".5rem",
-            backgroundColor: "gray.200",
+      <TextField
+        value={message}
+        onSend={submit}
+        onChange={({ target }) => setMessage(target.value)}
+      />
 
-            "&::placeholder": {
-              color: "gray.400",
-            },
-          }}
-          value={message}
-          onChange={({ target }) => setMessage(target.value)}
-          component="input"
-          placeholder="Write your message here."
-        />
-      </Box>
-
-      <Box sx={{ color: "secondary.main" }} type="submit" component="button">
-        <Send />
+      <Box sx={{ color: "secondary.main" }} onClick={submit} component="button">
+        {loading ? <CircularProgress size="1.5rem" /> : <Send />}
       </Box>
     </Stack>
   )
