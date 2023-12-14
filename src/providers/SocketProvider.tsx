@@ -1,22 +1,35 @@
 "use client"
 
-import { createContext, PropsWithChildren, useEffect, useRef } from "react"
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useRef,
+} from "react"
 import { tokenKey } from "@/redux/fetch-auth-query"
 import io, { Socket } from "socket.io-client"
 
 import { ServerMessageType } from "@/types/message.types"
 
-const socket = io(String(process.env.NEXT_PUBLIC_SOCKET_URL), {
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
   // withCredentials: true,
   transports: ["websocket"],
 })
 
-export const SocketContext = createContext<Socket>(socket)
+const SocketContext = createContext<Socket>(socket)
+
+export const useSocket = () => useContext(SocketContext)
 
 export const connectSocket = () => {
   socket.auth = (cb) => {
     const token = window ? window.localStorage.getItem(tokenKey) : undefined
-    cb({ token })
+
+    const object = {
+      token,
+    }
+
+    cb(object)
   }
 
   if (socket.connected) {
@@ -34,6 +47,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       initialized.current = true
 
       connectSocket()
+
       socket.on(ServerMessageType.connected, (payload: any) => {
         console.log("connected =>", payload)
       })
