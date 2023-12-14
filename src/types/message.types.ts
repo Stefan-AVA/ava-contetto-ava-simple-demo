@@ -29,6 +29,9 @@ export interface IMessagePayload {
 }
 
 export enum ServerMessageType {
+  // welcome
+  connected = "connected",
+
   // token
   updateToken = "updateToken",
 

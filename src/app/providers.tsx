@@ -1,6 +1,7 @@
 "use client"
 
 import type { PropsWithChildren } from "react"
+import SocketProvider from "@/providers/SocketProvider"
 import { store } from "@/redux/store"
 import { SnackbarProvider } from "notistack"
 import { Provider } from "react-redux"
@@ -18,7 +19,7 @@ export default function Providers({ children }: PropsWithChildren) {
             horizontal: "right",
           }}
         >
-          {children}
+          <SocketProvider>{children}</SocketProvider>
         </SnackbarProvider>
       </Provider>
     </ThemeProvider>

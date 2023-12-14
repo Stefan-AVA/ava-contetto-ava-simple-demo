@@ -1,3 +1,4 @@
+import { connectSocket } from "@/providers/SocketProvider"
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 import { IAgentProfile } from "@/types/agentProfile.types"
@@ -30,6 +31,9 @@ export const appSlice = createSlice({
     logout: (state) => {
       state.user = null
       clearToken()
+
+      // update socket connection
+      connectSocket()
     },
     setOrgs: (
       state,

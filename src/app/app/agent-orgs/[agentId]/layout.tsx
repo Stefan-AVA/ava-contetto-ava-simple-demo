@@ -16,7 +16,6 @@ import { useSelector } from "react-redux"
 import { AgentRole } from "@/types/agentProfile.types"
 import Breadcrumb from "@/components/breadcrumb"
 import Sidebar from "@/components/sidebar"
-import SocketConnection from "@/components/socket-connection"
 import WhiteLabelWrapper from "@/components/white-label-wrapper"
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -75,33 +74,31 @@ export default function Layout({ children }: PropsWithChildren) {
   const hasWhiteLabelDefined = currentOrg.org?.whiteLabel
 
   return (
-    <SocketConnection>
-      <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
-        <Stack
+    <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
+      <Stack
+        sx={{
+          p: { xs: 1, md: 0 },
+          gap: { xs: 2, md: 0 },
+          bgcolor: "background.default",
+        }}
+        direction={{ xs: "column", md: "row" }}
+      >
+        <Sidebar routes={routes} />
+
+        <Box
           sx={{
-            p: { xs: 1, md: 0 },
-            gap: { xs: 2, md: 0 },
-            bgcolor: "background.default",
+            p: { xs: 1, md: 5 },
+            width: "100%",
+            height: "calc(100vh - 4rem)",
+            overflowY: "auto",
+            overflowX: "hidden",
           }}
-          direction={{ xs: "column", md: "row" }}
         >
-          <Sidebar routes={routes} />
+          <Breadcrumb initialPosition={3} />
 
-          <Box
-            sx={{
-              p: { xs: 1, md: 5 },
-              width: "100%",
-              height: "calc(100vh - 4rem)",
-              overflowY: "auto",
-              overflowX: "hidden",
-            }}
-          >
-            <Breadcrumb initialPosition={3} />
-
-            {children}
-          </Box>
-        </Stack>
-      </WhiteLabelWrapper>
-    </SocketConnection>
+          {children}
+        </Box>
+      </Stack>
+    </WhiteLabelWrapper>
   )
 }

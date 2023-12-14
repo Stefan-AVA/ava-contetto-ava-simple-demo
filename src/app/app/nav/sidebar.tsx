@@ -4,8 +4,8 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { clearToken } from "@/redux/fetch-auth-query"
-import { RootState } from "@/redux/store"
+import { logout } from "@/redux/slices/app"
+import { RootState, useAppDispatch } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import {
   Box,
@@ -242,9 +242,10 @@ export default function Sidebar({
   setOpenCreateOrgModal,
 }: ISidebar) {
   const { replace } = useRouter()
+  const dispatch = useAppDispatch()
 
-  function logout() {
-    clearToken()
+  function onLogout() {
+    dispatch(logout())
 
     replace("/")
   }
@@ -286,7 +287,7 @@ export default function Sidebar({
             color: "white",
             display: "flex",
           }}
-          onClick={logout}
+          onClick={onLogout}
           component="button"
         >
           <Power />
@@ -326,7 +327,7 @@ export default function Sidebar({
               color: "white",
               display: "flex",
             }}
-            onClick={logout}
+            onClick={onLogout}
             component="button"
           >
             <Power />

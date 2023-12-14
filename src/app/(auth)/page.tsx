@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { connectSocket } from "@/providers/SocketProvider"
 import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
@@ -60,6 +61,9 @@ export default function LoginPage({ searchParams }: PageProps) {
 
     try {
       await login(response.data).unwrap()
+
+      // update webSocket connection
+      connectSocket()
 
       push(nextLink ? (nextLink as Route) : "/app")
     } catch (error) {

@@ -8,7 +8,8 @@
   "rules": {
     "camelcase": "off",
     "no-unused-vars": "warn",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "n/no-callback-literal": "warn"
   },
   "plugins": [
     "react",
