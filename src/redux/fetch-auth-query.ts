@@ -18,13 +18,13 @@ type FetchQuery = BaseQueryFn<
 // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export const tokenKey = "@ava-token"
 
-const setToken = (token: string) => {
+export const setToken = (token: string) => {
   if (window) window.localStorage.setItem(tokenKey, token)
 }
 
-const getToken = (): string => {
-  if (window) return String(window.localStorage.getItem(tokenKey))
-  return ""
+export const getToken = (): string | null => {
+  if (window) return window.localStorage.getItem(tokenKey)
+  return null
 }
 
 export const clearToken = () => {

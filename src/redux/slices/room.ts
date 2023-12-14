@@ -21,14 +21,18 @@ export const roomSlice = createSlice({
     setRooms: (state, action: PayloadAction<IRoom[]>) => {
       state.rooms = action.payload
     },
-    createRoom: (state, action: PayloadAction<IRoom>) => {
-      state.rooms = [...state.rooms, action.payload]
-      state.currentRoom = action.payload
+    updateRoom: (state, action: PayloadAction<IRoom>) => {
+      state.rooms = state.rooms.map((room) =>
+        room._id === action.payload._id ? action.payload : room
+      )
     },
     joinRoom: (state, action: PayloadAction<IRoom>) => {
-      state.rooms = [...state.rooms, action.payload]
+      state.rooms = [
+        ...state.rooms.filter((room) => room._id !== action.payload._id),
+        action.payload,
+      ]
     },
-    setCurrentRoom: (state, action: PayloadAction<IRoom>) => {
+    setCurrentRoom: (state, action: PayloadAction<IRoom | undefined>) => {
       state.currentRoom = action.payload
     },
   },
@@ -43,12 +47,14 @@ export const roomSlice = createSlice({
       roomApi.endpoints.createChannel.matchFulfilled,
       (state, action) => {
         state.rooms = [...state.rooms, action.payload]
+        state.currentRoom = action.payload
       }
     )
     builder.addMatcher(
       roomApi.endpoints.createDM.matchFulfilled,
       (state, action) => {
         state.rooms = [...state.rooms, action.payload]
+        state.currentRoom = action.payload
       }
     )
     builder.addMatcher(
@@ -62,7 +68,7 @@ export const roomSlice = createSlice({
   },
 })
 
-export const { setRooms, createRoom, joinRoom, setCurrentRoom } =
+export const { setRooms, updateRoom, joinRoom, setCurrentRoom } =
   roomSlice.actions
 
 export default roomSlice.reducer

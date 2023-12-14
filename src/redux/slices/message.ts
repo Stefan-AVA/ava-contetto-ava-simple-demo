@@ -16,8 +16,17 @@ export const messageSlice = createSlice({
   name: "rooms",
   initialState,
   reducers: {
-    setMessages: (state, action: PayloadAction<IMessage[]>) => {
-      state.messages = action.payload
+    setMessages: (state, { payload }: PayloadAction<IMessage[]>) => {
+      state.messages = payload
+    },
+    // can be for both send & receive message
+    sendMessage: (state, { payload }: PayloadAction<IMessage>) => {
+      state.messages = [...state.messages, payload]
+    },
+    updateMessage: (state, { payload }: PayloadAction<IMessage>) => {
+      state.messages = state.messages.map((msg) =>
+        msg._id === payload._id ? payload : msg
+      )
     },
   },
   extraReducers: (builder) => {
@@ -30,6 +39,6 @@ export const messageSlice = createSlice({
   },
 })
 
-export const { setMessages } = messageSlice.actions
+export const { setMessages, sendMessage, updateMessage } = messageSlice.actions
 
 export default messageSlice.reducer
