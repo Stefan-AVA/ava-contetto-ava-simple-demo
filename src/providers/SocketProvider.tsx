@@ -12,7 +12,7 @@ import { getToken, setToken } from "@/redux/fetch-auth-query"
 import { logout } from "@/redux/slices/app"
 import { sendMessage, updateMessage } from "@/redux/slices/message"
 import { joinRoom, updateRoom } from "@/redux/slices/room"
-import { useAppDispatch } from "@/redux/store"
+import { useDispatch } from "react-redux"
 import io, { Socket } from "socket.io-client"
 
 import { IMessage, ServerMessageType } from "@/types/message.types"
@@ -49,7 +49,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   const initialized = useRef(false)
 
   const { replace } = useRouter()
-  const dispatch = useAppDispatch()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (!initialized.current) {
