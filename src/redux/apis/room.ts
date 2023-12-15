@@ -26,6 +26,11 @@ interface IAddMembersRequest {
   contacts: IRoomContact[]
 }
 
+interface IGetRoomsRequest {
+  orgId: string
+  contactId?: string
+}
+
 export const roomApi = createApi({
   reducerPath: "roomApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -58,10 +63,13 @@ export const roomApi = createApi({
       }),
       invalidatesTags: ["Rooms"],
     }),
-    getAllRooms: builder.query<IRoom[], { orgId: string }>({
-      query: ({ orgId }) => ({
+    getAllRooms: builder.query<IRoom[], IGetRoomsRequest>({
+      query: ({ orgId, contactId }) => ({
         url: `/${orgId}/rooms`,
         method: "GET",
+        params: {
+          contactId, // need for contact-orgs
+        },
       }),
       providesTags: ["Rooms"],
     }),
