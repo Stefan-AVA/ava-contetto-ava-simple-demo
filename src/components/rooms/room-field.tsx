@@ -6,7 +6,7 @@ import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User, type LucideIcon } from "lucide-react"
 
-interface MessageFieldProps {
+interface IRoomFieldProps {
   id: string
   icon?: LucideIcon
   title: string
@@ -17,7 +17,7 @@ interface MessageFieldProps {
   numberOfMembers?: number
 }
 
-export default function MessageField({
+export default function RoomField({
   id,
   icon: Icon = User,
   title,
@@ -26,7 +26,7 @@ export default function MessageField({
   lastMessage,
   unreadMessages,
   numberOfMembers,
-}: MessageFieldProps) {
+}: IRoomFieldProps) {
   const { agentId } = useParams()
 
   return (

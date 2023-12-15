@@ -9,7 +9,7 @@ import {
 } from "@mui/material"
 import { ChevronDown, CircleUserRound, Hash } from "lucide-react"
 
-interface ListMessagesProps extends PropsWithChildren {
+interface IListRoomsProps extends PropsWithChildren {
   type: "CHANNELS" | "DIRECT_CHATS"
 }
 
@@ -25,7 +25,7 @@ const types = {
   },
 }
 
-export default function ListMessages({ type, children }: ListMessagesProps) {
+export default function ListRooms({ type, children }: IListRoomsProps) {
   const element = types[type as keyof typeof types]
 
   const Icon = element.icon

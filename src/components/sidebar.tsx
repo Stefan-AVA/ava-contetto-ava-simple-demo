@@ -5,7 +5,7 @@ import { Card, Stack, Typography } from "@mui/material"
 import { ListFilter } from "lucide-react"
 
 import Dropdown from "./drop-down"
-import Messages from "./messages"
+import Rooms from "./rooms"
 
 type Router = {
   icon: JSX.Element
@@ -77,7 +77,7 @@ export default function Sidebar({ routes }: SidebarProps) {
           MESSAGING
         </Typography>
 
-        <Messages />
+        <Rooms />
       </Stack>
 
       <Dropdown

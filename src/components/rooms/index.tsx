@@ -7,10 +7,10 @@ import { useSelector } from "react-redux"
 
 import CreateChannel from "./create-channel"
 import CreateDM from "./create-dm"
-import ListMessages from "./list-messages"
-import MessageField from "./message-field"
+import ListRooms from "./list-rooms"
+import RoomField from "./room-field"
 
-export default function Messages() {
+export default function Rooms() {
   const { agentId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
@@ -22,8 +22,8 @@ export default function Messages() {
 
   return (
     <Stack sx={{ gap: 2 }}>
-      <ListMessages type="CHANNELS">
-        <MessageField
+      <ListRooms type="CHANNELS">
+        <RoomField
           id="1"
           icon={Hash}
           title="General"
@@ -31,7 +31,7 @@ export default function Messages() {
           numberOfMembers={24}
         />
 
-        <MessageField
+        <RoomField
           id="2"
           icon={Lock}
           title="Lead Generation"
@@ -41,10 +41,10 @@ export default function Messages() {
         {agentProfile?.role === "owner" && (
           <CreateChannel orgId={agentProfile.orgId} />
         )}
-      </ListMessages>
+      </ListRooms>
 
-      <ListMessages type="DIRECT_CHATS">
-        <MessageField
+      <ListRooms type="DIRECT_CHATS">
+        <RoomField
           id="3"
           title="Jane Doe"
           sendedAt={new Date().toISOString()}
@@ -55,7 +55,7 @@ export default function Messages() {
         {agentProfile?.role === "owner" && (
           <CreateDM orgId={agentProfile.orgId} />
         )}
-      </ListMessages>
+      </ListRooms>
     </Stack>
   )
 }
