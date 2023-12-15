@@ -2,6 +2,7 @@ import { CSSProperties, useMemo, useRef } from "react"
 import { useGetContactsQuery } from "@/redux/apis/org"
 import { useGetAllRoomsQuery } from "@/redux/apis/room"
 import { Stack } from "@mui/material"
+import { useTheme, type Palette } from "@mui/material/styles"
 import { Mention, MentionsInput, type MentionsInputProps } from "react-mentions"
 
 interface TextFieldProps
@@ -10,23 +11,8 @@ interface TextFieldProps
   onSend: () => Promise<void>
 }
 
-const users = [
-  {
-    id: "isaac",
-    display: "Isaac Newton",
-  },
-  {
-    id: "sam",
-    display: "Sam Victor",
-  },
-  {
-    id: "emma",
-    display: "emmanuel@nobody.com",
-  },
-]
-
-const styles = {
-  "&multiLine": {
+function styles(palette: Palette) {
+  return {
     input: {
       padding: ".875rem 1.5rem",
       outline: "none",
@@ -36,32 +22,38 @@ const styles = {
       },
     },
 
+    control: {
+      fontSize: ".875rem",
+    },
+
     highlighter: {
       padding: ".875rem 1.5rem",
     },
-  },
 
-  suggestions: {
-    list: {
-      border: "1px solid #F5F4F8",
-      fontSize: 14,
-      borderRadius: ".25rem",
-      backgroundColor: "#FFF",
-    },
-    item: {
-      padding: ".5rem 1rem",
-      borderBottom: "1px solid #F5F4F8",
+    suggestions: {
+      list: {
+        border: "1px solid #F5F4F8",
+        fontSize: 14,
+        borderRadius: ".25rem",
+        backgroundColor: palette.background.default,
+      },
+      item: {
+        padding: ".5rem 1rem",
+        borderBottom: "1px solid #F5F4F8",
 
-      "&focused": {
-        color: "#FFF",
-        backgroundColor: "#5A57FF",
+        "&focused": {
+          color: palette.background.default,
+          backgroundColor: palette.secondary.main,
+        },
       },
     },
-  },
-} as CSSProperties
+  } as CSSProperties
+}
 
 export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
   const ref = useRef<HTMLTextAreaElement>(null)
+
+  const { palette } = useTheme()
 
   const { data: rooms } = useGetAllRoomsQuery(
     {
@@ -121,7 +113,6 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
       sx={{
         width: "100%",
         color: "gray.700",
-        fontSize: ".875rem",
         minHeight: "2.75rem",
         fontWeight: 500,
         lineHeight: "1rem",
@@ -130,7 +121,7 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
       }}
       ref={ref as any}
       rows={1}
-      style={styles}
+      style={styles(palette)}
       component={MentionsInput}
       onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
       placeholder="Write your message here."
@@ -142,8 +133,8 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
       />
 
       <Mention
-        trigger="#"
         data={formatRooms}
+        trigger="#"
         displayTransform={(id) => `#${id}`}
       />
     </Stack>

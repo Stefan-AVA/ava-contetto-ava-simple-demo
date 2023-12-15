@@ -3,25 +3,56 @@ import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
 
+function messageParser(text: string) {
+  let message = text
+
+  const urls = message.match(/(https?:\/\/[^\s]+)/g)
+  const channels = message.match(/#\w+/g)
+  const usernames = message.match(/@\w+/g)
+
+  if (urls && urls.length > 0) {
+    urls.forEach((url) => {
+      message = message.replaceAll(
+        url,
+        `<a href="${url}" style="text-decoration:underline;">${url}</a>`
+      )
+    })
+  }
+
+  if (channels && channels.length > 0) {
+    channels.forEach((channel) => {
+      message = message.replaceAll(channel, `<b>${channel}</b>`)
+    })
+  }
+
+  if (usernames && usernames.length > 0) {
+    usernames.forEach((username) => {
+      message = message.replaceAll(username, `<b>${username}</b>`)
+    })
+  }
+
+  return message
+}
+
 const messages = [
   {
     userId: "1",
     avatar: null,
-    message: "What is the update regarding new client?",
+    message: "What is the update regarding new client? @janedoe",
     username: "Yuri Martins",
     sendedAt: new Date().toISOString(),
   },
   {
     userId: "2",
     avatar: null,
-    message: "Yes, I am also waiting.",
+    message: "Yes, I am also waiting #channel.",
     username: "Jane Doe",
     sendedAt: new Date().toISOString(),
   },
   {
     userId: "3",
     avatar: null,
-    message: "Let me send reminder to the client.",
+    message: "Let me send reminder to the client https://google.com .",
     username: "John Doe",
     sendedAt: new Date().toISOString(),
   },
@@ -124,15 +155,15 @@ export default function ListMessages() {
                     </Typography>
                   )}
 
-                  <Typography
+                  <Box
                     sx={{
                       color: currentUser ? "white" : "gray.700",
                       lineHeight: "1.25rem",
                     }}
                     variant="body2"
-                  >
-                    {message}
-                  </Typography>
+                    component={Typography}
+                    dangerouslySetInnerHTML={{ __html: messageParser(message) }}
+                  />
                 </Stack>
 
                 <Typography
