@@ -53,10 +53,10 @@ export default function CreateDM({ orgId }: CreateChannelProps) {
     }
 
     try {
-      await create({
-        usernames: [],
-        orgId,
-      }).unwrap()
+      // await create({
+      //   usernames: [],
+      //   orgId,
+      // }).unwrap()
 
       setOpen(false)
 

@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IRoom } from "@/types/room.types"
+import { IRoom, IRoomAgent, IRoomContact } from "@/types/room.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
 
@@ -9,19 +9,21 @@ interface ICreateChannelRequest {
   name: string
 }
 
-interface ICreateDMRequest {
-  orgId: string
-  usernames: string[]
-}
-
 interface IUpdateChannelRequest extends ICreateChannelRequest {
   roomId: string
+}
+
+interface ICreateDMRequest {
+  orgId: string
+  agents: IRoomAgent[]
+  contacts: IRoomContact[]
 }
 
 interface IAddMembersRequest {
   orgId: string
   roomId: string
-  usernames: string[]
+  agents: IRoomAgent[]
+  contacts: IRoomContact[]
 }
 
 export const roomApi = createApi({
@@ -38,11 +40,12 @@ export const roomApi = createApi({
       invalidatesTags: ["Rooms"],
     }),
     createDM: builder.mutation<IRoom, ICreateDMRequest>({
-      query: ({ orgId, usernames }) => ({
+      query: ({ orgId, agents, contacts }) => ({
         url: `/${orgId}/dms`,
         method: "POST",
         body: {
-          usernames, // usernames length should be greater than 2 including current user
+          agents,
+          contacts,
         },
       }),
       invalidatesTags: ["Rooms"],
@@ -63,10 +66,13 @@ export const roomApi = createApi({
       providesTags: ["Rooms"],
     }),
     addMemberToChannel: builder.mutation<void, IAddMembersRequest>({
-      query: ({ orgId, roomId, usernames }) => ({
+      query: ({ orgId, roomId, agents, contacts }) => ({
         url: `/${orgId}/channels/${roomId}/add-members`,
         method: "POST",
-        body: { usernames },
+        body: {
+          agents,
+          contacts,
+        },
       }),
       invalidatesTags: ["Rooms"],
     }),
