@@ -1,6 +1,6 @@
+import { MouseEventHandler } from "react"
 import { Route } from "next"
 import Image from "next/image"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
@@ -15,6 +15,7 @@ interface IRoomFieldProps {
   lastMessage?: string
   unreadMessages?: number
   numberOfMembers?: number
+  onClick?: MouseEventHandler<HTMLDivElement>
 }
 
 export default function RoomField({
@@ -26,6 +27,7 @@ export default function RoomField({
   lastMessage,
   unreadMessages,
   numberOfMembers,
+  onClick,
 }: IRoomFieldProps) {
   const { agentId } = useParams()
 
@@ -37,8 +39,7 @@ export default function RoomField({
         alignItems: "center",
         flexDirection: "row",
       }}
-      href={`/app/agent-orgs/${agentId}/channels/${id}` as Route}
-      component={Link}
+      onClick={onClick}
     >
       <Stack
         sx={{

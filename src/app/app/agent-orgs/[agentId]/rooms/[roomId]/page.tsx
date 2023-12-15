@@ -1,17 +1,21 @@
 "use client"
 
 import Image from "next/image"
+import type { RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
 import { User } from "lucide-react"
+import { useSelector } from "react-redux"
 
 import Footer from "./footer"
 import ListMessages from "./list-messages"
 
+const data = {
+  avatar: null,
+  name: "Jane Doe",
+}
+
 export default function Room() {
-  const data = {
-    avatar: null,
-    name: "Jane Doe",
-  }
+  const room = useSelector((state: RootState) => state.rooms.currentRoom)
 
   return (
     <>

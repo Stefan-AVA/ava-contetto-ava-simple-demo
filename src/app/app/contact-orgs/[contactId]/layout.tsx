@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, type PropsWithChildren } from "react"
+import { useEffect, useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
+import { useLazyGetAllRoomsQuery } from "@/redux/apis/room"
 import type { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
 import { LayoutDashboardIcon, Search } from "lucide-react"
@@ -17,10 +18,16 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
+  const [getAllRooms, { isLoading }] = useLazyGetAllRoomsQuery()
+
   const contact = useMemo(
     () => contactOrgs.find((contact) => contact._id === contactId),
     [contactId, contactOrgs]
   )
+
+  useEffect(() => {
+    if (contact) getAllRooms({ orgId: contact.orgId, contactId: contact._id })
+  }, [contact])
 
   const routes = useMemo(
     () => [
@@ -49,7 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
         spacing={{ xs: 2, md: 0 }}
         direction={{ xs: "column", md: "row" }}
       >
-        <Sidebar routes={routes} />
+        <Sidebar routes={routes} roomsLoading={isLoading} />
 
         <Box
           sx={{

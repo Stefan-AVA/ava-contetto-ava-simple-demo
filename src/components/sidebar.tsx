@@ -16,10 +16,13 @@ type Router = {
 
 interface SidebarProps {
   routes: Router[]
+  roomsLoading: boolean
 }
 
-export default function Sidebar({ routes }: SidebarProps) {
+// TODO: yuri please implement room loading status
+export default function Sidebar({ routes, roomsLoading }: SidebarProps) {
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <Stack

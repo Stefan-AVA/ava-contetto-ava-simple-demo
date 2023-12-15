@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, type PropsWithChildren } from "react"
+import { useEffect, useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
+import { useLazyGetAllRoomsQuery } from "@/redux/apis/room"
 import { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
 import {
@@ -25,10 +26,16 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
+  const [getAllRooms, { isLoading }] = useLazyGetAllRoomsQuery()
+
   const currentOrg = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId)!,
     [agentId, agentOrgs]
   )
+
+  useEffect(() => {
+    if (currentOrg) getAllRooms({ orgId: currentOrg.orgId })
+  }, [currentOrg])
 
   const routes = useMemo(
     () => [
@@ -83,7 +90,7 @@ export default function Layout({ children }: PropsWithChildren) {
         }}
         direction={{ xs: "column", md: "row" }}
       >
-        <Sidebar routes={routes} />
+        <Sidebar routes={routes} roomsLoading={isLoading} />
 
         <Box
           sx={{

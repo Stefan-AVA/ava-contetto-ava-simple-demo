@@ -1,9 +1,9 @@
 import { CSSProperties, useMemo, useRef } from "react"
-import { useGetContactsQuery } from "@/redux/apis/org"
-import { useGetAllRoomsQuery } from "@/redux/apis/room"
+import type { RootState } from "@/redux/store"
 import { Stack } from "@mui/material"
 import { useTheme, type Palette } from "@mui/material/styles"
 import { Mention, MentionsInput, type MentionsInputProps } from "react-mentions"
+import { useSelector } from "react-redux"
 
 interface TextFieldProps
   extends Pick<MentionsInputProps, "value" | "onChange"> {
@@ -55,35 +55,8 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
 
   const { palette } = useTheme()
 
-  const { data: rooms } = useGetAllRoomsQuery(
-    {
-      orgId,
-    },
-    {
-      skip: !orgId,
-    }
-  )
-
-  const { data: contacts } = useGetContactsQuery(
-    {
-      orgId,
-    },
-    {
-      skip: !orgId,
-    }
-  )
-
-  async function onKeyDown(code: string, shiftKey: boolean) {
-    if (code === "Enter" && !shiftKey) {
-      await onSend()
-
-      return
-    }
-
-    if (code === "Enter" && shiftKey && ref.current) {
-      ref.current.rows += 1
-    }
-  }
+  const rooms = useSelector((state: RootState) => state.rooms.rooms)
+  const room = useSelector((state: RootState) => state.rooms.currentRoom)
 
   const formatRooms = useMemo(() => {
     if (rooms && rooms.length > 0) {
@@ -97,15 +70,27 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
   }, [rooms])
 
   const formatContacts = useMemo(() => {
-    if (contacts && contacts.length > 0) {
-      return contacts.map((contact) => ({
-        id: contact.username || contact.name,
-        display: contact.name,
-      }))
+    if (room) {
+      return [
+        ...room.agents.map((a) => ({ id: a.username, display: a.username })),
+        ...room.contacts.map((c) => ({ id: c.username, display: c.username })),
+      ]
     }
 
     return []
-  }, [contacts])
+  }, [room])
+
+  const onKeyDown = async (code: string, shiftKey: boolean) => {
+    if (code === "Enter" && !shiftKey) {
+      await onSend()
+
+      return
+    }
+
+    if (code === "Enter" && shiftKey && ref.current) {
+      ref.current.rows += 1
+    }
+  }
 
   return (
     <Stack
