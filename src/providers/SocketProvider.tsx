@@ -38,9 +38,7 @@ export const connectSocket = () => {
     cb(object)
   }
 
-  if (socket.connected) {
-    socket.disconnect()
-  }
+  if (socket.connected) socket.disconnect()
 
   socket.connect()
 }
@@ -125,7 +123,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       //   console.log("disconnect", reason)
       // })
     }
-  }, [])
+  }, [dispatch, replace])
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>

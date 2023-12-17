@@ -1,70 +1,66 @@
-import { useState, type FormEvent } from "react"
+import { useMemo, useState } from "react"
+import { useParams } from "next/navigation"
 import { useCreateDMMutation } from "@/redux/apis/room"
+import { type RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
-import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
-import { Stack, TextField, Typography } from "@mui/material"
+import { Stack, Typography } from "@mui/material"
 import { Plus } from "lucide-react"
 import { useSnackbar } from "notistack"
-import { z } from "zod"
+import { useSelector } from "react-redux"
 
 import Dropdown from "../drop-down"
+import SearchMembers, { type SearchMemberOption } from "./search-members"
 
-const schema = z.object({
-  name: z.string().min(1, "Enter the name"),
-})
-
-const initialForm = {
-  name: "",
-}
-
-type FormSchema = z.infer<typeof schema>
-
-type FormError = FormSchema & {
-  request?: string
-}
-
-type CreateChannelProps = {
-  orgId: string
-}
-
-export default function CreateDM({ orgId }: CreateChannelProps) {
+export default function CreateDM() {
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState<FormSchema>(initialForm)
-  const [errors, setErrors] = useState<FormError | null>(null)
+  const [users, setUsers] = useState<SearchMemberOption[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  const { agentId } = useParams()
+
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const agentProfile = useMemo(
+    () => agentOrgs.find((agent) => agent._id === agentId),
+    [agentId, agentOrgs]
+  )
 
   const { enqueueSnackbar } = useSnackbar()
 
   const [create, { isLoading }] = useCreateDMMutation()
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-
-    setErrors(null)
-
-    const response = schema.safeParse(form)
-
-    if (!response.success) {
-      const error = formatErrorZodMessage<FormSchema>(response.error)
-
-      setErrors(error)
-
-      return
-    }
+  async function submit() {
+    setError(null)
 
     try {
-      // await create({
-      //   usernames: [],
-      //   orgId,
-      // }).unwrap()
+      const agents = users
+        .filter(({ type }) => type === "Agents")
+        .map((agent) => ({
+          _id: agent.value,
+          username: agent.label,
+        }))
+
+      const contacts = users
+        .filter(({ type }) => type === "Contacts")
+        .map((contact) => ({
+          _id: contact.value,
+          agentId: contact.agentId as string,
+          username: contact.label,
+          agentName: contact.agentName as string,
+        }))
+
+      await create({
+        orgId: agentProfile?.orgId as string,
+        agents,
+        contacts,
+      }).unwrap()
 
       setOpen(false)
 
-      enqueueSnackbar("Channel created successfully", { variant: "success" })
+      enqueueSnackbar("DM created successfully", { variant: "success" })
     } catch (error) {
-      setErrors(
-        (prev) => ({ ...prev, request: parseError(error) }) as FormError
-      )
+      setError(parseError(error))
     }
   }
 
@@ -87,32 +83,33 @@ export default function CreateDM({ orgId }: CreateChannelProps) {
           component="button"
         >
           <Plus size={20} />
-          Create Channel
+          Create DM
         </Typography>
       }
       onClose={() => setOpen(false)}
     >
-      <Stack sx={{ p: 2, width: "100%" }} onSubmit={submit} component="form">
-        <TextField
-          label="Name"
-          error={!!errors?.name}
-          value={form.name}
-          onChange={({ target }) =>
-            setForm((prev) => ({ ...prev, name: target.value }))
-          }
-          helperText={errors?.name}
+      <Stack sx={{ p: 2, width: "23rem" }}>
+        <SearchMembers
+          value={users}
+          orgId={String(agentProfile?.orgId)}
+          onChange={setUsers}
         />
 
-        <LoadingButton sx={{ mt: 2, ml: "auto" }} loading={isLoading} fullWidth>
+        <LoadingButton
+          sx={{ mt: 2, ml: "auto" }}
+          onClick={submit}
+          loading={isLoading}
+          fullWidth
+        >
           Create DM
         </LoadingButton>
 
-        {errors && errors.request && (
+        {error && (
           <Typography
             sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
             variant="body2"
           >
-            {errors.request}
+            {error}
           </Typography>
         )}
       </Stack>
