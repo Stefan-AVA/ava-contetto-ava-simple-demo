@@ -1,4 +1,5 @@
 import { MouseEvent, useMemo } from "react"
+import { Route } from "next"
 import { useParams, useRouter } from "next/navigation"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"
@@ -34,8 +35,7 @@ export default function Rooms() {
     if (agentId) {
       push(`/app/agent-orgs/${agentId}/rooms/${room._id}`)
     } else if (contactId) {
-      // TODO: add rooms page in contact-orgs
-      // push(`/app/contacts-orgs/${contactId}/rooms/${room._id}`)
+      push(`/app/contacts-orgs/${contactId}/rooms/${room._id}` as Route)
     }
   }
 
