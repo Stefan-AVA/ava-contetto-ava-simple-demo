@@ -19,7 +19,6 @@ interface SidebarProps {
   roomsLoading: boolean
 }
 
-// TODO: yuri please implement room loading status
 export default function Sidebar({ routes, roomsLoading }: SidebarProps) {
   const [open, setOpen] = useState(false)
 

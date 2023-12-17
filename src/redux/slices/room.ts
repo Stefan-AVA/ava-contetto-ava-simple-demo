@@ -5,12 +5,12 @@ import { IRoom } from "@/types/room.types"
 import { roomApi } from "../apis/room"
 
 interface IRoomState {
-  rooms: IRoom[]
+  rooms?: IRoom[]
   currentRoom?: IRoom
 }
 
 const initialState: IRoomState = {
-  rooms: [],
+  rooms: undefined,
   currentRoom: undefined,
 }
 
@@ -22,13 +22,15 @@ export const roomSlice = createSlice({
       state.rooms = action.payload
     },
     updateRoom: (state, action: PayloadAction<IRoom>) => {
-      state.rooms = state.rooms.map((room) =>
+      state.rooms = (state.rooms ?? []).map((room) =>
         room._id === action.payload._id ? action.payload : room
       )
     },
     joinRoom: (state, action: PayloadAction<IRoom>) => {
       state.rooms = [
-        ...state.rooms.filter((room) => room._id !== action.payload._id),
+        ...(state.rooms ?? []).filter(
+          (room) => room._id !== action.payload._id
+        ),
         action.payload,
       ]
     },
@@ -46,21 +48,21 @@ export const roomSlice = createSlice({
     builder.addMatcher(
       roomApi.endpoints.createChannel.matchFulfilled,
       (state, action) => {
-        state.rooms = [...state.rooms, action.payload]
+        state.rooms = [...(state.rooms ?? []), action.payload]
         state.currentRoom = action.payload
       }
     )
     builder.addMatcher(
       roomApi.endpoints.createDM.matchFulfilled,
       (state, action) => {
-        state.rooms = [...state.rooms, action.payload]
+        state.rooms = [...(state.rooms ?? []), action.payload]
         state.currentRoom = action.payload
       }
     )
     builder.addMatcher(
       roomApi.endpoints.updateChannel.matchFulfilled,
       (state, action) => {
-        state.rooms = state.rooms.map((room) =>
+        state.rooms = (state.rooms ?? []).map((room) =>
           room._id === action.payload._id ? action.payload : room
         )
       }

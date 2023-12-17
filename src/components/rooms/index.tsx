@@ -8,6 +8,7 @@ import { useSelector } from "react-redux"
 
 import { IRoom, RoomType } from "@/types/room.types"
 
+import Loading from "../Loading"
 import CreateChannel from "./create-channel"
 import CreateDM from "./create-dm"
 import ListRooms from "./list-rooms"
@@ -40,53 +41,45 @@ export default function Rooms() {
 
   return (
     <Stack sx={{ gap: 2 }}>
-      <ListRooms type="CHANNELS">
-        {rooms
-          .filter((room) => room.type === RoomType.channel)
-          .map((room) => (
-            <RoomField
-              key={room._id}
-              id={room._id}
-              icon={Lock}
-              title={String(room.name)}
-              numberOfMembers={room.usernames.length}
-              onClick={onRoomChange(room)}
-            />
-          ))}
-        {/* <RoomField
-          id="1"
-          icon={Hash}
-          title="General"
-          unreadMessages={10}
-          numberOfMembers={24}
-        /> */}
+      {!rooms && <Loading />}
 
-        {agentProfile && <CreateChannel orgId={agentProfile.orgId} />}
-      </ListRooms>
+      {rooms && (
+        <>
+          <ListRooms type="CHANNELS">
+            {rooms
+              .filter((room) => room.type === RoomType.channel)
+              .map((room) => (
+                <RoomField
+                  key={room._id}
+                  id={room._id}
+                  icon={Lock}
+                  title={String(room.name)}
+                  numberOfMembers={room.usernames.length}
+                  onClick={onRoomChange(room)}
+                />
+              ))}
 
-      <ListRooms type="DIRECT_CHATS">
-        {/* <RoomField
-          id="3"
-          title="Jane Doe"
-          sendedAt={new Date().toISOString()}
-          lastMessage="Have you completed the challenge"
-          unreadMessages={10}
-        /> */}
-        {rooms
-          .filter((room) => room.type === RoomType.dm)
-          .map((room) => (
-            <RoomField
-              key={room._id}
-              id={room._id}
-              icon={Lock}
-              title={room.usernames
-                .filter((u) => u !== user?.username)
-                .join(", ")}
-              onClick={onRoomChange(room)}
-            />
-          ))}
-        {agentProfile && <CreateDM orgId={agentProfile.orgId} />}
-      </ListRooms>
+            {agentProfile && <CreateChannel orgId={agentProfile.orgId} />}
+          </ListRooms>
+
+          <ListRooms type="DIRECT_CHATS">
+            {rooms
+              .filter((room) => room.type === RoomType.dm)
+              .map((room) => (
+                <RoomField
+                  key={room._id}
+                  id={room._id}
+                  icon={Lock}
+                  title={room.usernames
+                    .filter((u) => u !== user?.username)
+                    .join(", ")}
+                  onClick={onRoomChange(room)}
+                />
+              ))}
+            {agentProfile && <CreateDM />}
+          </ListRooms>
+        </>
+      )}
     </Stack>
   )
 }
