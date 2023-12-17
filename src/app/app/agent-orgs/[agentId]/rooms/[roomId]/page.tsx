@@ -3,9 +3,10 @@
 import Image from "next/image"
 import type { RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
-import { User } from "lucide-react"
+import { User, UserPlus2 } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import AddMembersToRoom from "./add-members-to-room"
 import Footer from "./footer"
 import ListMessages from "./list-messages"
 
@@ -64,6 +65,8 @@ export default function Room() {
         <Typography sx={{ color: "gray.700", fontWeight: 600 }} variant="h5">
           {data.name}
         </Typography>
+
+        <AddMembersToRoom />
       </Stack>
 
       <ListMessages />
