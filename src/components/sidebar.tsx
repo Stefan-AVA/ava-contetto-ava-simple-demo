@@ -16,10 +16,9 @@ type Router = {
 
 interface SidebarProps {
   routes: Router[]
-  roomsLoading: boolean
 }
 
-export default function Sidebar({ routes, roomsLoading }: SidebarProps) {
+export default function Sidebar({ routes }: SidebarProps) {
   const [open, setOpen] = useState(false)
 
   return (
