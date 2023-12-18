@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { useEffect, useRef } from "react"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
@@ -45,6 +45,27 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
+  const orderByRecentMessages = Array.from(messages).reverse()
+
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.addEventListener("DOMNodeInserted", (event) => {
+        const { currentTarget: target } = event
+
+        if (target) {
+          const elemTarget = target as HTMLElement
+
+          elemTarget.scroll({
+            top: elemTarget.scrollHeight,
+            behavior: "smooth",
+          })
+        }
+      })
+    }
+  }, [])
+
   return (
     <Stack
       sx={{
@@ -54,8 +75,9 @@ export default function ListMessages({ messages, user }: IProps) {
         height: "calc(100vh - 25.5rem)",
         overflowY: "auto",
       }}
+      ref={ref}
     >
-      {messages.map(({ senderName, msg, createdAt }, index) => {
+      {orderByRecentMessages.map(({ senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
 
         return (
