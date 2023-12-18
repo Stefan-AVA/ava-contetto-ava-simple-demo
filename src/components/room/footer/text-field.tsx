@@ -1,103 +1,83 @@
-import { CSSProperties, useMemo, useRef } from "react"
+import "@/styles/rc-mentions.css"
+
+import { useMemo, useState } from "react"
 import type { RootState } from "@/redux/store"
 import { Stack } from "@mui/material"
-import { useTheme, type Palette } from "@mui/material/styles"
-import { Mention, MentionsInput, type MentionsInputProps } from "react-mentions"
+import { useTheme } from "@mui/material/styles"
+import Mentions, { type MentionsProps } from "rc-mentions"
 import { useSelector } from "react-redux"
 
-import { RoomType } from "@/types/room.types"
+const { Option } = Mentions
 
-interface TextFieldProps
-  extends Pick<MentionsInputProps, "value" | "onChange"> {
+interface TextFieldProps extends Pick<MentionsProps, "value" | "onChange"> {
   onSend: () => Promise<void>
 }
 
-function styles(palette: Palette) {
-  return {
-    input: {
-      padding: ".875rem 1.5rem",
-      outline: "none",
-
-      "&::placeholder": {
-        color: "gray.400",
-      },
-    },
-
-    control: {
-      fontSize: ".875rem",
-    },
-
-    highlighter: {
-      padding: ".875rem 1.5rem",
-    },
-
-    suggestions: {
-      list: {
-        border: "1px solid #F5F4F8",
-        fontSize: 14,
-        borderRadius: ".25rem",
-        backgroundColor: palette.background.default,
-      },
-      item: {
-        padding: ".5rem 1rem",
-        borderBottom: "1px solid #F5F4F8",
-
-        "&focused": {
-          color: palette.background.default,
-          backgroundColor: palette.secondary.main,
-        },
-      },
-    },
-  } as CSSProperties
-}
-
 export default function TextField({ onSend, ...rest }: TextFieldProps) {
-  const ref = useRef<HTMLTextAreaElement>(null)
+  const [rows, setRows] = useState(1)
+  const [prefix, setPrefix] = useState("@")
 
-  const { palette } = useTheme()
+  const { typography } = useTheme()
 
   const user = useSelector((state: RootState) => state.app.user)
   const rooms = useSelector((state: RootState) => state.rooms.rooms)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
 
-  const formatRooms = useMemo(() => {
-    if (rooms && rooms.length > 0) {
-      return rooms
-        .filter((room) => room.type === RoomType.channel)
-        .map((room) => ({
-          id: room.name!,
-          display: room.name!,
-        }))
+  const data = useMemo(() => {
+    function formatRooms() {
+      if (rooms && rooms.length > 0) {
+        return (
+          rooms
+            // .filter((room) => room.type === RoomType.channel)
+            .map((room) => ({
+              value: room.name!,
+              label: room.name!,
+            }))
+        )
+      }
+
+      return []
     }
 
-    return []
-  }, [rooms])
+    function formatContacts() {
+      if (room) {
+        return [
+          ...room.agents
+            // .filter((a) => a.username !== user?.username)
+            .map((a) => ({ value: a.username, label: a.username })),
+          ...room.contacts
+            // .filter((c) => c.username !== user?.username)
+            .map((c) => ({ value: c.username, label: c.username })),
+        ]
+      }
 
-  const formatContacts = useMemo(() => {
-    if (room) {
-      return [
-        ...room.agents
-          .filter((a) => a.username !== user?.username)
-          .map((a) => ({ id: a.username, display: a.username })),
-        ...room.contacts
-          .filter((c) => c.username !== user?.username)
-          .map((c) => ({ id: c.username, display: c.username })),
-      ]
+      return []
     }
 
-    return []
-  }, [room])
+    return {
+      "@": formatContacts(),
+      "#": formatRooms(),
+    }
+  }, [room, rooms, user])
 
-  const onKeyDown = async (code: string, shiftKey: boolean) => {
+  console.log({ prefix })
+
+  function onChange(text: string) {
+    if (rest.onChange) rest.onChange(text)
+
+    if (text.length <= 0) setRows(1)
+  }
+
+  async function onKeyDown(code: string, shiftKey: boolean) {
     if (code === "Enter" && !shiftKey) {
       await onSend()
+
+      setRows(1)
 
       return
     }
 
-    if (code === "Enter" && shiftKey && ref.current) {
-      ref.current.rows += 1
-    }
+    if (code === "Enter" && shiftKey) setRows((prev) => prev + 1)
   }
 
   return (
@@ -105,31 +85,41 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
       {...rest}
       sx={{
         width: "100%",
-        color: "gray.700",
-        minHeight: "2.75rem",
-        fontWeight: 500,
-        lineHeight: "1rem",
-        borderRadius: ".5rem",
-        backgroundColor: "gray.200",
+
+        textarea: {
+          color: "gray.700",
+          resize: "none",
+          padding: ".875rem 1.5rem",
+          outline: "none",
+          fontSize: ".875rem",
+          fontFamily: typography.fontFamily,
+          fontWeight: 500,
+          lineHeight: "1rem",
+          borderRadius: ".5rem",
+          backgroundColor: "gray.200",
+
+          "&::placeholder": {
+            color: "gray.400",
+          },
+        },
       }}
-      ref={ref as any}
-      rows={1}
-      style={styles(palette)}
-      component={MentionsInput}
+      rows={rows}
+      prefix={["@", "#"]}
+      open
+      onChange={onChange}
+      onSearch={(_, prefix) => setPrefix(prefix)}
+      placement="top"
+      autoFocus
+      component={Mentions}
       onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
       placeholder="Write your message here."
+      transitionName="motion-zoom"
     >
-      <Mention
-        data={formatContacts}
-        trigger="@"
-        displayTransform={(id) => `@${id}`}
-      />
-
-      <Mention
-        data={formatRooms}
-        trigger="#"
-        displayTransform={(id) => `#${id}`}
-      />
+      {data[prefix as keyof typeof data].map((field) => (
+        <Option key={field.value} value={field.value}>
+          {field.label}
+        </Option>
+      ))}
     </Stack>
   )
 }
