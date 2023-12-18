@@ -9,7 +9,6 @@ import { RoomType } from "@/types/room.types"
 
 interface TextFieldProps
   extends Pick<MentionsInputProps, "value" | "onChange"> {
-  orgId: string
   onSend: () => Promise<void>
 }
 
@@ -52,7 +51,7 @@ function styles(palette: Palette) {
   } as CSSProperties
 }
 
-export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
+export default function TextField({ onSend, ...rest }: TextFieldProps) {
   const ref = useRef<HTMLTextAreaElement>(null)
 
   const { palette } = useTheme()

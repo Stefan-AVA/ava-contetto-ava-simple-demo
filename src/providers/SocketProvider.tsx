@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useRef,
-} from "react"
+import { createContext, PropsWithChildren, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { getToken, setToken } from "@/redux/fetch-auth-query"
 import { logout } from "@/redux/slices/app"
@@ -23,9 +17,7 @@ const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
   transports: ["websocket"],
 })
 
-const SocketContext = createContext<Socket>(socket)
-
-export const useSocket = () => useContext(SocketContext)
+export const SocketContext = createContext<Socket>(socket)
 
 export const connectSocket = () => {
   socket.auth = (cb) => {

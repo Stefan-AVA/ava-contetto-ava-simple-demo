@@ -1,8 +1,10 @@
 "use client"
 
-import Image from "next/image"
-import { useGetMessagesQuery } from "@/redux/apis/message"
-import type { RootState } from "@/redux/store"
+import { useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { useLazyGetMessagesQuery } from "@/redux/apis/message"
+import { setCurrentRoom } from "@/redux/slices/room"
+import { useAppDispatch, type RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
 import { User } from "lucide-react"
 import { useSelector } from "react-redux"
@@ -14,13 +16,38 @@ import Footer from "./footer"
 import ListMessages from "./list-messages"
 
 export default function Room() {
-  const user = useSelector((state: RootState) => state.app.user)
-  const room = useSelector((state: RootState) => state.rooms.currentRoom)
+  const { replace } = useRouter()
+  const { agentId, contactId, roomId } = useParams()
 
-  const { data: messages = [], isLoading } = useGetMessagesQuery(
-    { orgId: String(room?.orgId), roomId: String(room?._id) },
-    { skip: !room }
-  )
+  const dispatch = useAppDispatch()
+
+  const user = useSelector((state: RootState) => state.app.user)
+  const rooms = useSelector((state: RootState) => state.rooms.rooms)
+  const room = useSelector((state: RootState) => state.rooms.currentRoom)
+  const messages = useSelector((state: RootState) => state.messages.messages)
+
+  // TODO: implement loading status
+  const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
+
+  useEffect(() => {
+    if (room) {
+      getAllMessages({ orgId: room.orgId, roomId: room._id })
+    }
+  }, [room, getAllMessages])
+
+  useEffect(() => {
+    if (roomId && rooms) {
+      const room = rooms.find((r) => r._id === roomId)
+      if (room) dispatch(setCurrentRoom(room))
+      else {
+        if (agentId) {
+          replace(`/app/agent-orgs/${agentId}`)
+        } else if (contactId) {
+          replace(`/app/contact-orgs/${contactId}`)
+        }
+      }
+    }
+  }, [rooms, roomId, dispatch, setCurrentRoom, replace])
 
   return (
     <>

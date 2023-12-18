@@ -35,7 +35,7 @@ export default function Rooms() {
     if (agentId) {
       push(`/app/agent-orgs/${agentId}/rooms/${room._id}`)
     } else if (contactId) {
-      push(`/app/contacts-orgs/${contactId}/rooms/${room._id}` as Route)
+      push(`/app/contact-orgs/${contactId}/rooms/${room._id}`)
     }
   }
 

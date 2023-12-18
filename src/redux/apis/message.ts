@@ -24,4 +24,4 @@ export const messageApi = createApi({
   }),
 })
 
-export const { useGetMessagesQuery } = messageApi
+export const { useLazyGetMessagesQuery } = messageApi

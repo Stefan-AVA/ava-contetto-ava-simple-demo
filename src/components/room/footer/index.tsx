@@ -1,30 +1,49 @@
-import { useMemo, useState } from "react"
-import { useParams } from "next/navigation"
+import { useContext, useEffect, useState } from "react"
+import { SocketContext } from "@/providers/SocketProvider"
+import { getToken } from "@/redux/fetch-auth-query"
 import type { RootState } from "@/redux/store"
 import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import { ClientMessageType } from "@/types/message.types"
+
 import EmojiPicker from "./emoji-picker"
 import TextField from "./text-field"
 
 export default function Footer() {
+  const room = useSelector((state: RootState) => state.rooms.currentRoom)
+  const socket = useContext(SocketContext)
+
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
-  const { agentId } = useParams()
-
-  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-
-  const currentOrg = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId)!,
-    [agentId, agentOrgs]
-  )
+  useEffect(() => {
+    if (room) {
+      const token = getToken()
+      socket.emit(ClientMessageType.msgRead, {
+        token,
+        orgId: room.orgId,
+        roomId: room._id,
+      })
+    }
+  }, [socket, room])
 
   async function submit() {
     setLoading(true)
 
     // send message.
+    const token = getToken()
+
+    // TODO: please implement mentions/channels correctly
+    socket.emit(ClientMessageType.msgSend, {
+      token,
+      orgId: room?.orgId,
+      roomId: room?._id,
+      msg: message,
+      mentions: [], // usernames
+      channels: [], // channel ids
+    })
 
     setLoading(false)
 
@@ -37,7 +56,6 @@ export default function Footer() {
 
       <TextField
         value={message}
-        orgId={currentOrg?.orgId as string}
         onSend={submit}
         onChange={({ target }) => setMessage(target.value)}
       />
