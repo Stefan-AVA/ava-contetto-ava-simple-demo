@@ -1,23 +1,25 @@
 import { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
-import { useCreateDMMutation } from "@/redux/apis/room"
+import { useAddMemberToChannelMutation } from "@/redux/apis/room"
 import { type RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
-import { Stack, Typography } from "@mui/material"
-import { Plus } from "lucide-react"
+import { Box, Stack, Typography } from "@mui/material"
+import { UserPlus2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
-import Dropdown from "../drop-down"
-import SearchMembers, { type SearchMemberOption } from "./search-members"
+import Dropdown from "@/components/drop-down"
+import SearchMembers, {
+  type SearchMemberOption,
+} from "@/components/rooms/search-members"
 
-export default function CreateDM() {
+export default function AddMembersToRoom() {
   const [open, setOpen] = useState(false)
   const [users, setUsers] = useState<SearchMemberOption[]>([])
   const [error, setError] = useState<string | null>(null)
 
-  const { agentId } = useParams()
+  const { roomId, agentId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -28,7 +30,7 @@ export default function CreateDM() {
 
   const { enqueueSnackbar } = useSnackbar()
 
-  const [create, { isLoading }] = useCreateDMMutation()
+  const [create, { isLoading }] = useAddMemberToChannelMutation()
 
   async function submit() {
     setError(null)
@@ -53,12 +55,13 @@ export default function CreateDM() {
       await create({
         orgId: agentProfile?.orgId as string,
         agents,
+        roomId: roomId as string,
         contacts,
       }).unwrap()
 
       setOpen(false)
 
-      enqueueSnackbar("DM created successfully", { variant: "success" })
+      enqueueSnackbar("Successfully invited users", { variant: "success" })
     } catch (error) {
       setError(parseError(error))
     }
@@ -66,25 +69,23 @@ export default function CreateDM() {
 
   return (
     <Dropdown
+      sx={{ marginLeft: "auto" }}
       open={open}
       ancher={
-        <Typography
+        <Box
           sx={{
-            mt: 2,
             gap: 0.5,
             width: "100%",
             color: "secondary.main",
             display: "flex",
             alignItems: "center",
-            fontWeight: 600,
           }}
           onClick={() => setOpen(true)}
           disabled={isLoading}
           component="button"
         >
-          <Plus size={20} />
-          Create DM
-        </Typography>
+          <UserPlus2 size={20} />
+        </Box>
       }
       onClose={() => setOpen(false)}
     >
@@ -101,7 +102,7 @@ export default function CreateDM() {
           loading={isLoading}
           fullWidth
         >
-          Create DM
+          Add Members
         </LoadingButton>
 
         {error && (

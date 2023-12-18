@@ -18,7 +18,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
-  const [getAllRooms, { isLoading }] = useLazyGetAllRoomsQuery()
+  const [getAllRooms] = useLazyGetAllRoomsQuery()
 
   const contact = useMemo(
     () => contactOrgs.find((contact) => contact._id === contactId),
@@ -27,7 +27,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (contact) getAllRooms({ orgId: contact.orgId, contactId: contact._id })
-  }, [contact])
+  }, [contact, getAllRooms])
 
   const routes = useMemo(
     () => [
@@ -56,7 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
         spacing={{ xs: 2, md: 0 }}
         direction={{ xs: "column", md: "row" }}
       >
-        <Sidebar routes={routes} roomsLoading={isLoading} />
+        <Sidebar routes={routes} />
 
         <Box
           sx={{
