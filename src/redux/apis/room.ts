@@ -53,7 +53,6 @@ export const roomApi = createApi({
           contacts,
         },
       }),
-      invalidatesTags: ["Rooms"],
     }),
     updateChannel: builder.mutation<IRoom, IUpdateChannelRequest>({
       query: ({ orgId, name, roomId }) => ({

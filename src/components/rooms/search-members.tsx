@@ -83,6 +83,7 @@ export default function SearchMembers({
       multiple
       onChange={(_, newValue) => onChange(newValue)}
       renderInput={(params) => <TextField {...params} label="Users" />}
+      getOptionKey={(option) => option.value}
     />
   )
 }

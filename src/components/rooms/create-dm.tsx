@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useCreateDMMutation } from "@/redux/apis/room"
 import { type RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
@@ -9,22 +9,21 @@ import { Plus } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
+import { IAgentProfile } from "@/types/agentProfile.types"
+
 import Dropdown from "../drop-down"
 import SearchMembers, { type SearchMemberOption } from "./search-members"
 
-export default function CreateDM() {
+interface IProps {
+  agentProfile: IAgentProfile
+}
+
+export default function CreateDM({ agentProfile }: IProps) {
+  const { push } = useRouter()
+
   const [open, setOpen] = useState(false)
   const [users, setUsers] = useState<SearchMemberOption[]>([])
   const [error, setError] = useState<string | null>(null)
-
-  const { agentId } = useParams()
-
-  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-
-  const agentProfile = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId),
-    [agentId, agentOrgs]
-  )
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -50,13 +49,15 @@ export default function CreateDM() {
           agentName: contact.agentName as string,
         }))
 
-      await create({
-        orgId: agentProfile?.orgId as string,
+      const dm = await create({
+        orgId: agentProfile.orgId as string,
         agents,
         contacts,
       }).unwrap()
 
       setOpen(false)
+
+      push(`/app/agent-orgs/${agentProfile._id}/rooms/${dm._id}`)
 
       enqueueSnackbar("DM created successfully", { variant: "success" })
     } catch (error) {

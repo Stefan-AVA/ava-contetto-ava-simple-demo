@@ -1,22 +1,26 @@
 "use client"
 
 import Image from "next/image"
+import { useGetMessagesQuery } from "@/redux/apis/message"
 import type { RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
 import { User } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import { RoomType } from "@/types/room.types"
+
 import AddMembersToRoom from "./add-members-to-room"
 import Footer from "./footer"
 import ListMessages from "./list-messages"
 
-const data = {
-  avatar: null,
-  name: "Jane Doe",
-}
-
 export default function Room() {
+  const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
+
+  const { data: messages = [], isLoading } = useGetMessagesQuery(
+    { orgId: String(room?.orgId), roomId: String(room?._id) },
+    { skip: !room }
+  )
 
   return (
     <>
@@ -43,33 +47,24 @@ export default function Room() {
             backgroundColor: "gray.200",
           }}
         >
-          {data.avatar && (
-            <Image
-              src={data.avatar}
-              alt=""
-              fill
-              style={{ objectFit: "cover", borderRadius: "50%" }}
-            />
-          )}
-
-          {!data.avatar && (
-            <Box
-              sx={{ color: "gray.500" }}
-              size={16}
-              component={User}
-              strokeWidth={3}
-            />
-          )}
+          <Box
+            sx={{ color: "gray.500" }}
+            size={16}
+            component={User}
+            strokeWidth={3}
+          />
         </Stack>
 
         <Typography sx={{ color: "gray.700", fontWeight: 600 }} variant="h5">
-          {data.name}
+          {room?.type === RoomType.channel
+            ? room.name
+            : room?.usernames.filter((u) => u !== user?.username).join(", ")}
         </Typography>
 
-        <AddMembersToRoom />
+        {room?.type === RoomType.channel && <AddMembersToRoom />}
       </Stack>
 
-      <ListMessages />
+      <ListMessages messages={messages} user={user} />
 
       <Footer />
     </>

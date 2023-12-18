@@ -7,7 +7,6 @@ import { format } from "date-fns"
 import { User, type LucideIcon } from "lucide-react"
 
 interface IRoomFieldProps {
-  id: string
   icon?: LucideIcon
   title: string
   avatar?: string
@@ -19,7 +18,6 @@ interface IRoomFieldProps {
 }
 
 export default function RoomField({
-  id,
   icon: Icon = User,
   title,
   avatar,
@@ -95,7 +93,7 @@ export default function RoomField({
         </Typography>
       </Stack>
 
-      {(sendedAt || unreadMessages) && (
+      {sendedAt || unreadMessages ? (
         <Stack sx={{ ml: "auto", gap: 0.25, alignItems: "flex-end" }}>
           {sendedAt && (
             <Typography
@@ -130,6 +128,8 @@ export default function RoomField({
             </Stack>
           )}
         </Stack>
+      ) : (
+        <></>
       )}
     </Stack>
   )

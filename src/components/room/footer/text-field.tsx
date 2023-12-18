@@ -5,6 +5,8 @@ import { useTheme, type Palette } from "@mui/material/styles"
 import { Mention, MentionsInput, type MentionsInputProps } from "react-mentions"
 import { useSelector } from "react-redux"
 
+import { RoomType } from "@/types/room.types"
+
 interface TextFieldProps
   extends Pick<MentionsInputProps, "value" | "onChange"> {
   orgId: string
@@ -55,15 +57,18 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
 
   const { palette } = useTheme()
 
+  const user = useSelector((state: RootState) => state.app.user)
   const rooms = useSelector((state: RootState) => state.rooms.rooms)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
 
   const formatRooms = useMemo(() => {
     if (rooms && rooms.length > 0) {
-      return rooms.map((room) => ({
-        id: room.name!,
-        display: room.name!,
-      }))
+      return rooms
+        .filter((room) => room.type === RoomType.channel)
+        .map((room) => ({
+          id: room.name!,
+          display: room.name!,
+        }))
     }
 
     return []
@@ -72,8 +77,12 @@ export default function TextField({ orgId, onSend, ...rest }: TextFieldProps) {
   const formatContacts = useMemo(() => {
     if (room) {
       return [
-        ...room.agents.map((a) => ({ id: a.username, display: a.username })),
-        ...room.contacts.map((c) => ({ id: c.username, display: c.username })),
+        ...room.agents
+          .filter((a) => a.username !== user?.username)
+          .map((a) => ({ id: a.username, display: a.username })),
+        ...room.contacts
+          .filter((c) => c.username !== user?.username)
+          .map((c) => ({ id: c.username, display: c.username })),
       ]
     }
 

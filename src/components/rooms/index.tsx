@@ -51,15 +51,19 @@ export default function Rooms() {
               .map((room) => (
                 <RoomField
                   key={room._id}
-                  id={room._id}
                   icon={Lock}
                   title={String(room.name)}
                   numberOfMembers={room.usernames.length}
                   onClick={onRoomChange(room)}
+                  unreadMessages={
+                    user?.username
+                      ? room.userStatus[user.username].notis
+                      : undefined
+                  }
                 />
               ))}
 
-            {agentProfile && <CreateChannel orgId={agentProfile.orgId} />}
+            {agentProfile && <CreateChannel agentProfile={agentProfile} />}
           </ListRooms>
 
           <ListRooms type="DIRECT_CHATS">
@@ -68,15 +72,19 @@ export default function Rooms() {
               .map((room) => (
                 <RoomField
                   key={room._id}
-                  id={room._id}
                   icon={Lock}
                   title={room.usernames
                     .filter((u) => u !== user?.username)
                     .join(", ")}
                   onClick={onRoomChange(room)}
+                  unreadMessages={
+                    user?.username
+                      ? room.userStatus[user.username].notis
+                      : undefined
+                  }
                 />
               ))}
-            {agentProfile && <CreateDM />}
+            {agentProfile && <CreateDM agentProfile={agentProfile} />}
           </ListRooms>
         </>
       )}

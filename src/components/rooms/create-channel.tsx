@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react"
+import { useState, type MouseEvent } from "react"
+import { useRouter } from "next/navigation"
 import { useCreateChannelMutation } from "@/redux/apis/room"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
@@ -7,6 +8,8 @@ import { Stack, TextField, Typography } from "@mui/material"
 import { Plus } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { z } from "zod"
+
+import { IAgentProfile } from "@/types/agentProfile.types"
 
 import Dropdown from "../drop-down"
 
@@ -25,10 +28,12 @@ type FormError = FormSchema & {
 }
 
 type CreateChannelProps = {
-  orgId: string
+  agentProfile: IAgentProfile
 }
 
-export default function CreateChannel({ orgId }: CreateChannelProps) {
+export default function CreateChannel({ agentProfile }: CreateChannelProps) {
+  const { push } = useRouter()
+
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<FormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
@@ -37,7 +42,7 @@ export default function CreateChannel({ orgId }: CreateChannelProps) {
 
   const [create, { isLoading }] = useCreateChannelMutation()
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
 
     setErrors(null)
@@ -53,12 +58,14 @@ export default function CreateChannel({ orgId }: CreateChannelProps) {
     }
 
     try {
-      await create({
+      const channel = await create({
         ...form,
-        orgId,
+        orgId: agentProfile.orgId,
       }).unwrap()
 
       setOpen(false)
+
+      push(`/app/agent-orgs/${agentProfile._id}/rooms/${channel._id}`)
 
       enqueueSnackbar("Channel created successfully", { variant: "success" })
     } catch (error) {
@@ -92,7 +99,7 @@ export default function CreateChannel({ orgId }: CreateChannelProps) {
       }
       onClose={() => setOpen(false)}
     >
-      <Stack sx={{ p: 2, width: "100%" }} onSubmit={submit} component="form">
+      <Stack sx={{ p: 2, width: "100%" }}>
         <TextField
           label="Name"
           error={!!errors?.name}
@@ -103,7 +110,12 @@ export default function CreateChannel({ orgId }: CreateChannelProps) {
           helperText={errors?.name}
         />
 
-        <LoadingButton sx={{ mt: 2, ml: "auto" }} loading={isLoading} fullWidth>
+        <LoadingButton
+          sx={{ mt: 2, ml: "auto" }}
+          loading={isLoading}
+          fullWidth
+          onClick={submit}
+        >
           Create channel
         </LoadingButton>
 
