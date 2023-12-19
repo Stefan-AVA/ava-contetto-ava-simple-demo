@@ -21,13 +21,13 @@ export default function Footer() {
   useEffect(() => {
     if (room) {
       const token = getToken()
-      socket.emit(ClientMessageType.msgRead, {
-        token,
-        orgId: room.orgId,
-        roomId: room._id,
-      })
+      // socket.emit(ClientMessageType.msgRead, {
+      //   token,
+      //   orgId: room.orgId,
+      //   roomId: room._id,
+      // })
     }
-  }, [socket, room])
+  }, [room])
 
   async function submit() {
     setLoading(true)

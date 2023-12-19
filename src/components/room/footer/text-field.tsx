@@ -1,8 +1,6 @@
-import "@/styles/rc-mentions.css"
-
 import { useMemo, useState } from "react"
 import type { RootState } from "@/redux/store"
-import { Stack } from "@mui/material"
+import { Box } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import Mentions, { type MentionsProps } from "rc-mentions"
 import { useSelector } from "react-redux"
@@ -39,6 +37,8 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
       return []
     }
 
+    console.log({ prefix })
+
     function formatContacts() {
       if (room) {
         return [
@@ -60,8 +60,6 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
     }
   }, [room, rooms, user])
 
-  console.log({ prefix })
-
   function onChange(text: string) {
     if (rest.onChange) rest.onChange(text)
 
@@ -81,13 +79,13 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
   }
 
   return (
-    <Stack
-      {...rest}
+    <Box
       sx={{
         width: "100%",
 
         textarea: {
           color: "gray.700",
+          width: "100%",
           resize: "none",
           padding: ".875rem 1.5rem",
           outline: "none",
@@ -103,23 +101,25 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
           },
         },
       }}
-      rows={rows}
-      prefix={["@", "#"]}
-      open
-      onChange={onChange}
-      onSearch={(_, prefix) => setPrefix(prefix)}
-      placement="top"
-      autoFocus
-      component={Mentions}
-      onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
-      placeholder="Write your message here."
-      transitionName="motion-zoom"
     >
-      {data[prefix as keyof typeof data].map((field) => (
-        <Option key={field.value} value={field.value}>
-          {field.label}
-        </Option>
-      ))}
-    </Stack>
+      <Mentions
+        {...rest}
+        rows={rows}
+        prefix={["@", "#"]}
+        onChange={onChange}
+        onSearch={(_, prefix) => setPrefix(prefix)}
+        placement="top"
+        autoFocus
+        onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
+        placeholder="Write your message here."
+        transitionName="motion-zoom"
+      >
+        {data[prefix as keyof typeof data].map((field) => (
+          <Option key={field.value} value={field.value}>
+            {field.label}
+          </Option>
+        ))}
+      </Mentions>
+    </Box>
   )
 }
