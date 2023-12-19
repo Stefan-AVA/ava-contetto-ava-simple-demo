@@ -1,5 +1,4 @@
 import { MouseEvent, useMemo } from "react"
-import { Route } from "next"
 import { useParams, useRouter } from "next/navigation"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"

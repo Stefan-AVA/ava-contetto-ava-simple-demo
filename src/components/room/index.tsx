@@ -11,6 +11,7 @@ import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
 
+import Loading from "../Loading"
 import AddMembersToRoom from "./add-members-to-room"
 import Footer from "./footer"
 import ListMessages from "./list-messages"
@@ -22,22 +23,24 @@ export default function Room() {
   const dispatch = useAppDispatch()
 
   const user = useSelector((state: RootState) => state.app.user)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
+  const rooms = useSelector((state: RootState) => state.rooms.rooms)
   const messages = useSelector((state: RootState) => state.messages.messages)
 
-  // TODO: implement loading status
   const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
 
   useEffect(() => {
-    if (room) {
-      getAllMessages({ orgId: room.orgId, roomId: room._id })
+    if (rooms) {
+      const room = rooms.find((r) => r._id === roomId)
+
+      if (room) getAllMessages({ orgId: room.orgId, roomId: room._id })
     }
-  }, [room, getAllMessages])
+  }, [rooms, roomId, getAllMessages])
 
   useEffect(() => {
     if (roomId && rooms) {
       const room = rooms.find((r) => r._id === roomId)
+
       if (room) dispatch(setCurrentRoom(room))
       else {
         if (agentId) {
@@ -47,7 +50,7 @@ export default function Room() {
         }
       }
     }
-  }, [rooms, roomId, dispatch, setCurrentRoom, replace])
+  }, [rooms, roomId, agentId, contactId, dispatch, replace])
 
   return (
     <>
@@ -91,8 +94,19 @@ export default function Room() {
         {room?.type === RoomType.channel && <AddMembersToRoom />}
       </Stack>
 
-      <ListMessages messages={messages} user={user} />
+      {isLoading && (
+        <Stack
+          sx={{
+            pt: 5,
+            px: 5,
+            height: "calc(100vh - 25.5rem)",
+          }}
+        >
+          <Loading />
+        </Stack>
+      )}
 
+      {!isLoading && <ListMessages messages={messages} user={user} />}
       <Footer />
     </>
   )

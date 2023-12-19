@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { useEffect, useRef } from "react"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
@@ -45,6 +45,44 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
+  /**
+   * @todo - Order messages in BE
+   */
+  const orderByRecentMessages = Array.from(messages).reverse()
+
+  const blockRef = useRef<HTMLDivElement>(null)
+  const messagesRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (blockRef.current && messagesRef.current) {
+      const { top } = blockRef.current.getBoundingClientRect()
+
+      messagesRef.current.scroll({
+        top,
+        behavior: "smooth",
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.addEventListener("DOMNodeInserted", (event) => {
+        const { currentTarget: target } = event
+
+        console.log("hey")
+
+        if (target) {
+          const elemTarget = target as HTMLElement
+
+          elemTarget.scroll({
+            top: elemTarget.scrollHeight,
+            behavior: "smooth",
+          })
+        }
+      })
+    }
+  }, [])
+
   return (
     <Stack
       sx={{
@@ -54,8 +92,9 @@ export default function ListMessages({ messages, user }: IProps) {
         height: "calc(100vh - 25.5rem)",
         overflowY: "auto",
       }}
+      ref={messagesRef}
     >
-      {messages.map(({ senderName, msg, createdAt }, index) => {
+      {orderByRecentMessages.map(({ senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
 
         return (
@@ -111,6 +150,7 @@ export default function ListMessages({ messages, user }: IProps) {
                 <Box
                   sx={{
                     color: currentUser ? "white" : "gray.700",
+                    whiteSpace: "break-spaces",
                     lineHeight: "1.25rem",
                   }}
                   variant="body2"
@@ -132,6 +172,8 @@ export default function ListMessages({ messages, user }: IProps) {
           </Stack>
         )
       })}
+
+      <div ref={blockRef} />
     </Stack>
   )
 }

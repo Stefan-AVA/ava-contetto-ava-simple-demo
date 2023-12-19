@@ -259,6 +259,63 @@ export const components = (
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
       },
+
+      ".rc-mentions": {
+        width: "100%",
+        display: "inline-block",
+        position: "relative",
+        whiteSpace: "pre-wrap",
+
+        "&-measure": {
+          top: 0,
+          left: 0,
+          color: "transparent",
+          right: 0,
+          zIndex: -1,
+          bottom: 0,
+          tabSize: "inherit",
+          overflow: "inherit",
+          wordWrap: "break-word",
+          position: "absolute",
+          wordBreak: "inherit",
+          overflowX: "initial",
+          overflowY: "auto",
+          direction: "inherit",
+          whiteSpace: "inherit",
+          verticalAlign: "top",
+          pointerEvents: "none",
+        },
+
+        "&-dropdown": {
+          position: "absolute",
+
+          "&-menu": {
+            border: `1px solid ${colors.gray[300]}`,
+            borderRadius: ".75rem",
+            backgroundColor: colors.background?.default,
+
+            "&-item": {
+              cursor: "pointer",
+              padding: ".25rem .5rem",
+
+              "&-active": {
+                color: colors.white,
+                backgroundColor: colors.purple[500],
+              },
+
+              "&:last-of-type": {
+                borderBottomLeftRadius: ".75rem",
+                borderBottomRightRadius: ".75rem",
+              },
+
+              "&:first-of-type": {
+                borderTopLeftRadius: ".75rem",
+                borderTopRightRadius: ".75rem",
+              },
+            },
+          },
+        },
+      },
     },
   },
 

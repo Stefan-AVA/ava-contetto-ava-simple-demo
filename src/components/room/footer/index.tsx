@@ -27,7 +27,7 @@ export default function Footer() {
         roomId: room._id,
       })
     }
-  }, [socket, room])
+  }, [room, socket])
 
   async function submit() {
     setLoading(true)
@@ -54,11 +54,7 @@ export default function Footer() {
     <Stack sx={{ px: 5, py: 3, gap: 4, flexDirection: "row" }}>
       <EmojiPicker onMessage={setMessage} />
 
-      <TextField
-        value={message}
-        onSend={submit}
-        onChange={({ target }) => setMessage(target.value)}
-      />
+      <TextField value={message} onSend={submit} onChange={setMessage} />
 
       <Box sx={{ color: "secondary.main" }} onClick={submit} component="button">
         {loading ? <CircularProgress size="1.5rem" /> : <Send />}
