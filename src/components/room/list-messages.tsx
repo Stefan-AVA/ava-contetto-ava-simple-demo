@@ -150,6 +150,7 @@ export default function ListMessages({ messages, user }: IProps) {
                 <Box
                   sx={{
                     color: currentUser ? "white" : "gray.700",
+                    whiteSpace: "break-spaces",
                     lineHeight: "1.25rem",
                   }}
                   variant="body2"

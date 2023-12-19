@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, type KeyboardEvent } from "react"
 import type { RootState } from "@/redux/store"
 import { Box } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import Mentions, { type MentionsProps } from "rc-mentions"
 import { useSelector } from "react-redux"
+
+import { RoomType } from "@/types/room.types"
 
 const { Option } = Mentions
 
@@ -24,14 +26,12 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
   const data = useMemo(() => {
     function formatRooms() {
       if (rooms && rooms.length > 0) {
-        return (
-          rooms
-            // .filter((room) => room.type === RoomType.channel)
-            .map((room) => ({
-              value: room.name!,
-              label: room.name!,
-            }))
-        )
+        return rooms
+          .filter((room) => room.type === RoomType.channel)
+          .map((room) => ({
+            value: room.name!,
+            label: room.name!,
+          }))
       }
 
       return []
@@ -41,10 +41,10 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
       if (room) {
         return [
           ...room.agents
-            // .filter((a) => a.username !== user?.username)
+            .filter((a) => a.username !== user?.username)
             .map((a) => ({ value: a.username, label: a.username })),
           ...room.contacts
-            // .filter((c) => c.username !== user?.username)
+            .filter((c) => c.username !== user?.username)
             .map((c) => ({ value: c.username, label: c.username })),
         ]
       }
@@ -64,8 +64,10 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
     if (text.length <= 0) setRows(1)
   }
 
-  async function onKeyDown(code: string, shiftKey: boolean) {
-    if (code === "Enter" && !shiftKey) {
+  async function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.code === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+
       await onSend()
 
       setRows(1)
@@ -73,7 +75,7 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
       return
     }
 
-    if (code === "Enter" && shiftKey) setRows((prev) => prev + 1)
+    if (e.code === "Enter" && e.shiftKey) setRows((prev) => prev + 1)
   }
 
   return (
@@ -108,7 +110,7 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
         onSearch={(_, prefix) => setPrefix(prefix)}
         placement="top"
         autoFocus
-        onKeyDown={({ code, shiftKey }) => onKeyDown(code, shiftKey)}
+        onKeyDown={onKeyDown}
         placeholder="Write your message here."
         transitionName="motion-zoom"
       >
