@@ -45,11 +45,6 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
-  /**
-   * @todo - Order messages in BE
-   */
-  const orderByRecentMessages = Array.from(messages).reverse()
-
   const blockRef = useRef<HTMLDivElement>(null)
   const messagesRef = useRef<HTMLDivElement>(null)
 
@@ -68,9 +63,6 @@ export default function ListMessages({ messages, user }: IProps) {
     if (messagesRef.current) {
       messagesRef.current.addEventListener("DOMNodeInserted", (event) => {
         const { currentTarget: target } = event
-
-        console.log("hey")
-
         if (target) {
           const elemTarget = target as HTMLElement
 
@@ -94,7 +86,7 @@ export default function ListMessages({ messages, user }: IProps) {
       }}
       ref={messagesRef}
     >
-      {orderByRecentMessages.map(({ senderName, msg, createdAt }, index) => {
+      {messages.map(({ senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
 
         return (

@@ -1,8 +1,17 @@
-import { useMemo, useState, type KeyboardEvent } from "react"
+import {
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react"
 import type { RootState } from "@/redux/store"
 import { Box } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import Mentions, { type MentionsProps } from "rc-mentions"
+import { MentionsRef } from "rc-mentions/lib/Mentions"
+import { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
@@ -11,9 +20,18 @@ const { Option } = Mentions
 
 interface TextFieldProps extends Pick<MentionsProps, "value" | "onChange"> {
   onSend: () => Promise<void>
+  setMentions: Dispatch<SetStateAction<OptionProps[]>>
+  setChannels: Dispatch<SetStateAction<OptionProps[]>>
 }
 
-export default function TextField({ onSend, ...rest }: TextFieldProps) {
+export default function TextField({
+  onSend,
+  setMentions,
+  setChannels,
+  ...rest
+}: TextFieldProps) {
+  const ref = useRef<MentionsRef | null>(null)
+
   const [rows, setRows] = useState(1)
   const [prefix, setPrefix] = useState("@")
 
@@ -64,7 +82,7 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
     if (text.length <= 0) setRows(1)
   }
 
-  async function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+  async function onPressEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.code === "Enter" && !e.shiftKey) {
       e.preventDefault()
 
@@ -110,9 +128,25 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
         onSearch={(_, prefix) => setPrefix(prefix)}
         placement="top"
         autoFocus
-        onKeyDown={onKeyDown}
+        onPressEnter={onPressEnter}
         placeholder="Write your message here."
         transitionName="motion-zoom"
+        onSelect={(option, prefix) => {
+          console.log(option, prefix)
+          if (prefix === "@") {
+            setMentions((prev) => [
+              ...prev.filter((o) => o.value !== option.value),
+              option,
+            ])
+          }
+          if (prefix === "#") {
+            setChannels((prev) => [
+              ...prev.filter((o) => o.value !== option.value),
+              option,
+            ])
+          }
+        }}
+        ref={ref}
       >
         {data[prefix as keyof typeof data].map((field) => (
           <Option key={field.value} value={field.value}>

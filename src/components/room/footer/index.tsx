@@ -4,6 +4,7 @@ import { getToken } from "@/redux/fetch-auth-query"
 import type { RootState } from "@/redux/store"
 import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
+import { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { ClientMessageType } from "@/types/message.types"
@@ -17,6 +18,8 @@ export default function Footer() {
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
+  const [mentions, setMentions] = useState<OptionProps[]>([])
+  const [channels, setChannels] = useState<OptionProps[]>([])
 
   useEffect(() => {
     if (room) {
@@ -41,8 +44,12 @@ export default function Footer() {
       orgId: room?.orgId,
       roomId: room?._id,
       msg: message,
-      mentions: [], // usernames
-      channels: [], // channel ids
+      mentions: mentions
+        .map((m) => m.value)
+        .filter((val) => message.includes(`@${val} `)), // usernames
+      channels: channels
+        .map((c) => c.value)
+        .filter((val) => message.includes(`#${val} `)), // channel ids
     })
 
     setLoading(false)
@@ -54,7 +61,13 @@ export default function Footer() {
     <Stack sx={{ px: 5, py: 3, gap: 4, flexDirection: "row" }}>
       <EmojiPicker onMessage={setMessage} />
 
-      <TextField value={message} onSend={submit} onChange={setMessage} />
+      <TextField
+        value={message}
+        onSend={submit}
+        onChange={setMessage}
+        setMentions={setMentions}
+        setChannels={setChannels}
+      />
 
       <Box sx={{ color: "secondary.main" }} onClick={submit} component="button">
         {loading ? <CircularProgress size="1.5rem" /> : <Send />}

@@ -6,7 +6,8 @@ import { getToken, setToken } from "@/redux/fetch-auth-query"
 import { logout } from "@/redux/slices/app"
 import { sendMessage, updateMessage } from "@/redux/slices/message"
 import { joinRoom, updateRoom } from "@/redux/slices/room"
-import { useDispatch } from "react-redux"
+import { type RootState } from "@/redux/store"
+import { useDispatch, useSelector } from "react-redux"
 import io, { Socket } from "socket.io-client"
 
 import { IMessage, ServerMessageType } from "@/types/message.types"
@@ -41,6 +42,9 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useDispatch()
 
+  const user = useSelector((state: RootState) => state.app.user)
+  const rooms = useSelector((state: RootState) => state.rooms.rooms)
+
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true
@@ -64,6 +68,20 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       // message
       socket.on(ServerMessageType.msgSend, (message: IMessage) => {
         dispatch(sendMessage(message))
+      })
+
+      socket.on(ServerMessageType.msgRead, (room: IRoom) => {
+        const prevRoom = (rooms || []).find((r) => r._id === room._id)
+        if (prevRoom) {
+          if (
+            prevRoom.userStatus[String(user?.username)].notis !==
+              room.userStatus[String(user?.username)].notis ||
+            prevRoom.userStatus[String(user?.username)].unRead !==
+              room.userStatus[String(user?.username)].unRead
+          ) {
+            dispatch(updateRoom(room))
+          }
+        }
       })
 
       socket.on(ServerMessageType.msgUpdate, (message: IMessage) => {
