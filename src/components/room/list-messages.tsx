@@ -45,14 +45,31 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
+  /**
+   * @todo - Order messages in BE
+   */
   const orderByRecentMessages = Array.from(messages).reverse()
 
-  const ref = useRef<HTMLDivElement>(null)
+  const blockRef = useRef<HTMLDivElement>(null)
+  const messagesRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.addEventListener("DOMNodeInserted", (event) => {
+    if (blockRef.current && messagesRef.current) {
+      const { top } = blockRef.current.getBoundingClientRect()
+
+      messagesRef.current.scroll({
+        top,
+        behavior: "smooth",
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.addEventListener("DOMNodeInserted", (event) => {
         const { currentTarget: target } = event
+
+        console.log("hey")
 
         if (target) {
           const elemTarget = target as HTMLElement
@@ -75,7 +92,7 @@ export default function ListMessages({ messages, user }: IProps) {
         height: "calc(100vh - 25.5rem)",
         overflowY: "auto",
       }}
-      ref={ref}
+      ref={messagesRef}
     >
       {orderByRecentMessages.map(({ senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
@@ -154,6 +171,8 @@ export default function ListMessages({ messages, user }: IProps) {
           </Stack>
         )
       })}
+
+      <div ref={blockRef} />
     </Stack>
   )
 }

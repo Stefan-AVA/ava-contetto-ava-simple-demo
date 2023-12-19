@@ -37,8 +37,6 @@ export default function TextField({ onSend, ...rest }: TextFieldProps) {
       return []
     }
 
-    console.log({ prefix })
-
     function formatContacts() {
       if (room) {
         return [
