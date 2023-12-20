@@ -2,17 +2,21 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 import { IMessage } from "@/types/message.types"
 import { IRoom } from "@/types/room.types"
+import { IUser } from "@/types/user.types"
 
+import { authApi } from "../apis/auth"
 import { messageApi } from "../apis/message"
 import { roomApi } from "../apis/room"
 
 interface IRoomState {
+  user?: IUser
   rooms: IRoom[] // all rooms in all orgs
   currentRoom?: IRoom
   messages: IMessage[] // messages in currentRoom
 }
 
 const initialState: IRoomState = {
+  user: undefined,
   rooms: [],
   currentRoom: undefined,
   messages: [],
@@ -33,8 +37,23 @@ export const roomSlice = createSlice({
     joinRoom: (state, { payload }: PayloadAction<IRoom>) => {
       state.rooms = [...state.rooms, payload]
     },
-    setCurrentRoom: (state, action: PayloadAction<IRoom | undefined>) => {
-      state.currentRoom = action.payload
+    setCurrentRoom: (state, { payload }: PayloadAction<IRoom | undefined>) => {
+      state.currentRoom = payload
+    },
+    readMessage: (state, { payload }: PayloadAction<IRoom>) => {
+      const prevRoom = (state.rooms || []).find((r) => r._id === payload._id)
+      if (prevRoom) {
+        if (
+          prevRoom.userStatus[String(state.user?.username)].notis !==
+            payload.userStatus[String(state.user?.username)].notis ||
+          prevRoom.userStatus[String(state.user?.username)].unRead !==
+            payload.userStatus[String(state.user?.username)].unRead
+        ) {
+          state.rooms = state.rooms.map((room) =>
+            room._id === payload._id ? payload : room
+          )
+        }
+      }
     },
     setMessages: (state, { payload }: PayloadAction<IMessage[]>) => {
       if (state.currentRoom) {
@@ -56,6 +75,14 @@ export const roomSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // for checking current user
+    builder.addMatcher(
+      authApi.endpoints.getMe.matchFulfilled,
+      (state, action) => {
+        state.user = action.payload
+      }
+    )
+
     builder.addMatcher(
       roomApi.endpoints.getAllRooms.matchFulfilled,
       (state, action) => {
@@ -98,6 +125,7 @@ export const {
   updateRoom,
   joinRoom,
   setCurrentRoom,
+  readMessage,
   setMessages,
   sendMessage,
   updateMessage,

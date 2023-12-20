@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { logout } from "@/redux/slices/app"
 import {
   joinRoom,
+  readMessage,
   sendMessage,
   updateMessage,
   updateRoom,
@@ -54,9 +55,6 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   const { replace } = useRouter()
   const dispatch = useDispatch()
 
-  const user = useSelector((state: RootState) => state.app.user)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
-
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true
@@ -83,17 +81,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
       })
 
       socket.on(ServerMessageType.msgRead, (room: IRoom) => {
-        const prevRoom = (rooms || []).find((r) => r._id === room._id)
-        if (prevRoom) {
-          if (
-            prevRoom.userStatus[String(user?.username)].notis !==
-              room.userStatus[String(user?.username)].notis ||
-            prevRoom.userStatus[String(user?.username)].unRead !==
-              room.userStatus[String(user?.username)].unRead
-          ) {
-            dispatch(updateRoom(room))
-          }
-        }
+        dispatch(readMessage(room))
       })
 
       socket.on(ServerMessageType.msgUpdate, (message: IMessage) => {
