@@ -7,7 +7,7 @@ import { Send } from "lucide-react"
 import { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
-import { ClientMessageType, ServerMessageType } from "@/types/message.types"
+import { ClientMessageType } from "@/types/message.types"
 
 import EmojiPicker from "./emoji-picker"
 import TextField from "./text-field"
@@ -22,12 +22,6 @@ export default function Footer() {
   const [message, setMessage] = useState("")
   const [mentions, setMentions] = useState<OptionProps[]>([])
   const [channels, setChannels] = useState<OptionProps[]>([])
-
-  useEffect(() => {
-    return () => {
-      socket.emit(ServerMessageType.msgTyping, null)
-    }
-  }, [socket])
 
   useEffect(() => {
     if (room) {
@@ -70,9 +64,12 @@ export default function Footer() {
     setMessage(text)
 
     if (room && user) {
-      socket.emit(ServerMessageType.msgTyping, {
+      const token = getToken()
+
+      socket.emit(ClientMessageType.msgTyping, {
+        token,
+        orgId: room?.orgId,
         roomId: room._id,
-        username: user.username,
       })
     }
   }

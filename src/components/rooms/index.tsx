@@ -23,7 +23,7 @@ export default function Rooms() {
   const user = useSelector((state: RootState) => state.app.user)
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
   const rooms = useSelector((state: RootState) => state.rooms.rooms)
-
+console.log('rooms ===>', rooms)
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]

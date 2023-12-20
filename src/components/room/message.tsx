@@ -73,12 +73,11 @@ export default function Message({
     const token = getToken()
 
     socket.emit(ClientMessageType.msgUpdate, {
-      _id: messageId,
-      msg: inputRef.current?.value ?? "",
       token,
       orgId: room?.orgId,
       roomId: room?._id,
-      senderName: username,
+      messageId,
+      msg: inputRef.current?.value ?? "",
     })
 
     if (inputRef.current) inputRef.current.value = ""
