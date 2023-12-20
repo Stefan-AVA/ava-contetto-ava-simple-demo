@@ -6,38 +6,7 @@ import { User } from "lucide-react"
 import { IMessage } from "@/types/message.types"
 import { IUser } from "@/types/user.types"
 
-function messageParser(text?: string) {
-  if (!text) return ""
-
-  let message = text
-
-  const urls = message.match(/(https?:\/\/[^\s]+)/g)
-  const channels = message.match(/#\w+/g)
-  const usernames = message.match(/@\w+/g)
-
-  if (urls && urls.length > 0) {
-    urls.forEach((url) => {
-      message = message.replaceAll(
-        url,
-        `<a href="${url}" style="text-decoration:underline;" target="_blank">${url}</a>`
-      )
-    })
-  }
-
-  if (channels && channels.length > 0) {
-    channels.forEach((channel) => {
-      message = message.replaceAll(channel, `<b>${channel}</b>`)
-    })
-  }
-
-  if (usernames && usernames.length > 0) {
-    usernames.forEach((username) => {
-      message = message.replaceAll(username, `<b>${username}</b>`)
-    })
-  }
-
-  return message
-}
+import Message from "./message"
 
 interface IProps {
   messages: IMessage[]
@@ -86,7 +55,7 @@ export default function ListMessages({ messages, user }: IProps) {
       }}
       ref={messagesRef}
     >
-      {messages.map(({ senderName, msg, createdAt }, index) => {
+      {messages.map(({ _id, senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
 
         return (
@@ -122,34 +91,12 @@ export default function ListMessages({ messages, user }: IProps) {
             )}
 
             <Stack sx={{ gap: 0.5 }}>
-              <Stack
-                sx={{
-                  py: 1.5,
-                  px: 2,
-                  gap: 0.25,
-                  borderRadius: ".75rem",
-                  backgroundColor: currentUser ? "secondary.main" : "gray.200",
-                  borderTopLeftRadius: !currentUser ? 0 : ".75rem",
-                  borderBottomRightRadius: currentUser ? 0 : ".75rem",
-                }}
-              >
-                {!currentUser && (
-                  <Typography sx={{ fontWeight: 600 }} variant="caption">
-                    {senderName}
-                  </Typography>
-                )}
-
-                <Box
-                  sx={{
-                    color: currentUser ? "white" : "gray.700",
-                    whiteSpace: "break-spaces",
-                    lineHeight: "1.25rem",
-                  }}
-                  variant="body2"
-                  component={Typography}
-                  dangerouslySetInnerHTML={{ __html: messageParser(msg) }}
-                />
-              </Stack>
+              <Message
+                message={msg ?? ""}
+                username={senderName}
+                messageId={_id}
+                currentUser={currentUser}
+              />
 
               <Typography
                 sx={{

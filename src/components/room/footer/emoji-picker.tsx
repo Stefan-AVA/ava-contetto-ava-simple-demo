@@ -9,7 +9,7 @@ const Picker = dynamic(
   () => {
     return import("emoji-picker-react")
   },
-  { ssr: false }
+  { ssr: true }
 )
 
 interface EmojiPickerProps {
@@ -38,10 +38,12 @@ export default function EmojiPicker({ onMessage }: EmojiPickerProps) {
         horizontal: "left",
       }}
     >
-      <Picker
-        onEmojiClick={({ emoji }) => onMessage((prev) => `${prev} ${emoji}`)}
-        lazyLoadEmojis
-      />
+      <Box style={{ minWidth: "21.875rem", minHeight: "28.125rem" }}>
+        <Picker
+          onEmojiClick={({ emoji }) => onMessage((prev) => `${prev} ${emoji}`)}
+          lazyLoadEmojis
+        />
+      </Box>
     </Dropdown>
   )
 }
