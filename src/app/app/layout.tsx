@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
   type KeyboardEvent,
   type MouseEvent,
@@ -11,6 +12,7 @@ import { Route } from "next"
 import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
+import { useLazyGetAllRoomsQuery } from "@/redux/apis/room"
 import { logout, setOrgs } from "@/redux/slices/app"
 import { useAppDispatch, type RootState } from "@/redux/store"
 import { Box, CircularProgress, Stack } from "@mui/material"
@@ -24,6 +26,8 @@ import CreateOrgModal from "./nav/createOrg"
 import Sidebar from "./nav/sidebar"
 
 export default function Layout({ children }: PropsWithChildren) {
+  const initialized = useRef(false)
+
   const { agentId, contactId } = useParams()
   const { replace } = useRouter()
 
@@ -36,10 +40,12 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const [getme, { isLoading: isLoadingMe }] = useLazyGetMeQuery()
   const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
+  const [getAllRooms, { isLoading: isLoadingRooms }] = useLazyGetAllRoomsQuery()
 
   const isLoading =
     isLoadingMe ||
     isLoadingOrgs ||
+    isLoadingRooms ||
     (state.agentOrgs.length <= 0 && state.contactOrgs.length <= 0)
 
   useEffect(() => {
@@ -48,21 +54,27 @@ export default function Layout({ children }: PropsWithChildren) {
 
   useEffect(() => {
     async function run() {
-      try {
-        await getme().unwrap()
-        const orgs = await getOrgs().unwrap()
+      if (!initialized.current) {
+        initialized.current = true
 
-        dispatch(setOrgs(orgs))
+        try {
+          await getme().unwrap()
+          const orgs = await getOrgs().unwrap()
+          await getAllRooms().unwrap()
 
-        if (!agentId && !contactId) {
-          const ownerAgent = orgs.agentProfiles.find(
-            (agent) => agent.role === AgentRole.owner
-          )
-          replace(`/app/agent-orgs/${ownerAgent?._id}` as Route)
+          dispatch(setOrgs(orgs))
+
+          if (!agentId && !contactId) {
+            const ownerAgent = orgs.agentProfiles.find(
+              (agent) => agent.role === AgentRole.owner
+            )
+            replace(`/app/agent-orgs/${ownerAgent?._id}` as Route)
+          }
+        } catch (error) {
+          console.log("error ===>", error)
+          dispatch(logout())
+          replace("/")
         }
-      } catch (error) {
-        dispatch(logout())
-        replace("/")
       }
     }
 

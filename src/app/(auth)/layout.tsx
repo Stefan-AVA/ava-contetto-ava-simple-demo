@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, type PropsWithChildren } from "react"
+import { useEffect, useRef, type PropsWithChildren } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
@@ -14,6 +14,8 @@ import Background from "~/assets/signup-background.jpg"
 import { AgentRole } from "@/types/agentProfile.types"
 
 const LoginLayout = ({ children }: PropsWithChildren) => {
+  const initialized = useRef(false)
+
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
@@ -22,27 +24,31 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     async function run() {
-      try {
-        const user = await getme().unwrap()
+      if (!initialized.current) {
+        initialized.current = true
 
-        const orgs = await getOrgs().unwrap()
+        try {
+          const user = await getme().unwrap()
 
-        dispatch(setUser(user))
+          const orgs = await getOrgs().unwrap()
 
-        if (orgs) {
-          const ownerAgent = orgs.agentProfiles.find(
-            (agent) => agent.role === AgentRole.owner
-          )
+          dispatch(setUser(user))
 
-          dispatch(setOrgs(orgs))
+          if (orgs) {
+            const ownerAgent = orgs.agentProfiles.find(
+              (agent) => agent.role === AgentRole.owner
+            )
 
-          replace(`/app/agent-orgs/${ownerAgent?._id}`)
+            dispatch(setOrgs(orgs))
 
-          return
-        }
+            replace(`/app/agent-orgs/${ownerAgent?._id}`)
 
-        replace("/app")
-      } catch (error) {}
+            return
+          }
+
+          replace("/app")
+        } catch (error) {}
+      }
     }
 
     run()

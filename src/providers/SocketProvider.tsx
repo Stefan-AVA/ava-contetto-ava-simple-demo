@@ -8,11 +8,15 @@ import {
   useRef,
 } from "react"
 import { useRouter } from "next/navigation"
-import { getToken, setToken } from "@/redux/fetch-auth-query"
 import { logout } from "@/redux/slices/app"
-import { sendMessage, updateMessage } from "@/redux/slices/message"
-import { joinRoom, updateRoom } from "@/redux/slices/room"
+import {
+  joinRoom,
+  sendMessage,
+  updateMessage,
+  updateRoom,
+} from "@/redux/slices/room"
 import { type RootState } from "@/redux/store"
+import { getToken, setToken } from "@/redux/token"
 import { useDispatch, useSelector } from "react-redux"
 import io, { Socket } from "socket.io-client"
 
@@ -64,7 +68,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         console.log("socket connected =>", payload)
       })
 
-      // channel
+      // Room
       socket.on(ServerMessageType.channelUpdate, (room: IRoom) => {
         dispatch(updateRoom(room))
       })

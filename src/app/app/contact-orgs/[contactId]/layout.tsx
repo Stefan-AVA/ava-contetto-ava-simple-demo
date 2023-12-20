@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
-import { useLazyGetAllRoomsQuery } from "@/redux/apis/room"
 import type { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
 import { LayoutDashboardIcon, Search } from "lucide-react"
@@ -18,16 +17,10 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
 
-  const [getAllRooms] = useLazyGetAllRoomsQuery()
-
   const contact = useMemo(
     () => contactOrgs.find((contact) => contact._id === contactId),
     [contactId, contactOrgs]
   )
-
-  useEffect(() => {
-    if (contact) getAllRooms({ orgId: contact.orgId, contactId: contact._id })
-  }, [contact, getAllRooms])
 
   const routes = useMemo(
     () => [

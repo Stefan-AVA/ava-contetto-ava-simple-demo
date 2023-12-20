@@ -14,13 +14,11 @@ import { orgApi } from "./apis/org"
 import { roomApi } from "./apis/room"
 import { searchApi } from "./apis/search"
 import appReducer from "./slices/app"
-import messageReducer from "./slices/message"
 import roomReducer from "./slices/room"
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
-    messages: messageReducer,
     rooms: roomReducer,
     [authApi.reducerPath]: authApi.reducer,
     [orgApi.reducerPath]: orgApi.reducer,

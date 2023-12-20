@@ -10,6 +10,7 @@ import { User } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
+import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 import Loading from "../Loading"
 import AddMembersToRoom from "./add-members-to-room"
@@ -24,25 +25,22 @@ export default function Room() {
 
   const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
-  const messages = useSelector((state: RootState) => state.messages.messages)
+  const rooms = useGetOrgRooms({
+    agentId: String(agentId),
+    contactId: String(contactId),
+  })
+  const messages = useSelector((state: RootState) => state.rooms.messages)
 
   const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
-
-  useEffect(() => {
-    if (rooms) {
-      const room = rooms.find((r) => r._id === roomId)
-
-      if (room) getAllMessages({ orgId: room.orgId, roomId: room._id })
-    }
-  }, [rooms, roomId, getAllMessages])
 
   useEffect(() => {
     if (roomId && rooms) {
       const room = rooms.find((r) => r._id === roomId)
 
-      if (room) dispatch(setCurrentRoom(room))
-      else {
+      if (room) {
+        dispatch(setCurrentRoom(room))
+        getAllMessages({ orgId: room.orgId, roomId: room._id })
+      } else {
         if (agentId) {
           replace(`/app/agent-orgs/${agentId}`)
         } else if (contactId) {

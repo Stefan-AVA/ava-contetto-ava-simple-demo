@@ -7,7 +7,7 @@ import type { IUser } from "@/types/user.types"
 
 import { authApi } from "../apis/auth"
 import { orgApi } from "../apis/org"
-import { clearToken } from "../fetch-auth-query"
+import { clearToken } from "../token"
 
 interface IAppState {
   user: IUser | null

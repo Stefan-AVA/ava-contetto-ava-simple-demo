@@ -7,6 +7,7 @@ import { Lock } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { IRoom, RoomType } from "@/types/room.types"
+import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 import Loading from "../Loading"
 import CreateChannel from "./create-channel"
@@ -22,8 +23,11 @@ export default function Rooms() {
 
   const user = useSelector((state: RootState) => state.app.user)
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
-console.log('rooms ===>', rooms)
+  const rooms = useGetOrgRooms({
+    agentId: String(agentId),
+    contactId: String(contactId),
+  })
+
   const agentProfile = useMemo(
     () => agentOrgs.find((agent) => agent._id === agentId),
     [agentId, agentOrgs]

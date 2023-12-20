@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useSocket } from "@/providers/SocketProvider"
-import { getToken } from "@/redux/fetch-auth-query"
 import type { RootState } from "@/redux/store"
+import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
 import { OptionProps } from "rc-mentions/lib/Option"

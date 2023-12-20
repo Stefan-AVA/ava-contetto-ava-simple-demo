@@ -7,6 +7,8 @@ import {
   type FetchBaseQueryMeta,
 } from "@reduxjs/toolkit/query"
 
+import { getToken, setToken } from "./token"
+
 type FetchQuery = BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -14,22 +16,6 @@ type FetchQuery = BaseQueryFn<
   {},
   FetchBaseQueryMeta
 >
-
-// const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-export const tokenKey = "@ava-token"
-
-export const setToken = (token: string) => {
-  if (window) window.localStorage.setItem(tokenKey, token)
-}
-
-export const getToken = (): string | null => {
-  if (window) return window.localStorage.getItem(tokenKey)
-  return null
-}
-
-export const clearToken = () => {
-  if (window) window.localStorage.removeItem(tokenKey)
-}
 
 export const getBaseQuery = (args: FetchBaseQueryArgs) =>
   fetchBaseQuery({
@@ -54,7 +40,9 @@ export const fetchAuthQuery =
     }
 
     const result = await getBaseQuery({
-      baseUrl: `${process.env.NEXT_PUBLIC_API_URL}${baseArgs?.baseUrl}`,
+      baseUrl: `${process.env.NEXT_PUBLIC_API_URL}${
+        baseArgs?.baseUrl ? baseArgs?.baseUrl : ""
+      }`,
     })(params, api, extraOptions)
 
     if (result.meta?.response?.headers.get("token")) {

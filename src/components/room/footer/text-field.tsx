@@ -5,6 +5,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react"
+import { useParams } from "next/navigation"
 import type { RootState } from "@/redux/store"
 import { Box } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
@@ -13,6 +14,7 @@ import { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
+import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 const { Option } = Mentions
 
@@ -28,6 +30,8 @@ export default function TextField({
   setChannels,
   ...rest
 }: TextFieldProps) {
+  const { agentId, contactId, roomId } = useParams()
+
   const [rows, setRows] = useState(1)
   const [prefix, setPrefix] = useState("@")
 
@@ -35,7 +39,10 @@ export default function TextField({
 
   const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
+  const rooms = useGetOrgRooms({
+    agentId: String(agentId),
+    contactId: String(contactId),
+  })
 
   const data = useMemo(() => {
     function formatRooms() {

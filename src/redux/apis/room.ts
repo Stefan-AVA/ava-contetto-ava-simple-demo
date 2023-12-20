@@ -26,19 +26,14 @@ interface IAddMembersRequest {
   contacts: IRoomContact[]
 }
 
-interface IGetRoomsRequest {
-  orgId: string
-  contactId?: string
-}
-
 export const roomApi = createApi({
   reducerPath: "roomApi",
-  baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
+  baseQuery: fetchAuthQuery(),
   tagTypes: ["Rooms"],
   endpoints: (builder) => ({
     createChannel: builder.mutation<IRoom, ICreateChannelRequest>({
       query: ({ orgId, name }) => ({
-        url: `/${orgId}/channels`,
+        url: `/orgs/${orgId}/channels`,
         method: "POST",
         body: { name },
       }),
@@ -46,7 +41,7 @@ export const roomApi = createApi({
     }),
     createDM: builder.mutation<IRoom, ICreateDMRequest>({
       query: ({ orgId, agents, contacts }) => ({
-        url: `/${orgId}/dms`,
+        url: `/orgs/${orgId}/dms`,
         method: "POST",
         body: {
           agents,
@@ -56,25 +51,23 @@ export const roomApi = createApi({
     }),
     updateChannel: builder.mutation<IRoom, IUpdateChannelRequest>({
       query: ({ orgId, name, roomId }) => ({
-        url: `/${orgId}/channels/${roomId}`,
+        url: `/orgs/${orgId}/channels/${roomId}`,
         method: "PUT",
         body: { name },
       }),
       invalidatesTags: ["Rooms"],
     }),
-    getAllRooms: builder.query<IRoom[], IGetRoomsRequest>({
-      query: ({ orgId, contactId }) => ({
-        url: `/${orgId}/rooms`,
+    // get all rooms across all orgs
+    getAllRooms: builder.query<IRoom[], void>({
+      query: () => ({
+        url: `/rooms`,
         method: "GET",
-        params: {
-          contactId, // need for contact-orgs
-        },
       }),
       providesTags: ["Rooms"],
     }),
     addMemberToChannel: builder.mutation<void, IAddMembersRequest>({
       query: ({ orgId, roomId, agents, contacts }) => ({
-        url: `/${orgId}/channels/${roomId}/add-members`,
+        url: `/orgs/${orgId}/channels/${roomId}/add-members`,
         method: "POST",
         body: {
           agents,

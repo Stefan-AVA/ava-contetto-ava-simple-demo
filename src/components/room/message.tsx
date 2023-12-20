@@ -1,7 +1,7 @@
 import { useRef, useState, type KeyboardEvent } from "react"
 import { useSocket } from "@/providers/SocketProvider"
-import { getToken } from "@/redux/fetch-auth-query"
 import type { RootState } from "@/redux/store"
+import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 import { Pencil, Send } from "lucide-react"
 import { useSelector } from "react-redux"
