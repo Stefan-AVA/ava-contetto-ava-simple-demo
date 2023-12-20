@@ -60,6 +60,8 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
 
         const name = `/${replaceWithParams.slice(0, index + 1).join("/")}`
 
+        if (!breadcrumbNameMap[name]) return null
+
         return last ? (
           <Typography
             sx={{ color: "secondary.main", fontWeight: 600 }}
