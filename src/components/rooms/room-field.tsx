@@ -1,7 +1,5 @@
-import { MouseEventHandler } from "react"
-import { Route } from "next"
+import type { MouseEventHandler } from "react"
 import Image from "next/image"
-import { useParams } from "next/navigation"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User, type LucideIcon } from "lucide-react"
@@ -10,11 +8,11 @@ interface IRoomFieldProps {
   icon?: LucideIcon
   title: string
   avatar?: string
+  onClick?: MouseEventHandler<HTMLDivElement>
   sendedAt?: string
   lastMessage?: string
   unreadMessages?: number
   numberOfMembers?: number
-  onClick?: MouseEventHandler<HTMLDivElement>
 }
 
 export default function RoomField({
@@ -27,8 +25,6 @@ export default function RoomField({
   numberOfMembers,
   onClick,
 }: IRoomFieldProps) {
-  const { agentId } = useParams()
-
   return (
     <Stack
       sx={{
@@ -128,9 +124,7 @@ export default function RoomField({
             </Stack>
           )}
         </Stack>
-      ) : (
-        <></>
-      )}
+      ) : null}
     </Stack>
   )
 }
