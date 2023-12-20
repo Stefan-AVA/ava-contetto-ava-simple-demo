@@ -2,7 +2,6 @@ import {
   Dispatch,
   SetStateAction,
   useMemo,
-  useRef,
   useState,
   type KeyboardEvent,
 } from "react"
@@ -10,7 +9,6 @@ import type { RootState } from "@/redux/store"
 import { Box } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import Mentions, { type MentionsProps } from "rc-mentions"
-import { MentionsRef } from "rc-mentions/lib/Mentions"
 import { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
@@ -30,16 +28,14 @@ export default function TextField({
   setChannels,
   ...rest
 }: TextFieldProps) {
-  const ref = useRef<MentionsRef | null>(null)
-
   const [rows, setRows] = useState(1)
   const [prefix, setPrefix] = useState("@")
 
   const { typography } = useTheme()
 
   const user = useSelector((state: RootState) => state.app.user)
-  const rooms = useSelector((state: RootState) => state.rooms.rooms)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
+  const rooms = useSelector((state: RootState) => state.rooms.rooms)
 
   const data = useMemo(() => {
     function formatRooms() {
@@ -126,13 +122,7 @@ export default function TextField({
         prefix={["@", "#"]}
         onChange={onChange}
         onSearch={(_, prefix) => setPrefix(prefix)}
-        placement="top"
-        autoFocus
-        onPressEnter={onPressEnter}
-        placeholder="Write your message here."
-        transitionName="motion-zoom"
         onSelect={(option, prefix) => {
-          console.log(option, prefix)
           if (prefix === "@") {
             setMentions((prev) => [
               ...prev.filter((o) => o.value !== option.value),
@@ -146,7 +136,11 @@ export default function TextField({
             ])
           }
         }}
-        ref={ref}
+        placement="top"
+        autoFocus
+        placeholder="Write your message here."
+        onPressEnter={onPressEnter}
+        transitionName="motion-zoom"
       >
         {data[prefix as keyof typeof data].map((field) => (
           <Option key={field.value} value={field.value}>
