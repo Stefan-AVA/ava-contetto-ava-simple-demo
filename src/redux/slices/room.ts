@@ -9,7 +9,7 @@ import { roomApi } from "../apis/room"
 interface IRoomState {
   rooms: IRoom[] // all rooms in all orgs
   currentRoom?: IRoom
-  messages: IMessage[]
+  messages: IMessage[] // messages in currentRoom
 }
 
 const initialState: IRoomState = {

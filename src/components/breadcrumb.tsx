@@ -53,12 +53,14 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
   }, [params, sliceRoute])
 
   return (
-    <Breadcrumbs sx={{ mb: 2 }} aria-label="breadcrumb">
+    <Breadcrumbs aria-label="breadcrumb">
       {replaceWithParams.map((_, index) => {
         const last = index === sliceRoute.length - 1
         const href = `/${sliceRoute.slice(0, index + 1).join("/")}`
 
         const name = `/${replaceWithParams.slice(0, index + 1).join("/")}`
+
+        if (!breadcrumbNameMap[name]) return null
 
         return last ? (
           <Typography

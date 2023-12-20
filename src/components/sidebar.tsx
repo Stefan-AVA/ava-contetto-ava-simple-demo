@@ -1,8 +1,9 @@
-import { useState, type JSX } from "react"
+import { useMemo, useState, type JSX } from "react"
 import { Route } from "next"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Card, Stack, Typography } from "@mui/material"
-import { ListFilter } from "lucide-react"
+import { ListFilter, MessageCircle } from "lucide-react"
 
 import Dropdown from "./drop-down"
 import Rooms from "./rooms"
@@ -21,16 +22,38 @@ interface SidebarProps {
 export default function Sidebar({ routes }: SidebarProps) {
   const [open, setOpen] = useState(false)
 
+  const pathname = usePathname()
+
+  const findCurrentRoute = useMemo(() => {
+    const activeRoute = routes.find((route) => route.active)
+
+    if (activeRoute)
+      return {
+        icon: activeRoute.icon,
+        label: activeRoute.label,
+      }
+
+    const isRoomPage = pathname.includes("/rooms")
+
+    if (isRoomPage)
+      return {
+        icon: <MessageCircle />,
+        label: "Messages",
+      }
+
+    return null
+  }, [routes, pathname])
+
   return (
     <>
       <Stack
         sx={{
           py: 3.5,
           px: 3,
-          height: "100%",
+          height: "calc(100vh - 4rem)",
           display: { xs: "none", md: "flex" },
           minWidth: "16rem",
-          minHeight: "calc(100vh - 4rem)",
+          overflowY: "auto",
           borderRight: "1px solid",
           borderRightColor: "gray.300",
         }}
@@ -99,12 +122,15 @@ export default function Sidebar({ routes }: SidebarProps) {
               borderRadius: 2,
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={2}>
-              {routes.find((route) => route.active)?.icon}
-              <Typography variant="h5" fontWeight={700}>
-                {routes.find((route) => route.active)?.label}
-              </Typography>
-            </Stack>
+            {findCurrentRoute && (
+              <Stack direction="row" alignItems="center" spacing={2}>
+                {findCurrentRoute.icon}
+                <Typography variant="h5" fontWeight={700}>
+                  {findCurrentRoute.label}
+                </Typography>
+              </Stack>
+            )}
+
             <ListFilter />
           </Stack>
         }
@@ -139,6 +165,31 @@ export default function Sidebar({ routes }: SidebarProps) {
               <Typography sx={{ fontWeight: 500 }}>{label}</Typography>
             </Stack>
           ))}
+
+          <Stack
+            sx={{
+              mt: 4,
+              py: 4,
+              px: 1,
+              gap: 2,
+              color: "gray.500",
+              borderTop: "1px solid",
+              fontWeight: 500,
+              borderTopColor: "gray.300",
+            }}
+          >
+            <Typography
+              sx={{
+                color: "gray.500",
+                fontWeight: 500,
+              }}
+              variant="body2"
+            >
+              MESSAGING
+            </Typography>
+
+            <Rooms />
+          </Stack>
         </Card>
       </Dropdown>
     </>

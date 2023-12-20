@@ -88,6 +88,7 @@ export default function Layout({ children }: PropsWithChildren) {
         <Box
           sx={{
             p: { xs: 1, md: 5 },
+            gap: 2,
             width: "100%",
             height: "calc(100vh - 4rem)",
             overflowY: "auto",
