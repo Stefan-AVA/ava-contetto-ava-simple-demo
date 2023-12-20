@@ -26,8 +26,8 @@ export default function Room() {
   const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
   const rooms = useGetOrgRooms({
-    agentId: String(agentId),
-    contactId: String(contactId),
+    agentId: agentId as string,
+    contactId: contactId as string,
   })
   const messages = useSelector((state: RootState) => state.rooms.messages)
 
