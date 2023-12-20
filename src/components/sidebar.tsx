@@ -27,10 +27,10 @@ export default function Sidebar({ routes }: SidebarProps) {
         sx={{
           py: 3.5,
           px: 3,
-          height: "100%",
+          height: "calc(100vh - 4rem)",
           display: { xs: "none", md: "flex" },
           minWidth: "16rem",
-          minHeight: "calc(100vh - 4rem)",
+          overflowY: "auto",
           borderRight: "1px solid",
           borderRightColor: "gray.300",
         }}
