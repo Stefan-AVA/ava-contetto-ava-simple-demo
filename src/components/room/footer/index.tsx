@@ -9,8 +9,15 @@ import { useSelector } from "react-redux"
 
 import { ClientMessageType } from "@/types/message.types"
 
+import scrollToBottom from "../scroll-to-bottom"
 import EmojiPicker from "./emoji-picker"
 import TextField from "./text-field"
+
+async function delay(ms = 1) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
 
 export default function Footer() {
   const socket = useSocket()
@@ -55,9 +62,13 @@ export default function Footer() {
         .filter((val) => message.includes(`#${val} `)), // channel ids
     })
 
-    setLoading(false)
-
     setMessage("")
+
+    await delay(300)
+
+    scrollToBottom()
+
+    setLoading(false)
   }
 
   function onChangeTextField(text: string) {
