@@ -1,10 +1,11 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
 
 import type { IMessage } from "@/types/message.types"
 import type { IUser } from "@/types/user.types"
+import useIsVisible from "@/hooks/use-is-visible"
 
 import Message from "./message"
 import scrollToBottom from "./scroll-to-bottom"
@@ -15,7 +16,21 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const isVisible = useIsVisible(ref)
+
   useEffect(scrollToBottom, [])
+
+  useEffect(() => {
+    const list = document.getElementById("messages-list")
+
+    if (list) {
+      list.addEventListener("DOMNodeInserted", () => {
+        if (isVisible) scrollToBottom()
+      })
+    }
+  }, [isVisible])
 
   return (
     <Stack
@@ -84,6 +99,8 @@ export default function ListMessages({ messages, user }: IProps) {
           </Stack>
         )
       })}
+
+      <div ref={ref} />
     </Stack>
   )
 }
