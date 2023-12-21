@@ -48,7 +48,7 @@ export default function Room() {
         }
       }
     }
-  }, [rooms, roomId, agentId, contactId, dispatch, replace])
+  }, [rooms, roomId, agentId, contactId, dispatch, replace, getAllMessages])
 
   return (
     <>
