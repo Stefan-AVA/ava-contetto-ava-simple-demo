@@ -1,6 +1,5 @@
-import { IAgentProfile } from "./agentProfile.types"
-import { IContact } from "./contact.types"
-import { IUser } from "./user.types"
+import type { IAgentProfile } from "./agentProfile.types"
+import type { IContact } from "./contact.types"
 
 export interface IRoomUserStatus {
   [username: string]: {

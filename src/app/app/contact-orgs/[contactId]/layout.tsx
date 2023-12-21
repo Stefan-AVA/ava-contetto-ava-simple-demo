@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, type PropsWithChildren } from "react"
+import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import type { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
