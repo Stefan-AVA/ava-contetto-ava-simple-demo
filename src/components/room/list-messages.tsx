@@ -3,8 +3,8 @@ import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
 
-import { IMessage } from "@/types/message.types"
-import { IUser } from "@/types/user.types"
+import type { IMessage } from "@/types/message.types"
+import type { IUser } from "@/types/user.types"
 
 import Message from "./message"
 import scrollToBottom from "./scroll-to-bottom"
