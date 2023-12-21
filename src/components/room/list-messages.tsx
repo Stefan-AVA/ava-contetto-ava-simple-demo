@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
@@ -7,6 +7,7 @@ import { IMessage } from "@/types/message.types"
 import { IUser } from "@/types/user.types"
 
 import Message from "./message"
+import scrollToBottom from "./scroll-to-bottom"
 
 interface IProps {
   user: IUser | null
@@ -14,38 +15,11 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
-  const blockRef = useRef<HTMLDivElement>(null)
-  const messagesRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (blockRef.current && messagesRef.current) {
-      const { top } = blockRef.current.getBoundingClientRect()
-
-      messagesRef.current.scroll({
-        top,
-        behavior: "smooth",
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.addEventListener("DOMNodeInserted", (event) => {
-        const { currentTarget: target } = event
-        if (target) {
-          const elemTarget = target as HTMLElement
-
-          elemTarget.scroll({
-            top: elemTarget.scrollHeight,
-            behavior: "smooth",
-          })
-        }
-      })
-    }
-  }, [])
+  useEffect(scrollToBottom, [])
 
   return (
     <Stack
+      id="messages-list"
       sx={{
         pt: 5,
         px: 5,
@@ -53,7 +27,6 @@ export default function ListMessages({ messages, user }: IProps) {
         height: "calc(100vh - 25.5rem)",
         overflowY: "auto",
       }}
-      ref={messagesRef}
     >
       {messages.map(({ _id, senderName, msg, createdAt }, index) => {
         const currentUser = senderName === user?.username
@@ -111,8 +84,6 @@ export default function ListMessages({ messages, user }: IProps) {
           </Stack>
         )
       })}
-
-      <div ref={blockRef} />
     </Stack>
   )
 }
