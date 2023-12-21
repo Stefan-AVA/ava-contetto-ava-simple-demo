@@ -281,6 +281,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                 </ListItem>
               )}
               isOptionEqualToValue={(option, value) => option._id === value._id}
+              filterOptions={(options) => options}
             />
 
             <TextField
