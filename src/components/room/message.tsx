@@ -62,10 +62,14 @@ export default function Message({
   async function onDelete() {
     setLoadingRemove(true)
 
-    /**
-     * @todo
-     * Delete message.
-     */
+    const token = getToken()
+
+    socket.emit(ClientMessageType.msgDelete, {
+      token,
+      orgId: room?.orgId,
+      roomId: room?._id,
+      messageId,
+    })
 
     setLoadingRemove(false)
   }

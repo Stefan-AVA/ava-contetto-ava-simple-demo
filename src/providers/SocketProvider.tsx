@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation"
 import { logout } from "@/redux/slices/app"
 import {
+  deleteMessage,
   joinRoom,
   readMessage,
   sendMessage,
@@ -75,17 +76,21 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         dispatch(joinRoom(room))
       })
 
+      socket.on(ServerMessageType.msgRead, (room: IRoom) => {
+        dispatch(readMessage(room))
+      })
+
       // message
       socket.on(ServerMessageType.msgSend, (message: IMessage) => {
         dispatch(sendMessage(message))
       })
 
-      socket.on(ServerMessageType.msgRead, (room: IRoom) => {
-        dispatch(readMessage(room))
-      })
-
       socket.on(ServerMessageType.msgUpdate, (message: IMessage) => {
         dispatch(updateMessage(message))
+      })
+
+      socket.on(ServerMessageType.msgDelete, (message: IMessage) => {
+        dispatch(deleteMessage(message))
       })
 
       socket.on(

@@ -60,7 +60,6 @@ export const roomSlice = createSlice({
         state.messages = payload
       }
     },
-    // can be for both send & receive message
     sendMessage: (state, { payload }: PayloadAction<IMessage>) => {
       if (state.currentRoom && state.currentRoom._id === payload.roomId) {
         state.messages = [...state.messages, payload]
@@ -71,6 +70,11 @@ export const roomSlice = createSlice({
         state.messages = state.messages.map((msg) =>
           msg._id === payload._id ? payload : msg
         )
+      }
+    },
+    deleteMessage: (state, { payload }: PayloadAction<IMessage>) => {
+      if (state.currentRoom && state.currentRoom._id === payload.roomId) {
+        state.messages = state.messages.filter((msg) => msg._id !== payload._id)
       }
     },
   },
@@ -128,6 +132,7 @@ export const {
   readMessage,
   setMessages,
   sendMessage,
+  deleteMessage,
   updateMessage,
 } = roomSlice.actions
 

@@ -42,6 +42,7 @@ export enum ServerMessageType {
   // message
   msgSend = "msg:send",
   msgUpdate = "msg:update",
+  msgDelete = 'msg:delete',
   msgRead = "msg:read",
   msgTyping = "msg:typing",
 
@@ -55,6 +56,7 @@ export enum ServerMessageType {
 export enum ClientMessageType {
   msgSend = "msg:send",
   msgUpdate = "msg:update",
+  msgDelete = 'msg:delete',
   msgRead = "msg:read",
   msgTyping = "msg:typing",
 }
