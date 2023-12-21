@@ -7,7 +7,7 @@ import {
 } from "react"
 import { useParams } from "next/navigation"
 import type { RootState } from "@/redux/store"
-import { Box, type BoxProps } from "@mui/material"
+import { Box, useTheme } from "@mui/material"
 import Mentions, { type MentionsProps } from "rc-mentions"
 import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
@@ -17,22 +17,23 @@ import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 const { Option } = Mentions
 
-interface TextFieldProps
-  extends Pick<BoxProps, "sx">,
-    Pick<MentionsProps, "value" | "onChange"> {
+interface TextFieldProps extends Pick<MentionsProps, "value" | "onChange"> {
   onSend: () => Promise<void>
+  variant?: "DEFAULT" | "TINY"
   setMentions: Dispatch<SetStateAction<OptionProps[]>>
   setChannels: Dispatch<SetStateAction<OptionProps[]>>
 }
 
 export default function TextField({
-  sx,
   onSend,
+  variant = "DEFAULT",
   setMentions,
   setChannels,
   ...rest
 }: TextFieldProps) {
   const { agentId, contactId } = useParams()
+
+  const { typography } = useTheme()
 
   const [rows, setRows] = useState(1)
   const [prefix, setPrefix] = useState("@")
@@ -103,7 +104,25 @@ export default function TextField({
     <Box
       sx={{
         width: "100%",
-        ...sx,
+
+        textarea: {
+          color: variant === "DEFAULT" ? "gray.700" : "white",
+          width: "100%",
+          resize: "none",
+          padding: variant === "DEFAULT" ? ".875rem 1.5rem" : 0,
+          outline: "none",
+          fontSize: ".875rem",
+          fontFamily: typography.fontFamily,
+          fontWeight: 500,
+          lineHeight: "1rem",
+          borderRadius: variant === "DEFAULT" ? ".5rem" : 0,
+          backgroundColor: variant === "DEFAULT" ? "gray.200" : "transparent",
+
+          "&::placeholder": {
+            color:
+              variant === "DEFAULT" ? "gray.400" : "rgba(255, 255, 255, .5)",
+          },
+        },
       }}
     >
       <Mentions

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
-import { Box, CircularProgress, Stack, useTheme } from "@mui/material"
+import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
@@ -20,8 +20,6 @@ async function delay(ms = 1) {
 }
 
 export default function Footer() {
-  const { typography } = useTheme()
-
   const socket = useSocket()
 
   const user = useSelector((state: RootState) => state.app.user)
@@ -92,25 +90,6 @@ export default function Footer() {
       <EmojiPicker onMessage={setMessage} />
 
       <TextField
-        sx={{
-          textarea: {
-            color: "gray.700",
-            width: "100%",
-            resize: "none",
-            padding: ".875rem 1.5rem",
-            outline: "none",
-            fontSize: ".875rem",
-            fontFamily: typography.fontFamily,
-            fontWeight: 500,
-            lineHeight: "1rem",
-            borderRadius: ".5rem",
-            backgroundColor: "gray.200",
-
-            "&::placeholder": {
-              color: "gray.400",
-            },
-          },
-        }}
         value={message}
         onSend={submit}
         onChange={onChangeTextField}

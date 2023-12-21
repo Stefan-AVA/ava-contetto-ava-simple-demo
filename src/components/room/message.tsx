@@ -5,13 +5,7 @@ import { useRef, useState } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
-import {
-  Box,
-  CircularProgress,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material"
+import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 import Linkify from "linkify-react"
 import { Pencil, Send, Trash } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
@@ -43,8 +37,6 @@ export default function Message({
   const [loadingRemove, setLoadingRemove] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
-
-  const { typography } = useTheme()
 
   const socket = useSocket()
 
@@ -173,25 +165,9 @@ export default function Message({
             }}
           >
             <TextField
-              sx={{
-                textarea: {
-                  color: "white",
-                  width: "100%",
-                  resize: "none",
-                  outline: "none",
-                  fontSize: ".875rem",
-                  fontFamily: typography.fontFamily,
-                  fontWeight: 500,
-                  lineHeight: "1rem",
-                  backgroundColor: "transparent",
-
-                  "&::placeholder": {
-                    color: "rgba(255, 255, 255, .5)",
-                  },
-                },
-              }}
               value={message}
               onSend={submit}
+              variant="TINY"
               onChange={setMessage}
               setMentions={setMentions}
               setChannels={setChannels}
