@@ -9,8 +9,8 @@ import { IUser } from "@/types/user.types"
 import Message from "./message"
 
 interface IProps {
-  messages: IMessage[]
   user: IUser | null
+  messages: IMessage[]
 }
 
 export default function ListMessages({ messages, user }: IProps) {

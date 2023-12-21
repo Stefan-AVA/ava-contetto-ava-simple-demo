@@ -1,46 +1,17 @@
+import "linkify-plugin-hashtag"
+import "linkify-plugin-mention"
+
 import { useRef, useState, type KeyboardEvent } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
-import { Pencil, Send } from "lucide-react"
+import Linkify from "linkify-react"
+import { Pencil, Send, Trash } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { ClientMessageType } from "@/types/message.types"
 import useOutsideClick from "@/hooks/use-outside-click"
-
-function messageParser(text?: string) {
-  if (!text) return ""
-
-  let message = text
-
-  const urls = message.match(/(https?:\/\/[^\s]+)/g)
-  const channels = message.match(/#\w+/g)
-  const usernames = message.match(/@\w+/g)
-
-  if (urls && urls.length > 0) {
-    urls.forEach((url) => {
-      message = message.replaceAll(
-        url,
-        `<a href="${url}" style="text-decoration:underline;" target="_blank">${url}</a>`
-      )
-    })
-  }
-
-  if (channels && channels.length > 0) {
-    channels.forEach((channel) => {
-      message = message.replaceAll(channel, `<b>${channel}</b>`)
-    })
-  }
-
-  if (usernames && usernames.length > 0) {
-    usernames.forEach((username) => {
-      message = message.replaceAll(username, `<b>${username}</b>`)
-    })
-  }
-
-  return message
-}
 
 interface MessageProps {
   message: string
@@ -56,7 +27,8 @@ export default function Message({
   currentUser,
 }: MessageProps) {
   const [edit, setEdit] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loadingEdit, setLoadingEdit] = useState(false)
+  const [loadingRemove, setLoadingRemove] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -68,23 +40,34 @@ export default function Message({
   useOutsideClick(ref, () => setEdit(false))
 
   async function submit() {
-    setLoading(true)
+    setLoadingEdit(true)
 
     const token = getToken()
 
     socket.emit(ClientMessageType.msgUpdate, {
+      msg: inputRef.current?.value ?? "",
       token,
       orgId: room?.orgId,
       roomId: room?._id,
       messageId,
-      msg: inputRef.current?.value ?? "",
     })
 
     if (inputRef.current) inputRef.current.value = ""
 
     setEdit(false)
 
-    setLoading(false)
+    setLoadingEdit(false)
+  }
+
+  async function onDelete() {
+    setLoadingRemove(true)
+
+    /**
+     * @todo
+     * Delete message.
+     */
+
+    setLoadingRemove(false)
   }
 
   function onEdit() {
@@ -109,7 +92,7 @@ export default function Message({
         alignItems: "center",
         flexDirection: "row",
 
-        ":hover .edit-button": {
+        ":hover .message-actions": {
           scale: 1,
           opacity: 1,
           pointerEvents: "auto",
@@ -118,19 +101,30 @@ export default function Message({
       ref={ref}
     >
       {currentUser && (
-        <Box
+        <Stack
           sx={{
+            gap: 1,
             scale: 0.2,
             opacity: 0,
             transition: "all .3s ease-in-out",
+            alignItems: "center",
             pointerEvents: "none",
+            flexDirection: "row",
           }}
-          onClick={onEdit}
-          component="button"
-          className="edit-button"
+          className="message-actions"
         >
-          <Box sx={{ color: "gray.500" }} size={16} component={Pencil} />
-        </Box>
+          <Box onClick={onEdit} component="button">
+            <Box sx={{ color: "gray.500" }} size={16} component={Pencil} />
+          </Box>
+
+          <Box onClick={onDelete} component="button">
+            <Box
+              sx={{ color: "gray.500" }}
+              size={16}
+              component={loadingRemove ? CircularProgress : Trash}
+            />
+          </Box>
+        </Stack>
       )}
 
       <Stack
@@ -176,7 +170,7 @@ export default function Message({
               sx={{ color: "white" }}
               size={14}
               onClick={submit}
-              component={loading ? CircularProgress : Send}
+              component={loadingEdit ? CircularProgress : Send}
             />
           </Stack>
         )}
@@ -185,13 +179,57 @@ export default function Message({
           <Box
             sx={{
               color: currentUser ? "white" : "gray.700",
+              fontSize: ".875rem",
               whiteSpace: "break-spaces",
               lineHeight: "1.25rem",
+
+              a: {
+                fontWeight: 700,
+                transition: "all .3s ease-in-out",
+
+                ":hover": {
+                  textDecoration: "underline",
+                },
+              },
             }}
-            variant="body2"
-            component={Typography}
-            dangerouslySetInnerHTML={{ __html: messageParser(message) }}
-          />
+          >
+            <Linkify
+              as="p"
+              options={{
+                nl2br: true,
+                render: {
+                  mention: ({ content, attributes }) => {
+                    const { href, ...rest } = attributes
+
+                    return (
+                      <Box sx={{ fontWeight: 700 }} {...rest} component="span">
+                        {content}
+                      </Box>
+                    )
+                  },
+                  hashtag: ({ content, attributes }) => {
+                    const { href, ...rest } = attributes
+
+                    return (
+                      <Box sx={{ fontWeight: 700 }} {...rest} component="span">
+                        {content}
+                      </Box>
+                    )
+                  },
+                },
+                validate: {
+                  mention: (value) => {
+                    const username = value.slice(1)
+
+                    return room?.usernames.includes(username) ?? false
+                  },
+                },
+                defaultProtocol: "https",
+              }}
+            >
+              {message}
+            </Linkify>
+          </Box>
         )}
       </Stack>
     </Stack>
