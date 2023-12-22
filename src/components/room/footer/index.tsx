@@ -43,7 +43,10 @@ export default function Footer() {
   }, [room, socket])
 
   function stopTyping() {
+    const token = getToken()
+
     socket.emit(ClientMessageType.msgTyping, {
+      token,
       orgId: room?.orgId,
       roomId: room?._id,
       typing: false,
@@ -82,6 +85,8 @@ export default function Footer() {
   }
 
   function onChangeTextField(text: string) {
+    if (text.length <= 0) stopTyping()
+
     setMessage(text)
 
     if (room && user) {
