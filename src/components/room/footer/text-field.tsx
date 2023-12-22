@@ -17,7 +17,8 @@ import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 const { Option } = Mentions
 
-interface TextFieldProps extends Pick<MentionsProps, "value" | "onChange"> {
+interface TextFieldProps
+  extends Pick<MentionsProps, "value" | "onBlur" | "onChange"> {
   onSend: () => Promise<void>
   variant?: "DEFAULT" | "TINY"
   setMentions: Dispatch<SetStateAction<OptionProps[]>>
