@@ -114,7 +114,7 @@ export default function ListMessages({ messages, user }: IProps) {
           )
         })}
 
-        <div ref={ref} style={{ height: 24 }} />
+        <div ref={ref} />
       </Stack>
 
       {room && userTyping && room._id === userTyping.roomId && (
