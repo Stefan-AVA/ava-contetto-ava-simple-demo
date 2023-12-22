@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
@@ -18,6 +18,8 @@ interface IProps {
 }
 
 export default function ListMessages({ messages, user }: IProps) {
+  const [editMessageId, setEditMessageId] = useState<string | null>(null)
+
   const ref = useRef<HTMLDivElement>(null)
 
   const isVisible = useIsVisible(ref)
@@ -30,15 +32,19 @@ export default function ListMessages({ messages, user }: IProps) {
   useEffect(() => {
     const list = document.getElementById("messages-list")
 
-    if (list) {
-      list.addEventListener("DOMNodeInserted", () => {
-        if (isVisible) scrollToBottom()
-      })
+    function scroll() {
+      if (isVisible && !editMessageId) scrollToBottom()
     }
-  }, [isVisible])
+
+    if (list) list.addEventListener("DOMNodeInserted", scroll)
+
+    return () => {
+      if (list) list.removeEventListener("DOMNodeInserted", scroll)
+    }
+  }, [isVisible, editMessageId])
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <>
       <Stack
         id="messages-list"
         sx={{
@@ -90,6 +96,8 @@ export default function ListMessages({ messages, user }: IProps) {
                   username={senderName}
                   messageId={_id}
                   currentUser={currentUser}
+                  editMessageId={editMessageId}
+                  onEditMessageId={setEditMessageId}
                 />
 
                 <Typography
@@ -105,9 +113,9 @@ export default function ListMessages({ messages, user }: IProps) {
             </Stack>
           )
         })}
-      </Stack>
 
-      <div ref={ref} />
+        <div ref={ref} style={{ height: 24 }} />
+      </Stack>
 
       {room && userTyping && room._id === userTyping.roomId && (
         <Typography
@@ -123,6 +131,6 @@ export default function ListMessages({ messages, user }: IProps) {
           {userTyping.username} is typing...
         </Typography>
       )}
-    </Box>
+    </>
   )
 }

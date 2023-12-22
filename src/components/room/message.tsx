@@ -1,7 +1,7 @@
 import "linkify-plugin-hashtag"
 import "linkify-plugin-mention"
 
-import { useRef, useState } from "react"
+import { useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
@@ -21,6 +21,8 @@ interface MessageProps {
   username: string
   messageId: string
   currentUser: boolean
+  editMessageId: string | null
+  onEditMessageId: Dispatch<SetStateAction<string | null>>
 }
 
 export default function Message({
@@ -28,8 +30,9 @@ export default function Message({
   username,
   messageId,
   currentUser,
+  editMessageId,
+  onEditMessageId,
 }: MessageProps) {
-  const [edit, setEdit] = useState(false)
   const [message, setMessage] = useState("")
   const [mentions, setMentions] = useState<OptionProps[]>([])
   const [channels, setChannels] = useState<OptionProps[]>([])
@@ -42,11 +45,11 @@ export default function Message({
 
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
 
-  useOutsideClick(ref, () => setEdit(false))
+  useOutsideClick(ref, () => onEditMessageId(null))
 
   async function submit() {
     if (!message) {
-      setEdit(false)
+      onEditMessageId(null)
 
       return
     }
@@ -69,7 +72,7 @@ export default function Message({
       messageId,
     })
 
-    setEdit(false)
+    onEditMessageId(null)
 
     setMessage("")
 
@@ -92,7 +95,7 @@ export default function Message({
   }
 
   function onEdit() {
-    setEdit(true)
+    onEditMessageId(messageId)
 
     setMessage(content)
   }
@@ -156,7 +159,7 @@ export default function Message({
           </Typography>
         )}
 
-        {edit && (
+        {editMessageId === messageId && (
           <Stack
             sx={{
               gap: 1,
@@ -182,7 +185,7 @@ export default function Message({
           </Stack>
         )}
 
-        {!edit && (
+        {editMessageId !== messageId && (
           <Box
             sx={{
               color: currentUser ? "white" : "gray.700",

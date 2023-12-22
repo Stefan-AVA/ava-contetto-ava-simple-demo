@@ -1,9 +1,9 @@
-export default function scrollToBottom(haveNewMessage = 0) {
+export default function scrollToBottom() {
   const list = document.getElementById("messages-list")
 
   if (list) {
     list.scrollTo({
-      top: list.scrollHeight + haveNewMessage,
+      top: list.scrollHeight,
       behavior: "smooth",
     })
   }
