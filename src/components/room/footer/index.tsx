@@ -4,7 +4,7 @@ import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
-import { OptionProps } from "rc-mentions/lib/Option"
+import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { ClientMessageType } from "@/types/message.types"

@@ -17,9 +17,8 @@ import {
   updateMessage,
   updateRoom,
 } from "@/redux/slices/room"
-import { type RootState } from "@/redux/store"
 import { getToken, setToken } from "@/redux/token"
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import io, { Socket } from "socket.io-client"
 
 import { IMessage, ServerMessageType } from "@/types/message.types"

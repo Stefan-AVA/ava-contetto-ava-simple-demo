@@ -1,17 +1,20 @@
 import "linkify-plugin-hashtag"
 import "linkify-plugin-mention"
 
-import { useRef, useState, type KeyboardEvent } from "react"
+import { useRef, useState } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 import Linkify from "linkify-react"
 import { Pencil, Send, Trash } from "lucide-react"
+import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { ClientMessageType } from "@/types/message.types"
 import useOutsideClick from "@/hooks/use-outside-click"
+
+import TextField from "./footer/text-field"
 
 interface MessageProps {
   message: string
@@ -21,17 +24,19 @@ interface MessageProps {
 }
 
 export default function Message({
-  message,
+  message: content,
   username,
   messageId,
   currentUser,
 }: MessageProps) {
   const [edit, setEdit] = useState(false)
+  const [message, setMessage] = useState("")
+  const [mentions, setMentions] = useState<OptionProps[]>([])
+  const [channels, setChannels] = useState<OptionProps[]>([])
   const [loadingEdit, setLoadingEdit] = useState(false)
   const [loadingRemove, setLoadingRemove] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const socket = useSocket()
 
@@ -40,21 +45,33 @@ export default function Message({
   useOutsideClick(ref, () => setEdit(false))
 
   async function submit() {
+    if (!message) {
+      setEdit(false)
+
+      return
+    }
+
     setLoadingEdit(true)
 
     const token = getToken()
 
     socket.emit(ClientMessageType.msgUpdate, {
-      msg: inputRef.current?.value ?? "",
+      msg: message ?? "",
       token,
       orgId: room?.orgId,
       roomId: room?._id,
+      mentions: mentions
+        .map((m) => m.value)
+        .filter((val) => message.includes(`@${val} `)), // usernames
+      channels: channels
+        .map((c) => c.value)
+        .filter((val) => message.includes(`#${val} `)), // channel ids
       messageId,
     })
 
-    if (inputRef.current) inputRef.current.value = ""
-
     setEdit(false)
+
+    setMessage("")
 
     setLoadingEdit(false)
   }
@@ -77,16 +94,7 @@ export default function Message({
   function onEdit() {
     setEdit(true)
 
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.value = message
-        inputRef.current.focus()
-      }
-    }, 200)
-  }
-
-  async function onPressEnter(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.code === "Enter" && !e.shiftKey) await submit()
+    setMessage(content)
   }
 
   return (
@@ -156,23 +164,18 @@ export default function Message({
               flexDirection: "row",
             }}
           >
-            <Box
-              sx={{
-                color: "white",
-                border: "none",
-                outline: "none",
-                fontSize: ".875rem",
-                lineHeight: "1.25rem",
-                backgroundColor: "transparent",
-              }}
-              ref={inputRef}
-              onKeyDown={(e) => onPressEnter(e)}
-              component="input"
+            <TextField
+              value={message}
+              onSend={submit}
+              variant="TINY"
+              onChange={setMessage}
+              setMentions={setMentions}
+              setChannels={setChannels}
             />
 
             <Box
-              sx={{ color: "white" }}
-              size={14}
+              sx={{ color: "white", aspectRatio: "1/1" }}
+              size={20}
               onClick={submit}
               component={loadingEdit ? CircularProgress : Send}
             />
@@ -231,7 +234,7 @@ export default function Message({
                 defaultProtocol: "https",
               }}
             >
-              {message}
+              {content}
             </Linkify>
           </Box>
         )}

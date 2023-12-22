@@ -1,16 +1,15 @@
 import {
-  Dispatch,
-  SetStateAction,
   useMemo,
   useState,
+  type Dispatch,
   type KeyboardEvent,
+  type SetStateAction,
 } from "react"
 import { useParams } from "next/navigation"
 import type { RootState } from "@/redux/store"
-import { Box } from "@mui/material"
-import { useTheme } from "@mui/material/styles"
+import { Box, useTheme } from "@mui/material"
 import Mentions, { type MentionsProps } from "rc-mentions"
-import { OptionProps } from "rc-mentions/lib/Option"
+import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
@@ -20,22 +19,24 @@ const { Option } = Mentions
 
 interface TextFieldProps extends Pick<MentionsProps, "value" | "onChange"> {
   onSend: () => Promise<void>
+  variant?: "DEFAULT" | "TINY"
   setMentions: Dispatch<SetStateAction<OptionProps[]>>
   setChannels: Dispatch<SetStateAction<OptionProps[]>>
 }
 
 export default function TextField({
   onSend,
+  variant = "DEFAULT",
   setMentions,
   setChannels,
   ...rest
 }: TextFieldProps) {
-  const { agentId, contactId, roomId } = useParams()
+  const { agentId, contactId } = useParams()
+
+  const { typography } = useTheme()
 
   const [rows, setRows] = useState(1)
   const [prefix, setPrefix] = useState("@")
-
-  const { typography } = useTheme()
 
   const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
@@ -105,20 +106,21 @@ export default function TextField({
         width: "100%",
 
         textarea: {
-          color: "gray.700",
+          color: variant === "DEFAULT" ? "gray.700" : "white",
           width: "100%",
           resize: "none",
-          padding: ".875rem 1.5rem",
+          padding: variant === "DEFAULT" ? ".875rem 1.5rem" : 0,
           outline: "none",
           fontSize: ".875rem",
           fontFamily: typography.fontFamily,
           fontWeight: 500,
           lineHeight: "1rem",
-          borderRadius: ".5rem",
-          backgroundColor: "gray.200",
+          borderRadius: variant === "DEFAULT" ? ".5rem" : 0,
+          backgroundColor: variant === "DEFAULT" ? "gray.200" : "transparent",
 
           "&::placeholder": {
-            color: "gray.400",
+            color:
+              variant === "DEFAULT" ? "gray.400" : "rgba(255, 255, 255, .5)",
           },
         },
       }}
