@@ -14,6 +14,7 @@ import {
   joinRoom,
   readMessage,
   sendMessage,
+  typingMessage,
   updateMessage,
   updateRoom,
 } from "@/redux/slices/room"
@@ -94,8 +95,10 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
       socket.on(
         ServerMessageType.msgTyping,
-        (payload: { roomId: string; username: string }) => {
-          console.log({ payload })
+        (payload: { roomId: string; username: string; typing: boolean }) => {
+          const { typing, ...rest } = payload
+
+          dispatch(typingMessage(typing ? rest : null))
         }
       )
 

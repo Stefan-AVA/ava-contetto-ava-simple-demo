@@ -42,6 +42,14 @@ export default function Footer() {
     }
   }, [room, socket])
 
+  function stopTyping() {
+    socket.emit(ClientMessageType.msgTyping, {
+      orgId: room?.orgId,
+      roomId: room?._id,
+      typing: false,
+    })
+  }
+
   async function submit() {
     setLoading(true)
 
@@ -62,6 +70,8 @@ export default function Footer() {
         .filter((val) => message.includes(`#${val} `)), // channel ids
     })
 
+    stopTyping()
+
     setMessage("")
 
     await delay(300)
@@ -81,6 +91,7 @@ export default function Footer() {
         token,
         orgId: room?.orgId,
         roomId: room._id,
+        typing: true,
       })
     }
   }
@@ -92,6 +103,7 @@ export default function Footer() {
       <TextField
         value={message}
         onSend={submit}
+        onBlur={stopTyping}
         onChange={onChangeTextField}
         setMentions={setMentions}
         setChannels={setChannels}

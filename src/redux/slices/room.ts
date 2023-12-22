@@ -8,18 +8,25 @@ import { authApi } from "../apis/auth"
 import { messageApi } from "../apis/message"
 import { roomApi } from "../apis/room"
 
+export type UserTyping = {
+  roomId: string
+  username: string
+}
+
 interface IRoomState {
   user?: IUser
   rooms: IRoom[] // all rooms in all orgs
-  currentRoom?: IRoom
   messages: IMessage[] // messages in currentRoom
+  userTyping: UserTyping | null
+  currentRoom?: IRoom
 }
 
 const initialState: IRoomState = {
   user: undefined,
   rooms: [],
-  currentRoom: undefined,
   messages: [],
+  userTyping: null,
+  currentRoom: undefined,
 }
 
 export const roomSlice = createSlice({
@@ -77,6 +84,9 @@ export const roomSlice = createSlice({
         state.messages = state.messages.filter((msg) => msg._id !== payload._id)
       }
     },
+    typingMessage: (state, { payload }: PayloadAction<UserTyping | null>) => {
+      state.userTyping = payload
+    },
   },
   extraReducers: (builder) => {
     // for checking current user
@@ -128,12 +138,13 @@ export const {
   setRooms,
   updateRoom,
   joinRoom,
-  setCurrentRoom,
   readMessage,
   setMessages,
   sendMessage,
+  typingMessage,
   deleteMessage,
   updateMessage,
+  setCurrentRoom,
 } = roomSlice.actions
 
 export default roomSlice.reducer
