@@ -52,7 +52,7 @@ const LoginLayout = ({ children }: PropsWithChildren) => {
     }
 
     run()
-  }, [getme, dispatch, replace, getOrgs])
+  }, [getme, dispatch, replace, getOrgs, initialized])
 
   return (
     <Stack
