@@ -294,23 +294,15 @@ export default function Sidebar({
         </Box>
       </Stack>
 
-      <Drawer
-        open={isDrawerOpen}
-        anchor={"left"}
-        onClose={() => toggleDrawer()}
-        keepMounted
-      >
+      <Drawer open={isDrawerOpen} onClose={() => toggleDrawer()} keepMounted>
         <Stack
           sx={{
             p: 1.5,
-            top: 0,
-            left: 0,
             width: 250,
             zIndex: 5,
             height: "100vh",
-            position: "fixed",
-            background: "#5A57FF",
             alignItems: "center",
+            backgroundColor: "secondary.main",
           }}
           spacing={2}
         >
