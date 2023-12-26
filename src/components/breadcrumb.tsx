@@ -6,13 +6,22 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import { Breadcrumbs, Typography } from "@mui/material"
 
-const breadcrumbNameMap: { [key: string]: { label: string; link: boolean } } = {
+type BreadcrumbOption = {
+  link: boolean
+  label: string
+  hidden?: boolean
+}
+
+type BreadcrumbPaths = Record<string, BreadcrumbOption>
+
+const breadcrumbNameMap: BreadcrumbPaths = {
   "/search-results": { label: "My Searches", link: true },
   "/search-results/searchId": { label: "Search", link: true },
   "/search-results/searchId/properties": { label: "Properties", link: false },
   "/search-results/searchId/properties/propertyId": {
-    label: "Property",
     link: true,
+    label: "Property",
+    hidden: true,
   },
   "/contacts": { label: "Contacts", link: true },
   "/contacts/contact_id": { label: "Contact", link: true },
@@ -51,6 +60,30 @@ export default function Breadcrumb({ initialPosition }: IBreadcrumb) {
       return route
     })
   }, [params, sliceRoute])
+
+  const isAvailable = useMemo(() => {
+    const find = replaceWithParams.filter((_, index) => {
+      const name = `/${replaceWithParams.slice(0, index + 1).join("/")}`
+
+      const getBreadcrumbMap = Object.keys(breadcrumbNameMap).findIndex(
+        (key) => {
+          if (key === name) return true
+
+          return false
+        }
+      )
+
+      if (getBreadcrumbMap === -1) return false
+
+      const breadcrumb = Object.values(breadcrumbNameMap)[getBreadcrumbMap]
+
+      return !breadcrumb.hidden
+    })
+
+    return replaceWithParams.length === find.length
+  }, [replaceWithParams])
+
+  if (!isAvailable) return null
 
   return (
     <Breadcrumbs aria-label="breadcrumb">
