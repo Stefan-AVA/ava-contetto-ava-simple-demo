@@ -1,6 +1,6 @@
 "use client"
 
-import React, { FormEvent, useEffect, useState } from "react"
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
@@ -24,12 +24,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Frown, Search as SearchIcon } from "lucide-react"
+import { Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
-import { ICity } from "@/types/city.types"
-import { IListing } from "@/types/listing.types"
-import { ISearchResult } from "@/types/searchResult.types"
+import type { ICity } from "@/types/city.types"
+import type { IListing } from "@/types/listing.types"
+import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
@@ -140,10 +140,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
     }
   }
 
-  const handlePageChange = async (
-    _: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
+  const handlePageChange = async (_: ChangeEvent<unknown>, value: number) => {
     setPage(value)
     if (searchResult) {
       const data = await getResult({
@@ -324,25 +321,23 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         </Stack>
       </Stack>
 
-      {properties && properties.length <= 0 && (
-        <Stack
+      {searchResult && properties.length <= 0 && (
+        <Typography
           sx={{
             px: 3,
             mt: 10,
             mb: 3,
             mx: "auto",
             gap: 3,
+            color: "gray.600",
             maxWidth: "22rem",
-            alignItems: "center",
+            textAlign: "center",
           }}
         >
-          <Box sx={{ color: "secondary.main" }} size={40} component={Frown} />
-          <Typography sx={{ color: "gray.600", textAlign: "center" }}>
-            {
-              "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
-            }
-          </Typography>
-        </Stack>
+          {
+            "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
+          }
+        </Typography>
       )}
 
       {properties && properties.length > 0 && (
