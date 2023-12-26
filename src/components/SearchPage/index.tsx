@@ -185,7 +185,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           onSubmit={onSearch}
           component="form"
         >
-          <Box
+          <Stack
             sx={{
               py: { xs: 1, lg: 0 },
               pr: { xs: 2, lg: 0 },
@@ -193,11 +193,13 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               width: "100%",
               height: "100%",
             }}
+            alignItems="center"
+            flexDirection="row"
           >
             <Typography
               sx={{
                 color: "blue.800",
-                height: "auto",
+                height: "100%",
                 border: "none",
                 display: {
                   xs: "none",
@@ -232,8 +234,9 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               value={search}
               label="Type in your search criteria"
               onChange={({ target }) => setSearch(target.value)}
+              fullWidth
             />
-          </Box>
+          </Stack>
 
           <Stack
             sx={{
