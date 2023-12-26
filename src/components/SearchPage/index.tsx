@@ -187,7 +187,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         >
           <Box
             sx={{
-              py: { xs: 2, lg: 0 },
+              py: { xs: 1, lg: 0 },
               pr: { xs: 2, lg: 0 },
               pl: { xs: 2, lg: 4 },
               width: "100%",
@@ -199,6 +199,10 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                 color: "blue.800",
                 height: "auto",
                 border: "none",
+                display: {
+                  xs: "none",
+                  md: "flex",
+                },
                 outline: "none",
                 fontWeight: 500,
                 width: "100%",
@@ -211,20 +215,33 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               name="search"
               value={search}
               variant="body2"
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={({ target }) => setSearch(target.value)}
               component="input"
               placeholder="Type in your search criteria"
-              // defaultValue={searchParams.search}
+            />
+
+            <TextField
+              sx={{
+                display: {
+                  xs: "flex",
+                  md: "none",
+                },
+              }}
+              name="search"
+              size="small"
+              value={search}
+              label="Type in your search criteria"
+              onChange={({ target }) => setSearch(target.value)}
             />
           </Box>
 
           <Stack
             sx={{
-              py: { xs: 2, md: 1 },
-              pr: { xs: 2, md: 3 },
-              pl: { xs: 2, md: 2 },
-              ml: { xs: 0, md: 2 },
-              gap: { xs: 1, md: 2 },
+              py: { xs: 2, lg: 1 },
+              pr: { xs: 2, lg: 3 },
+              pl: { xs: 2, lg: 2 },
+              ml: { xs: 0, lg: 2 },
+              gap: { xs: 1, lg: 2 },
               alignItems: "center",
               borderLeft: {
                 xs: "none",
