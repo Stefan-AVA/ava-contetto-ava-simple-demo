@@ -9,6 +9,12 @@ interface IGetMessageRequest {
   roomId: string
 }
 
+interface ILoadMoreMessageRequest {
+  orgId: string
+  roomId: string
+  messageId: string
+}
+
 export const messageApi = createApi({
   reducerPath: "messageApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -21,7 +27,18 @@ export const messageApi = createApi({
       }),
       providesTags: ["Messages"],
     }),
+    loadMoreMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
+      query: ({ orgId, roomId, messageId }) => ({
+        url: `/${orgId}/rooms/${roomId}/messages`,
+        method: "GET",
+        params: {
+          messageId,
+        },
+      }),
+      providesTags: ["Messages"],
+    }),
   }),
 })
 
-export const { useLazyGetMessagesQuery } = messageApi
+export const { useLazyGetMessagesQuery, useLazyLoadMoreMessagesQuery } =
+  messageApi
