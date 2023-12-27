@@ -85,7 +85,7 @@ export default function Layout({ children }: PropsWithChildren) {
       >
         <Sidebar routes={routes} />
 
-        <Box
+        <Stack
           sx={{
             p: { xs: 1, md: 5 },
             gap: 2,
@@ -98,7 +98,7 @@ export default function Layout({ children }: PropsWithChildren) {
           <Breadcrumb initialPosition={3} />
 
           {children}
-        </Box>
+        </Stack>
       </Stack>
     </WhiteLabelWrapper>
   )

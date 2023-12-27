@@ -1,4 +1,4 @@
-import { MouseEvent, useMemo } from "react"
+import { useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"
@@ -6,7 +6,7 @@ import { Stack } from "@mui/material"
 import { Lock } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import { IRoom, RoomType } from "@/types/room.types"
+import { RoomType, type IRoom } from "@/types/room.types"
 import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 import Loading from "../Loading"
@@ -15,7 +15,11 @@ import CreateDM from "./create-dm"
 import ListRooms from "./list-rooms"
 import RoomField from "./room-field"
 
-export default function Rooms() {
+interface RoomsProps {
+  onAction?: () => void
+}
+
+export default function Rooms({ onAction }: RoomsProps) {
   const { agentId, contactId } = useParams()
   const { push } = useRouter()
 
@@ -33,13 +37,20 @@ export default function Rooms() {
     [agentId, agentOrgs]
   )
 
-  const onRoomChange = (room: IRoom) => (e: MouseEvent<HTMLElement>) => {
+  function onRoomChange(room: IRoom) {
     dispatch(setCurrentRoom(room))
+
     if (agentId) {
       push(`/app/agent-orgs/${agentId}/rooms/${room._id}`)
     } else if (contactId) {
       push(`/app/contact-orgs/${contactId}/rooms/${room._id}`)
     }
+  }
+
+  function navigate(room: IRoom) {
+    onRoomChange(room)
+
+    if (onAction) onAction()
   }
 
   return (
@@ -56,8 +67,8 @@ export default function Rooms() {
                   key={room._id}
                   icon={Lock}
                   title={String(room.name)}
+                  onClick={() => navigate(room)}
                   numberOfMembers={room.usernames.length}
-                  onClick={onRoomChange(room)}
                   unreadMessages={
                     user?.username
                       ? room.userStatus[user.username].notis
@@ -79,7 +90,7 @@ export default function Rooms() {
                   title={room.usernames
                     .filter((u) => u !== user?.username)
                     .join(", ")}
-                  onClick={onRoomChange(room)}
+                  onClick={() => navigate(room)}
                   unreadMessages={
                     user?.username
                       ? room.userStatus[user.username].notis

@@ -48,8 +48,8 @@ export default function ListMessages({ messages, user }: IProps) {
       <Stack
         id="messages-list"
         sx={{
-          pt: 5,
-          px: 5,
+          pt: { xs: 2, md: 5 },
+          px: { xs: 2, md: 5 },
           gap: 1.5,
           height: "calc(100vh - 25.5rem)",
           overflowY: "auto",

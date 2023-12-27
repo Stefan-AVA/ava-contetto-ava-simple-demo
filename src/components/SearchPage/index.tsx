@@ -1,6 +1,6 @@
 "use client"
 
-import React, { FormEvent, useEffect, useState } from "react"
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
@@ -24,12 +24,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Frown, Search as SearchIcon } from "lucide-react"
+import { Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
-import { ICity } from "@/types/city.types"
-import { IListing } from "@/types/listing.types"
-import { ISearchResult } from "@/types/searchResult.types"
+import type { ICity } from "@/types/city.types"
+import type { IListing } from "@/types/listing.types"
+import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
@@ -140,10 +140,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
     }
   }
 
-  const handlePageChange = async (
-    _: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
+  const handlePageChange = async (_: ChangeEvent<unknown>, value: number) => {
     setPage(value)
     if (searchResult) {
       const data = await getResult({
@@ -188,20 +185,26 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           onSubmit={onSearch}
           component="form"
         >
-          <Box
+          <Stack
             sx={{
-              py: { xs: 2, lg: 0 },
+              py: { xs: 1, lg: 0 },
               pr: { xs: 2, lg: 0 },
               pl: { xs: 2, lg: 4 },
               width: "100%",
               height: "100%",
             }}
+            alignItems="center"
+            flexDirection="row"
           >
             <Typography
               sx={{
                 color: "blue.800",
-                height: "auto",
+                height: "100%",
                 border: "none",
+                display: {
+                  xs: "none",
+                  md: "flex",
+                },
                 outline: "none",
                 fontWeight: 500,
                 width: "100%",
@@ -214,20 +217,34 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               name="search"
               value={search}
               variant="body2"
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={({ target }) => setSearch(target.value)}
               component="input"
               placeholder="Type in your search criteria"
-              // defaultValue={searchParams.search}
             />
-          </Box>
+
+            <TextField
+              sx={{
+                display: {
+                  xs: "flex",
+                  md: "none",
+                },
+              }}
+              name="search"
+              size="small"
+              value={search}
+              label="Type in your search criteria"
+              onChange={({ target }) => setSearch(target.value)}
+              fullWidth
+            />
+          </Stack>
 
           <Stack
             sx={{
-              py: { xs: 2, md: 1 },
-              pr: { xs: 2, md: 3 },
-              pl: { xs: 2, md: 2 },
-              ml: { xs: 0, md: 2 },
-              gap: { xs: 1, md: 2 },
+              py: { xs: 2, lg: 1 },
+              pr: { xs: 2, lg: 3 },
+              pl: { xs: 2, lg: 2 },
+              ml: { xs: 0, lg: 2 },
+              gap: { xs: 1, lg: 2 },
               alignItems: "center",
               borderLeft: {
                 xs: "none",
@@ -324,25 +341,23 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         </Stack>
       </Stack>
 
-      {properties && properties.length <= 0 && (
-        <Stack
+      {searchResult && properties.length <= 0 && (
+        <Typography
           sx={{
             px: 3,
             mt: 10,
             mb: 3,
             mx: "auto",
             gap: 3,
+            color: "gray.600",
             maxWidth: "22rem",
-            alignItems: "center",
+            textAlign: "center",
           }}
         >
-          <Box sx={{ color: "secondary.main" }} size={40} component={Frown} />
-          <Typography sx={{ color: "gray.600", textAlign: "center" }}>
-            {
-              "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
-            }
-          </Typography>
-        </Stack>
+          {
+            "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
+          }
+        </Typography>
       )}
 
       {properties && properties.length > 0 && (

@@ -102,7 +102,15 @@ export default function Footer() {
   }
 
   return (
-    <Stack sx={{ px: 5, py: 3, gap: 4, flexDirection: "row" }}>
+    <Stack
+      sx={{
+        px: { xs: 2, md: 5 },
+        py: { xs: 2, md: 3 },
+        gap: { xs: 1, md: 4 },
+        alignItems: "center",
+        flexDirection: "row",
+      }}
+    >
       <EmojiPicker onMessage={setMessage} />
 
       <TextField

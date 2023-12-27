@@ -54,7 +54,7 @@ export default function Room() {
     <>
       <Stack
         sx={{
-          px: 5,
+          px: { xs: 2, md: 5 },
           py: 2.5,
           gap: 2,
           alignItems: "center",

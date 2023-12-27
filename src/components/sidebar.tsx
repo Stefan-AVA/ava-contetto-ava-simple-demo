@@ -188,7 +188,7 @@ export default function Sidebar({ routes }: SidebarProps) {
               MESSAGING
             </Typography>
 
-            <Rooms />
+            <Rooms onAction={() => setOpen(false)} />
           </Stack>
         </Card>
       </Dropdown>

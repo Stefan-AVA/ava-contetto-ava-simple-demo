@@ -3,7 +3,7 @@ import { Stack, Typography } from "@mui/material"
 
 export default function RoomLayout({ children }: PropsWithChildren) {
   return (
-    <Stack sx={{ gap: 4, flex: 1, width: "100%" }}>
+    <Stack sx={{ gap: 2, flex: 1, width: "100%" }}>
       <Stack
         sx={{
           gap: 1,
