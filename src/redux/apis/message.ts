@@ -29,7 +29,7 @@ export const messageApi = createApi({
     }),
     loadMoreMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
       query: ({ orgId, roomId, messageId }) => ({
-        url: `/${orgId}/rooms/${roomId}/messages`,
+        url: `/${orgId}/rooms/${roomId}/messages/more`,
         method: "GET",
         params: {
           messageId,

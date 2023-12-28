@@ -39,7 +39,6 @@ export default function Room() {
 
       if (room) {
         dispatch(setCurrentRoom(room))
-        getAllMessages({ orgId: room.orgId, roomId: room._id })
       } else {
         if (agentId) {
           replace(`/app/agent-orgs/${agentId}`)
@@ -48,7 +47,13 @@ export default function Room() {
         }
       }
     }
-  }, [rooms, roomId, agentId, contactId, dispatch, replace, getAllMessages])
+  }, [rooms, roomId, agentId, contactId, dispatch, replace])
+
+  useEffect(() => {
+    if (room?._id) {
+      getAllMessages({ orgId: room.orgId, roomId: room._id })
+    }
+  }, [room?._id, getAllMessages])
 
   return (
     <>
