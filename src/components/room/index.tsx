@@ -104,7 +104,7 @@ export default function Room() {
         </Stack>
       )}
 
-      {!isLoading && <ListMessages messages={messages} user={user} />}
+      {!isLoading && <ListMessages user={user} messages={messages} />}
       <Footer />
     </>
   )

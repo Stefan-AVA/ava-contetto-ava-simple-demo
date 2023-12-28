@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type UIEvent } from "react"
+import { useLazyLoadMoreMessagesQuery } from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
@@ -9,6 +10,7 @@ import type { IMessage } from "@/types/message.types"
 import type { IUser } from "@/types/user.types"
 import useIsVisible from "@/hooks/use-is-visible"
 
+import Loading from "../Loading"
 import Message from "./message"
 import scrollToBottom from "./scroll-to-bottom"
 
@@ -17,12 +19,14 @@ interface IProps {
   messages: IMessage[]
 }
 
-export default function ListMessages({ messages, user }: IProps) {
+export default function ListMessages({ user, messages }: IProps) {
   const [editMessageId, setEditMessageId] = useState<string | null>(null)
 
   const ref = useRef<HTMLDivElement>(null)
 
   const isVisible = useIsVisible(ref)
+
+  const [loadMore, { isLoading }] = useLazyLoadMoreMessagesQuery()
 
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
   const userTyping = useSelector((state: RootState) => state.rooms.userTyping)
@@ -43,6 +47,16 @@ export default function ListMessages({ messages, user }: IProps) {
     }
   }, [isVisible, editMessageId])
 
+  async function onScrollTop(e: UIEvent<HTMLDivElement>) {
+    const element = e.target as HTMLDivElement
+
+    if (messages.length > 0 && element.scrollTop === 0) {
+      const { _id, orgId, roomId } = messages[0]
+
+      await loadMore({ orgId, roomId, messageId: _id })
+    }
+  }
+
   return (
     <>
       <Stack
@@ -54,7 +68,10 @@ export default function ListMessages({ messages, user }: IProps) {
           height: "calc(100vh - 25.5rem)",
           overflowY: "auto",
         }}
+        onScroll={onScrollTop}
       >
+        {isLoading && <Loading />}
+
         {messages.map(({ _id, senderName, msg, createdAt }, index) => {
           const currentUser = senderName === user?.username
 
