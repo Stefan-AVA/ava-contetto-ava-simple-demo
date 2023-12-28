@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type UIEvent } from "react"
 import { useLazyLoadMoreMessagesQuery } from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
+import delay from "@/utils/delay"
 import { Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User } from "lucide-react"
@@ -53,7 +54,21 @@ export default function ListMessages({ user, messages }: IProps) {
     if (messages.length > 0 && element.scrollTop === 0) {
       const { _id, orgId, roomId } = messages[0]
 
-      await loadMore({ orgId, roomId, messageId: _id })
+      const data = await loadMore({ orgId, roomId, messageId: _id }).unwrap()
+
+      await delay()
+
+      const currMessage = document.getElementById(`message-${_id}`)
+      const listMessages = document.getElementById("messages-list")
+
+      if (listMessages && currMessage && data.length > 0) {
+        const { top, height } = currMessage.getBoundingClientRect()
+
+        listMessages.scrollTo({
+          top: top - height - 124,
+          behavior: "smooth",
+        })
+      }
     }
   }
 
@@ -62,7 +77,7 @@ export default function ListMessages({ user, messages }: IProps) {
       <Stack
         id="messages-list"
         sx={{
-          pt: { xs: 2, md: 5 },
+          pt: { xs: 2, md: 3 },
           px: { xs: 2, md: 5 },
           gap: 1.5,
           height: "calc(100vh - 25.5rem)",
@@ -70,7 +85,7 @@ export default function ListMessages({ user, messages }: IProps) {
         }}
         onScroll={onScrollTop}
       >
-        {isLoading && <Loading />}
+        {isLoading && <Loading sx={{ py: 2 }} />}
 
         {messages.map(({ _id, senderName, msg, createdAt }, index) => {
           const currentUser = senderName === user?.username
@@ -83,6 +98,7 @@ export default function ListMessages({ user, messages }: IProps) {
                 width: "fit-content",
                 flexDirection: "row",
               }}
+              id={`message-${_id}`}
               key={index}
             >
               {!currentUser && (

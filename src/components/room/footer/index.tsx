@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
+import delay from "@/utils/delay"
 import { Box, CircularProgress, Stack } from "@mui/material"
 import { Send } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
@@ -12,12 +13,6 @@ import { ClientMessageType } from "@/types/message.types"
 import scrollToBottom from "../scroll-to-bottom"
 import EmojiPicker from "./emoji-picker"
 import TextField from "./text-field"
-
-async function delay(ms = 1) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
 
 export default function Footer() {
   const socket = useSocket()

@@ -1,8 +1,8 @@
-import { CircularProgress, Stack } from "@mui/material"
+import { CircularProgress, Stack, type StackProps } from "@mui/material"
 
-const Loading = () => {
+const Loading = ({ sx }: StackProps) => {
   return (
-    <Stack sx={{ p: 5, alignItems: "center", justifyContent: "center" }}>
+    <Stack sx={{ p: 5, alignItems: "center", justifyContent: "center", ...sx }}>
       <CircularProgress size="1.25rem" />
     </Stack>
   )

@@ -53,7 +53,7 @@ export default function Room() {
     if (room?._id) {
       getAllMessages({ orgId: room.orgId, roomId: room._id })
     }
-  }, [room?._id, getAllMessages])
+  }, [room?._id, room?.orgId, getAllMessages])
 
   return (
     <>
