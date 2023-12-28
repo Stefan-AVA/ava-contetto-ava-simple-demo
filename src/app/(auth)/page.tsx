@@ -60,7 +60,14 @@ export default function LoginPage({ searchParams }: PageProps) {
     }
 
     try {
-      await login(response.data).unwrap()
+      const user = await login(response.data).unwrap()
+
+      const reactNativeWebView = window.ReactNativeWebView
+
+      if (user && reactNativeWebView)
+        reactNativeWebView.postMessage(
+          JSON.stringify({ type: "ONESIGNAL_LOGIN", user })
+        )
 
       // update webSocket connection
       connectSocket()
