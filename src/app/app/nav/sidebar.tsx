@@ -268,7 +268,7 @@ export default function Sidebar({
             xs: "none",
             md: "flex",
           },
-          bgcolor: "secondary.main",
+          bgcolor: "primary.main",
           position: "fixed",
           minHeight: "100vh",
           alignItems: "center",
