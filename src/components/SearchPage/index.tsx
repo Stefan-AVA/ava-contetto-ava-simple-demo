@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
+import Image from "next/image"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
@@ -24,6 +25,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
+import AvaNotFoundImage from "~/assets/ava-not-found.png"
 import { Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -342,22 +344,34 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       </Stack>
 
       {searchResult && properties.length <= 0 && (
-        <Typography
+        <Stack
           sx={{
             px: 3,
             mt: 10,
             mb: 3,
             mx: "auto",
-            gap: 3,
-            color: "gray.600",
+            gap: 2,
             maxWidth: "22rem",
-            textAlign: "center",
+            alignItems: "center",
           }}
         >
-          {
-            "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
-          }
-        </Typography>
+          <Image
+            src={AvaNotFoundImage}
+            alt=""
+            style={{ objectFit: "contain" }}
+          />
+
+          <Typography
+            sx={{
+              color: "gray.600",
+              textAlign: "center",
+            }}
+          >
+            {
+              "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
+            }
+          </Typography>
+        </Stack>
       )}
 
       {properties && properties.length > 0 && (
