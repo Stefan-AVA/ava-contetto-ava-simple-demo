@@ -35,6 +35,7 @@ import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
+import AdvancedSearch from "./advanced-search"
 import Property from "./Property"
 import SearchForm from "./SearchForm"
 
@@ -44,20 +45,25 @@ interface ISearch {
   contactId?: string
 }
 
-const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
-  const [search, setSearch] = useState("")
+const initialForm = {
+  city: null as ICity | null,
+  range: "10",
+  search: "",
+}
 
-  const [city, setCity] = useState<ICity | null>(null)
-  const [range, setRange] = useState("10") // kilometers
+const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
+  const [page, setPage] = useState(1)
+  const [pageCount, setPageCount] = useState(0)
+
+  const [form, setForm] = useState(initialForm)
   const [cities, setCities] = useState<ICity[]>([])
+  const [advancedModal, setAdvancedModal] = useState(false)
   const [searchCityInput, setSearchCityInput] = useState("")
 
   const [properties, setProperties] = useState<IListing[]>([])
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
-  const [page, setPage] = useState(1)
-  const [pageCount, setPageCount] = useState(0)
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -98,7 +104,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           lng: location.lng,
         }).unwrap()
 
-        setCity(cities[0])
+        setForm((prev) => ({ ...prev, city: cities[0] }))
         setCities(cities)
       }
 
@@ -109,7 +115,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   const onSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!city) {
+    if (!form.city) {
       enqueueSnackbar("Select the city you want to search", {
         variant: "error",
       })
@@ -117,7 +123,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       return
     }
 
-    if (!Number(range)) {
+    if (!Number(form.range)) {
       enqueueSnackbar("Enter the search radius", { variant: "error" })
 
       return
@@ -127,9 +133,9 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       try {
         const data = await searchListings({
           orgId,
-          search: search || "",
-          cityId: city._id,
-          range,
+          range: form.range,
+          search: form.search || "",
+          cityId: form.city?._id,
           contactId,
         }).unwrap()
 
@@ -191,9 +197,11 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           <TextField
             name="search"
             size="small"
-            value={search}
+            value={form.search}
             label="Type in your search criteria"
-            onChange={({ target }) => setSearch(target.value)}
+            onChange={({ target }) =>
+              setForm((prev) => ({ ...prev, search: target.value }))
+            }
             fullWidth
           />
 
@@ -214,10 +222,12 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           >
             <Autocomplete
               sx={{ width: { xs: "100%", sm: "14rem" } }}
-              value={city}
+              value={form.city}
               loading={isLoadingGetNearestCities}
               options={cities}
-              onChange={(_, newValue) => setCity(newValue)}
+              onChange={(_, newValue) =>
+                setForm((prev) => ({ ...prev, city: newValue }))
+              }
               fullWidth
               clearOnBlur
               renderInput={(params) => (
@@ -264,8 +274,10 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               sx={{ width: "5.5rem" }}
               size="small"
               label="KM Radius"
-              value={range}
-              onChange={({ target }) => setRange(target.value)}
+              value={form.range}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, range: target.value }))
+              }
               InputProps={{ type: "number" }}
             />
 
@@ -308,6 +320,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             textDecoration: "underline",
           }}
           variant="body2"
+          onClick={() => setAdvancedModal(true)}
           component="button"
         >
           Advanced search
@@ -380,6 +393,8 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           ) : null}
         </>
       )}
+
+      <AdvancedSearch open={advancedModal} onClose={setAdvancedModal} />
     </Stack>
   )
 }
