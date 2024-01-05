@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import { useMemo, type KeyboardEvent, type MouseEvent } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -16,6 +16,7 @@ import {
   Typography,
   Zoom,
 } from "@mui/material"
+import AVALogo from "~/assets/logo-ava.png"
 import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -23,14 +24,14 @@ import { SIDEBAR_WIDTH } from "../consts"
 
 interface ISidebar {
   loading: boolean
-  toggleDrawer: (event?: React.KeyboardEvent | React.MouseEvent) => void
+  toggleDrawer: (event?: KeyboardEvent | MouseEvent) => void
   isDrawerOpen: boolean
   setOpenCreateOrgModal: Function
 }
 
 interface ISidebarList {
   expand?: boolean
-  toggleDrawer?: (event?: React.KeyboardEvent | React.MouseEvent) => void
+  toggleDrawer?: (event?: KeyboardEvent | MouseEvent) => void
   setOpenCreateOrgModal: Function
 }
 
@@ -244,6 +245,26 @@ export default function Sidebar({
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
+  const { agentId, contactId } = useParams()
+
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+  const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
+
+  const agentProfile = useMemo(
+    () => agentOrgs.find((agent) => agent._id === agentId),
+    [agentId, agentOrgs]
+  )
+
+  const contact = useMemo(
+    () => contactOrgs.find((contact) => contact._id === contactId),
+    [contactId, contactOrgs]
+  )
+
+  const orgLogo = useMemo(
+    () => agentProfile?.org?.logoUrl || contact?.org?.logoUrl,
+    [agentProfile, contact]
+  )
+
   function onLogout() {
     dispatch(logout())
 
@@ -256,6 +277,7 @@ export default function Sidebar({
         id="sidebar"
         sx={{
           p: 1.5,
+          pt: 18,
           top: 0,
           left: 0,
           width: {
@@ -275,7 +297,34 @@ export default function Sidebar({
         }}
         spacing={2}
       >
+        <Stack
+          sx={{
+            py: 2,
+            px: 4,
+            top: "1.5rem",
+            left: 0,
+            bgcolor: "white",
+            position: "absolute",
+            boxShadow: "0px 16px 24px 16px rgba(0, 0, 0, .12)",
+            borderTopRightRadius: "1.25rem",
+            borderBottomRightRadius: "1.25rem",
+          }}
+        >
+          <Stack href="/" component={Link}>
+            <Box sx={{ width: "8rem", height: "4rem", position: "relative" }}>
+              <Image
+                src={orgLogo || AVALogo}
+                alt="logo"
+                fill
+                style={{ objectFit: "contain" }}
+                priority
+              />
+            </Box>
+          </Stack>
+        </Stack>
+
         {loading && <CircularProgress size="1.25rem" />}
+
         {!loading && (
           <SidebarList setOpenCreateOrgModal={setOpenCreateOrgModal} />
         )}

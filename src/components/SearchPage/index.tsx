@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
+import Image from "next/image"
 import {
   useLazyNearestCitiesQuery,
   useLazySearchCitiesQuery,
@@ -24,6 +25,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
+import AvaNotFoundImage from "~/assets/ava-not-found.png"
 import { Search as SearchIcon } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -33,6 +35,7 @@ import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useGetCurrentPosition from "@/hooks/use-get-current-position"
 
+import AdvancedSearch from "./advanced-search"
 import Property from "./Property"
 import SearchForm from "./SearchForm"
 
@@ -42,20 +45,25 @@ interface ISearch {
   contactId?: string
 }
 
-const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
-  const [search, setSearch] = useState("")
+const initialForm = {
+  city: null as ICity | null,
+  range: "10",
+  search: "",
+}
 
-  const [city, setCity] = useState<ICity | null>(null)
-  const [range, setRange] = useState("10") // kilometers
+const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
+  const [page, setPage] = useState(1)
+  const [pageCount, setPageCount] = useState(0)
+
+  const [form, setForm] = useState(initialForm)
   const [cities, setCities] = useState<ICity[]>([])
+  const [advancedModal, setAdvancedModal] = useState(false)
   const [searchCityInput, setSearchCityInput] = useState("")
 
   const [properties, setProperties] = useState<IListing[]>([])
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
-  const [page, setPage] = useState(1)
-  const [pageCount, setPageCount] = useState(0)
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -96,7 +104,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           lng: location.lng,
         }).unwrap()
 
-        setCity(cities[0])
+        setForm((prev) => ({ ...prev, city: cities[0] }))
         setCities(cities)
       }
 
@@ -107,7 +115,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   const onSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!city) {
+    if (!form.city) {
       enqueueSnackbar("Select the city you want to search", {
         variant: "error",
       })
@@ -115,7 +123,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       return
     }
 
-    if (!Number(range)) {
+    if (!Number(form.range)) {
       enqueueSnackbar("Enter the search radius", { variant: "error" })
 
       return
@@ -125,9 +133,9 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       try {
         const data = await searchListings({
           orgId,
-          search: search || "",
-          cityId: city._id,
-          range,
+          range: form.range,
+          search: form.search || "",
+          cityId: form.city?._id,
           contactId,
         }).unwrap()
 
@@ -159,13 +167,12 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       <Stack
         sx={{
           mx: "auto",
-          gap: 4.5,
           width: "100%",
           maxWidth: "56rem",
         }}
       >
         <Typography
-          sx={{ color: "blue.800", fontWeight: 500 }}
+          sx={{ mb: 4.5, color: "blue.800", fontWeight: 500 }}
           variant="h3"
           component="h1"
         >
@@ -175,68 +182,28 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         <Stack
           sx={{
             py: 2,
+            pr: { xs: 2, lg: 0 },
+            pl: { xs: 2, lg: 4 },
             color: "blue.300",
             width: "100%",
             bgcolor: "gray.200",
+            alignItems: { xs: "none", lg: "center" },
             borderRadius: { xs: "1rem", lg: "999px" },
             flexDirection: { xs: "column", lg: "row" },
-            alignItems: { xs: "none", lg: "center" },
           }}
           onSubmit={onSearch}
           component="form"
         >
-          <Stack
-            sx={{
-              py: { xs: 1, lg: 0 },
-              pr: { xs: 2, lg: 0 },
-              pl: { xs: 2, lg: 4 },
-              width: "100%",
-              height: "100%",
-            }}
-            alignItems="center"
-            flexDirection="row"
-          >
-            <Typography
-              sx={{
-                color: "blue.800",
-                height: "100%",
-                border: "none",
-                display: {
-                  xs: "none",
-                  md: "flex",
-                },
-                outline: "none",
-                fontWeight: 500,
-                width: "100%",
-                backgroundColor: "transparent",
-
-                "::placeholder": {
-                  color: "blue.300",
-                },
-              }}
-              name="search"
-              value={search}
-              variant="body2"
-              onChange={({ target }) => setSearch(target.value)}
-              component="input"
-              placeholder="Type in your search criteria"
-            />
-
-            <TextField
-              sx={{
-                display: {
-                  xs: "flex",
-                  md: "none",
-                },
-              }}
-              name="search"
-              size="small"
-              value={search}
-              label="Type in your search criteria"
-              onChange={({ target }) => setSearch(target.value)}
-              fullWidth
-            />
-          </Stack>
+          <TextField
+            name="search"
+            size="small"
+            value={form.search}
+            label="Type in your search criteria"
+            onChange={({ target }) =>
+              setForm((prev) => ({ ...prev, search: target.value }))
+            }
+            fullWidth
+          />
 
           <Stack
             sx={{
@@ -255,10 +222,12 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           >
             <Autocomplete
               sx={{ width: { xs: "100%", sm: "14rem" } }}
-              value={city}
+              value={form.city}
               loading={isLoadingGetNearestCities}
               options={cities}
-              onChange={(_, newValue) => setCity(newValue)}
+              onChange={(_, newValue) =>
+                setForm((prev) => ({ ...prev, city: newValue }))
+              }
               fullWidth
               clearOnBlur
               renderInput={(params) => (
@@ -305,8 +274,10 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               sx={{ width: "5.5rem" }}
               size="small"
               label="KM Radius"
-              value={range}
-              onChange={({ target }) => setRange(target.value)}
+              value={form.range}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, range: target.value }))
+              }
               InputProps={{ type: "number" }}
             />
 
@@ -339,25 +310,52 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             />
           </Stack>
         </Stack>
+
+        <Typography
+          sx={{
+            mt: 1.5,
+            ml: "auto",
+            color: "primary.main",
+            fontWeight: 600,
+            textDecoration: "underline",
+          }}
+          variant="body2"
+          onClick={() => setAdvancedModal(true)}
+          component="button"
+        >
+          Advanced search
+        </Typography>
       </Stack>
 
       {searchResult && properties.length <= 0 && (
-        <Typography
+        <Stack
           sx={{
             px: 3,
             mt: 10,
             mb: 3,
             mx: "auto",
-            gap: 3,
-            color: "gray.600",
+            gap: 2,
             maxWidth: "22rem",
-            textAlign: "center",
+            alignItems: "center",
           }}
         >
-          {
-            "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
-          }
-        </Typography>
+          <Image
+            src={AvaNotFoundImage}
+            alt=""
+            style={{ objectFit: "contain" }}
+          />
+
+          <Typography
+            sx={{
+              color: "gray.600",
+              textAlign: "center",
+            }}
+          >
+            {
+              "Sorry, we couldn't find any properties with these specifications. Try increasing the search radius"
+            }
+          </Typography>
+        </Stack>
       )}
 
       {properties && properties.length > 0 && (
@@ -395,6 +393,8 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
           ) : null}
         </>
       )}
+
+      <AdvancedSearch open={advancedModal} onClose={setAdvancedModal} />
     </Stack>
   )
 }

@@ -87,7 +87,16 @@ export default function Nav({ loading, toggleDrawer }: INav) {
           <MenuIcon />
         </IconButton>
 
-        <Stack href="/" component={Link}>
+        <Stack
+          sx={{
+            display: {
+              xs: "flex",
+              md: "none",
+            },
+          }}
+          href="/"
+          component={Link}
+        >
           <Box sx={{ width: "100px", height: "2rem", position: "relative" }}>
             <Image
               src={orgLogo || AVALogo}
