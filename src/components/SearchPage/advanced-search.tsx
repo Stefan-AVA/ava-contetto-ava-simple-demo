@@ -20,7 +20,7 @@ const initialForm = {
 }
 
 export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
-  const [form, setForm] = useState()
+  const [form, setForm] = useState(initialForm)
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -64,6 +64,8 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             <X strokeWidth={3} />
           </Stack>
         </Stack>
+
+        <Stack sx={{ mt: 4 }}></Stack>
       </Paper>
     </Modal>
   )
