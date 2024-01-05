@@ -161,13 +161,12 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       <Stack
         sx={{
           mx: "auto",
-          gap: 4.5,
           width: "100%",
           maxWidth: "56rem",
         }}
       >
         <Typography
-          sx={{ color: "blue.800", fontWeight: 500 }}
+          sx={{ mb: 4.5, color: "blue.800", fontWeight: 500 }}
           variant="h3"
           component="h1"
         >
@@ -177,68 +176,26 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         <Stack
           sx={{
             py: 2,
+            pr: { xs: 2, lg: 0 },
+            pl: { xs: 2, lg: 4 },
             color: "blue.300",
             width: "100%",
             bgcolor: "gray.200",
+            alignItems: { xs: "none", lg: "center" },
             borderRadius: { xs: "1rem", lg: "999px" },
             flexDirection: { xs: "column", lg: "row" },
-            alignItems: { xs: "none", lg: "center" },
           }}
           onSubmit={onSearch}
           component="form"
         >
-          <Stack
-            sx={{
-              py: { xs: 1, lg: 0 },
-              pr: { xs: 2, lg: 0 },
-              pl: { xs: 2, lg: 4 },
-              width: "100%",
-              height: "100%",
-            }}
-            alignItems="center"
-            flexDirection="row"
-          >
-            <Typography
-              sx={{
-                color: "blue.800",
-                height: "100%",
-                border: "none",
-                display: {
-                  xs: "none",
-                  md: "flex",
-                },
-                outline: "none",
-                fontWeight: 500,
-                width: "100%",
-                backgroundColor: "transparent",
-
-                "::placeholder": {
-                  color: "blue.300",
-                },
-              }}
-              name="search"
-              value={search}
-              variant="body2"
-              onChange={({ target }) => setSearch(target.value)}
-              component="input"
-              placeholder="Type in your search criteria"
-            />
-
-            <TextField
-              sx={{
-                display: {
-                  xs: "flex",
-                  md: "none",
-                },
-              }}
-              name="search"
-              size="small"
-              value={search}
-              label="Type in your search criteria"
-              onChange={({ target }) => setSearch(target.value)}
-              fullWidth
-            />
-          </Stack>
+          <TextField
+            name="search"
+            size="small"
+            value={search}
+            label="Type in your search criteria"
+            onChange={({ target }) => setSearch(target.value)}
+            fullWidth
+          />
 
           <Stack
             sx={{
@@ -341,6 +298,20 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             />
           </Stack>
         </Stack>
+
+        <Typography
+          sx={{
+            mt: 1.5,
+            ml: "auto",
+            color: "primary.main",
+            fontWeight: 600,
+            textDecoration: "underline",
+          }}
+          variant="body2"
+          component="button"
+        >
+          Advanced search
+        </Typography>
       </Stack>
 
       {searchResult && properties.length <= 0 && (
