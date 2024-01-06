@@ -41,6 +41,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
 
   const [searchCities, { isFetching: isLoadingSearchCities }] =
     useLazySearchCitiesQuery()
+
   const { cities: nearestCities, isLoading: isLoadingGetNearestCities } =
     useListCitiesByLocation()
 
