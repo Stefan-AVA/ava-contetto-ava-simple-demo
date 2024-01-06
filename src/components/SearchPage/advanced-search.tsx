@@ -1,6 +1,22 @@
-import { useState, type Dispatch, type SetStateAction } from "react"
-import { Modal, Paper, Stack, Typography } from "@mui/material"
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
+import { useLazySearchCitiesQuery } from "@/redux/apis/city"
+import {
+  Autocomplete,
+  CircularProgress,
+  InputAdornment,
+  ListItem,
+  ListItemText,
+  Modal,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 import { X } from "lucide-react"
+
+import type { ICity } from "@/types/city.types"
+import useDebounce from "@/hooks/use-debounce"
+import useListCitiesByLocation from "@/hooks/use-list-cities-by-location"
 
 interface AdvancedSearchProps {
   open: boolean
@@ -9,18 +25,45 @@ interface AdvancedSearchProps {
 
 const initialForm = {
   mls: "",
-  city: "",
+  city: null as ICity | null,
   rooms: "",
-  range: "",
+  price: [] as number[],
+  range: "10",
   storeys: "",
-  minPrice: "",
-  maxPrice: "",
   bathrooms: "",
   listedSince: "",
 }
 
 export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
   const [form, setForm] = useState(initialForm)
+  const [cities, setCities] = useState<ICity[]>([])
+  const [searchCityInput, setSearchCityInput] = useState("")
+
+  const [searchCities, { isFetching: isLoadingSearchCities }] =
+    useLazySearchCitiesQuery()
+  const { cities: nearestCities, isLoading: isLoadingGetNearestCities } =
+    useListCitiesByLocation()
+
+  const debouncedSearchCity = useDebounce(searchCityInput)
+
+  useEffect(() => {
+    if (debouncedSearchCity) {
+      const fetchSearchCities = async () => {
+        const cities = await searchCities({
+          search: debouncedSearchCity,
+        }).unwrap()
+
+        setCities(cities)
+      }
+
+      fetchSearchCities()
+    }
+  }, [searchCities, debouncedSearchCity])
+
+  useEffect(() => {
+    if (nearestCities.length > 0)
+      setForm((prev) => ({ ...prev, city: nearestCities[0] }))
+  }, [nearestCities])
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -65,7 +108,83 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           </Stack>
         </Stack>
 
-        <Stack sx={{ mt: 4 }}></Stack>
+        <Stack
+          sx={{
+            mt: 4,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <Autocomplete
+            value={form.city}
+            loading={isLoadingGetNearestCities}
+            options={debouncedSearchCity ? cities : nearestCities}
+            onChange={(_, newValue) =>
+              setForm((prev) => ({ ...prev, city: newValue }))
+            }
+            fullWidth
+            clearOnBlur
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                size="small"
+                label="City"
+                onChange={({ target }) => setSearchCityInput(target.value)}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {isLoadingSearchCities || isLoadingGetNearestCities ? (
+                        <CircularProgress size="1.25rem" />
+                      ) : null}
+
+                      {params.InputProps.endAdornment}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+            noOptionsText={
+              isLoadingSearchCities || isLoadingGetNearestCities ? (
+                <CircularProgress size="1.25rem" />
+              ) : (
+                "No Cities"
+              )
+            }
+            selectOnFocus
+            getOptionLabel={(option) => `${option.city}, ${option.admin_name}`}
+            renderOption={({ key, ...props }: any, option) => (
+              <ListItem key={option._id} {...props}>
+                <ListItemText>{`${option.city}, ${option.admin_name}`}</ListItemText>
+              </ListItem>
+            )}
+            isOptionEqualToValue={(option, value) => option._id === value._id}
+            filterOptions={(options) => options}
+          />
+
+          <TextField
+            size="small"
+            label="KM Radius"
+            value={form.range}
+            onChange={({ target }) =>
+              setForm((prev) => ({ ...prev, range: target.value }))
+            }
+            fullWidth
+            InputProps={{ type: "number" }}
+          />
+
+          <TextField
+            size="small"
+            label="MLS"
+            value={form.range}
+            onChange={({ target }) =>
+              setForm((prev) => ({ ...prev, mls: target.value }))
+            }
+            fullWidth
+            InputProps={{ type: "number" }}
+          />
+        </Stack>
       </Paper>
     </Modal>
   )
