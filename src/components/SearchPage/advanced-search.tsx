@@ -1,5 +1,6 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
 import { useLazySearchCitiesQuery } from "@/redux/apis/city"
+import formatMoney from "@/utils/format-money"
 import {
   Autocomplete,
   CircularProgress,
@@ -8,10 +9,12 @@ import {
   ListItemText,
   Modal,
   Paper,
+  Slider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material"
+import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { X } from "lucide-react"
 
 import type { ICity } from "@/types/city.types"
@@ -27,11 +30,11 @@ const initialForm = {
   mls: "",
   city: null as ICity | null,
   rooms: "",
-  price: [] as number[],
+  price: [100000, 5000000] as number[],
   range: "10",
   storeys: "",
   bathrooms: "",
-  listedSince: "",
+  listedSince: null as Date | null,
 }
 
 export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
@@ -65,6 +68,8 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
     if (nearestCities.length > 0)
       setForm((prev) => ({ ...prev, city: nearestCities[0] }))
   }, [nearestCities])
+
+  console.log({ form })
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -184,6 +189,39 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             }
             fullWidth
             InputProps={{ type: "number" }}
+          />
+        </Stack>
+
+        <Stack
+          sx={{
+            mt: 4,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <Slider
+            min={initialForm.price[0]}
+            max={initialForm.price[1]}
+            value={form.price}
+            onChange={(_, value) =>
+              setForm((prev) => ({ ...prev, price: value as number[] }))
+            }
+            getAriaValueText={(value) => formatMoney(value)}
+            valueLabelFormat={(value) => formatMoney(value)}
+            valueLabelDisplay="auto"
+          />
+
+          <DatePicker
+            label="Listed since"
+            value={form.listedSince}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, listedSince: value }))
+            }
+            slotProps={{
+              textField: { size: "small", fullWidth: true },
+            }}
+            defaultValue={new Date()}
           />
         </Stack>
       </Paper>

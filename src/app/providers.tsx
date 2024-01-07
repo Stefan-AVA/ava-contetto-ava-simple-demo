@@ -3,6 +3,8 @@
 import { type PropsWithChildren } from "react"
 import SocketProvider from "@/providers/SocketProvider"
 import { store } from "@/redux/store"
+import { LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { SnackbarProvider } from "notistack"
 import { Provider } from "react-redux"
 
@@ -19,7 +21,9 @@ export default function Providers({ children }: PropsWithChildren) {
             horizontal: "right",
           }}
         >
-          <SocketProvider>{children}</SocketProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <SocketProvider>{children}</SocketProvider>
+          </LocalizationProvider>
         </SnackbarProvider>
       </Provider>
     </ThemeProvider>
