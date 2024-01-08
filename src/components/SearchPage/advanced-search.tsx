@@ -7,12 +7,14 @@ import {
 } from "react"
 import { useLazySearchCitiesQuery } from "@/redux/apis/city"
 import formatMoney from "@/utils/format-money"
+import { LoadingButton } from "@mui/lab"
 import {
   Autocomplete,
   CircularProgress,
   InputAdornment,
   ListItem,
   ListItemText,
+  MenuItem,
   Modal,
   Paper,
   Slider,
@@ -40,16 +42,26 @@ interface AdvancedSearchProps {
 
 const initialForm = {
   mls: "",
+  sqFt: 0,
   city: null as ICity | null,
+  view: "",
   rooms: 0,
   price: [100000, 5000000] as number[],
   range: "10",
-  storeys: "",
+  title: "",
+  storeys: 0,
+  lotAcres: 0,
+  keywords: "",
   bathrooms: 0,
   yearBuilt: [null, null] as Array<Date | null>,
+  condition: "",
+  waterfront: "",
   firePlaces: 0,
   listedSince: null as Date | null,
+  lotFeatures: "",
+  propertyType: "",
   parkingSpaces: 0,
+  walkingDistance: "",
 }
 
 function BoxField({ label, children }: BoxFieldProps) {
@@ -94,7 +106,16 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
       setForm((prev) => ({ ...prev, city: nearestCities[0] }))
   }, [nearestCities])
 
-  console.log({ form })
+  async function submit() {
+    const data = {
+      ...form,
+      keywords: form.keywords.split(", "),
+    }
+
+    console.log({ data })
+
+    onClose(true)
+  }
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -104,7 +125,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           top: "50%",
           left: "50%",
           width: "100%",
-          maxWidth: "54rem",
+          maxWidth: "59rem",
           position: "absolute",
           overflowY: "auto",
           maxHeight: "90vh",
@@ -133,6 +154,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               borderRadius: "50%",
               justifyContent: "center",
             }}
+            onClick={() => onClose(true)}
             component="button"
           >
             <X strokeWidth={3} />
@@ -339,7 +361,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           <BoxField label="Year Built">
             <Stack
               sx={{
-                gap: 2,
+                gap: 1,
                 alignItems: "center",
                 flexDirection: "row",
               }}
@@ -347,6 +369,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               <DatePicker
                 label="Any year"
                 value={form.yearBuilt[0]}
+                views={["year"]}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
@@ -359,9 +382,14 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
                 defaultValue={new Date()}
               />
 
+              <Typography sx={{ fontWeight: 700 }} variant="caption">
+                to
+              </Typography>
+
               <DatePicker
                 label="Any year"
                 value={form.yearBuilt[1]}
+                views={["year"]}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
@@ -396,6 +424,214 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             />
           </BoxField>
         </Stack>
+
+        <Stack
+          sx={{
+            mt: 2,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <BoxField label="Storeys">
+            <NumberInput
+              value={form.storeys}
+              min={0}
+              onChange={(_, value) =>
+                setForm((prev) => ({ ...prev, storeys: value ?? 0 }))
+              }
+            />
+          </BoxField>
+
+          <BoxField label="SqFt">
+            <NumberInput
+              value={form.sqFt}
+              min={0}
+              onChange={(_, value) =>
+                setForm((prev) => ({ ...prev, sqFt: value ?? 0 }))
+              }
+            />
+          </BoxField>
+
+          <BoxField label="Lot Acres">
+            <NumberInput
+              value={form.lotAcres}
+              min={0}
+              onChange={(_, value) =>
+                setForm((prev) => ({ ...prev, lotAcres: value ?? 0 }))
+              }
+            />
+          </BoxField>
+        </Stack>
+
+        <Typography
+          sx={{
+            mt: 4,
+            pt: 3,
+            borderTop: "1px solid",
+            borderTopColor: "gray.300",
+          }}
+        >
+          <b>Additional Criteria:</b> choose from the drop down items or type in
+          your own criteria
+        </Typography>
+
+        <Stack
+          sx={{
+            mt: 2,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <BoxField label="Property Type">
+            <TextField
+              size="small"
+              label="Property Type"
+              select
+              value={form.propertyType}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, propertyType: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Single Family Detached">
+                Single Family Detached
+              </MenuItem>
+            </TextField>
+          </BoxField>
+
+          <BoxField label="Title">
+            <TextField
+              size="small"
+              label="Title"
+              select
+              value={form.title}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, title: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Co-Op">Co-Op</MenuItem>
+            </TextField>
+          </BoxField>
+
+          <BoxField label="Lot Features">
+            <TextField
+              size="small"
+              label="Lot Features"
+              select
+              value={form.lotFeatures}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, lotFeatures: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Cul-de-sac">Cul-de-sac</MenuItem>
+            </TextField>
+          </BoxField>
+        </Stack>
+
+        <Stack
+          sx={{
+            mt: 2,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <BoxField label="Waterfront">
+            <TextField
+              size="small"
+              label="Waterfront"
+              select
+              value={form.waterfront}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, waterfront: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Lake">Lake</MenuItem>
+            </TextField>
+          </BoxField>
+
+          <BoxField label="View">
+            <TextField
+              size="small"
+              label="View"
+              select
+              value={form.view}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, view: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Lake">Lake</MenuItem>
+            </TextField>
+          </BoxField>
+
+          <BoxField label="Condition">
+            <TextField
+              size="small"
+              label="Condition"
+              select
+              value={form.condition}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, condition: target.value }))
+              }
+              fullWidth
+            >
+              <MenuItem value="Great">Great</MenuItem>
+            </TextField>
+          </BoxField>
+        </Stack>
+
+        <Stack
+          sx={{
+            mt: 2,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <BoxField label="Walking Distance">
+            <TextField
+              size="small"
+              label="Walking Distance"
+              select
+              value={form.walkingDistance}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, walkingDistance: target.value }))
+              }
+            >
+              <MenuItem value="Elementary School">Elementary School</MenuItem>
+            </TextField>
+          </BoxField>
+        </Stack>
+
+        <Stack
+          sx={{
+            mt: 2,
+            gap: 4,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <BoxField label="Keywords">
+            <TextField
+              size="small"
+              label="Pet criteria, Flooring, Roofing, Garage, Pool, etc."
+              value={form.keywords}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, keywords: target.value }))
+              }
+            />
+          </BoxField>
+        </Stack>
+
+        <LoadingButton sx={{ mt: 4, float: "right" }} onClick={submit}>
+          Search
+        </LoadingButton>
       </Paper>
     </Modal>
   )
