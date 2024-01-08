@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, type KeyboardEvent, type MouseEvent } from "react"
+import { type KeyboardEvent, type MouseEvent } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -245,26 +245,6 @@ export default function Sidebar({
   const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
-  const { agentId, contactId } = useParams()
-
-  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-  const contactOrgs = useSelector((state: RootState) => state.app.contactOrgs)
-
-  const agentProfile = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId),
-    [agentId, agentOrgs]
-  )
-
-  const contact = useMemo(
-    () => contactOrgs.find((contact) => contact._id === contactId),
-    [contactId, contactOrgs]
-  )
-
-  const orgLogo = useMemo(
-    () => agentProfile?.org?.logoUrl || contact?.org?.logoUrl,
-    [agentProfile, contact]
-  )
-
   function onLogout() {
     dispatch(logout())
 
@@ -313,7 +293,7 @@ export default function Sidebar({
           <Stack href="/" component={Link}>
             <Box sx={{ width: "8rem", height: "4rem", position: "relative" }}>
               <Image
-                src={orgLogo || AVALogo}
+                src={AVALogo}
                 alt="logo"
                 fill
                 style={{ objectFit: "contain" }}

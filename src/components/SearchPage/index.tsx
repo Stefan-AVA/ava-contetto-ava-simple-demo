@@ -2,10 +2,7 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
 import Image from "next/image"
-import {
-  useLazyNearestCitiesQuery,
-  useLazySearchCitiesQuery,
-} from "@/redux/apis/city"
+import { useLazySearchCitiesQuery } from "@/redux/apis/city"
 import {
   useLazyGetSearchResultQuery,
   useLazySearchQuery,
@@ -33,7 +30,7 @@ import type { ICity } from "@/types/city.types"
 import type { IListing } from "@/types/listing.types"
 import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
-import useGetCurrentPosition from "@/hooks/use-get-current-position"
+import useListCitiesByLocation from "@/hooks/use-list-cities-by-location"
 
 import AdvancedSearch from "./advanced-search"
 import Property from "./Property"
@@ -67,12 +64,11 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
   const { enqueueSnackbar } = useSnackbar()
 
-  const { location } = useGetCurrentPosition()
-
   const [searchCities, { isFetching: isLoadingSearchCities }] =
     useLazySearchCitiesQuery()
-  const [getNearestCities, { isFetching: isLoadingGetNearestCities }] =
-    useLazyNearestCitiesQuery()
+
+  const { cities: nearestCities, isLoading: isLoadingGetNearestCities } =
+    useListCitiesByLocation()
 
   const [searchListings, { isLoading, isFetching }] = useLazySearchQuery()
   const [
@@ -97,20 +93,9 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
   }, [searchCities, debouncedSearchCity])
 
   useEffect(() => {
-    if (location) {
-      const fetchCitiesByLocation = async () => {
-        const cities = await getNearestCities({
-          lat: location.lat,
-          lng: location.lng,
-        }).unwrap()
-
-        setForm((prev) => ({ ...prev, city: cities[0] }))
-        setCities(cities)
-      }
-
-      fetchCitiesByLocation()
-    }
-  }, [location, getNearestCities])
+    if (nearestCities.length > 0)
+      setForm((prev) => ({ ...prev, city: nearestCities[0] }))
+  }, [nearestCities])
 
   const onSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -224,7 +209,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               sx={{ width: { xs: "100%", sm: "14rem" } }}
               value={form.city}
               loading={isLoadingGetNearestCities}
-              options={cities}
+              options={debouncedSearchCity ? cities : nearestCities}
               onChange={(_, newValue) =>
                 setForm((prev) => ({ ...prev, city: newValue }))
               }

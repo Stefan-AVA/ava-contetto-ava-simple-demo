@@ -365,6 +365,10 @@ export const components = (
     styleOverrides: {
       root: {
         zIndex: 2,
+
+        ".MuiIconButton-root": {
+          color: "inherit",
+        },
       },
     },
   },
