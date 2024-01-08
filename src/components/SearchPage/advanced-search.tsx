@@ -44,9 +44,8 @@ const initialForm = {
   mls: "",
   sqFt: 0,
   city: null as ICity | null,
-  view: "",
   rooms: 0,
-  price: [100000, 5000000] as number[],
+  price: [100000, 2000000] as number[],
   range: "10",
   title: "",
   storeys: 0,
@@ -54,11 +53,8 @@ const initialForm = {
   keywords: "",
   bathrooms: 0,
   yearBuilt: [null, null] as Array<Date | null>,
-  condition: "",
-  waterfront: "",
   firePlaces: 0,
   listedSince: null as Date | null,
-  lotFeatures: "",
   propertyType: "",
   parkingSpaces: 0,
   walkingDistance: "",
@@ -292,43 +288,6 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             flexDirection: "row",
           }}
         >
-          <Stack
-            sx={{
-              mt: 4,
-              gap: 2,
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <TextField
-              size="small"
-              label="Min Price"
-              value={form.price[0]}
-              onChange={({ target }) =>
-                setForm((prev) => ({
-                  ...prev,
-                  price: [Number(target.value), form.price[1]],
-                }))
-              }
-              fullWidth
-              InputProps={{ type: "number" }}
-            />
-
-            <TextField
-              size="small"
-              label="Max Price"
-              value={form.price[1]}
-              onChange={({ target }) =>
-                setForm((prev) => ({
-                  ...prev,
-                  price: [form.price[0], Number(target.value)],
-                }))
-              }
-              fullWidth
-              InputProps={{ type: "number" }}
-            />
-          </Stack>
-
           <BoxField label="Rooms">
             <NumberInput
               value={form.rooms}
@@ -345,6 +304,16 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               min={0}
               onChange={(_, value) =>
                 setForm((prev) => ({ ...prev, bathrooms: value ?? 0 }))
+              }
+            />
+          </BoxField>
+
+          <BoxField label="Parking Spaces">
+            <NumberInput
+              value={form.parkingSpaces}
+              min={0}
+              onChange={(_, value) =>
+                setForm((prev) => ({ ...prev, parkingSpaces: value ?? 0 }))
               }
             />
           </BoxField>
@@ -390,6 +359,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
                 label="Any year"
                 value={form.yearBuilt[1]}
                 views={["year"]}
+                maxDate={new Date()}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
@@ -410,16 +380,6 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               min={0}
               onChange={(_, value) =>
                 setForm((prev) => ({ ...prev, firePlaces: value ?? 0 }))
-              }
-            />
-          </BoxField>
-
-          <BoxField label="Parking Spaces">
-            <NumberInput
-              value={form.parkingSpaces}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, parkingSpaces: value ?? 0 }))
               }
             />
           </BoxField>
@@ -503,7 +463,25 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             </TextField>
           </BoxField>
 
-          <BoxField label="Title">
+          <BoxField label="Walking Distance">
+            <TextField
+              size="small"
+              label="Walking Distance"
+              select
+              value={form.walkingDistance}
+              onChange={({ target }) =>
+                setForm((prev) => ({ ...prev, walkingDistance: target.value }))
+              }
+            >
+              {["School", "Park", "Medical Facility"].map((field) => (
+                <MenuItem key={field} value={field}>
+                  {field}
+                </MenuItem>
+              ))}
+            </TextField>
+          </BoxField>
+
+          {/* <BoxField label="Title">
             <TextField
               size="small"
               label="Title"
@@ -531,10 +509,10 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             >
               <MenuItem value="Cul-de-sac">Cul-de-sac</MenuItem>
             </TextField>
-          </BoxField>
+          </BoxField> */}
         </Stack>
 
-        <Stack
+        {/* <Stack
           sx={{
             mt: 2,
             gap: 4,
@@ -590,34 +568,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               <MenuItem value="Great">Great</MenuItem>
             </TextField>
           </BoxField>
-        </Stack>
-
-        <Stack
-          sx={{
-            mt: 2,
-            gap: 4,
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <BoxField label="Walking Distance">
-            <TextField
-              size="small"
-              label="Walking Distance"
-              select
-              value={form.walkingDistance}
-              onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, walkingDistance: target.value }))
-              }
-            >
-              {["School", "Park", "Medical Facility"].map((field) => (
-                <MenuItem key={field} value={field}>
-                  {field}
-                </MenuItem>
-              ))}
-            </TextField>
-          </BoxField>
-        </Stack>
+        </Stack> */}
 
         <Stack
           sx={{
@@ -630,7 +581,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           <BoxField label="Keywords">
             <TextField
               size="small"
-              label="Pet criteria, Flooring, Roofing, Garage, Pool, etc."
+              label="Comma separated keywords for Pet criteria, Flooring, Roofing, Gargage, Pool, etc."
               value={form.keywords}
               onChange={({ target }) =>
                 setForm((prev) => ({ ...prev, keywords: target.value }))
