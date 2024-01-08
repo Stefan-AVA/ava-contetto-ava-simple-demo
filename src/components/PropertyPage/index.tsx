@@ -501,36 +501,41 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
                   }}
                   variant="body2"
                 >
-                  {`Contact ${data.property.ListOfficeURL} to discuss more about your potential
+                  {`Contact ${
+                    data.property.ListAgentURL ?? ""
+                  } to discuss more about your potential
                   new home.`}
                 </Typography>
 
-                <Box
-                  sx={{
-                    py: 1,
-                    px: 1.5,
-                    mx: "auto",
-                    gap: 1.5,
-                    left: 0,
-                    color: "blue.500",
-                    width: "fit-content",
-                    right: 0,
-                    bottom: "-1.5rem",
-                    border: "1px solid",
-                    display: "flex",
-                    bgcolor: "white",
-                    position: "absolute",
-                    fontWeight: 500,
-                    alignItems: "center",
-                    borderColor: "blue.500",
-                    borderRadius: ".5rem",
-                  }}
-                  href={`tel:${data.property.ListAgentOfficePhone}`}
-                  component={Link}
-                >
-                  <PhoneCall />
-                  Contact Agent
-                </Box>
+                {data.property.ListAgentOfficePhone && (
+                  <Box
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      mx: "auto",
+                      gap: 1.5,
+                      left: 0,
+                      color: "blue.500",
+                      width: "fit-content",
+                      right: 0,
+                      bottom: "-1.5rem",
+                      border: "1px solid",
+                      display: "flex",
+                      bgcolor: "white",
+                      position: "absolute",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderColor: "blue.500",
+                      borderRadius: ".5rem",
+                    }}
+                    href={`tel:${data.property.ListAgentOfficePhone}`}
+                    target="_blank"
+                    component={Link}
+                  >
+                    <PhoneCall />
+                    Contact Agent
+                  </Box>
+                )}
               </Stack>
 
               <Box

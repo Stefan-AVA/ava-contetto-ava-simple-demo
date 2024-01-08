@@ -495,9 +495,11 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               }
               fullWidth
             >
-              <MenuItem value="Single Family Detached">
-                Single Family Detached
-              </MenuItem>
+              {["Condo", "House", "Other"].map((field) => (
+                <MenuItem key={field} value={field}>
+                  {field}
+                </MenuItem>
+              ))}
             </TextField>
           </BoxField>
 
@@ -566,7 +568,11 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               }
               fullWidth
             >
-              <MenuItem value="Lake">Lake</MenuItem>
+              {["Mountain(s)", "Valley", "Lake", "Ocean"].map((field) => (
+                <MenuItem key={field} value={field}>
+                  {field}
+                </MenuItem>
+              ))}
             </TextField>
           </BoxField>
 
@@ -604,7 +610,11 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
                 setForm((prev) => ({ ...prev, walkingDistance: target.value }))
               }
             >
-              <MenuItem value="Elementary School">Elementary School</MenuItem>
+              {["School", "Park", "Medical Facility"].map((field) => (
+                <MenuItem key={field} value={field}>
+                  {field}
+                </MenuItem>
+              ))}
             </TextField>
           </BoxField>
         </Stack>
