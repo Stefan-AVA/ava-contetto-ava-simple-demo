@@ -25,6 +25,7 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { X } from "lucide-react"
 import { useSnackbar } from "notistack"
+import { stringify } from "qs"
 
 import type { ICity } from "@/types/city.types"
 import useDebounce from "@/hooks/use-debounce"
@@ -40,7 +41,9 @@ interface BoxFieldProps extends PropsWithChildren {
 
 interface AdvancedSearchProps {
   open: boolean
+  orgId?: string
   onClose: Dispatch<SetStateAction<boolean>>
+  contactId?: string
 }
 
 const initialForm = {
@@ -57,9 +60,9 @@ const initialForm = {
   yearBuilt: [null, null] as Array<Date | null>,
   firePlaces: null as TextFieldOperatorValue | null,
   listedSince: null as Date | null,
-  propertyType: "",
+  propertyType: [] as string[],
   parkingSpaces: null as TextFieldOperatorValue | null,
-  walkingDistance: "",
+  walkingDistance: [] as string[],
 }
 
 function BoxField({ label, children }: BoxFieldProps) {
@@ -72,7 +75,12 @@ function BoxField({ label, children }: BoxFieldProps) {
   )
 }
 
-export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
+export default function AdvancedSearch({
+  open,
+  orgId,
+  onClose,
+  contactId,
+}: AdvancedSearchProps) {
   const [form, setForm] = useState(initialForm)
   const [cities, setCities] = useState<ICity[]>([])
   const [searchCityInput, setSearchCityInput] = useState("")
@@ -107,9 +115,36 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
   }, [nearestCities])
 
   async function submit() {
+    const keywords = form.keywords.split(", ")
+
     const data = {
       ...form,
-      keywords: form.keywords.split(", "),
+      city: form.city?._id,
+      sqFt: [
+        form.sqFt[0] === initialForm.sqFt[1] ? "10000+" : form.sqFt[0],
+        form.sqFt[1] === initialForm.sqFt[1] ? "10000+" : form.sqFt[1],
+      ],
+      price: [
+        form.price[0] === initialForm.price[1] ? "2M+" : form.price[0],
+        form.price[1] === initialForm.price[1] ? "2M+" : form.price[1],
+      ],
+      rooms: form.rooms ? form.rooms.value : null,
+      storeys: form.storeys ? form.storeys.value : null,
+      keywords: keywords.length > 0 ? keywords : null,
+      lotAcres: [
+        form.lotAcres[0] === initialForm.lotAcres[1] ? "50+" : form.lotAcres[0],
+        form.lotAcres[1] === initialForm.lotAcres[1] ? "50+" : form.lotAcres[1],
+      ],
+      bathrooms: form.bathrooms ? form.bathrooms.value : null,
+      firePlaces: form.firePlaces ? form.firePlaces.value : null,
+      roomsOperator: form.rooms ? form.rooms.operator : null,
+      parkingSpaces: form.parkingSpaces ? form.parkingSpaces.value : null,
+      storeysOperator: form.storeys ? form.storeys.operator : null,
+      bathroomsOperator: form.bathrooms ? form.bathrooms.operator : null,
+      firePlacesOperator: form.firePlaces ? form.firePlaces.operator : null,
+      parkingSpacesOperator: form.parkingSpaces
+        ? form.parkingSpaces.operator
+        : null,
     }
 
     if (!data.city) {
@@ -126,7 +161,11 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
       return
     }
 
-    console.log({ data })
+    console.log({ data, orgId, contactId })
+
+    const params = stringify(data, { skipNulls: true, encodeValuesOnly: true })
+
+    console.log({ params })
 
     onClose(true)
   }
@@ -238,7 +277,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             <TextField
               size="small"
               label="KM Radius"
-              value={form.range}
+              value={form.range ?? ""}
               onChange={({ target }) =>
                 setForm((prev) => ({
                   ...prev,
@@ -254,7 +293,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             <TextField
               size="small"
               label="MLS"
-              value={form.mls}
+              value={form.mls ?? ""}
               onChange={({ target }) =>
                 setForm((prev) => ({ ...prev, mls: Number(target.value) ?? 0 }))
               }
@@ -384,6 +423,7 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
                 label="Any year"
                 value={form.yearBuilt[0]}
                 views={["year"]}
+                maxDate={new Date()}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
@@ -508,9 +548,16 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               select
               value={form.propertyType}
               onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, propertyType: target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  propertyType:
+                    typeof target.value === "string"
+                      ? target.value.split(",")
+                      : target.value,
+                }))
               }
               fullWidth
+              SelectProps={{ multiple: true }}
             >
               {["Condo", "House", "Other"].map((field) => (
                 <MenuItem key={field} value={field}>
@@ -527,8 +574,16 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               select
               value={form.walkingDistance}
               onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, walkingDistance: target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  walkingDistance:
+                    typeof target.value === "string"
+                      ? target.value.split(",")
+                      : target.value,
+                }))
               }
+              fullWidth
+              SelectProps={{ multiple: true }}
             >
               {["School", "Park", "Medical Facility"].map((field) => (
                 <MenuItem key={field} value={field}>
