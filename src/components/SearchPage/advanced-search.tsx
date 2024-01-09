@@ -120,21 +120,9 @@ export default function AdvancedSearch({
     const data = {
       ...form,
       city: form.city?._id,
-      sqFt: [
-        form.sqFt[0] === initialForm.sqFt[1] ? "10000+" : form.sqFt[0],
-        form.sqFt[1] === initialForm.sqFt[1] ? "10000+" : form.sqFt[1],
-      ],
-      price: [
-        form.price[0] === initialForm.price[1] ? "2M+" : form.price[0],
-        form.price[1] === initialForm.price[1] ? "2M+" : form.price[1],
-      ],
       rooms: form.rooms ? form.rooms.value : null,
       storeys: form.storeys ? form.storeys.value : null,
       keywords: keywords.length > 0 ? keywords : null,
-      lotAcres: [
-        form.lotAcres[0] === initialForm.lotAcres[1] ? "50+" : form.lotAcres[0],
-        form.lotAcres[1] === initialForm.lotAcres[1] ? "50+" : form.lotAcres[1],
-      ],
       bathrooms: form.bathrooms ? form.bathrooms.value : null,
       firePlaces: form.firePlaces ? form.firePlaces.value : null,
       roomsOperator: form.rooms ? form.rooms.operator : null,
