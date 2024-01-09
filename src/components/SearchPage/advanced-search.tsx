@@ -44,12 +44,12 @@ interface AdvancedSearchProps {
 }
 
 const initialForm = {
-  mls: "",
+  mls: null as number | null,
   sqFt: [100, 10000],
   city: null as ICity | null,
   rooms: null as TextFieldOperatorValue | null,
   price: [100000, 2000000] as number[],
-  range: "10",
+  range: null as number | null,
   storeys: null as TextFieldOperatorValue | null,
   lotAcres: [0, 50],
   keywords: "",
@@ -240,7 +240,10 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               label="KM Radius"
               value={form.range}
               onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, range: target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  range: Number(target.value) ?? 0,
+                }))
               }
               fullWidth
               InputProps={{ type: "number" }}
@@ -251,9 +254,9 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             <TextField
               size="small"
               label="MLS"
-              value={form.range}
+              value={form.mls}
               onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, mls: target.value }))
+                setForm((prev) => ({ ...prev, mls: Number(target.value) ?? 0 }))
               }
               fullWidth
               InputProps={{ type: "number" }}
