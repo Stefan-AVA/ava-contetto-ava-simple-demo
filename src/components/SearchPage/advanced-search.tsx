@@ -22,7 +22,6 @@ import {
 } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { X } from "lucide-react"
-import { useSnackbar } from "notistack"
 
 import { ICity } from "@/types/city.types"
 
@@ -35,17 +34,17 @@ interface BoxFieldProps extends PropsWithChildren {
 
 interface AdvancedSearchProps {
   open: boolean
-  onClose: Dispatch<SetStateAction<boolean>>
   form: typeof initialForm
+  cities: ICity[]
+  onClose: () => void
   setForm: Dispatch<SetStateAction<typeof initialForm>>
-  isLoadingGetNearestCities: boolean
+  onSearch: MouseEventHandler<HTMLButtonElement> | undefined
+  isSearching: boolean
   nearestCities: ICity[]
   setSearchCityInput: Dispatch<SetStateAction<string>>
   debouncedSearchCity: string
-  cities: ICity[]
   isLoadingSearchCities: boolean
-  onSearch: MouseEventHandler<HTMLButtonElement> | undefined
-  isSearching: boolean
+  isLoadingGetNearestCities: boolean
 }
 
 function BoxField({ label, children }: BoxFieldProps) {
@@ -72,10 +71,8 @@ export default function AdvancedSearch({
   onSearch,
   isSearching,
 }: AdvancedSearchProps) {
-  const { enqueueSnackbar } = useSnackbar()
-
   return (
-    <Modal open={open} onClose={() => onClose(false)}>
+    <Modal open={open} onClose={onClose}>
       <Paper
         sx={{
           p: 4,
@@ -111,7 +108,7 @@ export default function AdvancedSearch({
               borderRadius: "50%",
               justifyContent: "center",
             }}
-            onClick={() => onClose(true)}
+            onClick={() => onClose()}
             component="button"
           >
             <X strokeWidth={3} />

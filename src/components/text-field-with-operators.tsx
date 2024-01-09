@@ -5,7 +5,7 @@ import {
   type OutlinedTextFieldProps,
   type SxProps,
 } from "@mui/material"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Minus, Plus } from "lucide-react"
 
 import { Operator } from "@/types/searchResult.types"
 
@@ -101,12 +101,12 @@ export default function TextFieldWithOperators({
         InputProps={{ type: "number" }}
       />
 
-      <Button sx={applyButtonStyles("<")} onClick={() => onToggle("<")}>
-        <ChevronLeft size={16} />
+      <Button sx={applyButtonStyles("-")} onClick={() => onToggle("-")}>
+        <Minus size={16} />
       </Button>
 
-      <Button sx={applyButtonStyles(">")} onClick={() => onToggle(">")}>
-        <ChevronRight size={16} />
+      <Button sx={applyButtonStyles("+")} onClick={() => onToggle("+")}>
+        <Plus size={16} />
       </Button>
     </Stack>
   )
