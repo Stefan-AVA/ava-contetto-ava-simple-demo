@@ -164,10 +164,11 @@ const PropertyPage = ({
       <Button
         sx={{ mr: "auto" }}
         size="small"
-        color="secondary"
+        color="primary"
         onClick={onBack}
+        variant="outlined"
       >
-        Back to search results
+        Back to search
       </Button>
 
       <Stack
@@ -413,14 +414,14 @@ const PropertyPage = ({
                   <>
                     <Typography
                       sx={{
-                        mt: 4,
+                        mt: 6,
                         mb: 2,
                         color: "blue.800",
-                        fontWeight: 500,
+                        fontWeight: 700,
                       }}
-                      variant="h4"
+                      variant="h5"
                     >
-                      Property Information
+                      Listing Description
                     </Typography>
 
                     <Typography sx={{ color: "gray.500" }}>
@@ -428,6 +429,29 @@ const PropertyPage = ({
                     </Typography>
                   </>
                 )}
+
+                <Stack
+                  sx={{
+                    my: 6,
+                    py: 6,
+                    borderTop: "1px solid",
+                    borderBottom: "1px solid",
+                    borderColor: "gray.300",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      mb: 2,
+                      color: "blue.800",
+                      fontWeight: 700,
+                    }}
+                    variant="h5"
+                  >
+                    Listing Details
+                  </Typography>
+
+                  <Grid sx={{ width: "100%" }} container spacing={2}></Grid>
+                </Stack>
               </Stack>
             </Grid>
 
