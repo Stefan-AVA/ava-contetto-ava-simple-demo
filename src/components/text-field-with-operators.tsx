@@ -7,11 +7,11 @@ import {
 } from "@mui/material"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-type TextFieldOperator = ">" | "<" | "="
+import { Operator } from "@/types/searchResult.types"
 
 export type TextFieldOperatorValue = {
   value: number
-  operator: TextFieldOperator
+  operator: Operator
 }
 
 interface InputProps
@@ -54,11 +54,11 @@ export default function TextFieldWithOperators({
 }: InputProps) {
   const data = {
     value: 0,
-    operator: "=" as TextFieldOperator,
+    operator: "=" as Operator,
     ...(value ?? {}),
   }
 
-  function onToggle(operator: TextFieldOperator) {
+  function onToggle(operator: Operator) {
     let key = operator
 
     if (data.operator === operator) key = "="
@@ -66,7 +66,7 @@ export default function TextFieldWithOperators({
     onChange({ value: data.value, operator: key })
   }
 
-  function applyButtonStyles(operator: TextFieldOperator) {
+  function applyButtonStyles(operator: Operator) {
     const styles: SxProps = {
       color: "white",
       bgcolor: "primary.main",

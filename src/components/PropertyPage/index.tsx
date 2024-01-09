@@ -53,14 +53,22 @@ interface IProps {
   contactId?: string
   searchId: string
   propertyId: string
+  fromSearchPage?: string
 }
 
-const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
+const PropertyPage = ({
+  orgId,
+  searchId,
+  propertyId,
+  agentId,
+  contactId,
+  fromSearchPage,
+}: IProps) => {
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
 
-  const { back } = useRouter()
+  const { push, back } = useRouter()
 
   const { data, isLoading } = useGetPropertyQuery(
     { orgId, searchId, propertyId },
@@ -139,9 +147,26 @@ const PropertyPage = ({ orgId, searchId, propertyId }: IProps) => {
     }
   }
 
+  const onBack = () => {
+    if (fromSearchPage) {
+      if (agentId) {
+        push(`/app/agent-orgs/${agentId}?search_id=${searchId}`)
+      } else if (contactId) {
+        push(`/app/contact-orgs/${contactId}?search_id=${searchId}`)
+      }
+    } else {
+      back()
+    }
+  }
+
   return (
     <>
-      <Button sx={{ mr: "auto" }} size="small" color="secondary" onClick={back}>
+      <Button
+        sx={{ mr: "auto" }}
+        size="small"
+        color="secondary"
+        onClick={onBack}
+      >
         Back to search results
       </Button>
 

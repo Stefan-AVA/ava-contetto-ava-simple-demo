@@ -10,10 +10,14 @@ type PageProps = {
   params: {
     agentId: string
   }
+  searchParams: {
+    search_id?: string
+  }
 }
 
-const Page = ({ params }: PageProps) => {
+const Page = ({ params, searchParams }: PageProps) => {
   const { agentId } = params
+  const { search_id } = searchParams
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -22,7 +26,13 @@ const Page = ({ params }: PageProps) => {
     [agentId, agentOrgs]
   )
 
-  return <SearchPage orgId={String(agentProfile?.orgId)} agentId={agentId} />
+  return (
+    <SearchPage
+      orgId={String(agentProfile?.orgId)}
+      agentId={agentId}
+      searchId={search_id}
+    />
+  )
 }
 
 export default Page

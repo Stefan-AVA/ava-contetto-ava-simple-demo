@@ -1,6 +1,12 @@
 "use client"
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
+import {
+  MouseEvent,
+  MouseEventHandler,
+  useEffect,
+  useState,
+  type ChangeEvent,
+} from "react"
 import Image from "next/image"
 import { useLazySearchCitiesQuery } from "@/redux/apis/city"
 import {
@@ -32,6 +38,7 @@ import type { ISearchResult } from "@/types/searchResult.types"
 import useDebounce from "@/hooks/use-debounce"
 import useListCitiesByLocation from "@/hooks/use-list-cities-by-location"
 
+import { TextFieldOperatorValue } from "../text-field-with-operators"
 import AdvancedSearch from "./advanced-search"
 import Property from "./Property"
 import SearchForm from "./SearchForm"
@@ -40,15 +47,31 @@ interface ISearch {
   orgId: string
   agentId?: string
   contactId?: string
+  searchId?: string
 }
 
-const initialForm = {
+export const initialForm = {
   city: null as ICity | null,
   range: "10",
   search: "",
+  mls: "",
+  keywords: "",
+  listedSince: null as Date | null,
+  price: [100000, 2000000] as number[],
+  sqFt: [0, 10000],
+  lotAcres: [0, 50],
+  minYearBuilt: null as Date | null,
+  maxYearBuilt: null as Date | null,
+  rooms: null as TextFieldOperatorValue | null,
+  storeys: null as TextFieldOperatorValue | null,
+  bathrooms: null as TextFieldOperatorValue | null,
+  firePlaces: null as TextFieldOperatorValue | null,
+  parkingSpaces: null as TextFieldOperatorValue | null,
+  propertyType: [] as string[],
+  walkingDistance: [] as string[],
 }
 
-const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
+const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
   const [page, setPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
 
@@ -78,6 +101,71 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
   const debouncedSearchCity = useDebounce(searchCityInput)
 
+  const initForm = (searchResult: ISearchResult | undefined) => {
+    if (searchResult) {
+      setForm({
+        search: searchResult.userQueryString,
+        city: searchResult.userQueryJson.city,
+        range: searchResult.userQueryJson.range,
+        mls: searchResult.userQueryJson.mls || "",
+        keywords: searchResult.userQueryJson.keywords
+          ? searchResult.userQueryJson.keywords.join(", ")
+          : "",
+        listedSince: searchResult.userQueryJson.listedSince
+          ? new Date(searchResult.userQueryJson.listedSince * 1000)
+          : null,
+
+        price: searchResult.userQueryJson.price || [100000, 2000000],
+        sqFt: searchResult.userQueryJson.sqft || [0, 10000],
+        lotAcres: searchResult.userQueryJson.lotAcres || [0, 50],
+        minYearBuilt: null,
+        maxYearBuilt: null,
+        rooms:
+          searchResult.userQueryJson.rooms &&
+          searchResult.userQueryJson.roomsOperator
+            ? {
+                value: searchResult.userQueryJson.rooms,
+                operator: searchResult.userQueryJson.roomsOperator,
+              }
+            : null,
+        storeys:
+          searchResult.userQueryJson.storeys &&
+          searchResult.userQueryJson.storeysOperator
+            ? {
+                value: searchResult.userQueryJson.storeys,
+                operator: searchResult.userQueryJson.storeysOperator,
+              }
+            : null,
+        bathrooms:
+          searchResult.userQueryJson.bathrooms &&
+          searchResult.userQueryJson.bathroomsOperator
+            ? {
+                value: searchResult.userQueryJson.bathrooms,
+                operator: searchResult.userQueryJson.bathroomsOperator,
+              }
+            : null,
+        firePlaces:
+          searchResult.userQueryJson.firePlaces &&
+          searchResult.userQueryJson.firePlacesOperator
+            ? {
+                value: searchResult.userQueryJson.firePlaces,
+                operator: searchResult.userQueryJson.firePlacesOperator,
+              }
+            : null,
+        parkingSpaces:
+          searchResult.userQueryJson.parkingSpaces &&
+          searchResult.userQueryJson.parkingSpacesOperator
+            ? {
+                value: searchResult.userQueryJson.parkingSpaces,
+                operator: searchResult.userQueryJson.parkingSpacesOperator,
+              }
+            : null,
+        propertyType: searchResult.userQueryJson.propertyType || [],
+        walkingDistance: searchResult.userQueryJson.walkingDistance || [],
+      })
+    }
+  }
+
   useEffect(() => {
     if (debouncedSearchCity) {
       const fetchSearchCities = async () => {
@@ -97,7 +185,27 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
       setForm((prev) => ({ ...prev, city: nearestCities[0] }))
   }, [nearestCities])
 
-  const onSearch = async (e: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (searchId) {
+      const fetchSearchResult = async () => {
+        const data = await getResult({
+          orgId,
+          searchId,
+          page: 0,
+        }).unwrap()
+
+        setProperties(data.properties)
+        setPageCount(Math.ceil(data.total / 12))
+        setSearchResult(data.searchResult)
+        initForm(data.searchResult)
+        setSearchCityInput(data.searchResult.userQueryJson.city.city)
+      }
+
+      fetchSearchResult()
+    }
+  }, [searchId])
+
+  const onSearch = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
 
     if (!form.city) {
@@ -116,17 +224,67 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
     if (orgId) {
       try {
-        const data = await searchListings({
-          orgId,
-          range: form.range,
-          search: form.search || "",
-          cityId: form.city?._id,
-          contactId,
-        }).unwrap()
+        const params = advancedModal
+          ? {
+              orgId,
+              contactId,
+
+              cityId: form.city?._id,
+              range: form.range,
+              mls: form.mls,
+              keywords: form.keywords,
+              listedSince: form.listedSince
+                ? Math.floor(form.listedSince.getTime() / 1000)
+                : undefined,
+
+              price: form.price,
+              sqft: form.sqFt,
+              lotAcres: form.lotAcres,
+              minYearBuilt: form.minYearBuilt
+                ? form.minYearBuilt.getFullYear()
+                : undefined,
+              maxYearBuilt: form.maxYearBuilt
+                ? form.maxYearBuilt.getFullYear()
+                : undefined,
+
+              rooms: form.rooms ? form.rooms.value : undefined,
+              roomsOperator: form.rooms ? form.rooms.operator : undefined,
+              bathrooms: form.bathrooms ? form.bathrooms.value : undefined,
+              bathroomsOperator: form.bathrooms
+                ? form.bathrooms.operator
+                : undefined,
+              storeys: form.storeys ? form.storeys.value : undefined,
+              storeysOperator: form.storeys ? form.storeys.operator : undefined,
+              firePlaces: form.firePlaces ? form.firePlaces.value : undefined,
+              firePlacesOperator: form.firePlaces
+                ? form.firePlaces.operator
+                : undefined,
+              parkingSpaces: form.parkingSpaces
+                ? form.parkingSpaces.value
+                : undefined,
+              parkingSpacesOperator: form.parkingSpaces
+                ? form.parkingSpaces.operator
+                : undefined,
+
+              propertyType: form.propertyType,
+              walkingDistance: form.walkingDistance,
+            }
+          : {
+              orgId,
+              contactId,
+
+              cityId: form.city?._id,
+              range: form.range,
+              search: form.search,
+            }
+
+        const data = await searchListings(params).unwrap()
 
         setProperties(data.properties)
         setSearchResult(data.searchResult)
         setPageCount(Math.ceil(data.total / 12))
+
+        if (advancedModal) setAdvancedModal(false)
       } catch (error) {
         enqueueSnackbar(parseError(error), { variant: "error" })
       }
@@ -176,8 +334,6 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             borderRadius: { xs: "1rem", lg: "999px" },
             flexDirection: { xs: "column", lg: "row" },
           }}
-          onSubmit={onSearch}
-          component="form"
         >
           <TextField
             name="search"
@@ -270,7 +426,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
               {(isLoading || isFetching) && <CircularProgress size="1.25rem" />}
 
               {!(isLoading || isFetching) && (
-                <button type="submit">
+                <button onClick={onSearch}>
                   <Box
                     sx={{
                       color: "primary.main",
@@ -305,7 +461,10 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
             textDecoration: "underline",
           }}
           variant="body2"
-          onClick={() => setAdvancedModal(true)}
+          onClick={() => {
+            setAdvancedModal(true)
+            initForm(searchResult)
+          }}
           component="button"
         >
           Advanced search
@@ -354,6 +513,7 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
                   agentId={agentId}
                   contactId={contactId}
                   searchResult={searchResult}
+                  fromSearch={true}
                 />
               </Grid>
             ))}
@@ -381,9 +541,17 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
 
       <AdvancedSearch
         open={advancedModal}
-        orgId={orgId}
         onClose={setAdvancedModal}
-        contactId={contactId}
+        form={form}
+        setForm={setForm}
+        isLoadingGetNearestCities={isLoadingGetNearestCities}
+        nearestCities={nearestCities}
+        setSearchCityInput={setSearchCityInput}
+        debouncedSearchCity={debouncedSearchCity}
+        cities={cities}
+        isLoadingSearchCities={isLoadingSearchCities}
+        onSearch={onSearch}
+        isSearching={isLoading || isFetching}
       />
     </Stack>
   )

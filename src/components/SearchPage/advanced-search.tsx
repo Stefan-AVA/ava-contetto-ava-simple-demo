@@ -1,11 +1,9 @@
 import {
-  useEffect,
-  useState,
+  MouseEventHandler,
   type Dispatch,
   type PropsWithChildren,
   type SetStateAction,
 } from "react"
-import { useLazySearchCitiesQuery } from "@/redux/apis/city"
 import formatMoney from "@/utils/format-money"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -25,15 +23,11 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { X } from "lucide-react"
 import { useSnackbar } from "notistack"
-import { stringify } from "qs"
 
-import type { ICity } from "@/types/city.types"
-import useDebounce from "@/hooks/use-debounce"
-import useListCitiesByLocation from "@/hooks/use-list-cities-by-location"
+import { ICity } from "@/types/city.types"
 
-import TextFieldWithOperators, {
-  type TextFieldOperatorValue,
-} from "../text-field-with-operators"
+import { initialForm } from "."
+import TextFieldWithOperators from "../text-field-with-operators"
 
 interface BoxFieldProps extends PropsWithChildren {
   label: string
@@ -41,28 +35,17 @@ interface BoxFieldProps extends PropsWithChildren {
 
 interface AdvancedSearchProps {
   open: boolean
-  orgId?: string
   onClose: Dispatch<SetStateAction<boolean>>
-  contactId?: string
-}
-
-const initialForm = {
-  mls: null as number | null,
-  sqFt: [100, 10000],
-  city: null as ICity | null,
-  rooms: null as TextFieldOperatorValue | null,
-  price: [100000, 2000000] as number[],
-  range: null as number | null,
-  storeys: null as TextFieldOperatorValue | null,
-  lotAcres: [0, 50],
-  keywords: "",
-  bathrooms: null as TextFieldOperatorValue | null,
-  yearBuilt: [null, null] as Array<Date | null>,
-  firePlaces: null as TextFieldOperatorValue | null,
-  listedSince: null as Date | null,
-  propertyType: [] as string[],
-  parkingSpaces: null as TextFieldOperatorValue | null,
-  walkingDistance: [] as string[],
+  form: typeof initialForm
+  setForm: Dispatch<SetStateAction<typeof initialForm>>
+  isLoadingGetNearestCities: boolean
+  nearestCities: ICity[]
+  setSearchCityInput: Dispatch<SetStateAction<string>>
+  debouncedSearchCity: string
+  cities: ICity[]
+  isLoadingSearchCities: boolean
+  onSearch: MouseEventHandler<HTMLButtonElement> | undefined
+  isSearching: boolean
 }
 
 function BoxField({ label, children }: BoxFieldProps) {
@@ -77,88 +60,19 @@ function BoxField({ label, children }: BoxFieldProps) {
 
 export default function AdvancedSearch({
   open,
-  orgId,
   onClose,
-  contactId,
+  form,
+  setForm,
+  isLoadingGetNearestCities,
+  nearestCities,
+  setSearchCityInput,
+  debouncedSearchCity,
+  cities,
+  isLoadingSearchCities,
+  onSearch,
+  isSearching,
 }: AdvancedSearchProps) {
-  const [form, setForm] = useState(initialForm)
-  const [cities, setCities] = useState<ICity[]>([])
-  const [searchCityInput, setSearchCityInput] = useState("")
-
   const { enqueueSnackbar } = useSnackbar()
-
-  const [searchCities, { isFetching: isLoadingSearchCities }] =
-    useLazySearchCitiesQuery()
-
-  const { cities: nearestCities, isLoading: isLoadingGetNearestCities } =
-    useListCitiesByLocation()
-
-  const debouncedSearchCity = useDebounce(searchCityInput)
-
-  useEffect(() => {
-    if (debouncedSearchCity) {
-      const fetchSearchCities = async () => {
-        const cities = await searchCities({
-          search: debouncedSearchCity,
-        }).unwrap()
-
-        setCities(cities)
-      }
-
-      fetchSearchCities()
-    }
-  }, [searchCities, debouncedSearchCity])
-
-  useEffect(() => {
-    if (nearestCities.length > 0)
-      setForm((prev) => ({ ...prev, city: nearestCities[0] }))
-  }, [nearestCities])
-
-  async function submit() {
-    const keywords = form.keywords.split(", ")
-
-    const data = {
-      ...form,
-      city: form.city?._id,
-      rooms: form.rooms ? form.rooms.value : null,
-      orgId,
-      storeys: form.storeys ? form.storeys.value : null,
-      keywords: keywords.length > 0 ? keywords : null,
-      contactId,
-      bathrooms: form.bathrooms ? form.bathrooms.value : null,
-      firePlaces: form.firePlaces ? form.firePlaces.value : null,
-      roomsOperator: form.rooms ? form.rooms.operator : null,
-      parkingSpaces: form.parkingSpaces ? form.parkingSpaces.value : null,
-      storeysOperator: form.storeys ? form.storeys.operator : null,
-      bathroomsOperator: form.bathrooms ? form.bathrooms.operator : null,
-      firePlacesOperator: form.firePlaces ? form.firePlaces.operator : null,
-      parkingSpacesOperator: form.parkingSpaces
-        ? form.parkingSpaces.operator
-        : null,
-    }
-
-    if (!data.city) {
-      enqueueSnackbar("Select the city you want to search", {
-        variant: "error",
-      })
-
-      return
-    }
-
-    if (!Number(data.range)) {
-      enqueueSnackbar("Enter the search radius", { variant: "error" })
-
-      return
-    }
-
-    console.log({ data })
-
-    const params = stringify(data, { skipNulls: true, encodeValuesOnly: true })
-
-    console.log({ params })
-
-    onClose(true)
-  }
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -271,7 +185,7 @@ export default function AdvancedSearch({
               onChange={({ target }) =>
                 setForm((prev) => ({
                   ...prev,
-                  range: Number(target.value) ?? 0,
+                  range: target.value,
                 }))
               }
               fullWidth
@@ -285,10 +199,9 @@ export default function AdvancedSearch({
               label="MLS"
               value={form.mls ?? ""}
               onChange={({ target }) =>
-                setForm((prev) => ({ ...prev, mls: Number(target.value) ?? 0 }))
+                setForm((prev) => ({ ...prev, mls: target.value }))
               }
               fullWidth
-              InputProps={{ type: "number" }}
             />
           </BoxField>
         </Stack>
@@ -411,13 +324,13 @@ export default function AdvancedSearch({
             >
               <DatePicker
                 label="Any year"
-                value={form.yearBuilt[0]}
+                value={form.minYearBuilt}
                 views={["year"]}
                 maxDate={new Date()}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    yearBuilt: [value, form.yearBuilt[1]],
+                    minYearBuilt: value,
                   }))
                 }
                 slotProps={{
@@ -432,13 +345,13 @@ export default function AdvancedSearch({
 
               <DatePicker
                 label="Any year"
-                value={form.yearBuilt[1]}
+                value={form.maxYearBuilt}
                 views={["year"]}
                 maxDate={new Date()}
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    yearBuilt: [form.yearBuilt[0], value],
+                    maxYearBuilt: value,
                   }))
                 }
                 slotProps={{
@@ -496,7 +409,7 @@ export default function AdvancedSearch({
               max={initialForm.sqFt[1]}
               value={form.sqFt}
               marks={[
-                { label: "100", value: 100 },
+                { label: "0", value: 0 },
                 { label: "2000", value: 2000 },
                 { label: "6000", value: 6000 },
                 { label: "10000+", value: 10000 },
@@ -692,7 +605,11 @@ export default function AdvancedSearch({
           </BoxField>
         </Stack>
 
-        <LoadingButton sx={{ mt: 4, float: "right" }} onClick={submit}>
+        <LoadingButton
+          sx={{ mt: 4, float: "right" }}
+          onClick={onSearch}
+          loading={isSearching}
+        >
           Search
         </LoadingButton>
       </Paper>

@@ -47,15 +47,10 @@ export const searchApi = createApi({
       { properties: IListing[]; total: number; searchResult: ISearchResult },
       ISearchRequest
     >({
-      query: ({ orgId, search, contactId, cityId, range }) => ({
+      query: ({ orgId, ...rest }) => ({
         url: `/${orgId}/search`,
         method: "GET",
-        params: {
-          search,
-          contactId,
-          cityId,
-          range,
-        },
+        params: rest,
       }),
     }),
 

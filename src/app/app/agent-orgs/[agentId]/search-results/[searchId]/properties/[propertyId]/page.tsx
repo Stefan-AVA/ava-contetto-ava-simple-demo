@@ -12,10 +12,14 @@ type PageProps = {
     searchId: string
     propertyId: string
   }
+  searchParams: {
+    fromSearch?: string
+  }
 }
 
-export default function Property({ params }: PageProps) {
+export default function Property({ params, searchParams }: PageProps) {
   const { agentId, searchId, propertyId } = params
+  const { fromSearch } = searchParams
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
   const agentProfile = useMemo(
@@ -29,6 +33,7 @@ export default function Property({ params }: PageProps) {
       agentId={agentId}
       searchId={searchId}
       propertyId={propertyId}
+      fromSearchPage={fromSearch}
     />
   )
 }

@@ -3,14 +3,47 @@ import { ICity } from "./city.types"
 import { IContact } from "./contact.types"
 import { IOrg } from "./org.types"
 
+export enum NearBy {
+  schools = "School",
+  parks = "Park",
+  healthcare = "Medical Facility",
+}
+
+export type Operator = ">" | "<" | "="
+
+export interface IUserQueryJson {
+  cityId: string
+  range: string
+  city: ICity
+  keywords?: string[]
+  mls?: string
+  listedSince?: number
+
+  price?: number[]
+  sqft?: number[]
+  lotAcres?: number[]
+  minYearBuilt?: number
+  maxYearBuilt?: number
+
+  rooms?: number
+  roomsOperator?: Operator
+  bathrooms?: number
+  bathroomsOperator?: Operator
+  storeys?: number
+  storeysOperator?: Operator
+  firePlaces?: number
+  firePlacesOperator?: Operator
+  parkingSpaces?: number
+  parkingSpacesOperator?: Operator
+
+  propertyType?: ("Condo" | "House" | "Other")[]
+  walkingDistance?: NearBy[]
+}
+
 export interface ISearchResult {
   _id: string
   userQueryString: string /// the string they typed
-  userQueryJson: {
-    cityId: string
-    city: ICity
-    range: string
-  } /// options what user choose
+  userQueryJson: IUserQueryJson /// options what user choose
   queryJSON: any /// GPT interpreted version
   orgId: string // orgId
   org?: IOrg

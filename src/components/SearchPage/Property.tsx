@@ -23,6 +23,7 @@ interface IProps extends IListing, Grid2Props {
   contactId?: string
   searchResult?: ISearchResult
   refetch?: Function
+  fromSearch?: boolean
 }
 
 const Property = ({
@@ -31,6 +32,7 @@ const Property = ({
   contactId,
   searchResult,
   refetch,
+  fromSearch = false,
 
   _id,
   photos,
@@ -101,8 +103,12 @@ const Property = ({
       <Stack
         href={
           (agentId
-            ? `/app/agent-orgs/${agentId}/search-results/${searchResult?._id}/properties/${_id}`
-            : `/app/contact-orgs/${contactId}/search-results/${searchResult?._id}/properties/${_id}`) as Route
+            ? `/app/agent-orgs/${agentId}/search-results/${searchResult?._id}/properties/${_id}${
+                fromSearch ? `?fromSearch=${fromSearch}` : ""
+              }`
+            : `/app/contact-orgs/${contactId}/search-results/${searchResult?._id}/properties/${_id}${
+                fromSearch ? `?fromSearch=${fromSearch}` : ""
+              }`) as Route
         }
         component={Link}
         position="relative"
