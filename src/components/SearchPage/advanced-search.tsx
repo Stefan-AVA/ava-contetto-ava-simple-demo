@@ -24,12 +24,15 @@ import {
 } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { X } from "lucide-react"
+import { useSnackbar } from "notistack"
 
 import type { ICity } from "@/types/city.types"
 import useDebounce from "@/hooks/use-debounce"
 import useListCitiesByLocation from "@/hooks/use-list-cities-by-location"
 
-import NumberInput from "../number-input"
+import TextFieldWithOperators, {
+  type TextFieldOperatorValue,
+} from "../text-field-with-operators"
 
 interface BoxFieldProps extends PropsWithChildren {
   label: string
@@ -42,21 +45,20 @@ interface AdvancedSearchProps {
 
 const initialForm = {
   mls: "",
-  sqFt: 0,
+  sqFt: [100, 10000],
   city: null as ICity | null,
-  rooms: 0,
+  rooms: null as TextFieldOperatorValue | null,
   price: [100000, 2000000] as number[],
   range: "10",
-  title: "",
-  storeys: 0,
-  lotAcres: 0,
+  storeys: null as TextFieldOperatorValue | null,
+  lotAcres: [0, 50],
   keywords: "",
-  bathrooms: 0,
+  bathrooms: null as TextFieldOperatorValue | null,
   yearBuilt: [null, null] as Array<Date | null>,
-  firePlaces: 0,
+  firePlaces: null as TextFieldOperatorValue | null,
   listedSince: null as Date | null,
   propertyType: "",
-  parkingSpaces: 0,
+  parkingSpaces: null as TextFieldOperatorValue | null,
   walkingDistance: "",
 }
 
@@ -74,6 +76,8 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
   const [form, setForm] = useState(initialForm)
   const [cities, setCities] = useState<ICity[]>([])
   const [searchCityInput, setSearchCityInput] = useState("")
+
+  const { enqueueSnackbar } = useSnackbar()
 
   const [searchCities, { isFetching: isLoadingSearchCities }] =
     useLazySearchCitiesQuery()
@@ -106,6 +110,20 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
     const data = {
       ...form,
       keywords: form.keywords.split(", "),
+    }
+
+    if (!data.city) {
+      enqueueSnackbar("Select the city you want to search", {
+        variant: "error",
+      })
+
+      return
+    }
+
+    if (!Number(data.range)) {
+      enqueueSnackbar("Enter the search radius", { variant: "error" })
+
+      return
     }
 
     console.log({ data })
@@ -256,6 +274,12 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
               min={initialForm.price[0]}
               max={initialForm.price[1]}
               value={form.price}
+              marks={[
+                { label: "100k", value: 100000 },
+                { label: "300k", value: 300000 },
+                { label: "1.25M", value: 1250000 },
+                { label: "2M+", value: 2000000 },
+              ]}
               onChange={(_, value) =>
                 setForm((prev) => ({ ...prev, price: value as number[] }))
               }
@@ -289,31 +313,49 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           }}
         >
           <BoxField label="Rooms">
-            <NumberInput
+            <TextFieldWithOperators
               value={form.rooms}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, rooms: value ?? 0 }))
+              onChange={(props) =>
+                setForm((prev) => ({
+                  ...prev,
+                  rooms: props,
+                }))
               }
             />
           </BoxField>
 
           <BoxField label="Bathrooms">
-            <NumberInput
+            <TextFieldWithOperators
               value={form.bathrooms}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, bathrooms: value ?? 0 }))
+              onChange={(props) =>
+                setForm((prev) => ({
+                  ...prev,
+                  bathrooms: props,
+                }))
+              }
+            />
+          </BoxField>
+
+          <BoxField label="Storeys">
+            <TextFieldWithOperators
+              value={form.storeys}
+              onChange={(props) =>
+                setForm((prev) => ({
+                  ...prev,
+                  storeys: props,
+                }))
               }
             />
           </BoxField>
 
           <BoxField label="Parking Spaces">
-            <NumberInput
+            <TextFieldWithOperators
               value={form.parkingSpaces}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, parkingSpaces: value ?? 0 }))
+              onChange={(props) =>
+                setForm((prev) => ({
+                  ...prev,
+                  parkingSpaces: props,
+                }))
               }
             />
           </BoxField>
@@ -375,11 +417,13 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
           </BoxField>
 
           <BoxField label="Fire Places">
-            <NumberInput
+            <TextFieldWithOperators
               value={form.firePlaces}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, firePlaces: value ?? 0 }))
+              onChange={(props) =>
+                setForm((prev) => ({
+                  ...prev,
+                  firePlaces: props,
+                }))
               }
             />
           </BoxField>
@@ -393,33 +437,43 @@ export default function AdvancedSearch({ open, onClose }: AdvancedSearchProps) {
             flexDirection: "row",
           }}
         >
-          <BoxField label="Storeys">
-            <NumberInput
-              value={form.storeys}
-              min={0}
+          <BoxField label="Lot Acres">
+            <Slider
+              min={initialForm.lotAcres[0]}
+              max={initialForm.lotAcres[1]}
+              value={form.lotAcres}
+              marks={[
+                { label: "0", value: 0 },
+                { label: "15", value: 15 },
+                { label: "30", value: 30 },
+                { label: "50+", value: 50 },
+              ]}
               onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, storeys: value ?? 0 }))
+                setForm((prev) => ({ ...prev, lotAcres: value as number[] }))
               }
+              getAriaValueText={(value) => `${value} acres`}
+              valueLabelFormat={(value) => `${value} acres`}
+              valueLabelDisplay="auto"
             />
           </BoxField>
 
           <BoxField label="SqFt">
-            <NumberInput
+            <Slider
+              min={initialForm.sqFt[0]}
+              max={initialForm.sqFt[1]}
               value={form.sqFt}
-              min={0}
+              marks={[
+                { label: "100", value: 100 },
+                { label: "2000", value: 2000 },
+                { label: "6000", value: 6000 },
+                { label: "10000+", value: 10000 },
+              ]}
               onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, sqFt: value ?? 0 }))
+                setForm((prev) => ({ ...prev, sqFt: value as number[] }))
               }
-            />
-          </BoxField>
-
-          <BoxField label="Lot Acres">
-            <NumberInput
-              value={form.lotAcres}
-              min={0}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, lotAcres: value ?? 0 }))
-              }
+              getAriaValueText={(value) => formatMoney(value)}
+              valueLabelFormat={(value) => formatMoney(value)}
+              valueLabelDisplay="auto"
             />
           </BoxField>
         </Stack>
