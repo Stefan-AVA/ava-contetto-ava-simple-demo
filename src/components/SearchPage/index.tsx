@@ -379,7 +379,12 @@ const SearchPage = ({ orgId, agentId, contactId }: ISearch) => {
         </>
       )}
 
-      <AdvancedSearch open={advancedModal} onClose={setAdvancedModal} />
+      <AdvancedSearch
+        open={advancedModal}
+        orgId={orgId}
+        onClose={setAdvancedModal}
+        contactId={contactId}
+      />
     </Stack>
   )
 }
