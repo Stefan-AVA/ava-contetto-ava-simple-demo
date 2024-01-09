@@ -121,7 +121,7 @@ export default function AdvancedSearch({
       ...form,
       city: form.city?._id,
       rooms: form.rooms ? form.rooms.value : null,
-      orderId,
+      orgId,
       storeys: form.storeys ? form.storeys.value : null,
       keywords: keywords.length > 0 ? keywords : null,
       contactId,
