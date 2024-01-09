@@ -121,8 +121,10 @@ export default function AdvancedSearch({
       ...form,
       city: form.city?._id,
       rooms: form.rooms ? form.rooms.value : null,
+      orderId,
       storeys: form.storeys ? form.storeys.value : null,
       keywords: keywords.length > 0 ? keywords : null,
+      contactId,
       bathrooms: form.bathrooms ? form.bathrooms.value : null,
       firePlaces: form.firePlaces ? form.firePlaces.value : null,
       roomsOperator: form.rooms ? form.rooms.operator : null,
@@ -149,7 +151,7 @@ export default function AdvancedSearch({
       return
     }
 
-    console.log({ data, orgId, contactId })
+    console.log({ data })
 
     const params = stringify(data, { skipNulls: true, encodeValuesOnly: true })
 
