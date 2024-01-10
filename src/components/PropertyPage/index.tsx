@@ -1,10 +1,6 @@
 "use client"
 
-import "swiper/css"
-import "swiper/css/pagination"
-
 import { useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   useGetPropertyQuery,
@@ -25,23 +21,12 @@ import {
 } from "@mui/material"
 import { formatDistance } from "date-fns"
 import { Bath, BedDouble, MapPin, Table2 } from "lucide-react"
-import { Pagination } from "swiper/modules"
-import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
 
 import type { ISearchResult } from "@/types/searchResult.types"
 
+import Gallery from "./gallery"
 import ListingDescription from "./listing-description"
 import WalkingDistance from "./walking-distance"
-
-const breakpoints: SwiperProps["breakpoints"] = {
-  560: {
-    slidesPerView: 3,
-  },
-
-  768: {
-    slidesPerView: 5,
-  },
-}
 
 interface IProps {
   orgId: string
@@ -83,23 +68,6 @@ const PropertyPage = ({
       setSearchResult(data.searchResult)
     }
   }, [data, setSearchResult])
-
-  const media = useMemo(() => {
-    if (data) {
-      const banner = data.property.photos[0].url
-      const images = data.property.photos.slice(1).map(({ url }) => url)
-
-      return {
-        banner,
-        images,
-      }
-    }
-
-    return {
-      banner: "",
-      images: [],
-    }
-  }, [data])
 
   const details = useMemo(() => {
     const timeOnMarket =
@@ -316,33 +284,6 @@ const PropertyPage = ({
         {data && (
           <Stack sx={{ width: "100%" }}>
             <Stack sx={{ gap: 1.5 }} position="relative">
-              {media.banner && (
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: {
-                      xs: "15.625rem",
-                      md: "30.13rem",
-                    },
-                    position: "relative",
-                    overflow: "hidden",
-                    borderRadius: ".75rem",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "auto",
-                      height: "auto",
-                      objectFit: "cover",
-                    }}
-                    src={media.banner}
-                    alt=""
-                    fill
-                    component={Image}
-                  />
-                </Box>
-              )}
-
               {searchResult?.shortlists.includes(propertyId) && (
                 <Stack
                   sx={{
@@ -385,34 +326,7 @@ const PropertyPage = ({
                 </Stack>
               )}
 
-              <Swiper
-                style={{ width: "100%" }}
-                modules={[Pagination]}
-                pagination={{
-                  clickable: true,
-                }}
-                grabCursor
-                breakpoints={breakpoints}
-                spaceBetween={12}
-                slidesPerView={2}
-              >
-                {media.images.map((image) => (
-                  <SwiperSlide key={image} style={{ width: "100%" }}>
-                    <Image
-                      src={image}
-                      alt=""
-                      style={{
-                        width: "100%",
-                        height: "10rem",
-                        objectFit: "cover",
-                        borderRadius: ".5rem",
-                      }}
-                      width={186}
-                      height={160}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+              <Gallery data={data.property.photos.map(({ url }) => url)} />
             </Stack>
 
             <Stack sx={{ mt: 5 }}>
