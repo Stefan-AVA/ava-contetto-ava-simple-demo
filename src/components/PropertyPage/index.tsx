@@ -23,6 +23,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material"
+import { formatDistance } from "date-fns"
 import { Bath, BedDouble, MapPin, Table2 } from "lucide-react"
 import { Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
@@ -101,17 +102,28 @@ const PropertyPage = ({
   }, [data])
 
   const details = useMemo(() => {
+    const timeOnMarket =
+      data && data.property.timestamp
+        ? formatDistance(new Date(data.property.timestamp * 1000), new Date())
+        : null
+
     return {
-      "Property Type": data ? data.property.PropertyType : "-",
-      "Land Size": "-",
+      "Property Type":
+        data && data.property.PropertyType ? data.property.PropertyType : "-",
+      "Land Size":
+        data && data.property.BuildingAreaTotal
+          ? `${data.property.BuildingAreaTotal} sqft`
+          : "_",
       "Building Type": "-",
-      "Year Built": data ? data.property.YearBuilt : "-",
-      Community: "-",
-      "Annual Property Taxes": "-",
+      "Year Built":
+        data && data.property.YearBuilt ? data.property.YearBuilt : "-",
       Neighbourhood: "-",
-      "Parking Type": "-",
+      "Annual Property Taxes": "-",
       Title: "-",
-      "Time on Market": "-",
+      "Parking Type": "-",
+      "Ownership Type":
+        data && data.property.OwnershipType ? data.property.OwnershipType : "-",
+      "Time on Market": timeOnMarket ?? "-",
     }
   }, [data])
 
@@ -542,7 +554,7 @@ const PropertyPage = ({
                 >
                   {Object.entries(details).map(([key, value]) => (
                     <Grid key={key} xs={12} md={6}>
-                      <Typography>
+                      <Typography sx={{ textTransform: "capitalize" }}>
                         <b>{key}: </b>
                         {value}
                       </Typography>

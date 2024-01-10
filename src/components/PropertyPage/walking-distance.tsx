@@ -124,7 +124,7 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
                 sx={{
                   width: "3.5rem",
                   height: "3.5rem",
-                  bgcolor: "primary.main",
+                  bgcolor: type === key ? "primary.main" : "gray.400",
                   alignItems: "center",
                   borderRadius: "50%",
                   justifyContent: "center",
