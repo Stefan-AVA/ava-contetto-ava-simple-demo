@@ -30,6 +30,7 @@ import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
 import type { ISearchResult } from "@/types/searchResult.types"
 
 import ListingDescription from "./listing-description"
+import WalkingDistance from "./walking-distance"
 
 const breakpoints: SwiperProps["breakpoints"] = {
   560: {
@@ -175,8 +176,8 @@ const PropertyPage = ({
       <Stack
         sx={{
           alignItems: "center",
-          justifyContent: "space-between",
           flexDirection: "row",
+          justifyContent: "space-between",
         }}
       >
         <Button
@@ -288,20 +289,10 @@ const PropertyPage = ({
 
       <Stack
         sx={{
-          p: {
-            md: 2,
-          },
-          border: {
-            md: "1px solid",
-          },
+          pb: 15,
           width: "100%",
           alignItems: "center",
-          borderColor: {
-            md: "gray.300",
-          },
-          borderRadius: ".75rem",
           justifyContent: "center",
-          pb: 15,
         }}
       >
         {isLoading && (
@@ -412,11 +403,7 @@ const PropertyPage = ({
               </Swiper>
             </Stack>
 
-            <Stack
-              sx={{
-                p: { xs: 2, md: 4 },
-              }}
-            >
+            <Stack sx={{ mt: 5 }}>
               <Typography
                 sx={{ color: "blue.800", fontWeight: 500 }}
                 variant="h2"
@@ -563,6 +550,8 @@ const PropertyPage = ({
                   ))}
                 </Grid>
               </Stack>
+
+              <WalkingDistance data={data.property} />
             </Stack>
           </Stack>
         )}
