@@ -69,6 +69,8 @@ const PropertyPage = ({
     }
   }, [data, setSearchResult])
 
+  const media = data ? data.property.photos.map(({ url }) => url) : []
+
   const details = useMemo(() => {
     const timeOnMarket =
       data && data.property.timestamp
@@ -326,7 +328,7 @@ const PropertyPage = ({
                 </Stack>
               )}
 
-              <Gallery data={data.property.photos.map(({ url }) => url)} />
+              <Gallery data={media} />
             </Stack>
 
             <Stack sx={{ mt: 5 }}>

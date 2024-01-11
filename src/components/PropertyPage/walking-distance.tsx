@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { Box, Stack, Typography } from "@mui/material"
+import { Box, Stack, Typography, type BoxProps } from "@mui/material"
 
 import type { IListing } from "@/types/listing.types"
 
@@ -87,19 +87,55 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
     return null
   }, [data, type, types])
 
+  const GoogleMaps = useCallback(
+    (props: BoxProps) => (
+      <Box
+        {...props}
+        sx={{
+          width: !type ? "100%" : "60%",
+          borderRadius: ".5rem",
+          ...(props.sx ?? {}),
+        }}
+        src={`//maps.google.com/maps?q=${data.location.coordinates[1]},${data.location.coordinates[0]}&z=15&output=embed`}
+        style={{ border: 0 }}
+        height={284}
+        loading="lazy"
+        component="iframe"
+        referrerPolicy="no-referrer-when-downgrade"
+        allowFullScreen
+      />
+    ),
+    [type, data.location.coordinates]
+  )
+
   return (
     <Stack sx={{ gap: 5 }}>
       <Stack
         sx={{
-          gap: 5,
-          alignItems: "center",
-          flexDirection: "row",
+          gap: 3,
+          alignItems: {
+            lg: "center",
+          },
+          flexDirection: {
+            xs: "column",
+            lg: "row",
+          },
           justifyContent: "space-between",
         }}
       >
         <Typography sx={{ fontWeight: 700 }} variant="h5">
           Walking Distance
         </Typography>
+
+        <GoogleMaps
+          sx={{
+            width: "100%",
+            display: {
+              xs: "flex",
+              lg: "none",
+            },
+          }}
+        />
 
         <Stack
           sx={{
@@ -133,7 +169,14 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
                 <Image src={icon} alt="" width={32} height={32} />
               </Stack>
 
-              <Box>
+              <Box
+                sx={{
+                  display: {
+                    xs: "none",
+                    lg: "block",
+                  },
+                }}
+              >
                 <Typography sx={{ fontWeight: 700 }}>{name}</Typography>
 
                 <Typography
@@ -150,7 +193,14 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
 
       <Stack sx={{ gap: 4, flexDirection: "row" }}>
         {currType && (
-          <Stack sx={{ width: "40%" }}>
+          <Stack
+            sx={{
+              width: {
+                xs: "100%",
+                lg: "40%",
+              },
+            }}
+          >
             <Typography sx={{ fontWeight: 700 }} variant="body2">
               {currType.name}
             </Typography>
@@ -182,15 +232,13 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
           </Stack>
         )}
 
-        <Box
-          sx={{ width: !type ? "100%" : "60%", borderRadius: ".5rem" }}
-          src={`//maps.google.com/maps?q=${data.location.coordinates[1]},${data.location.coordinates[0]}&z=15&output=embed`}
-          style={{ border: 0 }}
-          height={284}
-          loading="lazy"
-          component="iframe"
-          referrerPolicy="no-referrer-when-downgrade"
-          allowFullScreen
+        <GoogleMaps
+          sx={{
+            display: {
+              xs: "none",
+              lg: "flex",
+            },
+          }}
         />
       </Stack>
     </Stack>
