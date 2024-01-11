@@ -4,7 +4,7 @@ import { type PropsWithChildren } from "react"
 import SocketProvider from "@/providers/SocketProvider"
 import { store } from "@/redux/store"
 import { LocalizationProvider } from "@mui/x-date-pickers"
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3"
 import { SnackbarProvider } from "notistack"
 import { Provider } from "react-redux"
 
