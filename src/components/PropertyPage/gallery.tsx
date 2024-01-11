@@ -3,7 +3,13 @@ import "swiper/css/navigation"
 
 import { useMemo, useState } from "react"
 import Image from "next/image"
-import { Box, Unstable_Grid2 as Grid, Modal, Paper } from "@mui/material"
+import {
+  Box,
+  Unstable_Grid2 as Grid,
+  Modal,
+  Paper,
+  useMediaQuery,
+} from "@mui/material"
 import { X } from "lucide-react"
 import { Navigation } from "swiper/modules"
 import { Swiper, SwiperSlide, type SwiperClass } from "swiper/react"
@@ -15,6 +21,8 @@ interface GalleryProps {
 export default function Gallery({ data = [] }: GalleryProps) {
   const [swiper, setSwiper] = useState<SwiperClass | null>(null)
   const [showModal, setShowModal] = useState(false)
+
+  const isResponsive = useMediaQuery("(max-width:1199px)")
 
   const splitImages = useMemo(() => {
     const arr = [] as string[][]
@@ -49,76 +57,99 @@ export default function Gallery({ data = [] }: GalleryProps) {
         navigation
         slidesPerView={1}
       >
-        {splitImages.map((images, index) => (
-          <SwiperSlide key={Math.random()} style={{ width: "100%" }}>
-            {index === 0 && (
-              <Grid sx={{ width: "100%" }} spacing={3} container>
-                <Grid
-                  sm={12}
-                  md={9}
-                  sx={{ position: "relative" }}
-                  role="presentation"
-                  onClick={() => navigateToSlide(0)}
-                >
-                  <Image
-                    src={images[0]}
-                    alt=""
-                    fill
-                    style={{ objectFit: "cover" }}
-                  />
-                </Grid>
+        {isResponsive &&
+          data.map((image, index) => (
+            <SwiperSlide
+              key={image}
+              style={{ width: "100%", height: "23rem", position: "relative" }}
+            >
+              <Image
+                src={image}
+                alt=""
+                fill
+                style={{ objectFit: "cover" }}
+                onClick={() => navigateToSlide(index)}
+              />
+            </SwiperSlide>
+          ))}
 
-                <Grid sm={12} md={3}>
-                  {[images[1], images[2], images[3]].map((url, position) => (
-                    <Image
-                      key={url}
-                      src={url}
-                      alt=""
-                      role="presentation"
-                      style={{ objectFit: "cover" }}
-                      width={252}
-                      height={190}
-                      onClick={() => navigateToSlide(position + 1)}
-                    />
-                  ))}
-                </Grid>
-              </Grid>
-            )}
-
-            {index !== 0 && (
-              <Grid sx={{ width: "100%" }} spacing={3} container>
-                {images.map((image, position) => (
+        {!isResponsive &&
+          splitImages.map((images, index) => (
+            <SwiperSlide key={Math.random()} style={{ width: "100%" }}>
+              {index === 0 && (
+                <Grid sx={{ width: "100%" }} spacing={3} container>
                   <Grid
                     sm={12}
-                    md={4}
-                    lg={3}
-                    key={image}
+                    md={9}
+                    sx={{ position: "relative" }}
                     role="presentation"
-                    onClick={() => navigateToSlide(position + 4)}
+                    onClick={() => navigateToSlide(0)}
                   >
                     <Image
-                      src={image}
+                      src={images[0]}
                       alt=""
+                      fill
                       style={{ objectFit: "cover" }}
-                      width={268}
-                      height={154}
                     />
                   </Grid>
-                ))}
-              </Grid>
-            )}
-          </SwiperSlide>
-        ))}
+
+                  <Grid sm={12} md={3}>
+                    {[images[1], images[2], images[3]].map((url, position) => (
+                      <Image
+                        key={url}
+                        src={url}
+                        alt=""
+                        role="presentation"
+                        style={{ objectFit: "cover" }}
+                        width={252}
+                        height={190}
+                        onClick={() => navigateToSlide(position + 1)}
+                      />
+                    ))}
+                  </Grid>
+                </Grid>
+              )}
+
+              {index !== 0 && (
+                <Grid sx={{ width: "100%" }} spacing={3} container>
+                  {images.map((image, position) => (
+                    <Grid
+                      sm={12}
+                      md={4}
+                      lg={3}
+                      key={image}
+                      role="presentation"
+                      onClick={() => navigateToSlide(position + 4)}
+                    >
+                      <Image
+                        src={image}
+                        alt=""
+                        style={{ objectFit: "cover" }}
+                        width={268}
+                        height={154}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </SwiperSlide>
+          ))}
       </Swiper>
 
       <Modal open={!!showModal} onClose={onCloseModal} keepMounted>
         <Paper
           sx={{
-            p: 4,
+            p: {
+              xs: 2,
+              md: 4,
+            },
             top: "50%",
             left: "50%",
-            width: "90vw",
-            height: "90vh",
+            width: "95vw",
+            height: {
+              xs: "50vh",
+              md: "90vh",
+            },
             outline: "none",
             position: "absolute",
             transform: "translate(-50%, -50%)",

@@ -331,7 +331,7 @@ const PropertyPage = ({
               <Gallery data={media} />
             </Stack>
 
-            <Stack sx={{ mt: 5 }}>
+            <Stack sx={{ mt: 2 }}>
               <Typography
                 sx={{ color: "blue.800", fontWeight: 500 }}
                 variant="h2"
