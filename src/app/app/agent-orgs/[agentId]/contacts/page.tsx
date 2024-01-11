@@ -10,7 +10,7 @@ import {
 } from "@/redux/apis/org"
 import { type RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
-import { CircularProgress, Stack, Typography } from "@mui/material"
+import { Button, CircularProgress, Stack, Typography } from "@mui/material"
 import {
   DataGrid,
   type GridColDef,
@@ -18,7 +18,7 @@ import {
   type GridRowsProp,
 } from "@mui/x-data-grid"
 import { format } from "date-fns"
-import { Eye, Share2, Trash2 } from "lucide-react"
+import { Eye, Plus, Share2, Trash2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
@@ -175,18 +175,34 @@ export default function Page({ params }: IPage) {
 
   return (
     <Stack>
-      <Typography
+      <Stack
         sx={{
-          pb: 3,
           mb: 4,
-          fontWeight: 700,
-          borderBottom: "1px solid",
-          borderBottomColor: "gray.300",
+          gap: 3,
+          alignItems: {
+            sm: "center",
+          },
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+          },
+          justifyContent: "space-between",
         }}
-        variant="h3"
       >
-        Contacts List
-      </Typography>
+        <Typography sx={{ fontWeight: 700 }} variant="h3">
+          Contacts List
+        </Typography>
+
+        <Button
+          sx={{ width: "fit-content" }}
+          href={`/app/agent-orgs/${params.agentId}/create-contact`}
+          size="small"
+          component={Link}
+          startIcon={<Plus size={16} />}
+        >
+          Add contact
+        </Button>
+      </Stack>
 
       <DataGrid
         rows={rows}

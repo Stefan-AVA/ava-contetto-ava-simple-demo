@@ -3,7 +3,7 @@
 import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
-import { Box, Stack } from "@mui/material"
+import { Stack } from "@mui/material"
 import {
   Contact,
   LayoutDashboardIcon,
@@ -43,12 +43,6 @@ export default function Layout({ children }: PropsWithChildren) {
         icon: <Contact />,
         label: "Contacts",
         active: pathName.includes("contacts"),
-      },
-      {
-        path: `/app/agent-orgs/${agentId}/create-contact`,
-        icon: <UserPlus />,
-        label: "Create Contact",
-        active: pathName.includes("create-contact"),
       },
       {
         path: `/app/agent-orgs/${agentId}/search-results`,
