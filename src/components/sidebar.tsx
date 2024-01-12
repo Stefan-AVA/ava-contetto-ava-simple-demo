@@ -17,9 +17,10 @@ type Router = {
 
 interface SidebarProps {
   routes: Router[]
+  orgName: string
 }
 
-export default function Sidebar({ routes }: SidebarProps) {
+export default function Sidebar({ routes, orgName }: SidebarProps) {
   const [open, setOpen] = useState(false)
 
   const pathname = usePathname()
@@ -58,11 +59,8 @@ export default function Sidebar({ routes }: SidebarProps) {
           borderRightColor: "gray.300",
         }}
       >
-        <Typography
-          sx={{ mb: 3, color: "gray.500", fontWeight: 500 }}
-          variant="body2"
-        >
-          MAIN MENU
+        <Typography sx={{ mt: 10, mb: 3, fontWeight: 700 }} variant="h5">
+          {orgName}
         </Typography>
 
         {routes.map(({ label, path, icon, active }) => (

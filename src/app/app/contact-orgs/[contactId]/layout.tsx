@@ -42,6 +42,8 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const hasWhiteLabelDefined = contact?.org?.whiteLabel
 
+  const orgName = contact?.org?.name
+
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
@@ -49,7 +51,7 @@ export default function Layout({ children }: PropsWithChildren) {
         spacing={{ xs: 2, md: 0 }}
         direction={{ xs: "column", md: "row" }}
       >
-        <Sidebar routes={routes} />
+        <Sidebar routes={routes} orgName={orgName ?? ""} />
 
         <Box
           sx={{
