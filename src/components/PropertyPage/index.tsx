@@ -2,17 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  useGetPropertyQuery,
-  useRejectPropertyMutation,
-  useShortlistPropertyMutation,
-  useUndoPropertyMutation,
-} from "@/redux/apis/search"
+import { useGetPropertyQuery } from "@/redux/apis/search"
 import { formatAreaUint } from "@/utils/format-area-unit"
 import formatMoney from "@/utils/format-money"
-import { LoadingButton } from "@mui/lab"
 import {
-  Box,
   Button,
   CircularProgress,
   Unstable_Grid2 as Grid,
@@ -26,6 +19,7 @@ import type { ISearchResult } from "@/types/searchResult.types"
 
 import Gallery from "./gallery"
 import ListingDescription from "./listing-description"
+import ShareListing from "./share-listing"
 import WalkingDistance from "./walking-distance"
 
 interface IProps {
@@ -45,6 +39,7 @@ const PropertyPage = ({
   contactId,
   fromSearchPage,
 }: IProps) => {
+  const [showShareListing, setShowShareListing] = useState(false)
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
@@ -55,13 +50,6 @@ const PropertyPage = ({
     { orgId, searchId, propertyId },
     { skip: !orgId }
   )
-
-  const [shortlist, { isLoading: isShortlistLoading }] =
-    useShortlistPropertyMutation()
-  const [reject, { isLoading: isRejectLoading }] = useRejectPropertyMutation()
-  const [undo, { isLoading: isUndoLoading }] = useUndoPropertyMutation()
-
-  const actionLoading = isShortlistLoading || isRejectLoading || isUndoLoading
 
   useEffect(() => {
     if (data?.searchResult) {
@@ -97,48 +85,6 @@ const PropertyPage = ({
     }
   }, [data])
 
-  async function onShortlist() {
-    try {
-      const result = await shortlist({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onShortlist error ===>", error)
-    }
-  }
-
-  async function onReject() {
-    try {
-      const result = await reject({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onReject error ===>", error)
-    }
-  }
-
-  async function onUndo() {
-    try {
-      const result = await undo({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onUndo error ===>", error)
-    }
-  }
-
   function onBack() {
     if (fromSearchPage) {
       if (agentId) {
@@ -171,102 +117,19 @@ const PropertyPage = ({
           Back to search
         </Button>
 
-        <Box
+        <Stack
           sx={{
-            position: { xs: "fixed", md: "inherit" },
-            bottom: 10,
-            left: 0,
-            width: { xs: "100%", md: "auto" },
-            px: { xs: 2, md: 0 },
+            gap: 2,
+            alignItems: "center",
+            flexDirection: "row",
           }}
         >
-          {searchResult?.searchName &&
-            ([...searchResult.shortlists, ...searchResult.rejects].includes(
-              propertyId
-            ) ? (
-              <Stack
-                sx={{
-                  width: "100%",
-                  justifyContent: "center",
-                }}
-                direction="row"
-              >
-                <LoadingButton
-                  sx={{
-                    color: "secondary.main",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "white",
-                    border: "1px solid",
-                    borderColor: "secondary.main",
-                    borderRadius: 2,
-                    ":hover": {
-                      background: "white",
-                      opacity: 0.8,
-                    },
-                  }}
-                  size="small"
-                  onClick={onUndo}
-                  loading={actionLoading}
-                >
-                  Undo
-                </LoadingButton>
-              </Stack>
-            ) : (
-              <Stack
-                sx={{
-                  width: "100%",
-                  justifyContent: "center",
-                }}
-                spacing={1}
-                direction="row"
-              >
-                <LoadingButton
-                  sx={{
-                    color: "red.200",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "white",
-                    border: "1px solid",
-                    borderColor: "red.200",
-                    borderRadius: 2,
-                    ":hover": {
-                      background: "white",
-                      opacity: 0.8,
-                    },
-                  }}
-                  size="small"
-                  onClick={onReject}
-                  loading={actionLoading}
-                >
-                  Reject
-                </LoadingButton>
-                <LoadingButton
-                  sx={{
-                    color: "green.700",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "white",
-                    border: "1px solid",
-                    borderColor: "green.700",
-                    borderRadius: 2,
-                    ":hover": {
-                      background: "white",
-                      opacity: 0.8,
-                    },
-                  }}
-                  size="small"
-                  onClick={onShortlist}
-                  loading={actionLoading}
-                >
-                  Shortlist
-                </LoadingButton>
-              </Stack>
-            ))}
-        </Box>
+          <Button size="small">Save Listing</Button>
+
+          <Button size="small" onClick={() => setShowShareListing(true)}>
+            Share Listing
+          </Button>
+        </Stack>
       </Stack>
 
       <Stack
@@ -483,6 +346,12 @@ const PropertyPage = ({
             </Stack>
           </Stack>
         )}
+
+        <ShareListing
+          show={showShareListing}
+          data={data ? data.property : null}
+          onClose={() => setShowShareListing(false)}
+        />
       </Stack>
     </>
   )
