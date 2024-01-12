@@ -120,6 +120,10 @@ const PropertyPage = ({
         <Stack
           sx={{
             gap: 2,
+            display: {
+              xs: "none",
+              sm: "flex",
+            },
             alignItems: "center",
             flexDirection: "row",
           }}

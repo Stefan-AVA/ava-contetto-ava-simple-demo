@@ -140,8 +140,14 @@ export default function ShareListing({
         <Stack
           sx={{
             mt: 4,
-            gap: 10,
-            flexDirection: "row",
+            gap: {
+              xs: 4,
+              md: 10,
+            },
+            flexDirection: {
+              xs: "column",
+              md: "row",
+            },
           }}
         >
           <Stack sx={{ gap: 3, flex: 1 }}>
@@ -202,7 +208,7 @@ export default function ShareListing({
           {data && (
             <Property
               {...data}
-              sx={{ maxWidth: "26rem", pointerEvents: "none" }}
+              sx={{ maxWidth: { md: "26rem" }, pointerEvents: "none" }}
               orgId={orgId}
               agentId={agentId as string}
             />
