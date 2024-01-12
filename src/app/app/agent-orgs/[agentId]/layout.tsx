@@ -3,13 +3,12 @@
 import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
-import { Box, Stack } from "@mui/material"
+import { Stack } from "@mui/material"
 import {
   Contact,
   LayoutDashboardIcon,
   Search,
   SettingsIcon,
-  UserPlus,
 } from "lucide-react"
 import { useSelector } from "react-redux"
 
