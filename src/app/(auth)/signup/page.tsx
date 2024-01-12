@@ -16,7 +16,7 @@ import {
 } from "@mui/material"
 import { z } from "zod"
 
-const singupSchema = z
+const signupSchema = z
   .object({
     email: z
       .string()
@@ -36,7 +36,7 @@ const confirmEmailSchema = z.object({
   verificationCode: z.string().min(4, "Enter verification code"),
 })
 
-export type SingupFormSchema = z.infer<typeof singupSchema>
+export type SingupFormSchema = z.infer<typeof signupSchema>
 export type ConfirmEmailFormSchema = z.infer<typeof confirmEmailSchema>
 
 type FormSchema = SingupFormSchema & ConfirmEmailFormSchema
@@ -82,7 +82,7 @@ export default function SignupPage({ searchParams }: PageProps) {
       return
     }
 
-    const response = singupSchema.safeParse(form)
+    const response = signupSchema.safeParse(form)
 
     if (!response.success) {
       const error = formatErrorZodMessage<Partial<FormError>>(response.error)
