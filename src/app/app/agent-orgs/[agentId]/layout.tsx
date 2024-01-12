@@ -45,12 +45,6 @@ export default function Layout({ children }: PropsWithChildren) {
         active: pathName.includes("contacts"),
       },
       {
-        path: `/app/agent-orgs/${agentId}/create-contact`,
-        icon: <UserPlus />,
-        label: "Create Contact",
-        active: pathName.includes("create-contact"),
-      },
-      {
         path: `/app/agent-orgs/${agentId}/search-results`,
         icon: <Search />,
         label: "My Searches",

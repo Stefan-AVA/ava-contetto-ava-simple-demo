@@ -78,7 +78,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
       setForm({
         name: contact.name,
         email: contact.email || "",
-        phone: contact.phone || "+12344567456",
+        phone: contact.phone || "",
         image: contact.image || "",
         imageFileType: undefined,
       })

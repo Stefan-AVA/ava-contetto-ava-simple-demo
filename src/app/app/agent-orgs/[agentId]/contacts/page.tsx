@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import {
@@ -10,7 +10,13 @@ import {
 } from "@/redux/apis/org"
 import { type RootState } from "@/redux/store"
 import { getDatefromUnix } from "@/utils/format-date"
-import { CircularProgress, Stack, Typography } from "@mui/material"
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  Stack,
+  Typography,
+} from "@mui/material"
 import {
   DataGrid,
   type GridColDef,
@@ -24,6 +30,7 @@ import { useSelector } from "react-redux"
 
 import type { IContact } from "@/types/contact.types"
 import Avatar from "@/components/Avatar"
+import CreateContactForm from "@/components/create-contact-form"
 
 interface IPage {
   params: {
@@ -32,6 +39,8 @@ interface IPage {
 }
 
 export default function Page({ params }: IPage) {
+  const [modalOpen, setModalOpen] = useState(false)
+
   const state = useSelector((state: RootState) => state.app.agentOrgs)
 
   const agentProfile = useMemo(
@@ -41,7 +50,7 @@ export default function Page({ params }: IPage) {
 
   const { enqueueSnackbar } = useSnackbar()
 
-  const { data, isLoading } = useGetContactsQuery(
+  const { data, isLoading, refetch } = useGetContactsQuery(
     {
       orgId: agentProfile?.orgId,
     },
@@ -175,7 +184,10 @@ export default function Page({ params }: IPage) {
 
   return (
     <Stack>
-      <Typography
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
         sx={{
           pb: 3,
           mb: 4,
@@ -183,10 +195,17 @@ export default function Page({ params }: IPage) {
           borderBottom: "1px solid",
           borderBottomColor: "gray.300",
         }}
-        variant="h3"
       >
-        Contacts List
-      </Typography>
+        <Typography variant="h3">Contacts List</Typography>
+
+        <Button
+          variant="text"
+          sx={{ p: 0, height: "fit-content" }}
+          onClick={() => setModalOpen(true)}
+        >
+          Create New
+        </Button>
+      </Stack>
 
       <DataGrid
         rows={rows}
@@ -197,6 +216,24 @@ export default function Page({ params }: IPage) {
         disableColumnMenu
         disableRowSelectionOnClick
       />
+
+      <Dialog
+        sx={{
+          "& .MuiPaper-root": {
+            width: { xs: "calc(100vw - 16px)", md: 400 },
+          },
+        }}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      >
+        <CreateContactForm
+          orgId={String(agentProfile?.orgId)}
+          contactCreated={() => {
+            setModalOpen(false)
+            refetch()
+          }}
+        />
+      </Dialog>
     </Stack>
   )
 }
