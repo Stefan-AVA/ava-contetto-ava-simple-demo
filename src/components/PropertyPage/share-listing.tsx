@@ -86,6 +86,12 @@ export default function ShareListing({
       return
     }
 
+    if (!form.contact.email) {
+      enqueueSnackbar("This contact don't have an email", { variant: "error" })
+
+      return
+    }
+
     console.log({ form })
   }
 
