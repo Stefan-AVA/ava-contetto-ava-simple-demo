@@ -106,14 +106,17 @@ export const roomSlice = createSlice({
     builder.addMatcher(
       roomApi.endpoints.createChannel.matchFulfilled,
       (state, action) => {
-        state.rooms = [...(state.rooms ?? []), action.payload]
+        state.rooms = [...state.rooms, action.payload]
         state.currentRoom = action.payload
       }
     )
     builder.addMatcher(
       roomApi.endpoints.createDM.matchFulfilled,
       (state, action) => {
-        state.rooms = [...(state.rooms ?? []), action.payload]
+        state.rooms = [
+          ...state.rooms.filter((room) => room._id !== action.payload._id),
+          { ...action.payload, dmInitiated: true },
+        ]
         state.currentRoom = action.payload
       }
     )

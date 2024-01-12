@@ -87,7 +87,10 @@ export default function Rooms({ onAction }: RoomsProps) {
                 <RoomField
                   key={room._id}
                   icon={Lock}
-                  title={room.usernames
+                  title={[
+                    ...room.agents.map((a) => a.username),
+                    ...room.contacts.map((c) => c.username || c.name),
+                  ]
                     .filter((u) => u !== user?.username)
                     .join(", ")}
                   onClick={() => navigate(room)}

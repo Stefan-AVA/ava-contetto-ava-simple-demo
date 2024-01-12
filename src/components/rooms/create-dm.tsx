@@ -42,6 +42,7 @@ export default function CreateDM({ agentProfile }: IProps) {
         .filter(({ type }) => type === "Contacts")
         .map((contact) => ({
           _id: contact.value,
+          name: contact.name as string,
           agentId: contact.agentId as string,
           username: contact.label,
           agentName: contact.agentName as string,
@@ -92,6 +93,7 @@ export default function CreateDM({ agentProfile }: IProps) {
           value={users}
           orgId={String(agentProfile?.orgId)}
           onChange={setUsers}
+          dm
         />
 
         <LoadingButton

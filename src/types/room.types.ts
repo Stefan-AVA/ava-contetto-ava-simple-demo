@@ -24,7 +24,8 @@ export interface IRoomAgent {
 
 export interface IRoomContact {
   _id: string // contactId
-  username: string
+  name: string
+  username?: string
   agentId: string
   agentName: string
 }
