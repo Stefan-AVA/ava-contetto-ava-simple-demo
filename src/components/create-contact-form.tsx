@@ -57,7 +57,6 @@ export default function CreateContactForm({
       image: "",
       imageFileType: undefined,
     })
-    if (contactCreated) contactCreated()
   }
 
   const onChange = (name: string, value: any) => {
@@ -100,13 +99,14 @@ export default function CreateContactForm({
     if (!isValidated()) return
 
     try {
-      await create({
+      const contact = await create({
         ...form,
         orgId,
       }).unwrap()
 
       enqueueSnackbar("Successfully created", { variant: "success" })
 
+      if (contactCreated) contactCreated(contact)
       close()
     } catch (error) {
       setErrors((prev) => ({ ...prev, request: parseError(error) }))

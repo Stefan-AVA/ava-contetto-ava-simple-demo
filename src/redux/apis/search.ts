@@ -38,6 +38,11 @@ interface IGetSearchResultRequest {
   page: number
 }
 
+interface ISharePropertyRequest extends IGetProperyRequest {
+  contactId: string
+  message?: string
+}
+
 export const searchApi = createApi({
   reducerPath: "searchApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -170,6 +175,17 @@ export const searchApi = createApi({
       }),
       invalidatesTags: ["Searches", "Properties"],
     }),
+    shareProperty: builder.mutation<void, ISharePropertyRequest>({
+      query: ({ orgId, searchId, propertyId, contactId, message }) => ({
+        url: `/${orgId}/search-results/${searchId}/property/${propertyId}/share`,
+        method: "POST",
+        body: {
+          contactId,
+          message,
+        },
+      }),
+      invalidatesTags: ["Searches", "Properties"],
+    }),
   }),
 })
 
@@ -187,4 +203,5 @@ export const {
   useShortlistPropertyMutation,
   useRejectPropertyMutation,
   useUndoPropertyMutation,
+  useSharePropertyMutation,
 } = searchApi
