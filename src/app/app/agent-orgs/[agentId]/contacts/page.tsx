@@ -198,7 +198,9 @@ export default function Page({ params }: IPage) {
           justifyContent: "space-between",
         }}
       >
-        <Typography sx={{ fontWeight: 700 }} variant="h3">Contacts List</Typography>
+        <Typography sx={{ fontWeight: 700 }} variant="h3">
+          Contacts List
+        </Typography>
 
         <Button
           sx={{ width: "fit-content" }}
