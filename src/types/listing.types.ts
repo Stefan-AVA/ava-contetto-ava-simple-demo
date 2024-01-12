@@ -9,6 +9,21 @@ export enum AreaUnitType {
   acres = "acres",
 }
 
+export interface INearby {
+  _id: string
+  City: string
+  Address: string
+  Country: string
+  Latitude: number
+  distance: number
+  geometry: { type: string; coordinates: number[] }
+  Longitude: number
+  Max_Grade: number
+  Min_Grade: string | number
+  Facility_N: string
+  Facility_T: string
+}
+
 export interface IListing {
   _id: string
   source: ListingSource
@@ -263,4 +278,7 @@ export interface IListing {
     },
   ]
   timestamp: number
+  nearbyParks: INearby[]
+  nearbySchools: INearby[]
+  nearbyHealthcares: INearby[]
 }

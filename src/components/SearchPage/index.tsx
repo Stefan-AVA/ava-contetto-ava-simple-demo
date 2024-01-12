@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  MouseEvent,
-  MouseEventHandler,
-  useEffect,
-  useState,
-  type ChangeEvent,
-} from "react"
+import { MouseEvent, useEffect, useState, type ChangeEvent } from "react"
 import Image from "next/image"
 import { useLazySearchCitiesQuery } from "@/redux/apis/city"
 import {
@@ -203,7 +197,7 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
 
       fetchSearchResult()
     }
-  }, [searchId])
+  }, [orgId, searchId, getResult])
 
   const onSearch = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -541,7 +535,7 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
 
       <AdvancedSearch
         open={advancedModal}
-        onClose={setAdvancedModal}
+        onClose={() => setAdvancedModal(false)}
         form={form}
         setForm={setForm}
         isLoadingGetNearestCities={isLoadingGetNearestCities}
