@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useGetPropertyQuery } from "@/redux/apis/search"
 import { formatAreaUint } from "@/utils/format-area-unit"
@@ -9,6 +10,7 @@ import {
   Button,
   CircularProgress,
   Unstable_Grid2 as Grid,
+  IconButton,
   Stack,
   Typography,
 } from "@mui/material"
@@ -356,6 +358,49 @@ const PropertyPage = ({
           data={data ? data.property : null}
           onClose={() => setShowShareListing(false)}
         />
+      </Stack>
+
+      <Stack
+        sx={{
+          gap: 2,
+          right: "2rem",
+          bottom: "2rem",
+          display: {
+            xs: "flex",
+            sm: "none",
+          },
+          position: "fixed",
+        }}
+      >
+        <Button
+          sx={{
+            p: 2,
+            width: "4rem",
+            height: "4rem",
+            minWidth: "inherit",
+            borderRadius: "99px",
+          }}
+          onClick={() => setShowShareListing(true)}
+        >
+          <Image src="/assets/icon-send.svg" alt="" width={24} height={24} />
+        </Button>
+
+        <Button
+          sx={{
+            p: 2,
+            width: "4rem",
+            height: "4rem",
+            minWidth: "inherit",
+            borderRadius: "99px",
+          }}
+        >
+          <Image
+            src="/assets/icon-favorite.svg"
+            alt=""
+            width={24}
+            height={24}
+          />
+        </Button>
       </Stack>
     </>
   )
