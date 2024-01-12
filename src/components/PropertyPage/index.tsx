@@ -10,9 +10,9 @@ import {
   Button,
   CircularProgress,
   Unstable_Grid2 as Grid,
-  IconButton,
   Stack,
   Typography,
+  type SxProps,
 } from "@mui/material"
 import { formatDistance } from "date-fns"
 import { Bath, BedDouble, MapPin, Table2 } from "lucide-react"
@@ -31,6 +31,14 @@ interface IProps {
   searchId: string
   propertyId: string
   fromSearchPage?: string
+}
+
+const iconButtonStyles: SxProps = {
+  p: 2,
+  width: "4rem",
+  height: "4rem",
+  minWidth: "inherit",
+  borderRadius: "99px",
 }
 
 const PropertyPage = ({
@@ -132,9 +140,13 @@ const PropertyPage = ({
         >
           <Button size="small">Save Listing</Button>
 
-          <Button size="small" onClick={() => setShowShareListing(true)}>
-            Share Listing
-          </Button>
+          {agentId && (
+            <Button size="small" onClick={() => setShowShareListing(true)}>
+              Share Listing
+            </Button>
+          )}
+
+          {contactId && <Button size="small">Book Viewing</Button>}
         </Stack>
       </Stack>
 
@@ -372,28 +384,7 @@ const PropertyPage = ({
           position: "fixed",
         }}
       >
-        <Button
-          sx={{
-            p: 2,
-            width: "4rem",
-            height: "4rem",
-            minWidth: "inherit",
-            borderRadius: "99px",
-          }}
-          onClick={() => setShowShareListing(true)}
-        >
-          <Image src="/assets/icon-send.svg" alt="" width={24} height={24} />
-        </Button>
-
-        <Button
-          sx={{
-            p: 2,
-            width: "4rem",
-            height: "4rem",
-            minWidth: "inherit",
-            borderRadius: "99px",
-          }}
-        >
+        <Button sx={iconButtonStyles}>
           <Image
             src="/assets/icon-favorite.svg"
             alt=""
@@ -401,6 +392,26 @@ const PropertyPage = ({
             height={24}
           />
         </Button>
+
+        {agentId && (
+          <Button
+            sx={iconButtonStyles}
+            onClick={() => setShowShareListing(true)}
+          >
+            <Image src="/assets/icon-send.svg" alt="" width={24} height={24} />
+          </Button>
+        )}
+
+        {contactId && (
+          <Button sx={iconButtonStyles}>
+            <Image
+              src="/assets/icon-bubble-messages.svg"
+              alt=""
+              width={24}
+              height={24}
+            />
+          </Button>
+        )}
       </Stack>
     </>
   )
