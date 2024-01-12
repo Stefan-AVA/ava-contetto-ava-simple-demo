@@ -1,51 +1,28 @@
 "use client"
 
-import "swiper/css"
-import "swiper/css/pagination"
-
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  useGetPropertyQuery,
-  useRejectPropertyMutation,
-  useShortlistPropertyMutation,
-  useUndoPropertyMutation,
-} from "@/redux/apis/search"
+import { useGetPropertyQuery } from "@/redux/apis/search"
 import { formatAreaUint } from "@/utils/format-area-unit"
 import formatMoney from "@/utils/format-money"
-import { LoadingButton } from "@mui/lab"
 import {
-  Box,
   Button,
   CircularProgress,
   Unstable_Grid2 as Grid,
   Stack,
   Typography,
+  type SxProps,
 } from "@mui/material"
-import {
-  Bath,
-  BedDouble,
-  Calendar,
-  MapPin,
-  PhoneCall,
-  Table2,
-} from "lucide-react"
-import { Pagination } from "swiper/modules"
-import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react"
+import { formatDistance } from "date-fns"
+import { Bath, BedDouble, MapPin, Table2 } from "lucide-react"
 
 import type { ISearchResult } from "@/types/searchResult.types"
 
-const breakpoints: SwiperProps["breakpoints"] = {
-  560: {
-    slidesPerView: 3,
-  },
-
-  768: {
-    slidesPerView: 5,
-  },
-}
+import Gallery from "./gallery"
+import ListingDescription from "./listing-description"
+import ShareListing from "./share-listing"
+import WalkingDistance from "./walking-distance"
 
 interface IProps {
   orgId: string
@@ -56,6 +33,14 @@ interface IProps {
   fromSearchPage?: string
 }
 
+const iconButtonStyles: SxProps = {
+  p: 2,
+  width: "4rem",
+  height: "4rem",
+  minWidth: "inherit",
+  borderRadius: "99px",
+}
+
 const PropertyPage = ({
   orgId,
   searchId,
@@ -64,6 +49,7 @@ const PropertyPage = ({
   contactId,
   fromSearchPage,
 }: IProps) => {
+  const [showShareListing, setShowShareListing] = useState(false)
   const [searchResult, setSearchResult] = useState<ISearchResult | undefined>(
     undefined
   )
@@ -75,117 +61,101 @@ const PropertyPage = ({
     { skip: !orgId }
   )
 
-  const [shortlist, { isLoading: isShortlistLoading }] =
-    useShortlistPropertyMutation()
-  const [reject, { isLoading: isRejectLoading }] = useRejectPropertyMutation()
-  const [undo, { isLoading: isUndoLoading }] = useUndoPropertyMutation()
-
-  const actionLoading = isShortlistLoading || isRejectLoading || isUndoLoading
-
   useEffect(() => {
     if (data?.searchResult) {
       setSearchResult(data.searchResult)
     }
   }, [data, setSearchResult])
 
-  const media = useMemo(() => {
-    if (data) {
-      const banner = data.property.photos[0].url
-      const images = data.property.photos.slice(1).map(({ url }) => url)
+  const media = data ? data.property.photos.map(({ url }) => url) : []
 
-      return {
-        banner,
-        images,
-      }
-    }
+  const details = useMemo(() => {
+    const timeOnMarket =
+      data && data.property.timestamp
+        ? formatDistance(new Date(data.property.timestamp * 1000), new Date())
+        : null
 
     return {
-      banner: "",
-      images: [],
+      "Property Type":
+        data && data.property.PropertyType ? data.property.PropertyType : "-",
+      "Land Size":
+        data && data.property.BuildingAreaTotal
+          ? `${data.property.BuildingAreaTotal} sqft`
+          : "_",
+      "Building Type": "-",
+      "Year Built":
+        data && data.property.YearBuilt ? data.property.YearBuilt : "-",
+      Neighbourhood: "-",
+      "Annual Property Taxes": "-",
+      Title: "-",
+      "Parking Type": "-",
+      "Ownership Type":
+        data && data.property.OwnershipType ? data.property.OwnershipType : "-",
+      "Time on Market": timeOnMarket ?? "-",
     }
   }, [data])
 
-  const onShortlist = async () => {
-    try {
-      const result = await shortlist({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onShortlist error ===>", error)
-    }
-  }
-
-  const onReject = async () => {
-    try {
-      const result = await reject({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onReject error ===>", error)
-    }
-  }
-
-  const onUndo = async () => {
-    try {
-      const result = await undo({
-        orgId,
-        searchId: String(searchResult?._id),
-        propertyId,
-      }).unwrap()
-
-      setSearchResult(result.searchResult)
-    } catch (error) {
-      console.log("onUndo error ===>", error)
-    }
-  }
-
-  const onBack = () => {
+  function onBack() {
     if (fromSearchPage) {
       if (agentId) {
         push(`/app/agent-orgs/${agentId}?search_id=${searchId}`)
       } else if (contactId) {
         push(`/app/contact-orgs/${contactId}?search_id=${searchId}`)
       }
-    } else {
-      back()
+
+      return
     }
+
+    back()
   }
 
   return (
     <>
-      <Button
-        sx={{ mr: "auto" }}
-        size="small"
-        color="secondary"
-        onClick={onBack}
+      <Stack
+        sx={{
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
       >
-        Back to search results
-      </Button>
+        <Button
+          size="small"
+          color="primary"
+          onClick={onBack}
+          variant="outlined"
+        >
+          Back to search
+        </Button>
+
+        <Stack
+          sx={{
+            gap: 2,
+            display: {
+              xs: "none",
+              sm: "flex",
+            },
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <Button size="small">Save Listing</Button>
+
+          {agentId && (
+            <Button size="small" onClick={() => setShowShareListing(true)}>
+              Share Listing
+            </Button>
+          )}
+
+          {contactId && <Button size="small">Book Viewing</Button>}
+        </Stack>
+      </Stack>
 
       <Stack
         sx={{
-          p: {
-            md: 2,
-          },
-          border: {
-            md: "1px solid",
-          },
+          pb: 15,
           width: "100%",
           alignItems: "center",
-          borderColor: {
-            md: "gray.300",
-          },
-          borderRadius: ".75rem",
           justifyContent: "center",
-          pb: 15,
         }}
       >
         {isLoading && (
@@ -195,490 +165,252 @@ const PropertyPage = ({
         )}
 
         {data && (
-          <Grid sx={{ width: "100%" }} container spacing={2}>
-            <Grid xs={12} md={8}>
-              <Stack sx={{ gap: 1.5 }} position="relative">
-                {media.banner && (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: {
-                        xs: "15.625rem",
-                        md: "30.13rem",
-                      },
-                      position: "relative",
-                      overflow: "hidden",
-                      borderRadius: ".75rem",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: "auto",
-                        height: "auto",
-                        objectFit: "cover",
-                      }}
-                      src={media.banner}
-                      alt=""
-                      fill
-                      component={Image}
-                    />
-                  </Box>
-                )}
-
-                {searchResult?.shortlists.includes(propertyId) && (
-                  <Stack
-                    sx={{
-                      width: 120,
-                      height: 32,
-                      alignItems: "center",
-                      justifyContent: "center",
-
-                      position: "absolute",
-                      top: 15,
-                      left: 0,
-                      borderRadius: "0px 4px 4px 0px",
-                      bgcolor: "green.700",
-                    }}
-                  >
-                    <Typography variant="body1" color="white" fontWeight="600">
-                      Shortlisted
-                    </Typography>
-                  </Stack>
-                )}
-
-                {searchResult?.rejects.includes(propertyId) && (
-                  <Stack
-                    sx={{
-                      width: 120,
-                      height: 32,
-                      alignItems: "center",
-                      justifyContent: "center",
-
-                      position: "absolute",
-                      top: 15,
-                      left: 0,
-                      borderRadius: "0px 4px 4px 0px",
-                      bgcolor: "red.200",
-                    }}
-                  >
-                    <Typography variant="body1" color="white" fontWeight="600">
-                      Rejected
-                    </Typography>
-                  </Stack>
-                )}
-
-                <Swiper
-                  style={{ width: "100%" }}
-                  modules={[Pagination]}
-                  pagination={{
-                    clickable: true,
-                  }}
-                  grabCursor
-                  breakpoints={breakpoints}
-                  spaceBetween={12}
-                  slidesPerView={2}
-                >
-                  {media.images.map((image) => (
-                    <SwiperSlide key={image} style={{ width: "100%" }}>
-                      <Image
-                        src={image}
-                        alt=""
-                        style={{
-                          width: "100%",
-                          height: "10rem",
-                          objectFit: "cover",
-                          borderRadius: ".5rem",
-                        }}
-                        width={186}
-                        height={160}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </Stack>
-
-              <Stack
-                sx={{
-                  p: { xs: 2, md: 4 },
-                }}
-              >
-                <Typography
-                  sx={{ color: "blue.800", fontWeight: 500 }}
-                  variant="h2"
-                  component="h1"
-                >
-                  {data.property.ListPrice
-                    ? formatMoney(data.property.ListPrice)
-                    : "--"}
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 1.5,
-                    mb: 3,
-                    gap: 1.5,
-                    color: "gray.700",
-                    display: "flex",
-                    alignItems: {
-                      xs: "flex-start",
-                      md: "center",
-                    },
-                    flexDirection: {
-                      xs: "column",
-                      md: "row",
-                    },
-                  }}
-                  variant="h5"
-                >
-                  <MapPin />
-                  {`${data.property.UnparsedAddress}, ${data.property.City}`}
-                </Typography>
-
+          <Stack sx={{ width: "100%" }}>
+            <Stack sx={{ gap: 1.5 }} position="relative">
+              {searchResult?.shortlists.includes(propertyId) && (
                 <Stack
                   sx={{
-                    gap: 2,
-                    alignItems: {
-                      xs: "flex-start",
-                      md: "center",
-                    },
-                    flexDirection: {
-                      xs: "column",
-                      md: "row",
-                    },
-                  }}
-                >
-                  {Number(data.property.BuildingAreaTotal) > 0 ? (
-                    <Typography
-                      sx={{
-                        py: 1,
-                        px: 1.5,
-                        gap: 1,
-                        color: "gray.600",
-                        display: "flex",
-                        bgcolor: "gray.200",
-                        fontWeight: 500,
-                        alignItems: "center",
-                        borderRadius: ".5rem",
-                      }}
-                    >
-                      <Table2 size={20} />
-                      {`${data.property.BuildingAreaTotal} ${formatAreaUint(
-                        data.property.BuildingAreaUnits
-                      )}`}
-                    </Typography>
-                  ) : (
-                    ""
-                  )}
-
-                  {Number(data.property.BedroomsTotal) > 0 && (
-                    <Typography
-                      sx={{
-                        py: 1,
-                        px: 1.5,
-                        gap: 1,
-                        color: "gray.600",
-                        display: "flex",
-                        bgcolor: "gray.200",
-                        fontWeight: 500,
-                        alignItems: "center",
-                        borderRadius: ".5rem",
-                      }}
-                    >
-                      <BedDouble size={20} />
-                      {`${data.property.BedroomsTotal} Beds`}
-                    </Typography>
-                  )}
-
-                  {Number(data.property.BathroomsTotal) > 0 && (
-                    <Typography
-                      sx={{
-                        py: 1,
-                        px: 1.5,
-                        gap: 1,
-                        color: "gray.600",
-                        display: "flex",
-                        bgcolor: "gray.200",
-                        fontWeight: 500,
-                        alignItems: "center",
-                        borderRadius: ".5rem",
-                      }}
-                    >
-                      <Bath size={20} />
-                      {`${data.property.BathroomsTotal} Baths`}
-                    </Typography>
-                  )}
-                </Stack>
-
-                {data.property.PublicRemarks && (
-                  <>
-                    <Typography
-                      sx={{
-                        mt: 4,
-                        mb: 2,
-                        color: "blue.800",
-                        fontWeight: 500,
-                      }}
-                      variant="h4"
-                    >
-                      Property Information
-                    </Typography>
-
-                    <Typography sx={{ color: "gray.500" }}>
-                      {data.property.PublicRemarks}
-                    </Typography>
-                  </>
-                )}
-              </Stack>
-            </Grid>
-
-            <Grid
-              sx={{ gap: 5, display: "flex", flexDirection: "column" }}
-              xs={12}
-              md={4}
-            >
-              <Stack
-                sx={{
-                  pt: 2,
-                  pl: 2,
-                  pr: 3,
-                  pb: 4,
-                  border: "1px solid",
-                  position: "relative",
-                  borderColor: "blue.500",
-                  borderRadius: ".75rem",
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "blue.800",
-                    fontWeight: 500,
-                  }}
-                  component="h5"
-                >
-                  Property Tour
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: "gray.500",
-                  }}
-                  variant="body2"
-                >
-                  If you want to tour property then feel free to schedule from
-                  the calendar. Now you can book as early as 9:00 AM
-                </Typography>
-
-                <Box
-                  sx={{
-                    py: 1,
-                    px: 1.5,
-                    mx: "auto",
-                    gap: 1.5,
-                    left: 0,
-                    color: "blue.500",
-                    width: "fit-content",
-                    right: 0,
-                    bottom: "-1.5rem",
-                    border: "1px solid",
-                    display: "flex",
-                    bgcolor: "white",
-                    position: "absolute",
-                    fontWeight: 500,
+                    width: 120,
+                    height: 32,
                     alignItems: "center",
-                    borderColor: "blue.500",
-                    borderRadius: ".5rem",
+                    justifyContent: "center",
+
+                    position: "absolute",
+                    top: 15,
+                    left: 0,
+                    borderRadius: "0px 4px 4px 0px",
+                    bgcolor: "green.700",
                   }}
-                  type="button"
-                  component="button"
                 >
-                  <Calendar />
-                  Schedule a tour
-                </Box>
-              </Stack>
+                  <Typography variant="body1" color="white" fontWeight="600">
+                    Shortlisted
+                  </Typography>
+                </Stack>
+              )}
+
+              {searchResult?.rejects.includes(propertyId) && (
+                <Stack
+                  sx={{
+                    width: 120,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+
+                    position: "absolute",
+                    top: 15,
+                    left: 0,
+                    borderRadius: "0px 4px 4px 0px",
+                    bgcolor: "red.200",
+                  }}
+                >
+                  <Typography variant="body1" color="white" fontWeight="600">
+                    Rejected
+                  </Typography>
+                </Stack>
+              )}
+
+              <Gallery data={media} />
+            </Stack>
+
+            <Stack sx={{ mt: 2 }}>
+              <Typography
+                sx={{ color: "blue.800", fontWeight: 500 }}
+                variant="h2"
+                component="h1"
+              >
+                {data.property.ListPrice
+                  ? formatMoney(data.property.ListPrice)
+                  : "--"}
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 1.5,
+                  mb: 3,
+                  gap: 1.5,
+                  color: "gray.700",
+                  display: "flex",
+                  alignItems: {
+                    xs: "flex-start",
+                    md: "center",
+                  },
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
+                }}
+                variant="h5"
+              >
+                <MapPin />
+                {`${data.property.UnparsedAddress}, ${data.property.City}`}
+              </Typography>
 
               <Stack
                 sx={{
-                  pt: 2,
-                  pl: 2,
-                  pr: 3,
-                  pb: 4,
-                  border: "1px solid",
-                  position: "relative",
-                  borderColor: "blue.500",
-                  borderRadius: ".75rem",
+                  gap: 2,
+                  alignItems: {
+                    xs: "flex-start",
+                    md: "center",
+                  },
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
                 }}
               >
-                <Typography
-                  sx={{
-                    color: "blue.800",
-                    fontWeight: 500,
-                  }}
-                  component="h5"
-                >
-                  Agent Details
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: "gray.500",
-                  }}
-                  variant="body2"
-                >
-                  {`Contact ${
-                    data.property.ListAgentURL ?? ""
-                  } to discuss more about your potential
-                  new home.`}
-                </Typography>
-
-                {data.property.ListAgentOfficePhone && (
-                  <Box
+                {Number(data.property.BuildingAreaTotal) > 0 ? (
+                  <Typography
                     sx={{
                       py: 1,
                       px: 1.5,
-                      mx: "auto",
-                      gap: 1.5,
-                      left: 0,
-                      color: "blue.500",
-                      width: "fit-content",
-                      right: 0,
-                      bottom: "-1.5rem",
-                      border: "1px solid",
+                      gap: 1,
+                      color: "gray.600",
                       display: "flex",
-                      bgcolor: "white",
-                      position: "absolute",
+                      bgcolor: "gray.200",
                       fontWeight: 500,
                       alignItems: "center",
-                      borderColor: "blue.500",
                       borderRadius: ".5rem",
                     }}
-                    href={`tel:${data.property.ListAgentOfficePhone}`}
-                    target="_blank"
-                    component={Link}
                   >
-                    <PhoneCall />
-                    Contact Agent
-                  </Box>
+                    <Table2 size={20} />
+                    {`${data.property.BuildingAreaTotal} ${formatAreaUint(
+                      data.property.BuildingAreaUnits
+                    )}`}
+                  </Typography>
+                ) : (
+                  ""
+                )}
+
+                {Number(data.property.BedroomsTotal) > 0 && (
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
+                    <BedDouble size={20} />
+                    {`${data.property.BedroomsTotal} Beds`}
+                  </Typography>
+                )}
+
+                {Number(data.property.BathroomsTotal) > 0 && (
+                  <Typography
+                    sx={{
+                      py: 1,
+                      px: 1.5,
+                      gap: 1,
+                      color: "gray.600",
+                      display: "flex",
+                      bgcolor: "gray.200",
+                      fontWeight: 500,
+                      alignItems: "center",
+                      borderRadius: ".5rem",
+                    }}
+                  >
+                    <Bath size={20} />
+                    {`${data.property.BathroomsTotal} Baths`}
+                  </Typography>
                 )}
               </Stack>
 
-              <Box
-                sx={{ width: "100%", borderRadius: ".5rem" }}
-                src={`//maps.google.com/maps?q=${data.property.location.coordinates[1]},${data.property.location.coordinates[0]}&z=15&output=embed`}
-                style={{ border: 0 }}
-                height={284}
-                loading="lazy"
-                component="iframe"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-              />
+              {data.property.PublicRemarks && (
+                <ListingDescription message={data.property.PublicRemarks} />
+              )}
 
-              <Box
+              <Stack
                 sx={{
-                  position: { xs: "fixed", md: "relative" },
-                  bottom: 10,
-                  left: 0,
-                  width: "100%",
-                  px: { xs: 2, md: 0 },
+                  my: 6,
+                  py: 6,
+                  borderTop: "1px solid",
+                  borderBottom: "1px solid",
+                  borderColor: "gray.300",
                 }}
               >
-                {searchResult?.searchName &&
-                  ([
-                    ...searchResult.shortlists,
-                    ...searchResult.rejects,
-                  ].includes(propertyId) ? (
-                    <Stack
-                      sx={{
-                        width: "100%",
-                        justifyContent: "center",
-                      }}
-                      direction="row"
-                    >
-                      <LoadingButton
-                        sx={{
-                          p: 1.5,
-                          color: "secondary.main",
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "white",
-                          height: 50,
-                          border: "1px solid",
-                          borderColor: "secondary.main",
-                          borderRadius: 2,
-                          ":hover": {
-                            background: "white",
-                            opacity: 0.8,
-                          },
-                        }}
-                        onClick={onUndo}
-                        loading={actionLoading}
-                      >
-                        Undo
-                      </LoadingButton>
-                    </Stack>
-                  ) : (
-                    <Stack
-                      sx={{
-                        width: "100%",
-                        justifyContent: "center",
-                      }}
-                      direction="row"
-                      spacing={1}
-                    >
-                      <LoadingButton
-                        sx={{
-                          p: 1.5,
-                          color: "red.200",
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "white",
-                          height: 50,
-                          border: "1px solid",
-                          borderColor: "red.200",
-                          borderRadius: 2,
-                          ":hover": {
-                            background: "white",
-                            opacity: 0.8,
-                          },
-                        }}
-                        onClick={onReject}
-                        loading={actionLoading}
-                      >
-                        Reject
-                      </LoadingButton>
-                      <LoadingButton
-                        sx={{
-                          p: 1.5,
-                          color: "green.700",
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "white",
-                          border: "1px solid",
-                          borderColor: "green.700",
-                          borderRadius: 2,
-                          height: 50,
-                          ":hover": {
-                            background: "white",
-                            opacity: 0.8,
-                          },
-                        }}
-                        onClick={onShortlist}
-                        loading={actionLoading}
-                      >
-                        Shortlist
-                      </LoadingButton>
-                    </Stack>
+                <Typography
+                  sx={{
+                    mb: 2,
+                    fontWeight: 700,
+                  }}
+                  variant="h5"
+                >
+                  Listing Details
+                </Typography>
+
+                <Grid
+                  sx={{ width: "100%" }}
+                  container
+                  rowSpacing={1}
+                  columnSpacing={10}
+                >
+                  {Object.entries(details).map(([key, value]) => (
+                    <Grid key={key} xs={12} md={6}>
+                      <Typography sx={{ textTransform: "capitalize" }}>
+                        <b>{key}: </b>
+                        {value}
+                      </Typography>
+                    </Grid>
                   ))}
-              </Box>
-            </Grid>
-          </Grid>
+                </Grid>
+              </Stack>
+
+              <WalkingDistance data={data.property} />
+            </Stack>
+          </Stack>
+        )}
+
+        <ShareListing
+          show={showShareListing}
+          data={data ? data.property : null}
+          onClose={() => setShowShareListing(false)}
+        />
+      </Stack>
+
+      <Stack
+        sx={{
+          gap: 2,
+          right: "2rem",
+          bottom: "2rem",
+          display: {
+            xs: "flex",
+            sm: "none",
+          },
+          position: "fixed",
+        }}
+      >
+        <Button sx={iconButtonStyles}>
+          <Image
+            src="/assets/icon-favorite.svg"
+            alt=""
+            width={24}
+            height={24}
+          />
+        </Button>
+
+        {agentId && (
+          <Button
+            sx={iconButtonStyles}
+            onClick={() => setShowShareListing(true)}
+          >
+            <Image src="/assets/icon-send.svg" alt="" width={24} height={24} />
+          </Button>
+        )}
+
+        {contactId && (
+          <Button sx={iconButtonStyles}>
+            <Image
+              src="/assets/icon-bubble-messages.svg"
+              alt=""
+              width={24}
+              height={24}
+            />
+          </Button>
         )}
       </Stack>
     </>

@@ -248,6 +248,21 @@ export const components = (
   MuiCssBaseline: {
     styleOverrides: {
       ".swiper": {
+        "&-button-prev, &-button-next": {
+          width: "2.5rem",
+          height: "2.5rem",
+          display: "flex",
+          alignItems: "center",
+          borderRadius: "50%",
+          justifyContent: "center",
+          backgroundColor: colors.black,
+
+          "::after": {
+            color: colors.white,
+            fontSize: "1rem",
+          },
+        },
+
         "&-pagination-bullet": {
           opacity: ".4 !important",
           backgroundColor: `${colors.white} !important`,

@@ -89,9 +89,16 @@ export default function Room() {
         </Stack>
 
         <Typography sx={{ color: "gray.700", fontWeight: 600 }} variant="h5">
-          {room?.type === RoomType.channel
-            ? room.name
-            : room?.usernames.filter((u) => u !== user?.username).join(", ")}
+          {room
+            ? room.type === RoomType.channel
+              ? room.name
+              : [
+                  ...room.agents.map((a) => a.username),
+                  ...room.contacts.map((c) => c.username || c.name),
+                ]
+                  .filter((u) => u !== user?.username)
+                  .join(", ")
+            : ""}
         </Typography>
 
         {room?.type === RoomType.channel && <AddMembersToRoom />}

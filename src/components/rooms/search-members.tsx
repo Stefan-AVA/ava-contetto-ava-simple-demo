@@ -7,6 +7,7 @@ export type SearchMemberOption = {
   type: string
   value: string
   label: string
+  name?: string
   agentId?: string
   agentName?: string
 }
@@ -15,12 +16,14 @@ interface SearchMembersProps {
   value: SearchMemberOption[]
   orgId: string
   onChange: (options: SearchMemberOption[]) => void
+  dm?: boolean
 }
 
 export default function SearchMembers({
   value,
   orgId,
   onChange,
+  dm,
 }: SearchMembersProps) {
   const { agentId } = useParams()
 
@@ -56,17 +59,16 @@ export default function SearchMembers({
     }
 
     if (contacts && contacts.length > 0) {
-      const removeContactsWithoutUsername = contacts.filter(
-        (contact) => contact.username
-      )
-
-      const fields = removeContactsWithoutUsername.map((contact) => ({
-        type: "Contacts",
-        value: contact._id,
-        label: contact.username!,
-        agentId: contact.agentProfileId,
-        agentName: contact.agentName,
-      }))
+      const fields = contacts
+        .filter((contact) => contact.username || dm)
+        .map((contact) => ({
+          type: "Contacts",
+          value: contact._id,
+          label: contact.username || contact.name,
+          name: contact.name,
+          agentId: contact.agentProfileId,
+          agentName: contact.agentName,
+        }))
 
       options.push(...fields)
     }

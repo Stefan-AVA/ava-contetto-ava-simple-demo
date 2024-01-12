@@ -76,6 +76,10 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
         dispatch(joinRoom(room))
       })
 
+      socket.on(ServerMessageType.dmCreate, (room: IRoom) => {
+        dispatch(joinRoom(room))
+      })
+
       socket.on(ServerMessageType.msgRead, (room: IRoom) => {
         dispatch(readMessage(room))
       })

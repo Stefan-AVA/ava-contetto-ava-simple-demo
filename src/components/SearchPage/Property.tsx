@@ -27,6 +27,7 @@ interface IProps extends IListing, Grid2Props {
 }
 
 const Property = ({
+  sx,
   orgId,
   agentId,
   contactId,
@@ -98,6 +99,7 @@ const Property = ({
         border: "1px solid",
         borderColor: "gray.300",
         borderRadius: ".75rem",
+        ...sx,
       }}
     >
       <Stack

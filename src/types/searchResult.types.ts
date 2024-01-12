@@ -9,7 +9,7 @@ export enum NearBy {
   healthcare = "Medical Facility",
 }
 
-export type Operator = ">" | "<" | "="
+export type Operator = "-" | "+" | "="
 
 export interface IUserQueryJson {
   cityId: string

@@ -47,6 +47,7 @@ export default function AddMembersToRoom() {
         .filter(({ type }) => type === "Contacts")
         .map((contact) => ({
           _id: contact.value,
+          name: contact.name as string,
           agentId: contact.agentId as string,
           username: contact.label,
           agentName: contact.agentName as string,
