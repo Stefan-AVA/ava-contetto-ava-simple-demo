@@ -24,7 +24,7 @@ import {
   type GridRowsProp,
 } from "@mui/x-data-grid"
 import { format } from "date-fns"
-import { Eye, Share2, Trash2 } from "lucide-react"
+import { Eye, Plus, Share2, Trash2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
@@ -185,23 +185,28 @@ export default function Page({ params }: IPage) {
   return (
     <Stack>
       <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
         sx={{
-          pb: 3,
           mb: 4,
-          fontWeight: 700,
-          borderBottom: "1px solid",
-          borderBottomColor: "gray.300",
+          gap: 3,
+          alignItems: {
+            sm: "center",
+          },
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+          },
+          justifyContent: "space-between",
         }}
       >
-        <Typography variant="h3">Contacts List</Typography>
+        <Typography sx={{ fontWeight: 700 }} variant="h3">
+          Contacts List
+        </Typography>
 
         <Button
-          variant="text"
-          sx={{ p: 0, height: "fit-content" }}
+          sx={{ width: "fit-content" }}
+          size="small"
           onClick={() => setModalOpen(true)}
+          startIcon={<Plus size={16} />}
         >
           Create New
         </Button>

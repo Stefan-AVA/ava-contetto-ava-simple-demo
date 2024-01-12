@@ -66,6 +66,8 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const hasWhiteLabelDefined = currentOrg.org?.whiteLabel
 
+  const orgName = currentOrg.org?.name
+
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
@@ -76,7 +78,7 @@ export default function Layout({ children }: PropsWithChildren) {
         }}
         direction={{ xs: "column", md: "row" }}
       >
-        <Sidebar routes={routes} />
+        <Sidebar routes={routes} orgName={orgName ?? ""} />
 
         <Stack
           sx={{
