@@ -1,10 +1,17 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react"
+import { Route } from "next"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useLazyGetMeQuery } from "@/redux/apis/auth"
+import {
+  useConfirmEmailMutation,
+  useLazyGetMeQuery,
+  useLoginMutation,
+  useSignupMutation,
+} from "@/redux/apis/auth"
 import { useBindContactMutation } from "@/redux/apis/org"
+import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -76,6 +83,8 @@ type PageProps = {
 
   searchParams: {
     inviteCode: string
+    _next?: string
+    orgName: string
   }
 }
 
@@ -91,12 +100,16 @@ export default function Page({ params, searchParams }: PageProps) {
 
   const { push, replace } = useRouter()
 
-  const inviteCode = searchParams.inviteCode
+  const { inviteCode, orgName, _next } = searchParams
   const orgId = params.orgId
   const contactId = params.contactId
 
   const [getme, { isLoading: getMeLoading }] = useLazyGetMeQuery()
   const [bindContact, { isLoading: bindLoading }] = useBindContactMutation()
+  const [login, { isLoading: isLogin }] = useLoginMutation()
+  const [signup, { isLoading: isSignupLoading }] = useSignupMutation()
+  const [confirmEmail, { isLoading: isConfirmEmailLoading }] =
+    useConfirmEmailMutation()
 
   const isLoading = getMeLoading || bindLoading
 
@@ -119,18 +132,14 @@ export default function Page({ params, searchParams }: PageProps) {
                 orgId,
                 inviteCode,
               }).unwrap()
-              push(`/app/contact-orgs/${contact._id}`)
+              push(
+                _next ? (_next as Route) : `/app/contact-orgs/${contact._id}`
+              )
             } catch (error) {
               push("/app")
             }
           }
-        } catch (error) {
-          replace(
-            orgId && contactId && inviteCode
-              ? `/?_next=/invitations/${orgId}/contacts/${contactId}?inviteCode=${inviteCode}`
-              : "/"
-          )
-        }
+        } catch (error) {}
       }
     }
 
@@ -151,7 +160,7 @@ export default function Page({ params, searchParams }: PageProps) {
   if (isLoading) return <div>Loading...</div>
 
   const submit = {
-    login: (e: FormEvent<HTMLFormElement>) => {
+    login: async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
 
       setErrors(null)
@@ -166,10 +175,20 @@ export default function Page({ params, searchParams }: PageProps) {
         return
       }
 
-      console.log({ formLogin })
+      try {
+        await login(formLogin)
+        const contact = await bindContact({
+          _id: contactId,
+          orgId,
+          inviteCode,
+        }).unwrap()
+        push(_next ? (_next as Route) : `/app/contact-orgs/${contact._id}`)
+      } catch (error) {
+        setErrors((prev) => ({ ...prev, request: parseError(error) }))
+      }
     },
 
-    signup: (e: FormEvent<HTMLFormElement>) => {
+    signup: async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
 
       setErrors(null)
@@ -190,10 +209,16 @@ export default function Page({ params, searchParams }: PageProps) {
         return
       }
 
-      setStep(2)
+      try {
+        await signup(response.data).unwrap()
+
+        setStep(2)
+      } catch (error) {
+        setErrors((prev) => ({ ...prev, request: parseError(error) }))
+      }
     },
 
-    confirm: (e: FormEvent<HTMLFormElement>) => {
+    confirm: async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
 
       setErrors(null)
@@ -208,14 +233,36 @@ export default function Page({ params, searchParams }: PageProps) {
         return
       }
 
-      setStep(3)
+      try {
+        await confirmEmail({
+          email: formSignup.email,
+          username: formSignup.username,
+          orgNeeded: true,
+          verificationCode: response.data.verificationCode,
+        }).unwrap()
+
+        setStep(3)
+
+        await login({
+          username: formSignup.username,
+          password: formSignup.password,
+        })
+        const contact = await bindContact({
+          _id: contactId,
+          orgId,
+          inviteCode,
+        }).unwrap()
+        push(_next ? (_next as Route) : `/app/contact-orgs/${contact._id}`)
+      } catch (error) {
+        setErrors((prev) => ({ ...prev, request: parseError(error) }))
+      }
     },
   }
 
   return (
     <Stack sx={{ m: "auto", py: 10, maxWidth: "36rem" }}>
       <Typography sx={{ fontWeight: 700, textAlign: "center" }} variant="h5">
-        You`ve been invited to interact with (Organization Name) <br />
+        You`ve been invited to interact with {orgName} <br />
         Sign in or create your profile now. It`s Free! 🎉
       </Typography>
 
@@ -261,7 +308,11 @@ export default function Page({ params, searchParams }: PageProps) {
               helperText={errors?.password}
             />
 
-            <LoadingButton sx={{ mt: 4.5 }} type="submit" loading={isLoading}>
+            <LoadingButton
+              sx={{ mt: 4.5 }}
+              type="submit"
+              loading={isLoading || isLogin || bindLoading}
+            >
               Sign In
             </LoadingButton>
 
@@ -384,7 +435,11 @@ export default function Page({ params, searchParams }: PageProps) {
                   <FormHelperText error>{errors.terms}</FormHelperText>
                 )}
 
-                <LoadingButton sx={{ mt: 4.5 }} type="submit">
+                <LoadingButton
+                  sx={{ mt: 4.5 }}
+                  type="submit"
+                  loading={isSignupLoading}
+                >
                   Create account
                 </LoadingButton>
 
@@ -452,7 +507,11 @@ export default function Page({ params, searchParams }: PageProps) {
                   helperText={errors?.verificationCode}
                 />
 
-                <LoadingButton sx={{ mt: 4.5 }} type="submit">
+                <LoadingButton
+                  sx={{ mt: 4.5 }}
+                  type="submit"
+                  loading={isConfirmEmailLoading}
+                >
                   Confirm
                 </LoadingButton>
 
@@ -482,6 +541,7 @@ export default function Page({ params, searchParams }: PageProps) {
                   sx={{ color: "blue.500", fontWeight: 700 }}
                   onClick={() => setType("LOGIN")}
                   component="button"
+                  disabled={isLogin || bindLoading}
                 >
                   Sign In
                 </Typography>

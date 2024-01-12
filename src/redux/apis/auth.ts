@@ -42,7 +42,7 @@ export const authApi = createApi({
         body: data,
       }),
     }),
-    login: builder.mutation<IBaseResponse, LoginFormSchema>({
+    login: builder.mutation<IUser, LoginFormSchema>({
       query: (data) => ({
         url: "/login",
         method: "POST",
