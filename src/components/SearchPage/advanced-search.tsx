@@ -394,8 +394,6 @@ export default function AdvancedSearch({
               onChange={(_, value) =>
                 setForm((prev) => ({ ...prev, sqFt: value as number[] }))
               }
-              getAriaValueText={(value) => formatMoney(value)}
-              valueLabelFormat={(value) => formatMoney(value)}
               valueLabelDisplay="auto"
             />
           </BoxField>
