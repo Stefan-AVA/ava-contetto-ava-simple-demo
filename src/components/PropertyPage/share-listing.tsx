@@ -21,7 +21,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Search, X } from "lucide-react"
+import { X } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
 
