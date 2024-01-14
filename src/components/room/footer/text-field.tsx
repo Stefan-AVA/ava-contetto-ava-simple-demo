@@ -67,7 +67,7 @@ export default function TextField({
             .filter((a) => a.username !== user?.username)
             .map((a) => ({ value: a.username, label: a.username })),
           ...room.contacts
-            .filter((c) => c.username !== user?.username)
+            .filter((c) => c.username && c.username !== user?.username)
             .map((c) => ({ value: c.username, label: c.username })),
         ]
       }

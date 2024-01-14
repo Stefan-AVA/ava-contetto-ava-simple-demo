@@ -74,7 +74,7 @@ export default function SearchMembers({
     }
 
     return options
-  }, [agents, contacts, agentId])
+  }, [dm, agents, contacts, agentId])
 
   return (
     <Autocomplete

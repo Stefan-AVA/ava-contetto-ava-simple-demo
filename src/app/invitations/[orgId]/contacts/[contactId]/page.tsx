@@ -144,7 +144,7 @@ export default function Page({ params, searchParams }: PageProps) {
     }
 
     run()
-  }, [inviteCode, getme, push, replace, orgId, bindContact, contactId])
+  }, [inviteCode, _next, getme, push, replace, orgId, bindContact, contactId])
 
   const title = useMemo(() => {
     if (type === "LOGIN") return "Login to your account"
