@@ -23,6 +23,7 @@ interface MessageProps {
   currentUser: boolean
   editMessageId: string | null
   onEditMessageId: Dispatch<SetStateAction<string | null>>
+  editable: boolean
 }
 
 export default function Message({
@@ -31,6 +32,7 @@ export default function Message({
   messageId,
   currentUser,
   editMessageId,
+  editable,
   onEditMessageId,
 }: MessageProps) {
   const [message, setMessage] = useState("")
@@ -115,7 +117,7 @@ export default function Message({
       }}
       ref={ref}
     >
-      {currentUser && (
+      {currentUser && editable && (
         <Stack
           sx={{
             gap: 1,

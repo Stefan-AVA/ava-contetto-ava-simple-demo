@@ -116,7 +116,14 @@ export default function Room() {
         </Stack>
       )}
 
-      {!isLoading && <ListMessages user={user} messages={messages} />}
+      {!isLoading && (
+        <ListMessages
+          user={user}
+          messages={messages}
+          agentId={agentId as string}
+          contactId={contactId as string}
+        />
+      )}
       <Footer />
     </>
   )

@@ -18,6 +18,8 @@ export interface IMessage {
   updatedAt?: number // unix timestamp
   attatchMents: IMsgAttachMent[]
   edited: boolean
+  editable: boolean
+  sharelink?: string
   // mentions:
 }
 
