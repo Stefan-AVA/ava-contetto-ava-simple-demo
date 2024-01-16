@@ -380,6 +380,24 @@ export default function AdvancedSearch({
             flexDirection: "row",
           }}
         >
+          <BoxField label="SqFt">
+            <Slider
+              min={initialForm.sqFt[0]}
+              max={initialForm.sqFt[1]}
+              value={form.sqFt}
+              marks={[
+                { label: "0", value: 0 },
+                { label: "2000", value: 2000 },
+                { label: "6000", value: 6000 },
+                { label: "10000+", value: 10000 },
+              ]}
+              onChange={(_, value) =>
+                setForm((prev) => ({ ...prev, sqFt: value as number[] }))
+              }
+              valueLabelDisplay="auto"
+            />
+          </BoxField>
+
           <BoxField label="Lot Acres">
             <Slider
               min={initialForm.lotAcres[0]}
@@ -396,26 +414,6 @@ export default function AdvancedSearch({
               }
               getAriaValueText={(value) => `${value} acres`}
               valueLabelFormat={(value) => `${value} acres`}
-              valueLabelDisplay="auto"
-            />
-          </BoxField>
-
-          <BoxField label="SqFt">
-            <Slider
-              min={initialForm.sqFt[0]}
-              max={initialForm.sqFt[1]}
-              value={form.sqFt}
-              marks={[
-                { label: "0", value: 0 },
-                { label: "2000", value: 2000 },
-                { label: "6000", value: 6000 },
-                { label: "10000+", value: 10000 },
-              ]}
-              onChange={(_, value) =>
-                setForm((prev) => ({ ...prev, sqFt: value as number[] }))
-              }
-              getAriaValueText={(value) => formatMoney(value)}
-              valueLabelFormat={(value) => formatMoney(value)}
               valueLabelDisplay="auto"
             />
           </BoxField>
