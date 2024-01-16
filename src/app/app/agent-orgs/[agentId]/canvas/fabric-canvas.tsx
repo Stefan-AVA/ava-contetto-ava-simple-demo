@@ -2,30 +2,50 @@
 
 import { useEffect, useRef, type Dispatch, type SetStateAction } from "react"
 import { Box } from "@mui/material"
-import * as fabric from "fabric"
+import { Canvas, type CanvasOptions, type FabricObject } from "fabric"
 
-interface CanvasProps {
-  onCanvas: Dispatch<SetStateAction<fabric.Canvas | null>>
+interface FabricCanvasProps {
+  onCanvas: Dispatch<SetStateAction<Canvas | null>>
+  onSelectedElements: Dispatch<SetStateAction<FabricObject[]>>
 }
 
-export default function Canvas({ onCanvas }: CanvasProps) {
+export default function FabricCanvas({
+  onCanvas,
+  onSelectedElements,
+}: FabricCanvasProps) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    const options: Partial<fabric.CanvasOptions> = {
+    const options: Partial<CanvasOptions> = {
       width: 640,
       height: 640,
     }
 
-    const canvas = new fabric.Canvas(ref.current as HTMLCanvasElement, options)
+    const bindEvents = (canvas: Canvas) => {
+      canvas.on("selection:cleared", () => {
+        onSelectedElements([])
+      })
+      canvas.on("selection:created", (e) => {
+        onSelectedElements(e.selected)
+      })
+      canvas.on("selection:updated", (e) => {
+        onSelectedElements(e.selected)
+      })
+    }
+
+    const canvas = new Canvas(ref.current as HTMLCanvasElement, options)
 
     onCanvas(canvas)
+
+    bindEvents(canvas)
     return () => {
       onCanvas(null)
 
       canvas.dispose()
+
+      onSelectedElements([])
     }
-  }, [onCanvas])
+  }, [onCanvas, onSelectedElements])
 
   return (
     <Box

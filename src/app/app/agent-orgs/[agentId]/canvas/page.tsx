@@ -1,16 +1,41 @@
 "use client"
 
 import { useState } from "react"
-import { Box, Button, Container, Stack } from "@mui/material"
-import { Canvas, Circle, FabricImage, Rect, Textbox } from "fabric"
+import {
+  Box,
+  Button,
+  Container,
+  MenuItem,
+  Stack,
+  TextField,
+} from "@mui/material"
+import {
+  Canvas,
+  Circle,
+  FabricImage,
+  Rect,
+  Textbox,
+  type FabricObject,
+} from "fabric"
+import { MuiColorInput } from "mui-color-input"
+
+import { dmsans } from "@/styles/fonts"
 
 import FabricCanvas from "./fabric-canvas"
 
-const STROKE = "#000000"
-const FILL = "rgba(255, 255, 255, 0.0)"
+const initialStyle = {
+  fontSize: 16,
+  textColor: "#000",
+  lineHeight: 24,
+  borderColor: "#000",
+  fontFamily: dmsans.style.fontFamily,
+  backgroundColor: "#000",
+}
 
 export default function Page() {
+  const [style, setStyle] = useState(initialStyle)
   const [canvas, setCanvas] = useState<Canvas | null>(null)
+  const [selectedElements, setSelectedElements] = useState<FabricObject[]>([])
 
   function onClearAll() {
     if (!canvas) return
@@ -21,23 +46,27 @@ export default function Page() {
   }
 
   function onAddText() {
+    if (!canvas) return
+
     const text = new Textbox("Hello world", {
-      fontSize: 24,
-      lineHeight: 1.25,
-      fontFamily: "Arial",
+      fontSize: style.fontSize,
+      lineHeight: style.lineHeight / 16,
+      fontFamily: style.fontFamily,
     })
 
-    canvas?.add(text)
+    canvas.add(text)
   }
 
   function onAddCircle() {
+    if (!canvas) return
+
     const circle = new Circle({
-      fill: FILL,
-      stroke: STROKE,
+      fill: style.backgroundColor,
+      stroke: style.borderColor,
       radius: 20,
     })
 
-    canvas?.add(circle)
+    canvas.add(circle)
   }
 
   async function onAddImage(files: FileList | null) {
@@ -53,14 +82,16 @@ export default function Page() {
   }
 
   function onAddRectangle() {
+    if (!canvas) return
+
     const rect = new Rect({
-      fill: FILL,
+      fill: style.backgroundColor,
       width: 40,
-      stroke: STROKE,
+      stroke: style.borderColor,
       height: 40,
     })
 
-    canvas?.add(rect)
+    canvas.add(rect)
   }
 
   function onDeleteElement() {
@@ -70,6 +101,37 @@ export default function Page() {
     canvas.discardActiveObject()
     canvas.renderAll()
   }
+
+  function onUpdateStylesAndCurrentElements(
+    key: keyof typeof initialStyle,
+    value: string | number
+  ) {
+    setStyle((prev) => ({ ...prev, [key]: value }))
+
+    if (selectedElements.length > 0) {
+      selectedElements.forEach((object) => {
+        console.log({ object: object.type })
+
+        if (key === "backgroundColor") object.set({ fill: value })
+
+        if (object.type !== "textbox" && key === "borderColor")
+          object.set({ stroke: value })
+
+        if (
+          object.type === "textbox" &&
+          ["fontSize", "textColor", "fontFamily", "lineHeight"].includes(key)
+        ) {
+          const customKey = key === "textColor" ? "color" : key
+
+          object.set({
+            [customKey]: key === "lineHeight" ? Number(value) / 16 : value,
+          })
+        }
+      })
+    }
+  }
+
+  console.log({ selectedElements })
 
   return (
     <Container>
@@ -116,7 +178,100 @@ export default function Page() {
         </Button>
       </Stack>
 
-      <FabricCanvas onCanvas={setCanvas} />
+      <Stack
+        sx={{
+          mb: 2,
+          gap: 2,
+          alignItems: "center",
+          flexDirection: "row",
+        }}
+      >
+        <TextField
+          label="Font Family"
+          value={style.fontFamily}
+          select
+          onChange={({ target }) =>
+            onUpdateStylesAndCurrentElements("fontFamily", target.value)
+          }
+        >
+          <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
+          <MenuItem value="Inter">Inter</MenuItem>
+          <MenuItem value="Roboto">Roboto</MenuItem>
+          <MenuItem value="Open Sans">Open Sans</MenuItem>
+          <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
+          <MenuItem value="Lato">Lato</MenuItem>
+          <MenuItem value="Raleway">Raleway</MenuItem>
+          <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
+        </TextField>
+
+        <TextField
+          label="Font Size"
+          value={style.fontSize}
+          inputMode="numeric"
+          onChange={({ target }) =>
+            onUpdateStylesAndCurrentElements(
+              "fontSize",
+              Number(target.value) ?? initialStyle.fontSize
+            )
+          }
+        />
+
+        <TextField
+          label="Line Height"
+          value={style.lineHeight}
+          inputMode="numeric"
+          onChange={({ target }) =>
+            onUpdateStylesAndCurrentElements(
+              "lineHeight",
+              Number(target.value) ?? initialStyle.lineHeight
+            )
+          }
+        />
+      </Stack>
+
+      <Stack
+        sx={{
+          mb: 5,
+          gap: 2,
+          alignItems: "center",
+          flexDirection: "row",
+        }}
+      >
+        <MuiColorInput
+          value={style.textColor}
+          label="Text Color"
+          format="hex"
+          onChange={(value) =>
+            onUpdateStylesAndCurrentElements("textColor", value)
+          }
+          fullWidth
+        />
+
+        <MuiColorInput
+          value={style.backgroundColor}
+          label="Background Color"
+          format="hex"
+          onChange={(value) =>
+            onUpdateStylesAndCurrentElements("backgroundColor", value)
+          }
+          fullWidth
+        />
+
+        <MuiColorInput
+          value={style.borderColor}
+          label="Border Color"
+          format="hex"
+          onChange={(value) =>
+            onUpdateStylesAndCurrentElements("borderColor", value)
+          }
+          fullWidth
+        />
+      </Stack>
+
+      <FabricCanvas
+        onCanvas={setCanvas}
+        onSelectedElements={setSelectedElements}
+      />
     </Container>
   )
 }
