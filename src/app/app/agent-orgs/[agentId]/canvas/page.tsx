@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Button, Container, Stack } from "@mui/material"
-import { Canvas, Circle, Rect, Textbox } from "fabric"
+import { Box, Button, Container, Stack } from "@mui/material"
+import { Canvas, Circle, FabricImage, Rect, Textbox } from "fabric"
 
 import FabricCanvas from "./fabric-canvas"
 
@@ -11,6 +11,14 @@ const FILL = "rgba(255, 255, 255, 0.0)"
 
 export default function Page() {
   const [canvas, setCanvas] = useState<Canvas | null>(null)
+
+  function onClearAll() {
+    if (!canvas) return
+
+    canvas.getObjects().forEach((object) => canvas.remove(object))
+    canvas.discardActiveObject()
+    canvas.renderAll()
+  }
 
   function onAddText() {
     const text = new Textbox("Hello world", {
@@ -32,6 +40,18 @@ export default function Page() {
     canvas?.add(circle)
   }
 
+  async function onAddImage(files: FileList | null) {
+    if (!canvas || !files || (files && files.length <= 0)) return
+
+    const file = files[0]
+
+    const path = URL.createObjectURL(file)
+
+    const image = await FabricImage.fromURL(path)
+
+    canvas.add(image)
+  }
+
   function onAddRectangle() {
     const rect = new Rect({
       fill: FILL,
@@ -43,10 +63,19 @@ export default function Page() {
     canvas?.add(rect)
   }
 
+  function onDeleteElement() {
+    if (!canvas) return
+
+    canvas.getActiveObjects().forEach((object) => canvas.remove(object))
+    canvas.discardActiveObject()
+    canvas.renderAll()
+  }
+
   return (
     <Container>
       <Stack
         sx={{
+          mb: 5,
           gap: 2,
           alignItems: "center",
           flexDirection: "row",
@@ -55,7 +84,7 @@ export default function Page() {
         <Button size="small" onClick={onAddText} variant="outlined">
           Add text
         </Button>
-        {/* <Box sx={{ position: "relative" }}>
+        <Box sx={{ position: "relative" }}>
           <Box
             sx={{
               width: "100%",
@@ -72,19 +101,19 @@ export default function Page() {
           <Button size="small" variant="outlined">
             Add Image
           </Button>
-          </Box> */}
+        </Box>
         <Button size="small" onClick={onAddCircle} variant="outlined">
           Add circle
         </Button>
         <Button size="small" onClick={onAddRectangle} variant="outlined">
           Add Rectangle
         </Button>
-        {/* <Button size="small" onClick={onDeleteElement} variant="outlined">
+        <Button size="small" onClick={onDeleteElement} variant="outlined">
           Delete element
         </Button>
         <Button size="small" onClick={onClearAll} variant="outlined">
           Clear all
-        </Button>  */}
+        </Button>
       </Stack>
 
       <FabricCanvas onCanvas={setCanvas} />
