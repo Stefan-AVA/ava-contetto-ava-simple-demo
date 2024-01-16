@@ -1,46 +1,46 @@
 "use client"
 
-import { Box, Button, Container, Stack } from "@mui/material"
-import { fabric } from "fabric"
-import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react"
+import { useState } from "react"
+import { Button, Container, Stack } from "@mui/material"
+import { Canvas, Circle, Rect, Textbox } from "fabric"
 
-export default function CanvasAdmin() {
-  const { editor, onReady, selectedObjects } = useFabricJSEditor()
+import FabricCanvas from "./fabric-canvas"
 
-  console.log({ selectedObjects })
+const STROKE = "#000000"
+const FILL = "rgba(255, 255, 255, 0.0)"
 
-  function onClearAll() {
-    editor?.deleteAll()
-  }
+export default function Page() {
+  const [canvas, setCanvas] = useState<Canvas | null>(null)
 
   function onAddText() {
-    editor?.addText("Text message")
+    const text = new Textbox("Hello world", {
+      fontSize: 24,
+      lineHeight: 1.25,
+      fontFamily: "Arial",
+    })
+
+    canvas?.add(text)
   }
 
   function onAddCircle() {
-    editor?.addCircle()
-  }
-
-  function onAddImage(files: FileList | null) {
-    if (!files || (files && files.length <= 0)) return
-
-    const file = files[0]
-
-    const path = URL.createObjectURL(file)
-
-    fabric.Image.fromURL(path, (oImg) => {
-      console.log({ oImg })
-
-      editor?.canvas.add(oImg)
+    const circle = new Circle({
+      fill: FILL,
+      stroke: STROKE,
+      radius: 20,
     })
+
+    canvas?.add(circle)
   }
 
   function onAddRectangle() {
-    editor?.addRectangle()
-  }
+    const rect = new Rect({
+      fill: FILL,
+      width: 40,
+      stroke: STROKE,
+      height: 40,
+    })
 
-  function onDeleteElement() {
-    editor?.deleteSelected()
+    canvas?.add(rect)
   }
 
   return (
@@ -55,7 +55,7 @@ export default function CanvasAdmin() {
         <Button size="small" onClick={onAddText} variant="outlined">
           Add text
         </Button>
-        <Box sx={{ position: "relative" }}>
+        {/* <Box sx={{ position: "relative" }}>
           <Box
             sx={{
               width: "100%",
@@ -72,37 +72,22 @@ export default function CanvasAdmin() {
           <Button size="small" variant="outlined">
             Add Image
           </Button>
-        </Box>
+          </Box> */}
         <Button size="small" onClick={onAddCircle} variant="outlined">
           Add circle
         </Button>
         <Button size="small" onClick={onAddRectangle} variant="outlined">
           Add Rectangle
         </Button>
-        <Button size="small" onClick={onDeleteElement} variant="outlined">
+        {/* <Button size="small" onClick={onDeleteElement} variant="outlined">
           Delete element
         </Button>
         <Button size="small" onClick={onClearAll} variant="outlined">
           Clear all
-        </Button>
+        </Button>  */}
       </Stack>
 
-      <Box
-        sx={{
-          mt: 5,
-
-          ".editor-canvas": {
-            width: "100%",
-            height: "40rem",
-            border: "1px solid",
-            maxWidth: "40rem",
-            borderColor: "gray.300",
-            borderRadius: ".5rem",
-          },
-        }}
-      >
-        <FabricJSCanvas onReady={onReady} className="editor-canvas" />
-      </Box>
+      <FabricCanvas onCanvas={setCanvas} />
     </Container>
   )
 }

@@ -15,15 +15,15 @@ const config = {
     removeConsole: process.env.NODE_ENV === "production",
   },
 
-  webpack: (config) => {
-    config.externals = [...config.externals, { canvas: "canvas" }]
+  // webpack: (config) => {
+  //   config.externals = [...config.externals, { canvas: "canvas" }]
 
-    return config
-  },
+  //   return config
+  // },
 
   experimental: {
     typedRoutes: true,
-    esmExternals: "loose",
+    // esmExternals: "loose",
   },
 
   reactStrictMode: true,
