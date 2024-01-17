@@ -27,8 +27,9 @@ const initialStyle = {
   fontSize: 16,
   textColor: "#000",
   lineHeight: 24,
-  borderColor: "#000",
+  fontWeight: "400",
   fontFamily: dmsans.style.fontFamily,
+  borderColor: "#000",
   backgroundColor: "#000",
 }
 
@@ -50,6 +51,7 @@ export default function Page() {
 
     const text = new Textbox("Hello world", {
       fontSize: style.fontSize,
+      fontWeight: style.fontWeight,
       lineHeight: style.lineHeight / 16,
       fontFamily: style.fontFamily,
     })
@@ -108,33 +110,46 @@ export default function Page() {
   ) {
     setStyle((prev) => ({ ...prev, [key]: value }))
 
-    if (selectedElements.length > 0) {
+    if (canvas && selectedElements.length > 0) {
       selectedElements.forEach((object) => {
-        console.log({ object: object.type })
+        if (object.type !== "textbox") {
+          if (key === "backgroundColor") object.set({ fill: value })
 
-        if (key === "backgroundColor") object.set({ fill: value })
-
-        if (object.type !== "textbox" && key === "borderColor")
-          object.set({ stroke: value })
+          if (key === "borderColor") object.set({ stroke: value })
+        }
 
         if (
           object.type === "textbox" &&
           ["fontSize", "textColor", "fontFamily", "lineHeight"].includes(key)
         ) {
-          const customKey = key === "textColor" ? "color" : key
+          const customKey = key === "textColor" ? "fill" : key
+
+          const customValue = () => {
+            if (customKey === "lineHeight") return Number(value) / 16
+
+            if (customKey === "fontFamily") return `'${value}', sans-serif`
+
+            return value
+          }
 
           object.set({
-            [customKey]: key === "lineHeight" ? Number(value) / 16 : value,
+            [customKey]: customValue(),
           })
         }
       })
+
+      canvas.renderAll()
     }
   }
 
-  console.log({ selectedElements })
-
   return (
     <Container>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,500;6..12,600;6..12,700&family=Open+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
+        crossOrigin="anonymous"
+      />
+
       <Stack
         sx={{
           mb: 5,
@@ -227,6 +242,21 @@ export default function Page() {
             )
           }
         />
+
+        <TextField
+          label="Font Weight"
+          value={style.fontWeight}
+          select
+          onChange={({ target }) =>
+            onUpdateStylesAndCurrentElements("fontWeight", target.value)
+          }
+        >
+          <MenuItem value="300">300</MenuItem>
+          <MenuItem value="400">400</MenuItem>
+          <MenuItem value="500">500</MenuItem>
+          <MenuItem value="600">600</MenuItem>
+          <MenuItem value="700">700</MenuItem>
+        </TextField>
       </Stack>
 
       <Stack
