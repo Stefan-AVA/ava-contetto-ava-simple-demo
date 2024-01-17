@@ -1,11 +1,17 @@
-import { useMemo, useState, type JSX } from "react"
+import {
+  Fragment,
+  useMemo,
+  useState,
+  type JSX,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Card, Stack, Typography } from "@mui/material"
-import { ListFilter, MessageCircle } from "lucide-react"
+import { Box, Stack, SwipeableDrawer, Typography } from "@mui/material"
+import { MessageCircle, MessageCircleMore } from "lucide-react"
 
-import Dropdown from "./drop-down"
 import Rooms from "./rooms"
 
 type Router = {
@@ -20,8 +26,14 @@ interface SidebarProps {
   orgName: string
 }
 
+type MobileRoute = {
+  icon: JSX.Element
+  label: string
+  path?: Route
+}
+
 export default function Sidebar({ routes, orgName }: SidebarProps) {
-  const [open, setOpen] = useState(false)
+  const [popupMessage, setPopupMessage] = useState(false)
 
   const pathname = usePathname()
 
@@ -44,6 +56,28 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
 
     return null
   }, [routes, pathname])
+
+  const mobileRoutes = [
+    ...routes,
+    {
+      icon: <MessageCircleMore />,
+      label: "Messages",
+    },
+  ] as MobileRoute[]
+
+  const toggleDrawer =
+    (state: boolean) => (event: KeyboardEvent | MouseEvent) => {
+      if (
+        event &&
+        event.type === "keydown" &&
+        ((event as KeyboardEvent).key === "Tab" ||
+          (event as KeyboardEvent).key === "Shift")
+      ) {
+        return
+      }
+
+      setPopupMessage(state)
+    }
 
   return (
     <>
@@ -102,94 +136,90 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
         <Rooms />
       </Stack>
 
-      <Dropdown
-        open={open}
-        onClose={() => setOpen(false)}
-        ancher={
-          <Stack
-            padding={1.5}
-            display={{ xs: "flex", md: "none" }}
-            alignItems="center"
-            justifyContent="space-between"
-            direction="row"
-            onClick={() => setOpen(true)}
+      <SwipeableDrawer
+        anchor="bottom"
+        open={popupMessage}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
+      >
+        <Stack
+          sx={{
+            py: 4,
+            px: 1,
+            gap: 2,
+            color: "gray.500",
+            width: "100%",
+            fontWeight: 500,
+          }}
+        >
+          <Typography
             sx={{
-              borderBottom: "1px solid",
-              borderBottomColor: "gray.300",
-              bgcolor: "gray.200",
-              borderRadius: 2,
+              color: "gray.500",
+              fontWeight: 500,
             }}
+            variant="body2"
           >
-            {findCurrentRoute && (
-              <Stack direction="row" alignItems="center" spacing={2}>
-                {findCurrentRoute.icon}
-                <Typography variant="h5" fontWeight={700}>
-                  {findCurrentRoute.label}
-                </Typography>
-              </Stack>
-            )}
+            MESSAGING
+          </Typography>
 
-            <ListFilter />
-          </Stack>
-        }
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
+          <Rooms onAction={() => setPopupMessage(false)} />
+        </Stack>
+      </SwipeableDrawer>
+
+      <Stack
+        sx={{
+          px: 4,
+          py: 2,
+          width: "100%",
+          bottom: 0,
+          bgcolor: "white",
+          position: "fixed",
+          borderTop: "1px solid",
+          alignItems: "center",
+          flexDirection: "row",
+          borderTopColor: "gray.300",
+          justifyContent: "space-between",
         }}
       >
-        <Card sx={{ padding: 2, width: "calc(100vw - 20px)" }}>
-          {routes.map(({ label, path, icon, active }) => (
-            <Stack
-              sx={{
-                p: 1,
-                mb: 1,
-                gap: 1.5,
-                color: "gray.700",
-                bgcolor: active ? "gray.200" : "white",
-                alignItems: "center",
-                borderRadius: 1.5,
-              }}
-              key={path}
-              href={path as Route}
-              component={Link}
-              direction="row"
-              onClick={() => setOpen(false)}
-            >
-              {icon}
-              <Typography sx={{ fontWeight: 500 }}>{label}</Typography>
-            </Stack>
-          ))}
+        {mobileRoutes.map(({ icon, label, path }) => (
+          <Fragment key={label}>
+            {path && (
+              <Box
+                sx={{
+                  color:
+                    findCurrentRoute?.label === label
+                      ? "primary.main"
+                      : "black",
 
-          <Stack
-            sx={{
-              mt: 4,
-              py: 4,
-              px: 1,
-              gap: 2,
-              color: "gray.500",
-              borderTop: "1px solid",
-              fontWeight: 500,
-              borderTopColor: "gray.300",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "gray.500",
-                fontWeight: 500,
-              }}
-              variant="body2"
-            >
-              MESSAGING
-            </Typography>
+                  svg: {
+                    width: "1.75rem",
+                    height: "1.75rem",
+                  },
+                }}
+                href={path as Route}
+                component={Link}
+              >
+                {icon}
+              </Box>
+            )}
 
-            <Rooms onAction={() => setOpen(false)} />
-          </Stack>
-        </Card>
-      </Dropdown>
+            {!path && (
+              <Box
+                sx={{
+                  svg: {
+                    width: "1.75rem",
+                    height: "1.75rem",
+                  },
+                }}
+                onClick={() => setPopupMessage(true)}
+                component="button"
+              >
+                {icon}
+              </Box>
+            )}
+          </Fragment>
+        ))}
+      </Stack>
     </>
   )
 }
