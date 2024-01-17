@@ -76,10 +76,10 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
           grade:
             field.Min_Grade && Number(field.Min_Grade)
               ? `${field.Min_Grade}${
-                  field.Max_Grade ? ` to ${field.Max_Grade}` : ""
+                  field.Max_Grade ? `-${field.Max_Grade}` : ""
                 }`
               : null,
-          distance: field.distance ? `${Math.round(field.distance)}m` : null,
+          address: field.Address ?? "-",
         })),
       }
     }
@@ -221,10 +221,15 @@ export default function WalkingDistance({ data }: WalkingDistanceProps) {
                     {field.name}
                   </Typography>
 
-                  <Typography variant="body2">
-                    Walking Distance: {field.distance ?? "-"} <br />
-                    Grade: {field.grade ?? "-"} <br />
-                    {field.distance ?? ""}
+                  <Typography
+                    sx={{ whiteSpace: "break-spaces" }}
+                    variant="body2"
+                  >
+                    {field.type} <br />
+                    {type === "nearbySchools"
+                      ? `Grade: ${field.grade ?? "-"} \n`
+                      : ""}
+                    Address: {field.address}
                   </Typography>
                 </Box>
               ))}
