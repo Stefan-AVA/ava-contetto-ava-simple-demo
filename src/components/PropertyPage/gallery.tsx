@@ -75,7 +75,7 @@ export default function Gallery({ data = [] }: GalleryProps) {
 
         {!isResponsive &&
           splitImages.map((images, index) => (
-            <SwiperSlide key={Math.random()} style={{ width: "100%" }}>
+            <SwiperSlide key={images.join(",")} style={{ width: "100%" }}>
               {index === 0 && (
                 <Grid sx={{ width: "100%" }} spacing={3} container>
                   <Grid

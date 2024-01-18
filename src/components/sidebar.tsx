@@ -172,6 +172,7 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
           py: 2,
           width: "100%",
           bottom: 0,
+          display: { xs: "flex", md: "none" },
           bgcolor: "white",
           position: "fixed",
           borderTop: "1px solid",

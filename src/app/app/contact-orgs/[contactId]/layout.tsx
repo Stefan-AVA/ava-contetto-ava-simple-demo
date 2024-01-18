@@ -47,9 +47,11 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
-        padding={{ xs: 1, md: 0 }}
-        spacing={{ xs: 2, md: 0 }}
-        direction={{ xs: "column", md: "row" }}
+        sx={{
+          p: { xs: 1, md: 0 },
+          gap: { xs: 2, md: 0 },
+          flexDirection: { xs: "column", md: "row" },
+        }}
       >
         <Sidebar routes={routes} orgName={orgName ?? ""} />
 

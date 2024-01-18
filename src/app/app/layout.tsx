@@ -96,7 +96,12 @@ export default function Layout({ children }: PropsWithChildren) {
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        pb: { xs: 10, md: 0 },
+        display: "flex",
+      }}
+    >
       <Sidebar
         loading={isLoading}
         toggleDrawer={toggleDrawer}
