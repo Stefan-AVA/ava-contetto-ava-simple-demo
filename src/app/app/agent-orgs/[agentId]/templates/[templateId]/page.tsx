@@ -74,6 +74,7 @@ export default function Page({ params }: PageParams) {
       fontWeight: style.fontWeight,
       lineHeight: style.lineHeight / 16,
       fontFamily: style.fontFamily,
+      lockScalingY: true,
     })
 
     canvas.add(text)
@@ -122,6 +123,26 @@ export default function Page({ params }: PageParams) {
     canvas.getActiveObjects().forEach((object) => canvas.remove(object))
     canvas.discardActiveObject()
     canvas.renderAll()
+  }
+
+  async function onExportToPDF() {
+    if (!canvas) return
+
+    const dataURL = canvas.toDataURL({
+      top: 0,
+      left: 0,
+      width: canvas.width,
+      height: canvas.height,
+      format: "png",
+      multiplier: 1,
+    })
+
+    const link = document.createElement("a")
+    link.download = "image.png"
+    link.href = dataURL
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   function onUpdateStylesAndCurrentElements(
@@ -333,9 +354,13 @@ export default function Page({ params }: PageParams) {
         onSelectedElements={setSelectedElements}
       />
 
-      <Button sx={{ mt: 8, float: "right" }} onClick={saveToJSON}>
-        Save
-      </Button>
+      <Stack
+        sx={{ mt: 8, gap: 2, justifyContent: "flex-end", flexDirection: "row" }}
+      >
+        <Button onClick={onExportToPDF}>Export to PNG</Button>
+
+        <Button onClick={saveToJSON}>Save</Button>
+      </Stack>
 
       {json && (
         <Box sx={{ p: 4, mt: 2, bgcolor: "gray.200", borderRadius: 2 }}>

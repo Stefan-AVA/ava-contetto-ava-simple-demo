@@ -35,6 +35,8 @@ export default function FabricCanvas({
 
     const canvas = new Canvas(ref.current as HTMLCanvasElement, options)
 
+    canvas.backgroundColor = "#FFF"
+
     onCanvas(canvas)
 
     bindEvents(canvas)
