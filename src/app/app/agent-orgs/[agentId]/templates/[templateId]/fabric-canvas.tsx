@@ -52,7 +52,7 @@ export default function FabricCanvas({
   return (
     <Box
       sx={{
-        ".canvas-container": {
+        ".canvas-container canvas": {
           border: "1px solid",
           borderColor: "gray.300",
           borderRadius: ".5rem",

@@ -18,6 +18,7 @@ import {
   Textbox,
   type FabricObject,
 } from "fabric"
+import PDF from "jspdf"
 import { MuiColorInput } from "mui-color-input"
 
 import { dmsans } from "@/styles/fonts"
@@ -40,7 +41,7 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "fontSize": 16, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 1.5, "text": "Hello world", "charSpacing": 0, "textAlign": "left", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 65, "top": 161, "width": 40.912, "height": 45.2, "fill": "rgb(0,0,0)", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "radius": 20, "startAngle": 0, "endAngle": 360, "type": "Circle", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 203, "top": 449, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ] }`
+const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "fontSize": 16, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 1.5, "text": "Hello world", "charSpacing": 0, "textAlign": "left", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 80, "top": 57, "width": 118, "height": 18.08, "fill": "rgb(0,0,0)", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "radius": 20, "startAngle": 0, "endAngle": 360, "type": "Circle", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 169, "top": 110, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 80, "top": 106, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`
 
 export default function Page({ params }: PageParams) {
   const [json, setJson] = useState("")
@@ -134,15 +135,15 @@ export default function Page({ params }: PageParams) {
       width: canvas.width,
       height: canvas.height,
       format: "png",
-      multiplier: 1,
+      quality: 100,
+      multiplier: 1.0,
     })
 
-    const link = document.createElement("a")
-    link.download = "image.png"
-    link.href = dataURL
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const pdf = new PDF("p", "mm", "a4")
+
+    pdf.addImage(dataURL, "PNG", 10, 10, 190, 190)
+
+    pdf.save("template.pdf")
   }
 
   function onUpdateStylesAndCurrentElements(
@@ -185,9 +186,24 @@ export default function Page({ params }: PageParams) {
 
   useEffect(() => {
     if (canvas && !isCreate) {
-      const template = JSON.parse(JSON.stringify(dumpTemplate))
+      const run = async () => {
+        const template = JSON.parse(JSON.stringify(dumpTemplate))
 
-      canvas.loadFromJSON(template.objects)
+        await canvas.loadFromJSON(template)
+
+        canvas.selection = false
+
+        canvas.forEachObject((object) => {
+          object.hasControls = false
+          object.lockRotation = true
+          object.lockMovementX = true
+          object.lockMovementY = true
+        })
+
+        canvas.renderAll()
+      }
+
+      run()
     }
   }, [canvas, isCreate])
 
@@ -357,7 +373,7 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{ mt: 8, gap: 2, justifyContent: "flex-end", flexDirection: "row" }}
       >
-        <Button onClick={onExportToPDF}>Export to PNG</Button>
+        <Button onClick={onExportToPDF}>Export to PDF</Button>
 
         <Button onClick={saveToJSON}>Save</Button>
       </Stack>
