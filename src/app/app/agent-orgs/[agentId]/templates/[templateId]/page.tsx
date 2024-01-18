@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Box,
   Button,
@@ -8,6 +8,7 @@ import {
   MenuItem,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material"
 import {
   Canvas,
@@ -23,6 +24,12 @@ import { dmsans } from "@/styles/fonts"
 
 import FabricCanvas from "./fabric-canvas"
 
+interface PageParams {
+  params: {
+    templateId: string
+  }
+}
+
 const initialStyle = {
   fontSize: 16,
   textColor: "#000",
@@ -33,10 +40,23 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-export default function Page() {
+const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "fontSize": 16, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 1.5, "text": "Hello world", "charSpacing": 0, "textAlign": "left", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 65, "top": 161, "width": 40.912, "height": 45.2, "fill": "rgb(0,0,0)", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "radius": 20, "startAngle": 0, "endAngle": 360, "type": "Circle", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 203, "top": 449, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ] }`
+
+export default function Page({ params }: PageParams) {
+  const [json, setJson] = useState("")
   const [style, setStyle] = useState(initialStyle)
   const [canvas, setCanvas] = useState<Canvas | null>(null)
   const [selectedElements, setSelectedElements] = useState<FabricObject[]>([])
+
+  const isCreate = params.templateId === "create"
+
+  function saveToJSON() {
+    if (!canvas) return
+
+    const data = canvas.toJSON()
+
+    setJson(data)
+  }
 
   function onClearAll() {
     if (!canvas) return
@@ -142,56 +162,66 @@ export default function Page() {
     }
   }
 
+  useEffect(() => {
+    if (canvas && !isCreate) {
+      const template = JSON.parse(JSON.stringify(dumpTemplate))
+
+      canvas.loadFromJSON(template.objects)
+    }
+  }, [canvas, isCreate])
+
   return (
-    <Container>
+    <Container sx={{ display: "flex", flexDirection: "column" }}>
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,500;6..12,600;6..12,700&family=Open+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
         crossOrigin="anonymous"
       />
 
-      <Stack
-        sx={{
-          mb: 5,
-          gap: 2,
-          alignItems: "center",
-          flexDirection: "row",
-        }}
-      >
-        <Button size="small" onClick={onAddText} variant="outlined">
-          Add text
-        </Button>
-        <Box sx={{ position: "relative" }}>
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              zIndex: 99,
-              opacity: 0,
-              position: "absolute",
-            }}
-            type="file"
-            onChange={({ target }) => onAddImage(target.files)}
-            component="input"
-          />
-
-          <Button size="small" variant="outlined">
-            Add Image
+      {isCreate && (
+        <Stack
+          sx={{
+            mb: 5,
+            gap: 2,
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <Button size="small" onClick={onAddText} variant="outlined">
+            Add text
           </Button>
-        </Box>
-        <Button size="small" onClick={onAddCircle} variant="outlined">
-          Add circle
-        </Button>
-        <Button size="small" onClick={onAddRectangle} variant="outlined">
-          Add Rectangle
-        </Button>
-        <Button size="small" onClick={onDeleteElement} variant="outlined">
-          Delete element
-        </Button>
-        <Button size="small" onClick={onClearAll} variant="outlined">
-          Clear all
-        </Button>
-      </Stack>
+          <Box sx={{ position: "relative" }}>
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                zIndex: 99,
+                opacity: 0,
+                position: "absolute",
+              }}
+              type="file"
+              onChange={({ target }) => onAddImage(target.files)}
+              component="input"
+            />
+
+            <Button size="small" variant="outlined">
+              Add Image
+            </Button>
+          </Box>
+          <Button size="small" onClick={onAddCircle} variant="outlined">
+            Add circle
+          </Button>
+          <Button size="small" onClick={onAddRectangle} variant="outlined">
+            Add Rectangle
+          </Button>
+          <Button size="small" onClick={onDeleteElement} variant="outlined">
+            Delete element
+          </Button>
+          <Button size="small" onClick={onClearAll} variant="outlined">
+            Clear all
+          </Button>
+        </Stack>
+      )}
 
       <Stack
         sx={{
@@ -302,6 +332,16 @@ export default function Page() {
         onCanvas={setCanvas}
         onSelectedElements={setSelectedElements}
       />
+
+      <Button sx={{ mt: 8, float: "right" }} onClick={saveToJSON}>
+        Save
+      </Button>
+
+      {json && (
+        <Box sx={{ p: 4, mt: 2, bgcolor: "gray.200", borderRadius: 2 }}>
+          <Typography>{JSON.stringify(json, undefined, 2)}</Typography>
+        </Box>
+      )}
     </Container>
   )
 }
