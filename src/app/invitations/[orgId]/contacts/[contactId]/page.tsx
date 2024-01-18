@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react"
 import { Route } from "next"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   useConfirmEmailMutation,
@@ -15,7 +14,6 @@ import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
 import {
-  Box,
   Checkbox,
   FormControlLabel,
   FormHelperText,
@@ -23,8 +21,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import Logo from "~/assets/logo-ava.png"
 import { z } from "zod"
+
+import AuthLayout from "@/components/auth-layout"
 
 const loginSchema = z.object({
   username: z.string().min(1, "Enter your username"),
@@ -260,21 +259,14 @@ export default function Page({ params, searchParams }: PageProps) {
   }
 
   return (
-    <Stack sx={{ m: "auto", py: 10, maxWidth: "36rem" }}>
+    <AuthLayout>
       <Typography sx={{ fontWeight: 700, textAlign: "center" }} variant="h5">
         You`ve been invited to interact with {orgName} <br />
         Sign in or create your profile now. It`s Free! 🎉
       </Typography>
 
-      <Box
-        sx={{ mt: 5, mb: 2, mx: "auto", height: "5rem", objectFit: "contain" }}
-        src={Logo}
-        alt="Logo Ava"
-        component={Image}
-      />
-
       <Typography
-        sx={{ mb: 3, fontWeight: 700, textAlign: "center" }}
+        sx={{ my: 3, fontWeight: 700, textAlign: "center" }}
         variant="h3"
         component="h1"
       >
@@ -551,6 +543,6 @@ export default function Page({ params, searchParams }: PageProps) {
           )}
         </>
       )}
-    </Stack>
+    </AuthLayout>
   )
 }

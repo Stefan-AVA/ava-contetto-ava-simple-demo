@@ -376,7 +376,7 @@ const PropertyPage = ({
         sx={{
           gap: 2,
           right: "2rem",
-          bottom: "2rem",
+          bottom: "6rem",
           display: {
             xs: "flex",
             sm: "none",

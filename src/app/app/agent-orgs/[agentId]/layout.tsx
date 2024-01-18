@@ -75,8 +75,8 @@ export default function Layout({ children }: PropsWithChildren) {
           p: { xs: 1, md: 0 },
           gap: { xs: 2, md: 0 },
           bgcolor: "background.default",
+          flexDirection: { xs: "column", md: "row" },
         }}
-        direction={{ xs: "column", md: "row" }}
       >
         <Sidebar routes={routes} orgName={orgName ?? ""} />
 

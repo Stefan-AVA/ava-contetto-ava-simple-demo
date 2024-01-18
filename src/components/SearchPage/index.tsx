@@ -343,8 +343,8 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
           <Stack
             sx={{
               py: { xs: 2, lg: 1 },
-              pr: { xs: 2, lg: 3 },
-              pl: { xs: 2, lg: 2 },
+              pr: { xs: 0, lg: 3 },
+              pl: { xs: 0, lg: 2 },
               ml: { xs: 0, lg: 2 },
               gap: { xs: 1, lg: 2 },
               alignItems: "center",
