@@ -4,15 +4,9 @@ import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
 import { Stack } from "@mui/material"
-import {
-  Contact,
-  LayoutDashboardIcon,
-  Search,
-  SettingsIcon,
-} from "lucide-react"
+import { Contact, LayoutDashboardIcon, Search } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import { AgentRole } from "@/types/agentProfile.types"
 import Breadcrumb from "@/components/breadcrumb"
 import Sidebar from "@/components/sidebar"
 import WhiteLabelWrapper from "@/components/white-label-wrapper"
@@ -49,19 +43,8 @@ export default function Layout({ children }: PropsWithChildren) {
         label: "My Searches",
         active: pathName.includes("search-results"),
       },
-      ...(currentOrg.role === AgentRole.owner ||
-      currentOrg.role === AgentRole.admin
-        ? [
-            {
-              path: `/app/agent-orgs/${agentId}/settings`,
-              icon: <SettingsIcon />,
-              label: "Settings",
-              active: pathName.includes("settings"),
-            },
-          ]
-        : []),
     ],
-    [pathName, agentId, currentOrg.role]
+    [pathName, agentId]
   )
 
   const hasWhiteLabelDefined = currentOrg.org?.whiteLabel

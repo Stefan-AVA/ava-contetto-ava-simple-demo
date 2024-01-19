@@ -58,7 +58,7 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
   }, [routes, pathname])
 
   const mobileRoutes = [
-    ...routes.filter(({ label }) => label !== "Settings"),
+    ...routes,
     {
       icon: <MessageCircleMore />,
       label: "Messages",

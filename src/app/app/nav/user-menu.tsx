@@ -49,7 +49,6 @@ export default function User() {
               setAnchor(null)
               push(`/app/agent-orgs/${agentId}/settings`)
             },
-            isMobile: true,
           },
         ]
       : []),
@@ -97,14 +96,8 @@ export default function User() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
       >
-        {options.map(({ label, action, isMobile }) => (
-          <MenuItem
-            sx={{
-              display: { md: isMobile ? "none" : "block" },
-            }}
-            key={label}
-            onClick={action}
-          >
+        {options.map(({ label, action }) => (
+          <MenuItem key={label} onClick={action}>
             {label}
           </MenuItem>
         ))}
