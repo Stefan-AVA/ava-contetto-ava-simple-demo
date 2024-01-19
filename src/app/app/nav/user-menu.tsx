@@ -1,19 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { RootState } from "@/redux/store"
 import { nameInitials } from "@/utils/format-name"
 import { Box, Menu, MenuItem, Stack, Typography } from "@mui/material"
 import { useSelector } from "react-redux"
+
+import { AgentRole } from "@/types/agentProfile.types"
 
 export default function User() {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
 
   const { push } = useRouter()
 
+  const { agentId } = useParams()
+
   const user = useSelector((state: RootState) => state.app.user)
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const currentOrg = useMemo(
+    () => agentOrgs.find((agent) => agent._id === agentId)!,
+    [agentId, agentOrgs]
+  )
 
   const options = [
     {
@@ -30,6 +40,19 @@ export default function User() {
         push("/app/profile")
       },
     },
+    ...(currentOrg.role === AgentRole.owner ||
+    currentOrg.role === AgentRole.admin
+      ? [
+          {
+            label: "Settings",
+            action: () => {
+              setAnchor(null)
+              push(`/app/agent-orgs/${agentId}/settings`)
+            },
+            isMobile: true,
+          },
+        ]
+      : []),
   ]
 
   return (
@@ -74,8 +97,14 @@ export default function User() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
       >
-        {options.map(({ label, action }) => (
-          <MenuItem key={label} onClick={action}>
+        {options.map(({ label, action, isMobile }) => (
+          <MenuItem
+            sx={{
+              display: { md: isMobile ? "none" : "block" },
+            }}
+            key={label}
+            onClick={action}
+          >
             {label}
           </MenuItem>
         ))}

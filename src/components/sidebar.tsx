@@ -58,7 +58,7 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
   }, [routes, pathname])
 
   const mobileRoutes = [
-    ...routes,
+    ...routes.filter(({ label }) => label !== "Settings"),
     {
       icon: <MessageCircleMore />,
       label: "Messages",
@@ -170,8 +170,10 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
         sx={{
           px: 4,
           py: 2,
+          left: 0,
           width: "100%",
           bottom: 0,
+          zIndex: 999,
           display: { xs: "flex", md: "none" },
           bgcolor: "white",
           position: "fixed",
@@ -207,6 +209,9 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
             {!path && (
               <Box
                 sx={{
+                  color: popupMessage ? "primary.main" : "black",
+                  border: "none",
+
                   svg: {
                     width: "1.75rem",
                     height: "1.75rem",
