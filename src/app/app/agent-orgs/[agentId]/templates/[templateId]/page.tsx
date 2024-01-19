@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   Box,
   Button,
@@ -34,6 +34,7 @@ interface PageParams {
 const initialStyle = {
   fontSize: 16,
   textColor: "#000",
+  textAlign: "left",
   lineHeight: 24,
   fontWeight: "400",
   fontFamily: dmsans.style.fontFamily,
@@ -41,7 +42,7 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "fontSize": 16, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 1.5, "text": "Hello world", "charSpacing": 0, "textAlign": "left", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 80, "top": 57, "width": 118, "height": 18.08, "fill": "rgb(0,0,0)", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "radius": 20, "startAngle": 0, "endAngle": 360, "type": "Circle", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 169, "top": 110, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 80, "top": 106, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`
+const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`
 
 export default function Page({ params }: PageParams) {
   const [json, setJson] = useState("")
@@ -79,6 +80,8 @@ export default function Page({ params }: PageParams) {
     })
 
     canvas.add(text)
+
+    canvas.bringObjectToFront(text)
   }
 
   function onAddCircle() {
@@ -91,6 +94,8 @@ export default function Page({ params }: PageParams) {
     })
 
     canvas.add(circle)
+
+    canvas.bringObjectToFront(circle)
   }
 
   async function onAddImage(files: FileList | null) {
@@ -98,11 +103,27 @@ export default function Page({ params }: PageParams) {
 
     const file = files[0]
 
+    // Send image to backend to register.
+
     const path = URL.createObjectURL(file)
 
     const image = await FabricImage.fromURL(path)
 
     canvas.add(image)
+
+    canvas.sendObjectToBack(image)
+  }
+
+  function onSendToBack() {
+    if (!canvas) return
+
+    canvas.getActiveObjects().forEach((object) => {
+      console.log({ object })
+
+      canvas.sendObjectToBack(object)
+    })
+    canvas.discardActiveObject()
+    canvas.renderAll()
   }
 
   function onAddRectangle() {
@@ -116,15 +137,17 @@ export default function Page({ params }: PageParams) {
     })
 
     canvas.add(rect)
+
+    canvas.bringObjectToFront(rect)
   }
 
-  function onDeleteElement() {
+  const onDeleteElement = useCallback(() => {
     if (!canvas) return
 
     canvas.getActiveObjects().forEach((object) => canvas.remove(object))
     canvas.discardActiveObject()
     canvas.renderAll()
-  }
+  }, [canvas])
 
   async function onExportToPDF() {
     if (!canvas) return
@@ -162,7 +185,13 @@ export default function Page({ params }: PageParams) {
 
         if (
           object.type === "textbox" &&
-          ["fontSize", "textColor", "fontFamily", "lineHeight"].includes(key)
+          [
+            "fontSize",
+            "textColor",
+            "textAlign",
+            "fontFamily",
+            "lineHeight",
+          ].includes(key)
         ) {
           const customKey = key === "textColor" ? "fill" : key
 
@@ -207,6 +236,23 @@ export default function Page({ params }: PageParams) {
     }
   }, [canvas, isCreate])
 
+  useEffect(() => {
+    function keyboard({ key }: KeyboardEvent) {
+      if (canvas) {
+        if (key === "Escape") canvas.discardActiveObject()
+        if (key === "Backspace") onDeleteElement()
+
+        canvas.renderAll()
+      }
+    }
+
+    document.addEventListener("keydown", keyboard)
+
+    return () => {
+      document.removeEventListener("keydown", keyboard)
+    }
+  }, [canvas, onDeleteElement])
+
   return (
     <Container sx={{ display: "flex", flexDirection: "column" }}>
       <link
@@ -250,6 +296,9 @@ export default function Page({ params }: PageParams) {
           </Button>
           <Button size="small" onClick={onAddRectangle} variant="outlined">
             Add Rectangle
+          </Button>
+          <Button size="small" onClick={onSendToBack} variant="outlined">
+            Send to back
           </Button>
           <Button size="small" onClick={onDeleteElement} variant="outlined">
             Delete element
@@ -309,6 +358,19 @@ export default function Page({ params }: PageParams) {
             )
           }
         />
+
+        <TextField
+          label="Font Align"
+          value={style.textAlign}
+          select
+          onChange={({ target }) =>
+            onUpdateStylesAndCurrentElements("textAlign", target.value)
+          }
+        >
+          <MenuItem value="left">Left</MenuItem>
+          <MenuItem value="center">Center</MenuItem>
+          <MenuItem value="right">Right</MenuItem>
+        </TextField>
 
         <TextField
           label="Font Weight"
@@ -375,7 +437,7 @@ export default function Page({ params }: PageParams) {
       >
         <Button onClick={onExportToPDF}>Export to PDF</Button>
 
-        <Button onClick={saveToJSON}>Save</Button>
+        {isCreate && <Button onClick={saveToJSON}>Save</Button>}
       </Stack>
 
       {json && (
