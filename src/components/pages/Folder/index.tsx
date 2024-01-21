@@ -1,14 +1,14 @@
 "use client"
 
 import { useRef } from "react"
-import { Box, Stack } from "@mui/material"
 import {
   ChonkyActions,
   FileArray,
   FileBrowser,
   FileContextMenu,
   FileList,
-} from "chonky"
+} from "@aperturerobotics/chonky"
+import { Stack } from "@mui/material"
 
 interface IProps {
   orgId: string
