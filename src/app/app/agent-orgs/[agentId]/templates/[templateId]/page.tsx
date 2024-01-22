@@ -47,30 +47,29 @@ const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry":
 export default function Page({ params }: PageParams) {
   const [json, setJson] = useState("")
   const [style, setStyle] = useState(initialStyle)
-  const [canvas, setCanvas] = useState<Canvas | null>(null)
+  const [canvas, setCanvas] = useState<Canvas[]>([])
+  const [currCanvas, setCurrCanvas] = useState(0)
   const [selectedElements, setSelectedElements] = useState<FabricObject[]>([])
 
   const isCreate = params.templateId === "create"
 
-  function saveToJSON() {
-    if (!canvas) return
+  const selectedCanvas = canvas[currCanvas]
 
-    const data = canvas.toJSON()
+  function saveToJSON() {
+    const data = selectedCanvas.toJSON()
 
     setJson(data)
   }
 
   function onClearAll() {
-    if (!canvas) return
-
-    canvas.getObjects().forEach((object) => canvas.remove(object))
-    canvas.discardActiveObject()
-    canvas.renderAll()
+    selectedCanvas
+      .getObjects()
+      .forEach((object) => selectedCanvas.remove(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
   }
 
   function onAddText() {
-    if (!canvas) return
-
     const text = new Textbox("Hello world", {
       fontSize: style.fontSize,
       fontWeight: style.fontWeight,
@@ -79,27 +78,25 @@ export default function Page({ params }: PageParams) {
       lockScalingY: true,
     })
 
-    canvas.add(text)
+    selectedCanvas.add(text)
 
-    canvas.bringObjectToFront(text)
+    selectedCanvas.bringObjectToFront(text)
   }
 
   function onAddCircle() {
-    if (!canvas) return
-
     const circle = new Circle({
       fill: style.backgroundColor,
       stroke: style.borderColor,
       radius: 20,
     })
 
-    canvas.add(circle)
+    selectedCanvas.add(circle)
 
-    canvas.bringObjectToFront(circle)
+    selectedCanvas.bringObjectToFront(circle)
   }
 
   async function onAddImage(files: FileList | null) {
-    if (!canvas || !files || (files && files.length <= 0)) return
+    if (!files || (files && files.length <= 0)) return
 
     const file = files[0]
 
@@ -109,26 +106,20 @@ export default function Page({ params }: PageParams) {
 
     const image = await FabricImage.fromURL(path)
 
-    canvas.add(image)
+    selectedCanvas.add(image)
 
-    canvas.sendObjectToBack(image)
+    selectedCanvas.sendObjectToBack(image)
   }
 
   function onSendToBack() {
-    if (!canvas) return
-
-    canvas.getActiveObjects().forEach((object) => {
-      console.log({ object })
-
-      canvas.sendObjectToBack(object)
-    })
-    canvas.discardActiveObject()
-    canvas.renderAll()
+    selectedCanvas
+      .getActiveObjects()
+      .forEach((object) => selectedCanvas.sendObjectToBack(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
   }
 
   function onAddRectangle() {
-    if (!canvas) return
-
     const rect = new Rect({
       fill: style.backgroundColor,
       width: 40,
@@ -136,27 +127,25 @@ export default function Page({ params }: PageParams) {
       height: 40,
     })
 
-    canvas.add(rect)
+    selectedCanvas.add(rect)
 
-    canvas.bringObjectToFront(rect)
+    selectedCanvas.bringObjectToFront(rect)
   }
 
   const onDeleteElement = useCallback(() => {
-    if (!canvas) return
-
-    canvas.getActiveObjects().forEach((object) => canvas.remove(object))
-    canvas.discardActiveObject()
-    canvas.renderAll()
-  }, [canvas])
+    selectedCanvas
+      .getActiveObjects()
+      .forEach((object) => selectedCanvas.remove(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
+  }, [selectedCanvas])
 
   async function onExportToPDF() {
-    if (!canvas) return
-
-    const dataURL = canvas.toDataURL({
+    const dataURL = selectedCanvas.toDataURL({
       top: 0,
       left: 0,
-      width: canvas.width,
-      height: canvas.height,
+      width: selectedCanvas.width,
+      height: selectedCanvas.height,
       format: "png",
       quality: 100,
       multiplier: 1.0,
@@ -175,7 +164,7 @@ export default function Page({ params }: PageParams) {
   ) {
     setStyle((prev) => ({ ...prev, [key]: value }))
 
-    if (canvas && selectedElements.length > 0) {
+    if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
         if (object.type !== "textbox") {
           if (key === "backgroundColor") object.set({ fill: value })
@@ -209,41 +198,39 @@ export default function Page({ params }: PageParams) {
         }
       })
 
-      canvas.renderAll()
+      selectedCanvas.renderAll()
     }
   }
 
   useEffect(() => {
-    if (canvas && !isCreate) {
+    if (!isCreate) {
       const run = async () => {
         const template = JSON.parse(JSON.stringify(dumpTemplate))
 
-        await canvas.loadFromJSON(template)
+        await selectedCanvas.loadFromJSON(template)
 
-        canvas.selection = false
+        selectedCanvas.selection = false
 
-        canvas.forEachObject((object) => {
+        selectedCanvas.forEachObject((object) => {
           object.hasControls = false
           object.lockRotation = true
           object.lockMovementX = true
           object.lockMovementY = true
         })
 
-        canvas.renderAll()
+        selectedCanvas.renderAll()
       }
 
       run()
     }
-  }, [canvas, isCreate])
+  }, [isCreate, selectedCanvas])
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
-      if (canvas) {
-        if (key === "Escape") canvas.discardActiveObject()
-        if (key === "Backspace") onDeleteElement()
+      if (key === "Escape") selectedCanvas.discardActiveObject()
+      if (key === "Backspace") onDeleteElement()
 
-        canvas.renderAll()
-      }
+      selectedCanvas.renderAll()
     }
 
     document.addEventListener("keydown", keyboard)
@@ -251,7 +238,7 @@ export default function Page({ params }: PageParams) {
     return () => {
       document.removeEventListener("keydown", keyboard)
     }
-  }, [canvas, onDeleteElement])
+  }, [selectedCanvas, onDeleteElement])
 
   return (
     <Container sx={{ display: "flex", flexDirection: "column" }}>
@@ -428,7 +415,9 @@ export default function Page({ params }: PageParams) {
       </Stack>
 
       <FabricCanvas
+        canvas={canvas}
         onCanvas={setCanvas}
+        numberOfPages={3}
         onSelectedElements={setSelectedElements}
       />
 

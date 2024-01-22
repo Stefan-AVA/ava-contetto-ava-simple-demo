@@ -1,19 +1,34 @@
 "use client"
 
-import { useEffect, useRef, type Dispatch, type SetStateAction } from "react"
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
 import { Box } from "@mui/material"
 import { Canvas, type CanvasOptions, type FabricObject } from "fabric"
 
 interface FabricCanvasProps {
-  onCanvas: Dispatch<SetStateAction<Canvas | null>>
+  canvas: Canvas[]
+  onCanvas: Dispatch<SetStateAction<Canvas[]>>
+  numberOfPages: number
   onSelectedElements: Dispatch<SetStateAction<FabricObject[]>>
 }
 
 export default function FabricCanvas({
+  canvas,
   onCanvas,
+  numberOfPages,
   onSelectedElements,
 }: FabricCanvasProps) {
-  const ref = useRef<HTMLCanvasElement>(null)
+  const ref = useRef<HTMLCanvasElement[]>([])
+
+  const pages = useMemo(
+    () => Array.from(Array(numberOfPages), (_, x) => x),
+    [numberOfPages]
+  )
 
   useEffect(() => {
     const options: Partial<CanvasOptions> = {
@@ -33,21 +48,35 @@ export default function FabricCanvas({
       })
     }
 
-    const canvas = new Canvas(ref.current as HTMLCanvasElement, options)
+    const createdCanvas = [] as Canvas[]
 
-    canvas.backgroundColor = "#FFF"
+    const refs = ref.current && ref.current.length > 0
 
-    onCanvas(canvas)
+    if (refs) {
+      pages.forEach((page) => {
+        const currRef = ref.current?.[page] as HTMLCanvasElement
 
-    bindEvents(canvas)
+        console.log({ currRef, page })
+
+        const currCanvas = new Canvas(currRef, options)
+
+        currCanvas.backgroundColor = "#FFF"
+
+        createdCanvas.push(currCanvas)
+
+        bindEvents(currCanvas)
+      })
+
+      onCanvas((prev) => [...prev, ...createdCanvas])
+    }
     return () => {
-      onCanvas(null)
+      createdCanvas.forEach((currCanvas) => currCanvas.dispose())
 
-      canvas.dispose()
+      onCanvas([])
 
       onSelectedElements([])
     }
-  }, [onCanvas, onSelectedElements])
+  }, [pages, onCanvas, onSelectedElements])
 
   return (
     <Box
@@ -59,7 +88,15 @@ export default function FabricCanvas({
         },
       }}
     >
-      <canvas ref={ref} />
+      {pages.map((page) => (
+        <canvas
+          id={`canvas-${page}`}
+          key={page}
+          ref={(curr) => {
+            if (ref.current) ref.current[page] = curr as HTMLCanvasElement
+          }}
+        />
+      ))}
     </Box>
   )
 }
