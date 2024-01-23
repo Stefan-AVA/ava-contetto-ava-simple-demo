@@ -7,19 +7,21 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
-import { Box } from "@mui/material"
+import { Box, Stack } from "@mui/material"
 import { Canvas, type CanvasOptions, type FabricObject } from "fabric"
 
 interface FabricCanvasProps {
-  canvas: Canvas[]
   onCanvas: Dispatch<SetStateAction<Canvas[]>>
+  currCanvas: number
+  onCurrCanvas: Dispatch<SetStateAction<number>>
   numberOfPages: number
   onSelectedElements: Dispatch<SetStateAction<FabricObject[]>>
 }
 
 export default function FabricCanvas({
-  canvas,
   onCanvas,
+  currCanvas,
+  onCurrCanvas,
   numberOfPages,
   onSelectedElements,
 }: FabricCanvasProps) {
@@ -56,11 +58,10 @@ export default function FabricCanvas({
       pages.forEach((page) => {
         const currRef = ref.current?.[page] as HTMLCanvasElement
 
-        console.log({ currRef, page })
-
         const currCanvas = new Canvas(currRef, options)
 
         currCanvas.backgroundColor = "#FFF"
+        currCanvas.preserveObjectStacking = true
 
         createdCanvas.push(currCanvas)
 
@@ -79,8 +80,10 @@ export default function FabricCanvas({
   }, [pages, onCanvas, onSelectedElements])
 
   return (
-    <Box
+    <Stack
       sx={{
+        gap: 2,
+
         ".canvas-container canvas": {
           border: "1px solid",
           borderColor: "gray.300",
@@ -89,14 +92,23 @@ export default function FabricCanvas({
       }}
     >
       {pages.map((page) => (
-        <canvas
-          id={`canvas-${page}`}
-          key={page}
-          ref={(curr) => {
-            if (ref.current) ref.current[page] = curr as HTMLCanvasElement
+        <Box
+          sx={{
+            ".canvas-container canvas": {
+              borderColor: currCanvas === page ? "secondary.main" : undefined,
+            },
           }}
-        />
+          key={page}
+          onClick={() => onCurrCanvas(page)}
+        >
+          <canvas
+            id={`canvas-${page}`}
+            ref={(curr) => {
+              if (ref.current) ref.current[page] = curr as HTMLCanvasElement
+            }}
+          />
+        </Box>
       ))}
-    </Box>
+    </Stack>
   )
 }

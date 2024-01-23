@@ -42,7 +42,9 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`
+const dumpTemplate = {
+  0: `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`,
+}
 
 export default function Page({ params }: PageParams) {
   const [json, setJson] = useState("")
@@ -56,9 +58,13 @@ export default function Page({ params }: PageParams) {
   const selectedCanvas = canvas[currCanvas]
 
   function saveToJSON() {
-    const data = selectedCanvas.toJSON()
+    const data = {} as Record<string, string>
 
-    setJson(data)
+    canvas.forEach((curr, index) => {
+      data[index] = curr.toJSON()
+    })
+
+    setJson(JSON.stringify(data))
   }
 
   function onClearAll() {
@@ -141,19 +147,23 @@ export default function Page({ params }: PageParams) {
   }, [selectedCanvas])
 
   async function onExportToPDF() {
-    const dataURL = selectedCanvas.toDataURL({
-      top: 0,
-      left: 0,
-      width: selectedCanvas.width,
-      height: selectedCanvas.height,
-      format: "png",
-      quality: 100,
-      multiplier: 1.0,
-    })
-
     const pdf = new PDF("p", "mm", "a4")
 
-    pdf.addImage(dataURL, "PNG", 10, 10, 190, 190)
+    canvas.forEach((curr, index) => {
+      if (index !== 0) pdf.addPage()
+
+      const dataURL = curr.toDataURL({
+        top: 0,
+        left: 0,
+        width: selectedCanvas.width,
+        height: selectedCanvas.height,
+        format: "png",
+        quality: 100,
+        multiplier: 1.0,
+      })
+
+      pdf.addImage(dataURL, "PNG", 10, 10, 190, 190)
+    })
 
     pdf.save("template.pdf")
   }
@@ -179,6 +189,7 @@ export default function Page({ params }: PageParams) {
             "textColor",
             "textAlign",
             "fontFamily",
+            "fontWeight",
             "lineHeight",
           ].includes(key)
         ) {
@@ -203,27 +214,34 @@ export default function Page({ params }: PageParams) {
   }
 
   useEffect(() => {
-    if (!isCreate) {
+    if (canvas.length > 0 && !isCreate) {
       const run = async () => {
-        const template = JSON.parse(JSON.stringify(dumpTemplate))
+        const templates = JSON.parse(JSON.stringify(dumpTemplate)) as Record<
+          string,
+          string
+        >
 
-        await selectedCanvas.loadFromJSON(template)
+        Object.entries(templates).forEach(async ([key, value]) => {
+          const selectedCanvas = canvas[Number(key)]
 
-        selectedCanvas.selection = false
+          await selectedCanvas.loadFromJSON(value)
 
-        selectedCanvas.forEachObject((object) => {
-          object.hasControls = false
-          object.lockRotation = true
-          object.lockMovementX = true
-          object.lockMovementY = true
+          selectedCanvas.selection = false
+
+          selectedCanvas.forEachObject((object) => {
+            object.hasControls = false
+            object.lockRotation = true
+            object.lockMovementX = true
+            object.lockMovementY = true
+          })
+
+          selectedCanvas.renderAll()
         })
-
-        selectedCanvas.renderAll()
       }
 
       run()
     }
-  }, [isCreate, selectedCanvas])
+  }, [canvas, isCreate])
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
@@ -415,8 +433,9 @@ export default function Page({ params }: PageParams) {
       </Stack>
 
       <FabricCanvas
-        canvas={canvas}
         onCanvas={setCanvas}
+        currCanvas={currCanvas}
+        onCurrCanvas={setCurrCanvas}
         numberOfPages={3}
         onSelectedElements={setSelectedElements}
       />
@@ -431,7 +450,9 @@ export default function Page({ params }: PageParams) {
 
       {json && (
         <Box sx={{ p: 4, mt: 2, bgcolor: "gray.200", borderRadius: 2 }}>
-          <Typography>{JSON.stringify(json, undefined, 2)}</Typography>
+          <Typography sx={{ wordBreak: "break-word" }}>
+            {JSON.stringify(json, undefined, 2)}
+          </Typography>
         </Box>
       )}
     </Container>
