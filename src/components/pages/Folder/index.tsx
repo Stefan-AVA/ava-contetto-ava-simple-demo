@@ -1,10 +1,13 @@
 "use client"
 
-import { memo, useMemo, useRef, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
+import { Route } from "next"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
+  useMoveFilesMutation,
 } from "@/redux/apis/media"
 import {
   ChonkyActions,
@@ -18,17 +21,19 @@ import {
   FileList,
   MapFileActionsToData,
 } from "@aperturerobotics/chonky"
-import { Button, Stack } from "@mui/material"
+import { Breadcrumbs, Button, Stack, Typography } from "@mui/material"
 import { Edit, File, FileUp, Folder, FolderPlus, Trash } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IFile, IFolder } from "@/types/folder.types"
+import Loading from "@/components/Loading"
 
+import DeleteFilesModal from "./DeleteFilesModal"
 import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
 import UploadFilesModal from "./UploadFilesModal"
 
-const CustomIcon: React.FC<ChonkyIconProps> = memo((props) => {
+const CustomIcon = (props: ChonkyIconProps) => {
   switch (props.icon) {
     case ChonkyIconName.folder:
       return <Folder />
@@ -43,18 +48,18 @@ const CustomIcon: React.FC<ChonkyIconProps> = memo((props) => {
     default:
       return <File />
   }
-})
+}
 
 interface IProps {
   orgId: string
   agentId?: string
   contactId?: string
   folderId?: string
-  isShared: boolean
+  isShared?: boolean
   forAgentOnly?: boolean
 }
 
-type ChonkyFile = (IFolder | IFile) & {
+export type ChonkyFile = (IFolder | IFile) & {
   id: string
   isDir?: boolean
 }
@@ -65,7 +70,7 @@ const FolderPage = ({
   contactId,
   folderId,
   isShared = true,
-  forAgentOnly = false,
+  forAgentOnly = false, // we may need this param later, but based on figma, we may not need this for now
 }: IProps) => {
   const fileBrowserRef = useRef<FileBrowserHandle>(null)
   const { push } = useRouter()
@@ -76,6 +81,7 @@ const FolderPage = ({
     undefined
   )
   const [activeFile, setActiveFile] = useState<IFile | undefined>(undefined)
+  const [deleteFiles, setDeleteFiles] = useState<ChonkyFile[]>([])
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
@@ -84,6 +90,7 @@ const FolderPage = ({
     { skip: !orgId }
   )
   const [getDwonloadFileUrl] = useGetDownloadFileUrlMutation()
+  const [moveFiles, { isLoading: isMovingFiles }] = useMoveFilesMutation()
 
   const files = useMemo(
     () =>
@@ -101,26 +108,23 @@ const FolderPage = ({
   )
 
   // define custom actions
-  // const deleteFiles = defineFileAction({
-  //   id: "delete_files",
-  //   requiresSelection: true,
-  //   button: {
-  //     name: "Delete files",
-  //     toolbar: true,
-  //     contextMenu: true,
-  //     icon: ChonkyIconName.trash,
-  //   },
-  // })
-  // const deleteFolder = defineFileAction({
-  //   id: "delete_folder",
-  //   requiresSelection: true,
-  //   button: {
-  //     name: "Delete files",
-  //     toolbar: true,
-  //     contextMenu: true,
-  //     icon: ChonkyIconName.trash,
-  //   },
-  // })
+  const deleteFilesAction = defineFileAction({
+    id: "action_delete_files",
+    requiresSelection: true,
+    customVisibility: () => {
+      const count = selectedFiles.length
+      return count === 0
+        ? CustomVisibilityState.Hidden
+        : CustomVisibilityState.Default
+    },
+    hotkeys: ["del"],
+    button: {
+      name: "Delete",
+      toolbar: true,
+      contextMenu: true,
+      icon: ChonkyIconName.trash,
+    },
+  })
   const renameAction = defineFileAction({
     id: "action_rename",
     selectionTransform: () => {
@@ -188,7 +192,7 @@ const FolderPage = ({
     },
   })
 
-  const downloadFile = async (file: ChonkyFile) => {
+  const onDownloadFile = async (file: ChonkyFile) => {
     try {
       const { url } = await getDwonloadFileUrl({
         orgId,
@@ -205,17 +209,36 @@ const FolderPage = ({
     }
   }
 
+  const onMoveFiles = async (targetFolder: IFolder, files: ChonkyFile[]) => {
+    try {
+      await moveFiles({
+        orgId,
+        contactId,
+        folderId: targetFolder._id,
+        folderIds: files.filter((file) => file.isDir).map((file) => file._id),
+        fileIds: files.filter((file) => !file.isDir).map((file) => file._id),
+      })
+
+      await refetch()
+    } catch (error) {
+      enqueueSnackbar("Move failed", {
+        variant: "error",
+      })
+    }
+  }
+
   const onFileAction = (data: MapFileActionsToData<any>) => {
     const { id, payload, state } = data
-    // console.log(id)
-    const files = state.selectedFiles
-    console.log(data)
+
     switch (id) {
+      case "change_selection":
+        setSelectedFiles(state.selectedFiles)
+        break
       case "action_create_folder":
         setFolderModalOpen(true)
         setActiveFolder(undefined)
         break
-      case "action_rename":
+      case "action_rename": {
         const file = selectedFiles[0]
         if (file) {
           if (file.isDir) {
@@ -228,57 +251,114 @@ const FolderPage = ({
           }
         }
         break
+      }
       case "action_upload_files":
         setUploadModalOpen(true)
         break
-      case "open_files":
+      case "open_files": {
         const targetFile = payload.targetFile
         if (targetFile.isDir) {
           // open folder
           if (agentId) {
             if (contactId) {
+              // TODO: yuri please update this url based on contact files UI
+              push(
+                `/app/agent-orgs/${agentId}/folders/${isShared ? "shared" : "me"}/${targetFile.id}`
+              )
             } else {
               push(
                 `/app/agent-orgs/${agentId}/folders/${isShared ? "shared" : "me"}/${targetFile.id}`
               )
             }
+          } else {
+            push(
+              `/app/contact-orgs/${contactId}/folders/${targetFile.id}` as Route
+            )
           }
         } else {
           // download file
-          downloadFile(targetFile)
+          onDownloadFile(targetFile)
         }
         break
-      case "end_drag_n_drop":
+      }
+      case "end_drag_n_drop": {
         const target = payload.destination as IFolder
-        console.log("drop ===>", target, files)
+        onMoveFiles(target, state.selectedFiles)
         break
-      case "delete_files":
-        console.log("delete ==>", files)
-        break
-      case "change_selection":
-        setSelectedFiles(files)
+      }
+      case "action_delete_files":
+        setDeleteFiles(state.selectedFiles)
         break
       default:
         break
     }
   }
 
+  const baseRoute = useMemo(() => {
+    if (agentId) {
+      if (isShared) {
+        return `/app/agent-orgs/${agentId}/folders/shared`
+      } else {
+        if (contactId) {
+          // TODO: yuri please update this url based on contact files UI
+          return `/app/agent-orgs/${agentId}/folders/shared`
+        } else {
+          return `/app/agent-orgs/${agentId}/folders/me`
+        }
+      }
+    } else if (contactId) {
+      return `/app/contact-orgs/${contactId}/folders`
+    } else {
+      return ""
+    }
+  }, [agentId, contactId, isShared, forAgentOnly])
+
+  if (isLoading) return <Loading />
+
   return (
     <Stack spacing={2}>
+      <Breadcrumbs>
+        {data?.folder ? (
+          <Link href={`${baseRoute}` as Route}>Root</Link>
+        ) : (
+          <Typography sx={{ color: "secondary.main", fontWeight: 600 }}>
+            Root
+          </Typography>
+        )}
+        {(data?.folder?.parentFolders || []).map((folder) => (
+          <Link key={folder._id} href={`${baseRoute}/${folder._id}` as Route}>
+            {folder.name}
+          </Link>
+        ))}
+        {data?.folder && (
+          <Typography sx={{ color: "secondary.main", fontWeight: 600 }}>
+            {data.folder.name}
+          </Typography>
+        )}
+      </Breadcrumbs>
       <Stack direction="row-reverse" spacing={2}>
         <Stack direction="row" spacing={2} alignItems="center">
           <Button onClick={() => setFolderModalOpen(true)}>
             Create Folder
           </Button>
           <Button onClick={() => setUploadModalOpen(true)}>Upload</Button>
+          <Button
+            onClick={() => {
+              fileBrowserRef.current?.requestFileAction(
+                ChonkyActions.EnableGridView,
+                undefined
+              )
+            }}
+          >
+            Change layout
+          </Button>
         </Stack>
       </Stack>
       <FileBrowser
         ref={fileBrowserRef}
         files={files}
         fileActions={[
-          // deleteFiles,
-          // deleteFolder,
+          deleteFilesAction,
           renameAction,
           createFolderAction,
           uploadFilesAction,
@@ -324,6 +404,15 @@ const FolderPage = ({
         contactId={contactId}
         folderId={folderId}
         file={activeFile}
+      />
+      <DeleteFilesModal
+        open={deleteFiles.length > 0}
+        setOpen={setDeleteFiles}
+        refetch={refetch}
+        isRefetching={isFetching}
+        orgId={orgId}
+        contactId={contactId}
+        files={deleteFiles}
       />
     </Stack>
   )

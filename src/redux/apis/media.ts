@@ -30,7 +30,8 @@ interface IRenameFolderRequest extends IBaseRequest {
 }
 
 interface IMoveFolderRequest extends IBaseRequest {
-  targetFolderId: string
+  folderIds: string[]
+  fileIds: string[]
 }
 
 // files
@@ -88,18 +89,26 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
-    moveFolder: builder.mutation<void, IMoveFolderRequest>({
-      query: ({ orgId, folderId, ...rest }) => ({
+    moveFiles: builder.mutation<void, IMoveFolderRequest>({
+      query: ({ orgId, folderId, contactId, folderIds, fileIds }) => ({
         url: `/${orgId}/folders/${folderId}/move`,
         method: "POST",
-        body: rest,
+        body: {
+          contactId,
+          folderIds,
+          fileIds,
+        },
       }),
     }),
-    deleteFolder: builder.mutation<void, IBaseRequest>({
-      query: ({ orgId, folderId, ...rest }) => ({
-        url: `/${orgId}/folders/${folderId}`,
+    deletefiles: builder.mutation<void, IMoveFolderRequest>({
+      query: ({ orgId, contactId, folderIds, fileIds }) => ({
+        url: `/${orgId}/folders`,
         method: "DELETE",
-        body: rest,
+        body: {
+          contactId,
+          folderIds,
+          fileIds,
+        },
       }),
     }),
 
@@ -152,8 +161,8 @@ export const {
   useCreateFolderMutation,
   useGetFolderQuery,
   useRenameFolderMutation,
-  useMoveFolderMutation,
-  useDeleteFolderMutation,
+  useMoveFilesMutation,
+  useDeletefilesMutation,
 
   useGetUploadFileUrlMutation,
   useStoreFileMutation,

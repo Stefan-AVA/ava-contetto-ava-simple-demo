@@ -57,6 +57,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         flexDirection: "row",
         justifyContent: "space-between",
         borderBottomColor: "gray.300",
+        zIndex: 2,
       }}
     >
       <Stack
