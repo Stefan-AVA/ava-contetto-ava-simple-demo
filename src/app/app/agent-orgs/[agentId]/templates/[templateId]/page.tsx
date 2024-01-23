@@ -42,35 +42,40 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-const dumpTemplate = `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`
+const dumpTemplate = {
+  0: `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`,
+}
 
 export default function Page({ params }: PageParams) {
   const [json, setJson] = useState("")
   const [style, setStyle] = useState(initialStyle)
-  const [canvas, setCanvas] = useState<Canvas | null>(null)
+  const [canvas, setCanvas] = useState<Canvas[]>([])
+  const [currCanvas, setCurrCanvas] = useState(0)
   const [selectedElements, setSelectedElements] = useState<FabricObject[]>([])
 
   const isCreate = params.templateId === "create"
 
+  const selectedCanvas = canvas[currCanvas]
+
   function saveToJSON() {
-    if (!canvas) return
+    const data = {} as Record<string, string>
 
-    const data = canvas.toJSON()
+    canvas.forEach((curr, index) => {
+      data[index] = curr.toJSON()
+    })
 
-    setJson(data)
+    setJson(JSON.stringify(data))
   }
 
   function onClearAll() {
-    if (!canvas) return
-
-    canvas.getObjects().forEach((object) => canvas.remove(object))
-    canvas.discardActiveObject()
-    canvas.renderAll()
+    selectedCanvas
+      .getObjects()
+      .forEach((object) => selectedCanvas.remove(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
   }
 
   function onAddText() {
-    if (!canvas) return
-
     const text = new Textbox("Hello world", {
       fontSize: style.fontSize,
       fontWeight: style.fontWeight,
@@ -79,27 +84,25 @@ export default function Page({ params }: PageParams) {
       lockScalingY: true,
     })
 
-    canvas.add(text)
+    selectedCanvas.add(text)
 
-    canvas.bringObjectToFront(text)
+    selectedCanvas.bringObjectToFront(text)
   }
 
   function onAddCircle() {
-    if (!canvas) return
-
     const circle = new Circle({
       fill: style.backgroundColor,
       stroke: style.borderColor,
       radius: 20,
     })
 
-    canvas.add(circle)
+    selectedCanvas.add(circle)
 
-    canvas.bringObjectToFront(circle)
+    selectedCanvas.bringObjectToFront(circle)
   }
 
   async function onAddImage(files: FileList | null) {
-    if (!canvas || !files || (files && files.length <= 0)) return
+    if (!files || (files && files.length <= 0)) return
 
     const file = files[0]
 
@@ -109,26 +112,20 @@ export default function Page({ params }: PageParams) {
 
     const image = await FabricImage.fromURL(path)
 
-    canvas.add(image)
+    selectedCanvas.add(image)
 
-    canvas.sendObjectToBack(image)
+    selectedCanvas.sendObjectToBack(image)
   }
 
   function onSendToBack() {
-    if (!canvas) return
-
-    canvas.getActiveObjects().forEach((object) => {
-      console.log({ object })
-
-      canvas.sendObjectToBack(object)
-    })
-    canvas.discardActiveObject()
-    canvas.renderAll()
+    selectedCanvas
+      .getActiveObjects()
+      .forEach((object) => selectedCanvas.sendObjectToBack(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
   }
 
   function onAddRectangle() {
-    if (!canvas) return
-
     const rect = new Rect({
       fill: style.backgroundColor,
       width: 40,
@@ -136,35 +133,37 @@ export default function Page({ params }: PageParams) {
       height: 40,
     })
 
-    canvas.add(rect)
+    selectedCanvas.add(rect)
 
-    canvas.bringObjectToFront(rect)
+    selectedCanvas.bringObjectToFront(rect)
   }
 
   const onDeleteElement = useCallback(() => {
-    if (!canvas) return
-
-    canvas.getActiveObjects().forEach((object) => canvas.remove(object))
-    canvas.discardActiveObject()
-    canvas.renderAll()
-  }, [canvas])
+    selectedCanvas
+      .getActiveObjects()
+      .forEach((object) => selectedCanvas.remove(object))
+    selectedCanvas.discardActiveObject()
+    selectedCanvas.renderAll()
+  }, [selectedCanvas])
 
   async function onExportToPDF() {
-    if (!canvas) return
-
-    const dataURL = canvas.toDataURL({
-      top: 0,
-      left: 0,
-      width: canvas.width,
-      height: canvas.height,
-      format: "png",
-      quality: 100,
-      multiplier: 1.0,
-    })
-
     const pdf = new PDF("p", "mm", "a4")
 
-    pdf.addImage(dataURL, "PNG", 10, 10, 190, 190)
+    canvas.forEach((curr, index) => {
+      if (index !== 0) pdf.addPage()
+
+      const dataURL = curr.toDataURL({
+        top: 0,
+        left: 0,
+        width: selectedCanvas.width,
+        height: selectedCanvas.height,
+        format: "png",
+        quality: 100,
+        multiplier: 1.0,
+      })
+
+      pdf.addImage(dataURL, "PNG", 10, 10, 190, 190)
+    })
 
     pdf.save("template.pdf")
   }
@@ -175,7 +174,7 @@ export default function Page({ params }: PageParams) {
   ) {
     setStyle((prev) => ({ ...prev, [key]: value }))
 
-    if (canvas && selectedElements.length > 0) {
+    if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
         if (object.type !== "textbox") {
           if (key === "backgroundColor") object.set({ fill: value })
@@ -190,6 +189,7 @@ export default function Page({ params }: PageParams) {
             "textColor",
             "textAlign",
             "fontFamily",
+            "fontWeight",
             "lineHeight",
           ].includes(key)
         ) {
@@ -209,27 +209,34 @@ export default function Page({ params }: PageParams) {
         }
       })
 
-      canvas.renderAll()
+      selectedCanvas.renderAll()
     }
   }
 
   useEffect(() => {
-    if (canvas && !isCreate) {
+    if (canvas.length > 0 && !isCreate) {
       const run = async () => {
-        const template = JSON.parse(JSON.stringify(dumpTemplate))
+        const templates = JSON.parse(JSON.stringify(dumpTemplate)) as Record<
+          string,
+          string
+        >
 
-        await canvas.loadFromJSON(template)
+        Object.entries(templates).forEach(async ([key, value]) => {
+          const selectedCanvas = canvas[Number(key)]
 
-        canvas.selection = false
+          await selectedCanvas.loadFromJSON(value)
 
-        canvas.forEachObject((object) => {
-          object.hasControls = false
-          object.lockRotation = true
-          object.lockMovementX = true
-          object.lockMovementY = true
+          selectedCanvas.selection = false
+
+          selectedCanvas.forEachObject((object) => {
+            object.hasControls = false
+            object.lockRotation = true
+            object.lockMovementX = true
+            object.lockMovementY = true
+          })
+
+          selectedCanvas.renderAll()
         })
-
-        canvas.renderAll()
       }
 
       run()
@@ -238,12 +245,10 @@ export default function Page({ params }: PageParams) {
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
-      if (canvas) {
-        if (key === "Escape") canvas.discardActiveObject()
-        if (key === "Backspace") onDeleteElement()
+      if (key === "Escape") selectedCanvas.discardActiveObject()
+      if (key === "Backspace") onDeleteElement()
 
-        canvas.renderAll()
-      }
+      selectedCanvas.renderAll()
     }
 
     document.addEventListener("keydown", keyboard)
@@ -251,7 +256,7 @@ export default function Page({ params }: PageParams) {
     return () => {
       document.removeEventListener("keydown", keyboard)
     }
-  }, [canvas, onDeleteElement])
+  }, [selectedCanvas, onDeleteElement])
 
   return (
     <Container sx={{ display: "flex", flexDirection: "column" }}>
@@ -429,6 +434,9 @@ export default function Page({ params }: PageParams) {
 
       <FabricCanvas
         onCanvas={setCanvas}
+        currCanvas={currCanvas}
+        onCurrCanvas={setCurrCanvas}
+        numberOfPages={3}
         onSelectedElements={setSelectedElements}
       />
 
@@ -442,7 +450,9 @@ export default function Page({ params }: PageParams) {
 
       {json && (
         <Box sx={{ p: 4, mt: 2, bgcolor: "gray.200", borderRadius: 2 }}>
-          <Typography>{JSON.stringify(json, undefined, 2)}</Typography>
+          <Typography sx={{ wordBreak: "break-word" }}>
+            {JSON.stringify(json, undefined, 2)}
+          </Typography>
         </Box>
       )}
     </Container>
