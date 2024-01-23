@@ -50,6 +50,18 @@ interface IStoreFileRequest extends IBaseRequest {
   size: number
 }
 
+interface IGetDownloadFileUrlRequest extends IBaseRequest {
+  fileId: string
+}
+interface IGetDownloadFileUrlResponse {
+  url: string
+}
+
+interface IRenameFileRequest extends IBaseRequest {
+  fileId: string
+  name: string
+}
+
 export const mediaApi = createApi({
   reducerPath: "mediaApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -109,6 +121,30 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
+    getDownloadFileUrl: builder.mutation<
+      IGetDownloadFileUrlResponse,
+      IGetDownloadFileUrlRequest
+    >({
+      query: ({ orgId, contactId, folderId, fileId }) => ({
+        url: `/${orgId}/files/${fileId}/download-url`,
+        method: "POST",
+        body: {
+          contactId,
+          folderId,
+        },
+      }),
+    }),
+    renameFile: builder.mutation<void, IRenameFileRequest>({
+      query: ({ orgId, contactId, folderId, fileId, name }) => ({
+        url: `/${orgId}/files/${fileId}/rename`,
+        method: "PUT",
+        body: {
+          name,
+          contactId,
+          folderId,
+        },
+      }),
+    }),
   }),
 })
 
@@ -121,4 +157,6 @@ export const {
 
   useGetUploadFileUrlMutation,
   useStoreFileMutation,
+  useGetDownloadFileUrlMutation,
+  useRenameFileMutation,
 } = mediaApi

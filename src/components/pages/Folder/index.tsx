@@ -2,7 +2,10 @@
 
 import { memo, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useGetFolderQuery } from "@/redux/apis/media"
+import {
+  useGetDownloadFileUrlMutation,
+  useGetFolderQuery,
+} from "@/redux/apis/media"
 import {
   ChonkyActions,
   ChonkyIconName,
@@ -17,9 +20,11 @@ import {
 } from "@aperturerobotics/chonky"
 import { Button, Stack } from "@mui/material"
 import { Edit, File, FileUp, Folder, FolderPlus, Trash } from "lucide-react"
+import { useSnackbar } from "notistack"
 
 import { IFile, IFolder } from "@/types/folder.types"
 
+import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
 import UploadFilesModal from "./UploadFilesModal"
 
@@ -64,11 +69,13 @@ const FolderPage = ({
 }: IProps) => {
   const fileBrowserRef = useRef<FileBrowserHandle>(null)
   const { push } = useRouter()
+  const { enqueueSnackbar } = useSnackbar()
 
   const [selectedFiles, setSelectedFiles] = useState<ChonkyFile[]>([])
   const [activeFolder, setActiveFolder] = useState<IFolder | undefined>(
     undefined
   )
+  const [activeFile, setActiveFile] = useState<IFile | undefined>(undefined)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
@@ -76,6 +83,7 @@ const FolderPage = ({
     { orgId, contactId, isShared, forAgentOnly, folderId },
     { skip: !orgId }
   )
+  const [getDwonloadFileUrl] = useGetDownloadFileUrlMutation()
 
   const files = useMemo(
     () =>
@@ -92,6 +100,7 @@ const FolderPage = ({
     [data]
   )
 
+  // define custom actions
   // const deleteFiles = defineFileAction({
   //   id: "delete_files",
   //   requiresSelection: true,
@@ -112,8 +121,8 @@ const FolderPage = ({
   //     icon: ChonkyIconName.trash,
   //   },
   // })
-  const rename = defineFileAction({
-    id: "rename",
+  const renameAction = defineFileAction({
+    id: "action_rename",
     selectionTransform: () => {
       const set = new Set<string>()
       if (selectedFiles.length > 0) {
@@ -138,8 +147,8 @@ const FolderPage = ({
       icon: "Edit",
     },
   })
-  const createFolder = defineFileAction({
-    id: "create_folder",
+  const createFolderAction = defineFileAction({
+    id: "action_create_folder",
     requiresSelection: false,
     selectionTransform: () => {
       const set = new Set<string>()
@@ -158,8 +167,8 @@ const FolderPage = ({
       icon: ChonkyIconName.folderCreate,
     },
   })
-  const uploadFiles = defineFileAction({
-    id: "upload_files",
+  const uploadFilesAction = defineFileAction({
+    id: "action_upload_files",
     requiresSelection: false,
     selectionTransform: () => {
       const set = new Set<string>()
@@ -179,17 +188,34 @@ const FolderPage = ({
     },
   })
 
+  const downloadFile = async (file: ChonkyFile) => {
+    try {
+      const { url } = await getDwonloadFileUrl({
+        orgId,
+        contactId,
+        folderId,
+        fileId: file._id,
+      }).unwrap()
+
+      window.open(url, "_blank")
+    } catch (error) {
+      enqueueSnackbar("Something is wrong can't donwload file", {
+        variant: "error",
+      })
+    }
+  }
+
   const onFileAction = (data: MapFileActionsToData<any>) => {
     const { id, payload, state } = data
     // console.log(id)
     const files = state.selectedFiles
     console.log(data)
     switch (id) {
-      case "create_folder":
+      case "action_create_folder":
         setFolderModalOpen(true)
         setActiveFolder(undefined)
         break
-      case "rename":
+      case "action_rename":
         const file = selectedFiles[0]
         if (file) {
           if (file.isDir) {
@@ -198,15 +224,12 @@ const FolderPage = ({
             setActiveFolder(file)
           } else {
             // rename file
+            setActiveFile(file as IFile)
           }
         }
         break
-      case "upload_files":
+      case "action_upload_files":
         setUploadModalOpen(true)
-        break
-      case "end_drag_n_drop":
-        const target = payload.destination as IFolder
-        console.log("drop ===>", target, files)
         break
       case "open_files":
         const targetFile = payload.targetFile
@@ -222,8 +245,12 @@ const FolderPage = ({
           }
         } else {
           // download file
-          console.log("download file")
+          downloadFile(targetFile)
         }
+        break
+      case "end_drag_n_drop":
+        const target = payload.destination as IFolder
+        console.log("drop ===>", target, files)
         break
       case "delete_files":
         console.log("delete ==>", files)
@@ -252,9 +279,9 @@ const FolderPage = ({
         fileActions={[
           // deleteFiles,
           // deleteFolder,
-          rename,
-          createFolder,
-          uploadFiles,
+          renameAction,
+          createFolderAction,
+          uploadFilesAction,
         ]}
         clearSelectionOnOutsideClick
         onFileAction={onFileAction}
@@ -287,6 +314,16 @@ const FolderPage = ({
         folderId={folderId}
         isShared={isShared}
         forAgentOnly={forAgentOnly}
+      />
+      <FileModal
+        open={!!activeFile}
+        setOpen={setActiveFile}
+        refetch={refetch}
+        isRefetching={isFetching}
+        orgId={orgId}
+        contactId={contactId}
+        folderId={folderId}
+        file={activeFile}
       />
     </Stack>
   )

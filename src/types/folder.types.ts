@@ -17,4 +17,5 @@ export interface IFile extends IFolder {
   ext: string
   mimetype: string
   size: number // byte
+  timestamp: number
 }
