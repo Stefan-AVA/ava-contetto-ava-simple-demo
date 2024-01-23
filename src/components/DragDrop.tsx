@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { Box, Typography } from "@mui/material"
+import { PropsWithChildren, useCallback, useEffect, useState } from "react"
+import { Box, SxProps, Theme, Typography } from "@mui/material"
 import { useDropzone, type DropzoneOptions } from "react-dropzone"
 
 export interface IDragDropProps
@@ -13,6 +13,7 @@ export interface IDragDropProps
   height?: number | string
   width?: number | string
   circle?: boolean
+  sx?: SxProps<Theme>
 }
 
 const DragDrop = ({
@@ -25,7 +26,9 @@ const DragDrop = ({
   height,
   width,
   circle,
-}: IDragDropProps) => {
+  sx,
+  children,
+}: PropsWithChildren<IDragDropProps>) => {
   const [error, setError] = useState("")
 
   const onDrop = useCallback(
@@ -62,6 +65,7 @@ const DragDrop = ({
         ":hover": {
           cursor: "pointer",
         },
+        ...sx,
       }}
     >
       <input {...getInputProps()} />
@@ -76,6 +80,8 @@ const DragDrop = ({
           {dragInactiveText || ""}
         </Typography>
       )}
+
+      {children}
     </Box>
   )
 }

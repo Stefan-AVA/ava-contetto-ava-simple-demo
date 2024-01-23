@@ -10,7 +10,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "overrides": {
+    "react": "$react"
+  },
   "dependencies": {
+    "@aperturerobotics/chonky": "^0.2.7",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",

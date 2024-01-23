@@ -4,7 +4,7 @@
   border: inherit;
   border-width: 0;
   border-style: solid;
-  border-color: theme('borderColor.DEFAULT', currentColor);
+  border-color: theme("borderColor.DEFAULT", currentColor);
 }
 
 a {
@@ -43,7 +43,7 @@ iframe,
 embed,
 object {
   display: block;
-  vertical-align: middle;
+  /* vertical-align: middle; */
 }
 
 ol,
@@ -67,4 +67,18 @@ pre,
 figure,
 blockquote {
   margin: 0;
+}
+
+.chonky-chonkyRoot {
+  min-height: calc(100vh - 300px);
+  height: auto;
+}
+
+span[class*="gridFileEntryName"] {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-bottom: 0;
 }

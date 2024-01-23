@@ -9,6 +9,7 @@ import {
 import { agentApi } from "./apis/agent"
 import { authApi } from "./apis/auth"
 import { cityApi } from "./apis/city"
+import { mediaApi } from "./apis/media"
 import { messageApi } from "./apis/message"
 import { orgApi } from "./apis/org"
 import { roomApi } from "./apis/room"
@@ -27,6 +28,7 @@ export const store = configureStore({
     [cityApi.reducerPath]: cityApi.reducer,
     [roomApi.reducerPath]: roomApi.reducer,
     [messageApi.reducerPath]: messageApi.reducer,
+    [mediaApi.reducerPath]: mediaApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -36,7 +38,8 @@ export const store = configureStore({
       searchApi.middleware,
       cityApi.middleware,
       roomApi.middleware,
-      messageApi.middleware
+      messageApi.middleware,
+      mediaApi.middleware
     ),
 })
 
