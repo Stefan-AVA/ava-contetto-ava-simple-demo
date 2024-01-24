@@ -22,7 +22,15 @@ import {
   MapFileActionsToData,
 } from "@aperturerobotics/chonky"
 import { Breadcrumbs, Button, Stack, Typography } from "@mui/material"
-import { Edit, File, FileUp, Folder, FolderPlus, Trash } from "lucide-react"
+import {
+  Edit,
+  File,
+  FileUp,
+  Folder,
+  FolderPlus,
+  Share,
+  Trash,
+} from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IFile, IFolder } from "@/types/folder.types"
@@ -43,6 +51,8 @@ const CustomIcon = (props: ChonkyIconProps) => {
       return <FolderPlus />
     case ChonkyIconName.upload:
       return <FileUp />
+    case ChonkyIconName.share:
+      return <Share />
     case "Edit":
       return <Edit />
     default:
@@ -191,6 +201,23 @@ const FolderPage = ({
       icon: ChonkyIconName.upload,
     },
   })
+  const shareFilesAction = defineFileAction({
+    id: "action_share_files",
+    requiresSelection: true,
+    customVisibility: () => {
+      return isShared || contactId || selectedFiles.length === 0
+        ? CustomVisibilityState.Hidden
+        : selectedFiles.find((f) => f.isDir)
+          ? CustomVisibilityState.Disabled
+          : CustomVisibilityState.Default
+    },
+    button: {
+      name: "Share files",
+      toolbar: true,
+      contextMenu: true,
+      icon: ChonkyIconName.share,
+    },
+  })
 
   const onDownloadFile = async (file: ChonkyFile) => {
     try {
@@ -289,6 +316,9 @@ const FolderPage = ({
       case "action_delete_files":
         setDeleteFiles(state.selectedFiles)
         break
+      case "action_share_files":
+        // TODO: open select contact modal and implement share function
+        break
       default:
         break
     }
@@ -362,6 +392,7 @@ const FolderPage = ({
           renameAction,
           createFolderAction,
           uploadFilesAction,
+          shareFilesAction,
         ]}
         clearSelectionOnOutsideClick
         onFileAction={onFileAction}
