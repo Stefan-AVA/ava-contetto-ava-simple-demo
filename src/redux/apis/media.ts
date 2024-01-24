@@ -63,6 +63,12 @@ interface IRenameFileRequest extends IBaseRequest {
   name: string
 }
 
+interface IShareFilesRequest {
+  orgId: string
+  contactId: string
+  fileIds: string[]
+}
+
 export const mediaApi = createApi({
   reducerPath: "mediaApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -151,6 +157,16 @@ export const mediaApi = createApi({
           name,
           contactId,
           folderId,
+        },
+      }),
+    }),
+    shareFiles: builder.mutation<void, IShareFilesRequest>({
+      query: ({ orgId, contactId, fileIds }) => ({
+        url: `/${orgId}/files/share`,
+        method: "POST",
+        body: {
+          contactId,
+          fileIds,
         },
       }),
     }),
