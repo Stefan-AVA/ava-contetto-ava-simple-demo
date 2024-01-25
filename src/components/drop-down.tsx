@@ -24,7 +24,7 @@ export default function Dropdown({
 
   return (
     <>
-      <Box ref={ancherRef} {...rest}>
+      <Box sx={{ display: "flex" }} ref={ancherRef} {...rest}>
         {ancher}
       </Box>
       <Popover
