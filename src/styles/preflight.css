@@ -70,8 +70,9 @@ blockquote {
 }
 
 .chonky-chonkyRoot {
-  min-height: calc(100vh - 300px);
   height: auto;
+  border: none !important;
+  min-height: calc(100vh - 300px);
 }
 
 span[class*="gridFileEntryName"] {

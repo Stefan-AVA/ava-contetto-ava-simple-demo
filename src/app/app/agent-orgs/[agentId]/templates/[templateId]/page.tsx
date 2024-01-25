@@ -245,6 +245,8 @@ export default function Page({ params }: PageParams) {
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
+      if (selectedElements.length > 0) return
+
       if (key === "Escape") selectedCanvas.discardActiveObject()
       if (key === "Backspace") onDeleteElement()
 
@@ -256,10 +258,16 @@ export default function Page({ params }: PageParams) {
     return () => {
       document.removeEventListener("keydown", keyboard)
     }
-  }, [selectedCanvas, onDeleteElement])
+  }, [selectedCanvas, onDeleteElement, selectedElements])
 
   return (
-    <Container sx={{ display: "flex", flexDirection: "column" }}>
+    <Container
+      sx={{
+        px: { xs: 0, sm: 3 },
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,500;6..12,600;6..12,700&family=Open+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
@@ -270,14 +278,24 @@ export default function Page({ params }: PageParams) {
         <Stack
           sx={{
             mb: 5,
-            gap: 2,
+            gap: {
+              xs: 1,
+              sm: 2,
+            },
+            flexWrap: "wrap",
             alignItems: "center",
             flexDirection: "row",
           }}
         >
-          <Button size="small" onClick={onAddText} variant="outlined">
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onAddText}
+            variant="outlined"
+          >
             Add text
           </Button>
+
           <Box sx={{ position: "relative" }}>
             <Box
               sx={{
@@ -292,23 +310,57 @@ export default function Page({ params }: PageParams) {
               component="input"
             />
 
-            <Button size="small" variant="outlined">
+            <Button
+              sx={{ whiteSpace: "nowrap" }}
+              size="small"
+              variant="outlined"
+            >
               Add Image
             </Button>
           </Box>
-          <Button size="small" onClick={onAddCircle} variant="outlined">
+
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onAddCircle}
+            variant="outlined"
+          >
             Add circle
           </Button>
-          <Button size="small" onClick={onAddRectangle} variant="outlined">
+
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onAddRectangle}
+            variant="outlined"
+          >
             Add Rectangle
           </Button>
-          <Button size="small" onClick={onSendToBack} variant="outlined">
+
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onSendToBack}
+            variant="outlined"
+          >
             Send to back
           </Button>
-          <Button size="small" onClick={onDeleteElement} variant="outlined">
+
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onDeleteElement}
+            variant="outlined"
+          >
             Delete element
           </Button>
-          <Button size="small" onClick={onClearAll} variant="outlined">
+
+          <Button
+            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            onClick={onClearAll}
+            variant="outlined"
+          >
             Clear all
           </Button>
         </Stack>
@@ -317,7 +369,11 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{
           mb: 2,
-          gap: 2,
+          gap: {
+            xs: 1,
+            sm: 2,
+          },
+          flexWrap: "wrap",
           alignItems: "center",
           flexDirection: "row",
         }}
@@ -396,7 +452,11 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{
           mb: 5,
-          gap: 2,
+          gap: {
+            xs: 1,
+            sm: 2,
+          },
+          flexWrap: "wrap",
           alignItems: "center",
           flexDirection: "row",
         }}

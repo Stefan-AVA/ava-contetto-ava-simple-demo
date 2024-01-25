@@ -8,9 +8,9 @@ import {
   useLazySearchQuery,
 } from "@/redux/apis/search"
 import { parseError } from "@/utils/error"
+import { LoadingButton } from "@mui/lab"
 import {
   Autocomplete,
-  Box,
   CircularProgress,
   Unstable_Grid2 as Grid,
   InputAdornment,
@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material"
 import AvaNotFoundImage from "~/assets/ava-not-found.png"
-import { Search as SearchIcon } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import type { ICity } from "@/types/city.types"
@@ -416,33 +416,19 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
               InputProps={{ type: "number" }}
             />
 
-            <Stack sx={{ ml: { xs: "auto", lg: 0 }, alignItems: "center" }}>
-              {(isLoading || isFetching) && <CircularProgress size="1.25rem" />}
-
-              {!(isLoading || isFetching) && (
-                <button onClick={onSearch}>
-                  <Box
-                    sx={{
-                      color: "primary.main",
-                      transition: "all .3s ease-in-out",
-
-                      ":hover": {
-                        color: "primary.dark",
-                      },
-                    }}
-                    size={20}
-                    component={SearchIcon}
-                  />
-                </button>
-              )}
-            </Stack>
-
-            <SearchForm
-              orgId={orgId}
-              agentId={agentId}
-              contactId={contactId}
-              searchResult={searchResult}
-            />
+            <LoadingButton
+              sx={{
+                width: "2.5rem",
+                height: "2.5rem",
+                minWidth: "auto",
+                borderRadius: "50%",
+              }}
+              size="small"
+              onClick={onSearch}
+              loading={isLoading || isFetching}
+            >
+              <ChevronRight />
+            </LoadingButton>
           </Stack>
         </Stack>
 
@@ -498,7 +484,14 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
 
       {properties && properties.length > 0 && (
         <>
-          <Grid sx={{ mt: 3 }} container spacing={4}>
+          <SearchForm
+            orgId={orgId}
+            agentId={agentId}
+            contactId={contactId}
+            searchResult={searchResult}
+          />
+
+          <Grid sx={{ mt: 1 }} container spacing={4}>
             {properties.map((property) => (
               <Grid xs={12} sm={6} md={4} xl={3} key={property._id}>
                 <Property
