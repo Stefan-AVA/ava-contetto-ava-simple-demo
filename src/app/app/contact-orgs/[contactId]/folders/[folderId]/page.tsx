@@ -25,7 +25,7 @@ const Page = ({ params }: PageProps) => {
   return (
     <FolderPage
       orgId={String(contact?.orgId)}
-      agentId={contactId}
+      contactId={contactId}
       folderId={folderId}
     />
   )

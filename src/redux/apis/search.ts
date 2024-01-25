@@ -8,6 +8,7 @@ import { IBaseResponse } from "./auth"
 
 interface ISearchRequest {
   orgId: string
+  agentId?: string
   search?: string
   cityId: string
   range: string
@@ -30,6 +31,7 @@ interface IGetProperyRequest {
 interface IGetSearchResultsRequest {
   orgId: string
   contactId?: string
+  agentId?: string
 }
 
 interface IGetSearchResultRequest {
@@ -72,10 +74,11 @@ export const searchApi = createApi({
       invalidatesTags: ["Searches"],
     }),
     getSearchResults: builder.query<ISearchResult[], IGetSearchResultsRequest>({
-      query: ({ orgId, contactId }) => ({
+      query: ({ orgId, agentId, contactId }) => ({
         url: `/${orgId}/search-results`,
         method: "GET",
         params: {
+          agentId,
           contactId,
         },
       }),

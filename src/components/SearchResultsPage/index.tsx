@@ -14,7 +14,7 @@ interface IProps {
 
 const SearchResultsPage = ({ orgId, agentId, contactId }: IProps) => {
   const { data: results = [], isLoading } = useGetSearchResultsQuery(
-    { orgId, contactId },
+    { orgId, agentId, contactId },
     { skip: !orgId }
   )
 

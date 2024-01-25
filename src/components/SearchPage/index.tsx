@@ -221,6 +221,7 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
         const params = advancedModal
           ? {
               orgId,
+              agentId,
               contactId,
 
               cityId: form.city?._id,
@@ -265,6 +266,7 @@ const SearchPage = ({ orgId, agentId, contactId, searchId }: ISearch) => {
             }
           : {
               orgId,
+              agentId,
               contactId,
 
               cityId: form.city?._id,
