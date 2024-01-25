@@ -7,8 +7,11 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
-import { Box, Stack } from "@mui/material"
+import { Box, Stack, useMediaQuery } from "@mui/material"
+import { useTheme } from "@mui/material/styles"
 import { Canvas, type CanvasOptions, type FabricObject } from "fabric"
+
+import useWindowSize from "@/hooks/use-window-size"
 
 interface FabricCanvasProps {
   onCanvas: Dispatch<SetStateAction<Canvas[]>>
@@ -27,6 +30,12 @@ export default function FabricCanvas({
 }: FabricCanvasProps) {
   const ref = useRef<HTMLCanvasElement[]>([])
 
+  const theme = useTheme()
+
+  const { width } = useWindowSize()
+
+  const matches = useMediaQuery(theme.breakpoints.up("lg"))
+
   const pages = useMemo(
     () => Array.from(Array(numberOfPages), (_, x) => x),
     [numberOfPages]
@@ -34,7 +43,7 @@ export default function FabricCanvas({
 
   useEffect(() => {
     const options: Partial<CanvasOptions> = {
-      width: 640,
+      width: matches ? 640 : width - 32,
       height: 640,
     }
 
@@ -77,7 +86,7 @@ export default function FabricCanvas({
 
       onSelectedElements([])
     }
-  }, [pages, onCanvas, onSelectedElements])
+  }, [pages, width, matches, onCanvas, onSelectedElements])
 
   return (
     <Stack
