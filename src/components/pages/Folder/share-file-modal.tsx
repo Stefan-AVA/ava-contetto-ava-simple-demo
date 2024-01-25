@@ -24,10 +24,14 @@ import { X } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import type { IContact } from "@/types/contact.types"
+import { IFile } from "@/types/folder.types"
 
 interface ShareFileModalProps {
   open: boolean
-  onClose: () => void
+  setOpen: Function
+  orgId: string
+  agentId?: string
+  file: IFile
 }
 
 interface IOption extends Partial<IContact> {
@@ -45,7 +49,7 @@ const initialForm = {
   permission: permissions[1],
 }
 
-export default function ShareFileModal({ open, onClose }: ShareFileModalProps) {
+export default function ShareFileModal({ open, setOpen }: ShareFileModalProps) {
   const [form, setForm] = useState(initialForm)
 
   const { agentId } = useParams()
@@ -74,6 +78,11 @@ export default function ShareFileModal({ open, onClose }: ShareFileModalProps) {
 
   function share() {
     console.log({ form })
+  }
+
+  const onClose = () => {
+    setForm(initialForm)
+    setOpen(undefined)
   }
 
   return (

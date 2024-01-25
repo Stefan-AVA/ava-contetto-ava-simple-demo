@@ -39,7 +39,7 @@ import Loading from "@/components/Loading"
 import DeleteFilesModal from "./DeleteFilesModal"
 import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
-// import ShareFileModal from "./share-file-modal"
+import ShareFileModal from "./share-file-modal"
 import UploadFilesModal from "./UploadFilesModal"
 
 const CustomIcon = (props: ChonkyIconProps) => {
@@ -93,6 +93,9 @@ const FolderPage = ({
     undefined
   )
   const [activeFile, setActiveFile] = useState<IFile | undefined>(undefined)
+  const [activeShareFile, setActiveShareFile] = useState<IFile | undefined>(
+    undefined
+  )
   const [deleteFiles, setDeleteFiles] = useState<ChonkyFile[]>([])
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
@@ -213,12 +216,12 @@ const FolderPage = ({
     customVisibility: () => {
       return isShared || contactId || selectedFiles.length === 0
         ? CustomVisibilityState.Hidden
-        : selectedFiles.find((f) => f.isDir)
+        : selectedFiles.length > 1 || selectedFiles.find((f) => f.isDir)
           ? CustomVisibilityState.Disabled
           : CustomVisibilityState.Default
     },
     button: {
-      name: "Share files",
+      name: "Share file",
       toolbar: true,
       contextMenu: true,
       icon: ChonkyIconName.share,
@@ -325,7 +328,10 @@ const FolderPage = ({
         setDeleteFiles(state.selectedFiles)
         break
       case "action_share_files":
-        // TODO: open select contact modal and implement share function
+        const file = selectedFiles[0]
+        if (file && !file.isDir) {
+          setActiveShareFile(file as IFile)
+        }
         break
       default:
         break
@@ -470,7 +476,15 @@ const FolderPage = ({
         files={deleteFiles}
       />
 
-      {/* <ShareFileModal open={true} onClose={() => {}} /> */}
+      {agentId && (
+        <ShareFileModal
+          open={!!activeShareFile}
+          setOpen={setActiveShareFile}
+          orgId={orgId}
+          agentId={agentId}
+          file={activeShareFile!}
+        />
+      )}
     </Stack>
   )
 }
