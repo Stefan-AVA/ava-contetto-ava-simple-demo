@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -39,6 +39,7 @@ import Loading from "@/components/Loading"
 import DeleteFilesModal from "./DeleteFilesModal"
 import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
+// import ShareFileModal from "./share-file-modal"
 import UploadFilesModal from "./UploadFilesModal"
 
 const CustomIcon = (props: ChonkyIconProps) => {
@@ -83,6 +84,7 @@ const FolderPage = ({
   forAgentOnly = false, // we may need this param later, but based on figma, we may not need this for now
 }: IProps) => {
   const fileBrowserRef = useRef<FileBrowserHandle>(null)
+
   const { push } = useRouter()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -135,6 +137,7 @@ const FolderPage = ({
       icon: ChonkyIconName.trash,
     },
   })
+
   const renameAction = defineFileAction({
     id: "action_rename",
     selectionTransform: () => {
@@ -161,6 +164,7 @@ const FolderPage = ({
       icon: "Edit",
     },
   })
+
   const createFolderAction = defineFileAction({
     id: "action_create_folder",
     requiresSelection: false,
@@ -181,6 +185,7 @@ const FolderPage = ({
       icon: ChonkyIconName.folderCreate,
     },
   })
+
   const uploadFilesAction = defineFileAction({
     id: "action_upload_files",
     requiresSelection: false,
@@ -201,6 +206,7 @@ const FolderPage = ({
       icon: ChonkyIconName.upload,
     },
   })
+
   const shareFilesAction = defineFileAction({
     id: "action_share_files",
     requiresSelection: true,
@@ -346,33 +352,41 @@ const FolderPage = ({
   if (isLoading) return <Loading />
 
   return (
-    <Stack spacing={2}>
-      <Breadcrumbs>
-        {data?.folder ? (
-          <Link href={`${baseRoute}` as Route}>Root</Link>
-        ) : (
-          <Typography sx={{ color: "secondary.main", fontWeight: 600 }}>
-            Root
-          </Typography>
-        )}
-        {(data?.folder?.parentFolders || []).map((folder) => (
-          <Link key={folder._id} href={`${baseRoute}/${folder._id}` as Route}>
-            {folder.name}
-          </Link>
-        ))}
-        {data?.folder && (
-          <Typography sx={{ color: "secondary.main", fontWeight: 600 }}>
-            {data.folder.name}
-          </Typography>
-        )}
-      </Breadcrumbs>
-      <Stack direction="row-reverse" spacing={2}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Button onClick={() => setFolderModalOpen(true)}>
+    <Stack>
+      <Stack
+        sx={{
+          gap: 3,
+          flexWrap: "wrap",
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Breadcrumbs>
+          {data?.folder && <Link href={`${baseRoute}` as Route}>Root</Link>}
+
+          {(data?.folder?.parentFolders || []).map((folder) => (
+            <Link key={folder._id} href={`${baseRoute}/${folder._id}` as Route}>
+              {folder.name}
+            </Link>
+          ))}
+
+          {data?.folder && (
+            <Typography sx={{ color: "secondary.main", fontWeight: 600 }}>
+              {data.folder.name}
+            </Typography>
+          )}
+        </Breadcrumbs>
+
+        <Stack direction="row" gap={2} alignItems="center">
+          <Button size="small" onClick={() => setFolderModalOpen(true)}>
             Create Folder
           </Button>
-          <Button onClick={() => setUploadModalOpen(true)}>Upload</Button>
+          <Button size="small" onClick={() => setUploadModalOpen(true)}>
+            Upload
+          </Button>
           <Button
+            size="small"
             onClick={() => {
               fileBrowserRef.current?.requestFileAction(
                 ChonkyActions.EnableGridView,
@@ -384,6 +398,7 @@ const FolderPage = ({
           </Button>
         </Stack>
       </Stack>
+
       <FileBrowser
         ref={fileBrowserRef}
         files={files}
@@ -415,6 +430,7 @@ const FolderPage = ({
         forAgentOnly={forAgentOnly}
         folder={activeFolder}
       />
+
       <UploadFilesModal
         open={uploadModalOpen}
         setOpen={setUploadModalOpen}
@@ -426,6 +442,7 @@ const FolderPage = ({
         isShared={isShared}
         forAgentOnly={forAgentOnly}
       />
+
       <FileModal
         open={!!activeFile}
         setOpen={setActiveFile}
@@ -436,6 +453,7 @@ const FolderPage = ({
         folderId={folderId}
         file={activeFile}
       />
+
       <DeleteFilesModal
         open={deleteFiles.length > 0}
         setOpen={setDeleteFiles}
@@ -445,6 +463,8 @@ const FolderPage = ({
         contactId={contactId}
         files={deleteFiles}
       />
+
+      {/* <ShareFileModal open={true} onClose={() => {}} /> */}
     </Stack>
   )
 }

@@ -4,7 +4,7 @@ import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import type { RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
-import { LayoutDashboardIcon, Search } from "lucide-react"
+import { FolderHeart, LayoutDashboardIcon, Search } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import Sidebar from "@/components/sidebar"
@@ -35,6 +35,12 @@ export default function Layout({ children }: PropsWithChildren) {
         path: `/app/contact-orgs/${contactId}/search-results`,
         icon: <Search />,
         active: pathName.includes("search-results"),
+      },
+      {
+        path: `/app/contact-orgs/${contactId}/folders`,
+        icon: <FolderHeart />,
+        label: "Files",
+        active: pathName.includes("folders"),
       },
     ],
     [pathName, contactId]

@@ -11,8 +11,6 @@ import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
 import {
   Autocomplete,
-  Box,
-  Button,
   CircularProgress,
   Unstable_Grid2 as Grid,
   InputAdornment,
@@ -25,7 +23,7 @@ import {
   Typography,
 } from "@mui/material"
 import AvaNotFoundImage from "~/assets/ava-not-found.png"
-import { ChevronRight, Search as SearchIcon } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import type { ICity } from "@/types/city.types"
