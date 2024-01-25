@@ -13,6 +13,8 @@ interface IProps {
   orgId: string
   agentId?: string
   contactId?: string
+  isShared: boolean
+  forAgentOnly: boolean
   open: boolean
   setOpen: Function
   refetch: Function
@@ -29,6 +31,8 @@ const DeleteFilesModal = ({
   agentId,
   contactId,
   files,
+  isShared = true,
+  forAgentOnly = false,
 
   open,
   setOpen,
@@ -63,6 +67,8 @@ const DeleteFilesModal = ({
         contactId,
         folderIds: files.filter((file) => file.isDir).map((file) => file._id),
         fileIds: files.filter((file) => !file.isDir).map((file) => file._id),
+        isShared,
+        forAgentOnly,
       })
 
       await refetch()

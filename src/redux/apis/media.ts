@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IFile, IFolder } from "@/types/folder.types"
+import { FilePermission, IFile, IFolder } from "@/types/folder.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
 
@@ -8,10 +8,10 @@ interface IBaseRequest {
   orgId: string
   agentId?: string
   contactId?: string
-  folderId?: string
 }
 
 interface IGetFolderRequest extends IBaseRequest {
+  folderId?: string
   isShared: boolean
   forAgentOnly: boolean
 }
@@ -22,15 +22,29 @@ interface IGetFolderResponse {
   files: IFile[]
 }
 
-interface ICreateFolderRequest extends IGetFolderRequest {
+interface ICreateFolderRequest extends IBaseRequest {
+  folderId?: string
+  isShared: boolean
+  forAgentOnly: boolean
   name: string
 }
 
 interface IRenameFolderRequest extends IBaseRequest {
+  folderId: string
   name: string
 }
 
-interface IMoveFolderRequest extends IBaseRequest {
+interface IMoveFilesRequest extends IBaseRequest {
+  folderId: string
+  isShared: boolean
+  forAgentOnly: boolean
+  folderIds: string[]
+  fileIds: string[]
+}
+
+interface IDeleteFilesRequest extends IBaseRequest {
+  isShared: boolean
+  forAgentOnly: boolean
   folderIds: string[]
   fileIds: string[]
 }
@@ -45,6 +59,7 @@ interface IGetUploadFileUrlResponse {
 }
 
 interface IStoreFileRequest extends IBaseRequest {
+  folderId?: string
   name: string
   isShared: boolean
   forAgentOnly: boolean
@@ -54,6 +69,8 @@ interface IStoreFileRequest extends IBaseRequest {
 
 interface IGetDownloadFileUrlRequest extends IBaseRequest {
   fileId: string
+  isShared: boolean
+  forAgentOnly: boolean
 }
 interface IGetDownloadFileUrlResponse {
   url: string
@@ -62,12 +79,15 @@ interface IGetDownloadFileUrlResponse {
 interface IRenameFileRequest extends IBaseRequest {
   fileId: string
   name: string
+  isShared: boolean
+  forAgentOnly: boolean
 }
 
 interface IShareFilesRequest {
   orgId: string
-  contactId: string
-  fileIds: string[]
+  fileId: string
+  contactIds: string[]
+  permission: FilePermission
 }
 
 export const mediaApi = createApi({
@@ -96,26 +116,18 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
-    moveFiles: builder.mutation<void, IMoveFolderRequest>({
-      query: ({ orgId, folderId, contactId, folderIds, fileIds }) => ({
+    moveFiles: builder.mutation<void, IMoveFilesRequest>({
+      query: ({ orgId, folderId, ...rest }) => ({
         url: `/${orgId}/folders/${folderId}/move`,
         method: "POST",
-        body: {
-          contactId,
-          folderIds,
-          fileIds,
-        },
+        body: rest,
       }),
     }),
-    deletefiles: builder.mutation<void, IMoveFolderRequest>({
-      query: ({ orgId, contactId, folderIds, fileIds }) => ({
+    deletefiles: builder.mutation<void, IDeleteFilesRequest>({
+      query: ({ orgId, ...rest }) => ({
         url: `/${orgId}/folders`,
         method: "DELETE",
-        body: {
-          contactId,
-          folderIds,
-          fileIds,
-        },
+        body: rest,
       }),
     }),
 
@@ -141,34 +153,24 @@ export const mediaApi = createApi({
       IGetDownloadFileUrlResponse,
       IGetDownloadFileUrlRequest
     >({
-      query: ({ orgId, contactId, folderId, fileId }) => ({
+      query: ({ orgId, fileId, ...rest }) => ({
         url: `/${orgId}/files/${fileId}/download-url`,
         method: "POST",
-        body: {
-          contactId,
-          folderId,
-        },
+        body: rest,
       }),
     }),
     renameFile: builder.mutation<void, IRenameFileRequest>({
-      query: ({ orgId, contactId, folderId, fileId, name }) => ({
+      query: ({ orgId, fileId, ...rest }) => ({
         url: `/${orgId}/files/${fileId}/rename`,
         method: "PUT",
-        body: {
-          name,
-          contactId,
-          folderId,
-        },
+        body: rest,
       }),
     }),
-    shareFiles: builder.mutation<void, IShareFilesRequest>({
-      query: ({ orgId, contactId, fileIds }) => ({
-        url: `/${orgId}/files/share`,
+    shareFile: builder.mutation<void, IShareFilesRequest>({
+      query: ({ orgId, fileId, ...rest }) => ({
+        url: `/${orgId}/files/${fileId}/share`,
         method: "POST",
-        body: {
-          contactId,
-          fileIds,
-        },
+        body: rest,
       }),
     }),
   }),
@@ -185,4 +187,5 @@ export const {
   useStoreFileMutation,
   useGetDownloadFileUrlMutation,
   useRenameFileMutation,
+  useShareFileMutation,
 } = mediaApi

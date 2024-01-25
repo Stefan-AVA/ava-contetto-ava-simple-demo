@@ -19,7 +19,8 @@ interface IProps {
   orgId: string
   agentId?: string
   contactId?: string
-  folderId?: string
+  isShared: boolean
+  forAgentOnly: boolean
   open: boolean
   setOpen: Function
   refetch: Function
@@ -36,8 +37,9 @@ const FileModal = ({
   orgId,
   agentId,
   contactId,
-  folderId,
   file,
+  isShared = true,
+  forAgentOnly = false,
 
   open,
   setOpen,
@@ -80,9 +82,10 @@ const FileModal = ({
         orgId,
         agentId,
         contactId,
-        folderId,
         fileId: file._id,
         name,
+        isShared,
+        forAgentOnly,
       })
       enqueueSnackbar("file name is changed", { variant: "success" })
 

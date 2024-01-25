@@ -252,8 +252,9 @@ const FolderPage = ({
         orgId,
         agentId,
         contactId,
-        folderId,
         fileId: file._id,
+        isShared,
+        forAgentOnly,
       }).unwrap()
 
       window.open(url, "_blank")
@@ -273,6 +274,8 @@ const FolderPage = ({
         folderId: targetFolder._id,
         folderIds: files.filter((file) => file.isDir).map((file) => file._id),
         fileIds: files.filter((file) => !file.isDir).map((file) => file._id),
+        isShared,
+        forAgentOnly,
       })
 
       await refetch()
@@ -562,7 +565,8 @@ const FolderPage = ({
         orgId={orgId}
         agentId={agentId}
         contactId={contactId}
-        folderId={folderId}
+        isShared={isShared}
+        forAgentOnly={forAgentOnly}
         file={activeFile}
       />
 
@@ -574,6 +578,8 @@ const FolderPage = ({
         orgId={orgId}
         agentId={agentId}
         contactId={contactId}
+        isShared={isShared}
+        forAgentOnly={forAgentOnly}
         files={deleteFiles}
       />
 
