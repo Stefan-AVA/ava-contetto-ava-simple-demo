@@ -21,19 +21,35 @@ import {
   FileList,
   MapFileActionsToData,
 } from "@aperturerobotics/chonky"
-import { Breadcrumbs, Button, Stack, Typography } from "@mui/material"
 import {
+  Breadcrumbs,
+  Button,
+  Card,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material"
+import {
+  AlignJustify,
   Edit,
   File,
   FileUp,
   Folder,
   FolderPlus,
+  Grid2X2,
+  LayoutGrid,
+  Plus,
   Share,
   Trash,
 } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IFile, IFolder } from "@/types/folder.types"
+import Dropdown from "@/components/drop-down"
 import Loading from "@/components/Loading"
 
 import DeleteFilesModal from "./DeleteFilesModal"
@@ -97,15 +113,17 @@ const FolderPage = ({
     undefined
   )
   const [deleteFiles, setDeleteFiles] = useState<ChonkyFile[]>([])
+  const [openAddDropdown, setOpenAddDropdown] = useState(false)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [openGridDropdown, setOpenGridDropdown] = useState(false)
 
   const { data, isLoading, isFetching, refetch } = useGetFolderQuery(
     { orgId, agentId, contactId, isShared, forAgentOnly, folderId },
     { skip: !orgId }
   )
   const [getDwonloadFileUrl] = useGetDownloadFileUrlMutation()
-  const [moveFiles, { isLoading: isMovingFiles }] = useMoveFilesMutation()
+  const [moveFiles] = useMoveFilesMutation()
 
   const files = useMemo(
     () =>
@@ -331,9 +349,8 @@ const FolderPage = ({
         setDeleteFiles(state.selectedFiles)
         break
       case "action_share_files":
-        const file = selectedFiles[0]
-        if (file && !file.isDir) {
-          setActiveShareFile(file as IFile)
+        if (selectedFiles[0] && !selectedFiles[0].isDir) {
+          setActiveShareFile(selectedFiles[0] as IFile)
         }
         break
       default:
@@ -358,7 +375,7 @@ const FolderPage = ({
     } else {
       return ""
     }
-  }, [agentId, contactId, isShared, forAgentOnly])
+  }, [agentId, contactId, isShared])
 
   if (isLoading) return <Loading />
 
@@ -390,23 +407,107 @@ const FolderPage = ({
         </Breadcrumbs>
 
         <Stack direction="row" gap={2} alignItems="center">
-          <Button size="small" onClick={() => setFolderModalOpen(true)}>
-            Create Folder
-          </Button>
-          <Button size="small" onClick={() => setUploadModalOpen(true)}>
-            Upload
-          </Button>
-          <Button
-            size="small"
-            onClick={() => {
-              fileBrowserRef.current?.requestFileAction(
-                ChonkyActions.EnableGridView,
-                undefined
-              )
+          <Dropdown
+            open={openGridDropdown}
+            ancher={
+              <button type="button" onClick={() => setOpenGridDropdown(true)}>
+                <Grid2X2 />
+              </button>
+            }
+            onClose={() => setOpenGridDropdown(false)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
             }}
           >
-            Change layout
-          </Button>
+            <Card>
+              <List>
+                <ListItem
+                  onClick={() =>
+                    fileBrowserRef.current?.requestFileAction(
+                      ChonkyActions.EnableGridView,
+                      undefined
+                    )
+                  }
+                  disablePadding
+                >
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <LayoutGrid />
+                    </ListItemIcon>
+
+                    <ListItemText>Large grid</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem
+                  onClick={() =>
+                    fileBrowserRef.current?.requestFileAction(
+                      ChonkyActions.EnableListView,
+                      undefined
+                    )
+                  }
+                  disablePadding
+                >
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <AlignJustify />
+                    </ListItemIcon>
+
+                    <ListItemText>List</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Card>
+          </Dropdown>
+
+          <Dropdown
+            open={openAddDropdown}
+            ancher={
+              <Button
+                size="small"
+                onClick={() => setOpenAddDropdown(true)}
+                startIcon={<Plus size={16} strokeWidth={2} />}
+              >
+                Add
+              </Button>
+            }
+            onClose={() => setOpenAddDropdown(false)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            <Card>
+              <List>
+                <ListItem
+                  onClick={() => setUploadModalOpen(true)}
+                  disablePadding
+                >
+                  <ListItemButton>
+                    <ListItemText>Upload file</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem
+                  onClick={() => setFolderModalOpen(true)}
+                  disablePadding
+                >
+                  <ListItemButton>
+                    <ListItemText>New folder</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Card>
+          </Dropdown>
         </Stack>
       </Stack>
 
