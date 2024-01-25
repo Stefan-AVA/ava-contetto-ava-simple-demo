@@ -6,6 +6,7 @@ import { fetchAuthQuery } from "../fetch-auth-query"
 
 interface IBaseRequest {
   orgId: string
+  agentId?: string
   contactId?: string
   folderId?: string
 }

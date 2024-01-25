@@ -20,6 +20,7 @@ import { IFolder } from "@/types/folder.types"
 
 interface IProps {
   orgId: string
+  agentId?: string
   contactId?: string
   folderId?: string
   isShared: boolean
@@ -38,6 +39,7 @@ interface IError {
 
 const FolderModal = ({
   orgId,
+  agentId,
   contactId,
   folderId,
   isShared = true,
@@ -85,6 +87,7 @@ const FolderModal = ({
         // rename
         await renameFolder({
           name,
+          agentId,
           orgId,
           contactId,
           folderId: folder._id,
@@ -95,6 +98,7 @@ const FolderModal = ({
         await createFolder({
           name,
           orgId,
+          agentId,
           contactId,
           folderId,
           isShared,

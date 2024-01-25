@@ -22,6 +22,7 @@ import DragDrop from "@/components/DragDrop"
 
 interface IProps {
   orgId: string
+  agentId?: string
   contactId?: string
   folderId?: string
   isShared: boolean
@@ -39,6 +40,7 @@ interface IError {
 
 const UploadFilesModal = ({
   orgId,
+  agentId,
   contactId,
   folderId,
   isShared = true,
@@ -85,6 +87,7 @@ const UploadFilesModal = ({
     setUploadingFiles((prev) => [...prev, file])
     const { singedUrl, key } = await getUploadFileUrl({
       orgId,
+      agentId,
       contactId,
       folderId,
       name: file.name,
@@ -102,6 +105,7 @@ const UploadFilesModal = ({
     if (res.ok) {
       await storeFile({
         orgId,
+        agentId,
         contactId,
         folderId,
         name: file.name,

@@ -98,7 +98,7 @@ const FolderPage = ({
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
   const { data, isLoading, isFetching, refetch } = useGetFolderQuery(
-    { orgId, contactId, isShared, forAgentOnly, folderId },
+    { orgId, agentId, contactId, isShared, forAgentOnly, folderId },
     { skip: !orgId }
   )
   const [getDwonloadFileUrl] = useGetDownloadFileUrlMutation()
@@ -229,6 +229,7 @@ const FolderPage = ({
     try {
       const { url } = await getDwonloadFileUrl({
         orgId,
+        agentId,
         contactId,
         folderId,
         fileId: file._id,
@@ -246,6 +247,7 @@ const FolderPage = ({
     try {
       await moveFiles({
         orgId,
+        agentId,
         contactId,
         folderId: targetFolder._id,
         folderIds: files.filter((file) => file.isDir).map((file) => file._id),
@@ -424,6 +426,7 @@ const FolderPage = ({
         refetch={refetch}
         isRefetching={isFetching}
         orgId={orgId}
+        agentId={agentId}
         contactId={contactId}
         folderId={folderId}
         isShared={isShared}
@@ -437,6 +440,7 @@ const FolderPage = ({
         refetch={refetch}
         isRefetching={isFetching}
         orgId={orgId}
+        agentId={agentId}
         contactId={contactId}
         folderId={folderId}
         isShared={isShared}
@@ -449,6 +453,7 @@ const FolderPage = ({
         refetch={refetch}
         isRefetching={isFetching}
         orgId={orgId}
+        agentId={agentId}
         contactId={contactId}
         folderId={folderId}
         file={activeFile}
@@ -460,6 +465,7 @@ const FolderPage = ({
         refetch={refetch}
         isRefetching={isFetching}
         orgId={orgId}
+        agentId={agentId}
         contactId={contactId}
         files={deleteFiles}
       />

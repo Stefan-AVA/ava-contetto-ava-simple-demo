@@ -11,6 +11,7 @@ import { ChonkyFile } from "."
 
 interface IProps {
   orgId: string
+  agentId?: string
   contactId?: string
   open: boolean
   setOpen: Function
@@ -25,6 +26,7 @@ interface IError {
 
 const DeleteFilesModal = ({
   orgId,
+  agentId,
   contactId,
   files,
 
@@ -57,6 +59,7 @@ const DeleteFilesModal = ({
     try {
       await deleteFiles({
         orgId,
+        agentId,
         contactId,
         folderIds: files.filter((file) => file.isDir).map((file) => file._id),
         fileIds: files.filter((file) => !file.isDir).map((file) => file._id),

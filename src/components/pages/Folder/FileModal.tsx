@@ -17,6 +17,7 @@ import { IFile } from "@/types/folder.types"
 
 interface IProps {
   orgId: string
+  agentId?: string
   contactId?: string
   folderId?: string
   open: boolean
@@ -33,6 +34,7 @@ interface IError {
 
 const FileModal = ({
   orgId,
+  agentId,
   contactId,
   folderId,
   file,
@@ -76,6 +78,7 @@ const FileModal = ({
     try {
       await renamefile({
         orgId,
+        agentId,
         contactId,
         folderId,
         fileId: file._id,
