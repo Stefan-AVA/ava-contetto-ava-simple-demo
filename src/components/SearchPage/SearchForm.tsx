@@ -6,7 +6,6 @@ import { useSaveSearchMutation } from "@/redux/apis/search"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
 import {
-  Box,
   Button,
   Card,
   FormHelperText,
@@ -14,7 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Save, User } from "lucide-react"
+import { User } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IContact } from "@/types/contact.types"
@@ -110,20 +109,17 @@ const SearchForm = ({
       open={open}
       onClose={onClose}
       ancher={
-        <Box
+        <Button
           sx={{
-            color: "primary.main",
-            transition: "all .3s ease-in-out",
-
-            ":hover": {
-              color: "primary.dark",
-              cursor: "pointer",
-            },
+            mt: 3,
+            float: "right",
           }}
-          size={20}
-          component={Save}
+          size="small"
+          variant="outlined"
           onClick={() => setOpen(true)}
-        />
+        >
+          Save search
+        </Button>
       }
       anchorOrigin={{
         vertical: "bottom",

@@ -40,8 +40,8 @@ export default function User() {
         push("/app/profile")
       },
     },
-    ...(currentOrg.role === AgentRole.owner ||
-    currentOrg.role === AgentRole.admin
+    ...(currentOrg?.role === AgentRole.owner ||
+    currentOrg?.role === AgentRole.admin
       ? [
           {
             label: "Settings",
