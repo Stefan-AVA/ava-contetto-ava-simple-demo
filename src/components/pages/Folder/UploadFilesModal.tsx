@@ -89,7 +89,6 @@ const UploadFilesModal = ({
       orgId,
       agentId,
       contactId,
-      folderId,
       name: file.name,
     }).unwrap()
 

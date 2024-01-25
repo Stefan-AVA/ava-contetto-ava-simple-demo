@@ -21,7 +21,13 @@ const Page = ({ params }: PageProps) => {
     [contactId, contactOrgs]
   )
 
-  return <FolderPage orgId={String(contact?.orgId)} contactId={contactId} />
+  return (
+    <FolderPage
+      orgId={String(contact?.orgId)}
+      contactId={contactId}
+      isShared={false}
+    />
+  )
 }
 
 export default Page

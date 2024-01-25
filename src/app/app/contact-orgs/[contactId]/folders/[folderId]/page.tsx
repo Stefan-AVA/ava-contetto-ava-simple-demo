@@ -27,6 +27,7 @@ const Page = ({ params }: PageProps) => {
       orgId={String(contact?.orgId)}
       contactId={contactId}
       folderId={folderId}
+      isShared={false}
     />
   )
 }

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
+import { useShareFileMutation } from "@/redux/apis/media"
 import { useGetContactsQuery } from "@/redux/apis/org"
 import { RootState } from "@/redux/store"
+import { parseError } from "@/utils/error"
 import { nameInitials } from "@/utils/format-name"
 import { LoadingButton } from "@mui/lab"
 import {
@@ -21,16 +23,16 @@ import {
   Typography,
 } from "@mui/material"
 import { X } from "lucide-react"
-import { useSelector } from "react-redux"
+import { useSnackbar } from "notistack"
 
 import type { IContact } from "@/types/contact.types"
-import { IFile } from "@/types/folder.types"
+import { FilePermission, IFile } from "@/types/folder.types"
 
 interface ShareFileModalProps {
   open: boolean
   setOpen: Function
   orgId: string
-  agentId?: string
+  agentId: string
   file: IFile
 }
 
@@ -40,49 +42,63 @@ interface IOption extends Partial<IContact> {
   inputValue?: string
 }
 
-const permissions = ["owner", "editor", "viewer", "commentor"]
+const permissions = [
+  FilePermission.editor,
+  FilePermission.viewer,
+  FilePermission.commentor,
+]
 
 const initialForm = {
   notify: false,
   message: "",
   contacts: [] as IOption[],
-  permission: permissions[1],
+  permission: FilePermission.editor,
 }
 
-export default function ShareFileModal({ open, setOpen }: ShareFileModalProps) {
+export default function ShareFileModal({
+  open,
+  setOpen,
+  file,
+  orgId,
+}: ShareFileModalProps) {
+  const { enqueueSnackbar } = useSnackbar()
+
   const [form, setForm] = useState(initialForm)
-
-  const { agentId } = useParams()
-
-  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
-
-  const agentProfile = useMemo(
-    () => agentOrgs.find((agent) => agent._id === agentId),
-    [agentId, agentOrgs]
-  )
 
   const {
     data: contacts = [],
     isLoading,
     isFetching,
-  } = useGetContactsQuery(
-    {
-      orgId: agentProfile?.orgId,
-    },
-    {
-      skip: !agentProfile,
-    }
-  )
+  } = useGetContactsQuery({
+    orgId,
+  })
+
+  const [shareFile, { isLoading: isSharing }] = useShareFileMutation()
 
   const loading = isLoading || isFetching
-
-  function share() {
-    console.log({ form })
-  }
 
   const onClose = () => {
     setForm(initialForm)
     setOpen(undefined)
+  }
+
+  const onShare = async () => {
+    if (form.contacts.length === 0) {
+      enqueueSnackbar("No contact is selected!", { variant: "error" })
+      return
+    }
+    try {
+      await shareFile({
+        orgId,
+        fileId: file._id,
+        contactIds: form.contacts.map((c) => c._id),
+        permission: form.permission,
+      })
+      enqueueSnackbar("File is shared", { variant: "success" })
+      onClose()
+    } catch (error) {
+      enqueueSnackbar(parseError(error), { variant: "error" })
+    }
   }
 
   return (
@@ -109,7 +125,7 @@ export default function ShareFileModal({ open, setOpen }: ShareFileModalProps) {
           }}
         >
           <Typography sx={{ fontWeight: 600 }} variant="h4">
-            Share “File Name” With
+            Share {file?.name} With
           </Typography>
 
           <Stack
@@ -182,7 +198,10 @@ export default function ShareFileModal({ open, setOpen }: ShareFileModalProps) {
             value={form.permission}
             select
             onChange={({ target }) =>
-              setForm((prev) => ({ ...prev, permission: target.value }))
+              setForm((prev) => ({
+                ...prev,
+                permission: target.value as FilePermission,
+              }))
             }
           >
             {permissions.map((value) => (
@@ -237,7 +256,9 @@ export default function ShareFileModal({ open, setOpen }: ShareFileModalProps) {
         >
           <LoadingButton variant="outlined">Copy Link</LoadingButton>
 
-          <LoadingButton onClick={share}>Share</LoadingButton>
+          <LoadingButton onClick={onShare} loading={isSharing}>
+            Share
+          </LoadingButton>
         </Stack>
       </Paper>
     </Modal>
