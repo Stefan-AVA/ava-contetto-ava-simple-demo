@@ -76,10 +76,10 @@ blockquote {
 }
 
 span[class*="gridFileEntryName"] {
-  display: block;
   width: 100%;
+  display: block;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
   padding-bottom: 0;
 }
