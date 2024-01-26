@@ -20,6 +20,7 @@ import {
   ListItemIcon,
   ListItemText,
   Stack,
+  Tooltip,
   Typography,
   type StackProps,
 } from "@mui/material"
@@ -113,8 +114,6 @@ function FileItem({
           : "row",
         justifyContent: "space-between",
       }}
-      href={navigateTo as Route}
-      component={isDir && isLayoutGrid ? Link : "div"}
     >
       <Stack
         sx={{
@@ -122,6 +121,8 @@ function FileItem({
           alignItems: "center",
           flexDirection: !isLayoutGrid ? "row" : "column",
         }}
+        href={navigateTo as Route}
+        component={isDir ? Link : "div"}
       >
         {isDir && (
           <Image src={IconFolder} alt="" width={isLayoutGrid ? 80 : 32} />
@@ -163,21 +164,27 @@ function FileItem({
           }}
         >
           {onEdit && (
-            <button type="button" onClick={onEdit}>
-              <Pen size={20} />
-            </button>
+            <Tooltip title="Edit" placement="top">
+              <button type="button" onClick={onEdit}>
+                <Pen size={20} />
+              </button>
+            </Tooltip>
           )}
 
           {onPreview && (
-            <button type="button" onClick={onPreview}>
-              <Eye size={20} />
-            </button>
+            <Tooltip title="Preview" placement="top">
+              <button type="button" onClick={onPreview}>
+                <Eye size={20} />
+              </button>
+            </Tooltip>
           )}
 
           {onShare && (
-            <button type="button" onClick={onShare}>
-              <SendHorizonal size={20} />
-            </button>
+            <Tooltip title="Share" placement="top">
+              <button type="button" onClick={onShare}>
+                <SendHorizonal size={20} />
+              </button>
+            </Tooltip>
           )}
 
           <Dropdown
