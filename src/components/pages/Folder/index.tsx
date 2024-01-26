@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
+  useShareAgentOnlyFileMutation,
 } from "@/redux/apis/media"
 import {
   Box,
@@ -308,6 +309,7 @@ const FolderPage = ({
     { skip: !orgId }
   )
   const [getDownloadFileUrl] = useGetDownloadFileUrlMutation()
+  const [shareAgentOnlyFile] = useShareAgentOnlyFileMutation()
 
   const isLayoutGrid = layoutType === "GRID"
 
@@ -346,6 +348,35 @@ const FolderPage = ({
       enqueueSnackbar("Something is wrong can't donwload file", {
         variant: "error",
       })
+    }
+  }
+
+  const onShare = async (file: FileOrFolder) => {
+    if (agentId) {
+      if (file.isDir) {
+      } else {
+        if (contactId && forAgentOnly) {
+          try {
+            await shareAgentOnlyFile({
+              orgId,
+              contactId,
+              fileId: file._id,
+            }).unwrap()
+
+            enqueueSnackbar("Shared", {
+              variant: "success",
+            })
+
+            await refetch()
+          } catch (error) {
+            enqueueSnackbar("Something is wrong can't share file", {
+              variant: "error",
+            })
+          }
+        } else {
+          setActiveShareFile(file as IFile)
+        }
+      }
     }
   }
 
@@ -543,12 +574,7 @@ const FolderPage = ({
                   setActiveFile(file as IFile)
                 }
               }}
-              onShare={() => {
-                if (file.isDir) {
-                } else {
-                  setActiveShareFile(file as IFile)
-                }
-              }}
+              onShare={() => onShare(file)}
               onDelete={() => setDeleteFiles([file])}
               onPreview={() =>
                 file.isDir

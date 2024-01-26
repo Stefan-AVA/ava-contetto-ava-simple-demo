@@ -244,6 +244,27 @@ export default function ShareFileModal({
           multiline
         />
 
+        <Typography variant="h4" sx={{ mt: 2 }}>
+          People with access
+        </Typography>
+        <Stack spacing={1} mt={1}>
+          {file?.connections.map((con) => (
+            <Stack
+              key={`${con.id}-${con.type}`}
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            >
+              <Typography variant="h5" sx={{ textTransform: "capitalize" }}>
+                {con.id ? con.username : "Shared all"}
+              </Typography>
+              <Typography variant="body2">
+                ({file?.creator === con.username ? "owner" : con.permission})
+              </Typography>
+            </Stack>
+          ))}
+        </Stack>
+
         <Stack
           sx={{
             mt: 3,

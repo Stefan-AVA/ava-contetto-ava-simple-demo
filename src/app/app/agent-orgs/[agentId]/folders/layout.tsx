@@ -25,7 +25,7 @@ export default function FolderLayout({ params, children }: PageProps) {
   function activeRoute(path: string) {
     const slice = pathname.replace(basePath, "")
 
-    return path === slice
+    return slice.includes(path)
   }
 
   const isTheFirstOnTheList = activeRoute(routes[0].path)

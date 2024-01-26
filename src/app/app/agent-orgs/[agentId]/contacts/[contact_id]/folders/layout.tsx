@@ -29,7 +29,7 @@ export default function FolderLayout({
   function activeRoute(path: string) {
     const slice = pathname.replace(basePath, "")
 
-    return path === slice
+    return slice.includes(path)
   }
 
   return (

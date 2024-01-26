@@ -91,6 +91,12 @@ interface IShareFilesRequest {
   notify: boolean
 }
 
+interface IShareAgentOnlyFileRequest {
+  orgId: string
+  fileId: string
+  contactId: string
+}
+
 export const mediaApi = createApi({
   reducerPath: "mediaApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -174,6 +180,12 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
+    shareAgentOnlyFile: builder.mutation<void, IShareAgentOnlyFileRequest>({
+      query: ({ orgId, fileId, contactId }) => ({
+        url: `/${orgId}/files/${fileId}/share/${contactId}`,
+        method: "POST",
+      }),
+    }),
   }),
 })
 
@@ -189,4 +201,5 @@ export const {
   useGetDownloadFileUrlMutation,
   useRenameFileMutation,
   useShareFileMutation,
+  useShareAgentOnlyFileMutation,
 } = mediaApi
