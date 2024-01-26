@@ -1,27 +1,16 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useState } from "react"
 import { Route } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
-  useMoveFilesMutation,
 } from "@/redux/apis/media"
 import {
-  ChonkyActions,
-  ChonkyIconName,
-  ChonkyIconProps,
-  CustomVisibilityState,
-  defineFileAction,
-  FileBrowser,
-  FileBrowserHandle,
-  FileContextMenu,
-  FileList,
-  MapFileActionsToData,
-} from "@aperturerobotics/chonky"
-import {
+  Box,
   Breadcrumbs,
   Button,
   Card,
@@ -32,19 +21,21 @@ import {
   ListItemText,
   Stack,
   Typography,
+  type StackProps,
 } from "@mui/material"
+import IconFolder from "~/assets/icon-folder.svg"
 import {
   AlignJustify,
-  Edit,
-  File,
-  FileUp,
-  Folder,
-  FolderPlus,
-  Grid2X2,
+  Eye,
+  FileArchive,
+  Grip,
   LayoutGrid,
+  Link2,
+  MoreHorizontal,
+  Pen,
   Plus,
-  Share,
-  Trash,
+  SendHorizonal,
+  Trash2,
 } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -58,24 +49,7 @@ import FolderModal from "./FolderModal"
 import ShareFileModal from "./share-file-modal"
 import UploadFilesModal from "./UploadFilesModal"
 
-const CustomIcon = (props: ChonkyIconProps) => {
-  switch (props.icon) {
-    case ChonkyIconName.folder:
-      return <Folder />
-    case ChonkyIconName.trash:
-      return <Trash />
-    case ChonkyIconName.folderCreate:
-      return <FolderPlus />
-    case ChonkyIconName.upload:
-      return <FileUp />
-    case ChonkyIconName.share:
-      return <Share />
-    case "Edit":
-      return <Edit />
-    default:
-      return <File />
-  }
-}
+type LayoutType = "GRID" | "LIST"
 
 interface IProps {
   orgId: string
@@ -86,25 +60,213 @@ interface IProps {
   forAgentOnly?: boolean
 }
 
-export type ChonkyFile = (IFolder | IFile) & {
+export type FileOrFolder = (IFolder | IFile) & {
   id: string
   isDir?: boolean
+}
+
+interface FileItemProps extends StackProps {
+  name: string
+  isDir: boolean
+  onEdit?: () => void
+  onShare?: () => void
+  onDelete?: () => void
+  navigateTo: string
+  onPreview?: () => void
+  onCopyLink?: () => void
+  isLayoutGrid: boolean
+}
+
+function FileItem({
+  name,
+  isDir,
+  onEdit,
+  onShare,
+  onDelete,
+  onPreview,
+  onCopyLink,
+  navigateTo,
+  isLayoutGrid,
+}: FileItemProps) {
+  const [showMoreActions, setShowMoreActions] = useState(false)
+
+  return (
+    <Stack
+      sx={{
+        px: !isLayoutGrid ? 3 : 0,
+        py: !isLayoutGrid ? 1 : 0,
+        gap: 3,
+        width: isLayoutGrid ? "fit-content" : "100%",
+        bgcolor: !isLayoutGrid ? "gray.200" : "transparent",
+        alignItems: !isLayoutGrid
+          ? {
+              xs: "flex-start",
+              sm: "center",
+            }
+          : "center",
+        borderRadius: ".625rem",
+        flexDirection: !isLayoutGrid
+          ? {
+              xs: "column",
+              sm: "row",
+            }
+          : "row",
+        justifyContent: "space-between",
+      }}
+      href={navigateTo as Route}
+      component={isDir && isLayoutGrid ? Link : "div"}
+    >
+      <Stack
+        sx={{
+          gap: 1.5,
+          alignItems: "center",
+          flexDirection: !isLayoutGrid ? "row" : "column",
+        }}
+      >
+        {isDir && (
+          <Image src={IconFolder} alt="" width={isLayoutGrid ? 80 : 32} />
+        )}
+
+        {!isDir && (
+          <Box
+            sx={{
+              color: "gray.700",
+            }}
+            size={isLayoutGrid ? 80 : 32}
+            component={FileArchive}
+            strokeWidth={1.5}
+          />
+        )}
+
+        <Typography
+          sx={{
+            color: "gray.700",
+            textAlign: "center",
+            fontWeight: 600,
+          }}
+          variant="body2"
+        >
+          {name}
+        </Typography>
+      </Stack>
+
+      {!isLayoutGrid && (
+        <Stack
+          sx={{
+            gap: 2,
+            alignItems: "center",
+            flexDirection: "row",
+
+            button: {
+              px: 0,
+            },
+          }}
+        >
+          {onEdit && (
+            <button type="button" onClick={onEdit}>
+              <Pen size={20} />
+            </button>
+          )}
+
+          {onPreview && (
+            <button type="button" onClick={onPreview}>
+              <Eye size={20} />
+            </button>
+          )}
+
+          {onShare && (
+            <button type="button" onClick={onShare}>
+              <SendHorizonal size={20} />
+            </button>
+          )}
+
+          <Dropdown
+            open={showMoreActions}
+            ancher={
+              <button type="button" onClick={() => setShowMoreActions(true)}>
+                <MoreHorizontal size={20} />
+              </button>
+            }
+            onClose={() => setShowMoreActions(false)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            <Card>
+              <List>
+                {onPreview && (
+                  <ListItem onClick={onPreview} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Eye size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Preview</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onShare && (
+                  <ListItem onClick={onShare} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <SendHorizonal size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Share</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onCopyLink && (
+                  <ListItem onClick={onCopyLink} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Link2 size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Preview</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onDelete && (
+                  <ListItem onClick={onDelete} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Trash2 size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Delete</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+              </List>
+            </Card>
+          </Dropdown>
+        </Stack>
+      )}
+    </Stack>
+  )
 }
 
 const FolderPage = ({
   orgId,
   agentId,
-  contactId,
   folderId,
+  contactId,
   isShared = true,
   forAgentOnly = false, // we may need this param later, but based on figma, we may not need this for now
 }: IProps) => {
-  const fileBrowserRef = useRef<FileBrowserHandle>(null)
-
   const { push } = useRouter()
   const { enqueueSnackbar } = useSnackbar()
 
-  const [selectedFiles, setSelectedFiles] = useState<ChonkyFile[]>([])
+  const [layoutType, setLayoutType] = useState<LayoutType>("GRID")
   const [activeFolder, setActiveFolder] = useState<IFolder | undefined>(
     undefined
   )
@@ -112,7 +274,7 @@ const FolderPage = ({
   const [activeShareFile, setActiveShareFile] = useState<IFile | undefined>(
     undefined
   )
-  const [deleteFiles, setDeleteFiles] = useState<ChonkyFile[]>([])
+  const [deleteFiles, setDeleteFiles] = useState<FileOrFolder[]>([])
   const [openAddDropdown, setOpenAddDropdown] = useState(false)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
@@ -122,10 +284,11 @@ const FolderPage = ({
     { orgId, agentId, contactId, isShared, forAgentOnly, folderId },
     { skip: !orgId }
   )
-  const [getDwonloadFileUrl] = useGetDownloadFileUrlMutation()
-  const [moveFiles] = useMoveFilesMutation()
+  const [getDownloadFileUrl] = useGetDownloadFileUrlMutation()
 
-  const files = useMemo(
+  const isLayoutGrid = layoutType === "GRID"
+
+  const files: FileOrFolder[] = useMemo(
     () =>
       data
         ? [
@@ -134,121 +297,19 @@ const FolderPage = ({
               id: folder._id,
               isDir: true,
             })),
-            ...data.files.map((file) => ({ ...file, id: file._id })),
+            ...data.files.map((file) => ({
+              ...file,
+              id: file._id,
+              isDir: false,
+            })),
           ]
         : [],
     [data]
   )
 
-  // define custom actions
-  const deleteFilesAction = defineFileAction({
-    id: "action_delete_files",
-    requiresSelection: true,
-    customVisibility: () => {
-      const count = selectedFiles.length
-      return count === 0
-        ? CustomVisibilityState.Hidden
-        : CustomVisibilityState.Default
-    },
-    hotkeys: ["del"],
-    button: {
-      name: "Delete",
-      toolbar: true,
-      contextMenu: true,
-      icon: ChonkyIconName.trash,
-    },
-  })
-
-  const renameAction = defineFileAction({
-    id: "action_rename",
-    selectionTransform: () => {
-      const set = new Set<string>()
-      if (selectedFiles.length > 0) {
-        set.add(selectedFiles[0].id)
-      }
-      return set
-    },
-    requiresSelection: true,
-    customVisibility: () => {
-      const count = selectedFiles.length
-      return count === 0
-        ? CustomVisibilityState.Hidden
-        : count === 1
-          ? CustomVisibilityState.Default
-          : CustomVisibilityState.Disabled
-    },
-    hotkeys: ["ctrl+r"],
-    button: {
-      name: "Rename",
-      toolbar: true,
-      contextMenu: true,
-      icon: "Edit",
-    },
-  })
-
-  const createFolderAction = defineFileAction({
-    id: "action_create_folder",
-    requiresSelection: false,
-    selectionTransform: () => {
-      const set = new Set<string>()
-      return set
-    },
-    customVisibility: () => {
-      return selectedFiles.length === 0
-        ? CustomVisibilityState.Default
-        : CustomVisibilityState.Hidden
-    },
-    hotkeys: ["shift+n"],
-    button: {
-      name: "Create Folder",
-      toolbar: true,
-      contextMenu: true,
-      icon: ChonkyIconName.folderCreate,
-    },
-  })
-
-  const uploadFilesAction = defineFileAction({
-    id: "action_upload_files",
-    requiresSelection: false,
-    selectionTransform: () => {
-      const set = new Set<string>()
-      return set
-    },
-    customVisibility: () => {
-      return selectedFiles.length === 0
-        ? CustomVisibilityState.Default
-        : CustomVisibilityState.Hidden
-    },
-    hotkeys: ["ctrl+u"],
-    button: {
-      name: "Upload files",
-      toolbar: true,
-      contextMenu: true,
-      icon: ChonkyIconName.upload,
-    },
-  })
-
-  const shareFilesAction = defineFileAction({
-    id: "action_share_files",
-    requiresSelection: true,
-    customVisibility: () => {
-      return isShared || contactId || selectedFiles.length === 0
-        ? CustomVisibilityState.Hidden
-        : selectedFiles.length > 1 || selectedFiles.find((f) => f.isDir)
-          ? CustomVisibilityState.Disabled
-          : CustomVisibilityState.Default
-    },
-    button: {
-      name: "Share file",
-      toolbar: true,
-      contextMenu: true,
-      icon: ChonkyIconName.share,
-    },
-  })
-
-  const onDownloadFile = async (file: ChonkyFile) => {
+  const onDownloadFile = async (file: FileOrFolder) => {
     try {
-      const { url } = await getDwonloadFileUrl({
+      const { url } = await getDownloadFileUrl({
         orgId,
         agentId,
         contactId,
@@ -262,99 +323,6 @@ const FolderPage = ({
       enqueueSnackbar("Something is wrong can't donwload file", {
         variant: "error",
       })
-    }
-  }
-
-  const onMoveFiles = async (targetFolder: IFolder, files: ChonkyFile[]) => {
-    try {
-      await moveFiles({
-        orgId,
-        agentId,
-        contactId,
-        folderId: targetFolder._id,
-        folderIds: files.filter((file) => file.isDir).map((file) => file._id),
-        fileIds: files.filter((file) => !file.isDir).map((file) => file._id),
-        isShared,
-        forAgentOnly,
-      })
-
-      await refetch()
-    } catch (error) {
-      enqueueSnackbar("Move failed", {
-        variant: "error",
-      })
-    }
-  }
-
-  const onFileAction = (data: MapFileActionsToData<any>) => {
-    const { id, payload, state } = data
-
-    switch (id) {
-      case "change_selection":
-        setSelectedFiles(state.selectedFiles)
-        break
-      case "action_create_folder":
-        setFolderModalOpen(true)
-        setActiveFolder(undefined)
-        break
-      case "action_rename": {
-        const file = selectedFiles[0]
-        if (file) {
-          if (file.isDir) {
-            // rename folder
-            setFolderModalOpen(true)
-            setActiveFolder(file)
-          } else {
-            // rename file
-            setActiveFile(file as IFile)
-          }
-        }
-        break
-      }
-      case "action_upload_files":
-        setUploadModalOpen(true)
-        break
-      case "open_files": {
-        const targetFile = payload.targetFile
-        if (targetFile.isDir) {
-          // open folder
-          if (agentId) {
-            if (contactId) {
-              // TODO: yuri please update this url based on contact files UI
-              push(
-                `/app/agent-orgs/${agentId}/folders/${isShared ? "shared" : "me"}/${targetFile.id}`
-              )
-            } else {
-              push(
-                `/app/agent-orgs/${agentId}/folders/${isShared ? "shared" : "me"}/${targetFile.id}`
-              )
-            }
-          } else {
-            push(
-              `/app/contact-orgs/${contactId}/folders/${targetFile.id}` as Route
-            )
-          }
-        } else {
-          // download file
-          onDownloadFile(targetFile)
-        }
-        break
-      }
-      case "end_drag_n_drop": {
-        const target = payload.destination as IFolder
-        onMoveFiles(target, state.selectedFiles)
-        break
-      }
-      case "action_delete_files":
-        setDeleteFiles(state.selectedFiles)
-        break
-      case "action_share_files":
-        if (selectedFiles[0] && !selectedFiles[0].isDir) {
-          setActiveShareFile(selectedFiles[0] as IFile)
-        }
-        break
-      default:
-        break
     }
   }
 
@@ -380,7 +348,7 @@ const FolderPage = ({
   if (isLoading) return <Loading />
 
   return (
-    <Stack>
+    <Stack sx={{ gap: 5 }}>
       <Stack
         sx={{
           gap: 3,
@@ -411,7 +379,7 @@ const FolderPage = ({
             open={openGridDropdown}
             ancher={
               <button type="button" onClick={() => setOpenGridDropdown(true)}>
-                <Grid2X2 />
+                <Grip />
               </button>
             }
             onClose={() => setOpenGridDropdown(false)}
@@ -426,15 +394,7 @@ const FolderPage = ({
           >
             <Card>
               <List>
-                <ListItem
-                  onClick={() =>
-                    fileBrowserRef.current?.requestFileAction(
-                      ChonkyActions.EnableGridView,
-                      undefined
-                    )
-                  }
-                  disablePadding
-                >
+                <ListItem onClick={() => setLayoutType("GRID")} disablePadding>
                   <ListItemButton>
                     <ListItemIcon>
                       <LayoutGrid />
@@ -444,15 +404,7 @@ const FolderPage = ({
                   </ListItemButton>
                 </ListItem>
 
-                <ListItem
-                  onClick={() =>
-                    fileBrowserRef.current?.requestFileAction(
-                      ChonkyActions.EnableListView,
-                      undefined
-                    )
-                  }
-                  disablePadding
-                >
+                <ListItem onClick={() => setLayoutType("LIST")} disablePadding>
                   <ListItemButton>
                     <ListItemIcon>
                       <AlignJustify />
@@ -511,7 +463,62 @@ const FolderPage = ({
         </Stack>
       </Stack>
 
-      <FileBrowser
+      {files.length <= 0 && (
+        <Stack
+          sx={{
+            px: 3,
+            mt: 6,
+            mb: 3,
+            mx: "auto",
+            gap: 2,
+            maxWidth: "22rem",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "gray.600",
+              textAlign: "center",
+            }}
+          >
+            You do not have registered files.
+          </Typography>
+        </Stack>
+      )}
+
+      {files.length > 0 && (
+        <Stack
+          sx={{
+            gap: isLayoutGrid ? 5 : 2,
+            flexWrap: "wrap",
+            flexDirection: isLayoutGrid ? "row" : "column",
+          }}
+        >
+          {files.map((file) => (
+            <FileItem
+              key={file.id}
+              name={file.name}
+              isDir={file.isDir ?? false}
+              onEdit={() => {
+                setActiveFolder(file)
+                setFolderModalOpen(true)
+              }}
+              onShare={() => setActiveShareFile(file as IFile)}
+              onDelete={() => setDeleteFiles([file])}
+              onPreview={() =>
+                file.isDir
+                  ? push(`${baseRoute}/${file.id}` as Route)
+                  : onDownloadFile(file)
+              }
+              onCopyLink={() => {}}
+              navigateTo={`${baseRoute}/${file.id}`}
+              isLayoutGrid={isLayoutGrid}
+            />
+          ))}
+        </Stack>
+      )}
+
+      {/* <FileBrowser
         ref={fileBrowserRef}
         files={files}
         fileActions={[
@@ -528,7 +535,7 @@ const FolderPage = ({
       >
         <FileList />
         <FileContextMenu />
-      </FileBrowser>
+      </FileBrowser> */}
 
       <FolderModal
         open={folderModalOpen}
@@ -585,11 +592,11 @@ const FolderPage = ({
 
       {agentId && (
         <ShareFileModal
-          open={!!activeShareFile}
-          setOpen={setActiveShareFile}
-          orgId={orgId}
-          agentId={agentId}
           file={activeShareFile!}
+          open={!!activeShareFile}
+          orgId={orgId}
+          setOpen={setActiveShareFile}
+          agentId={agentId}
         />
       )}
     </Stack>

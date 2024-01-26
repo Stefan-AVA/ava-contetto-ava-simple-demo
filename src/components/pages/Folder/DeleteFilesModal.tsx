@@ -7,19 +7,19 @@ import { LoadingButton } from "@mui/lab"
 import { FormHelperText, Modal, Stack, Typography } from "@mui/material"
 import { useSnackbar } from "notistack"
 
-import { ChonkyFile } from "."
+import type { FileOrFolder } from "."
 
 interface IProps {
-  orgId: string
-  agentId?: string
-  contactId?: string
-  isShared: boolean
-  forAgentOnly: boolean
   open: boolean
+  files: FileOrFolder[]
+  orgId: string
   setOpen: Function
   refetch: Function
+  agentId?: string
+  isShared: boolean
+  contactId?: string
+  forAgentOnly: boolean
   isRefetching: boolean
-  files: ChonkyFile[]
 }
 
 interface IError {
