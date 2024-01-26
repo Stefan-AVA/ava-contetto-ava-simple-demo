@@ -69,7 +69,7 @@ const DeleteFilesModal = ({
         fileIds: files.filter((file) => !file.isDir).map((file) => file._id),
         isShared,
         forAgentOnly,
-      })
+      }).unwrap()
 
       await refetch()
 
