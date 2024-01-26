@@ -95,7 +95,19 @@ export default function ListMessages({
         {isLoading && <Loading sx={{ py: 2 }} />}
 
         {messages.map(
-          ({ _id, senderName, msg, createdAt, editable, sharelink }, index) => {
+          (
+            {
+              _id,
+              senderName,
+              msg,
+              createdAt,
+              editable,
+              sharelink,
+              agentLink,
+              contactLink,
+            },
+            index
+          ) => {
             const currentUser = senderName === user?.username
 
             return (
@@ -141,7 +153,11 @@ export default function ListMessages({
                                 ? `https://avahomeai.com/app/agent-orgs/${agentId}/${sharelink}`
                                 : `https://avahomeai.com/app/contact-orgs/${contactId}/${sharelink}`
                             }`
-                          : msg
+                          : agentId && agentLink
+                            ? `${msg} \n https://avahomeai.com/app/agent-orgs/${agentId}/${agentLink}`
+                            : contactId && contactLink
+                              ? `${msg} \n https://avahomeai.com/app/contact-orgs/${contactId}/${contactLink}`
+                              : msg
                         : ""
                     }
                     username={senderName}

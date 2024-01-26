@@ -91,6 +91,7 @@ export default function ShareFileModal({
         fileId: file._id,
         contactIds: form.contacts.map((c) => c._id),
         permission: form.permission,
+        notify: form.notify,
       })
       enqueueSnackbar("File is shared", { variant: "success" })
       onClose()

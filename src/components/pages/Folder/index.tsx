@@ -69,6 +69,10 @@ export type FileOrFolder = (IFolder | IFile) & {
 interface FileItemProps extends StackProps {
   name: string
   isDir: boolean
+  isShared: boolean
+  forAgentOnly: boolean
+  agentId?: string
+  contactId?: string
   onEdit?: () => void
   onShare?: () => void
   onDelete?: () => void
@@ -81,6 +85,10 @@ interface FileItemProps extends StackProps {
 function FileItem({
   name,
   isDir,
+  isShared,
+  forAgentOnly,
+  agentId,
+  contactId,
   onEdit,
   onShare,
   onDelete,
@@ -179,13 +187,17 @@ function FileItem({
             </Tooltip>
           )}
 
-          {onShare && (
-            <Tooltip title="Share" placement="top">
-              <button type="button" onClick={onShare}>
-                <SendHorizonal size={20} />
-              </button>
-            </Tooltip>
-          )}
+          {onShare &&
+            !isDir &&
+            !isShared &&
+            agentId &&
+            (!contactId || (contactId && forAgentOnly)) && (
+              <Tooltip title="Share" placement="top">
+                <button type="button" onClick={onShare}>
+                  <SendHorizonal size={20} />
+                </button>
+              </Tooltip>
+            )}
 
           <Dropdown
             open={showMoreActions}
@@ -218,26 +230,30 @@ function FileItem({
                   </ListItem>
                 )}
 
-                {onShare && (
-                  <ListItem onClick={onShare} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <SendHorizonal size={20} />
-                      </ListItemIcon>
+                {onShare &&
+                  !isDir &&
+                  !isShared &&
+                  agentId &&
+                  (!contactId || (contactId && forAgentOnly)) && (
+                    <ListItem onClick={onShare} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <SendHorizonal size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Share</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Share</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onCopyLink && (
+                {onCopyLink && !isDir && !isShared && agentId && !contactId && (
                   <ListItem onClick={onCopyLink} disablePadding>
                     <ListItemButton>
                       <ListItemIcon>
                         <Link2 size={20} />
                       </ListItemIcon>
 
-                      <ListItemText>Preview</ListItemText>
+                      <ListItemText>Copy Link</ListItemText>
                     </ListItemButton>
                   </ListItem>
                 )}
@@ -273,7 +289,7 @@ const FolderPage = ({
   const { push } = useRouter()
   const { enqueueSnackbar } = useSnackbar()
 
-  const [layoutType, setLayoutType] = useState<LayoutType>("GRID")
+  const [layoutType, setLayoutType] = useState<LayoutType>("LIST")
   const [activeFolder, setActiveFolder] = useState<IFolder | undefined>(
     undefined
   )
@@ -285,7 +301,7 @@ const FolderPage = ({
   const [openAddDropdown, setOpenAddDropdown] = useState(false)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
-  const [openGridDropdown, setOpenGridDropdown] = useState(false)
+  // const [openGridDropdown, setOpenGridDropdown] = useState(false)
 
   const { data, isLoading, isFetching, refetch } = useGetFolderQuery(
     { orgId, agentId, contactId, isShared, forAgentOnly, folderId },
@@ -335,11 +351,14 @@ const FolderPage = ({
 
   const baseRoute = useMemo(() => {
     if (agentId) {
-      if (isShared) {
-        return `/app/agent-orgs/${agentId}/folders/shared`
+      if (contactId) {
+        if (forAgentOnly) {
+          return `/app/agent-orgs/${agentId}/contacts/${contactId}/folders/foragent`
+        } else {
+          return `/app/agent-orgs/${agentId}/contacts/${contactId}/folders/forcontact`
+        }
       } else {
-        if (contactId) {
-          // TODO: yuri please update this url based on contact files UI
+        if (isShared) {
           return `/app/agent-orgs/${agentId}/folders/shared`
         } else {
           return `/app/agent-orgs/${agentId}/folders/me`
@@ -382,7 +401,7 @@ const FolderPage = ({
         </Breadcrumbs>
 
         <Stack direction="row" gap={2} alignItems="center">
-          <Dropdown
+          {/* <Dropdown
             open={openGridDropdown}
             ancher={
               <button type="button" onClick={() => setOpenGridDropdown(true)}>
@@ -422,7 +441,7 @@ const FolderPage = ({
                 </ListItem>
               </List>
             </Card>
-          </Dropdown>
+          </Dropdown> */}
 
           <Dropdown
             open={openAddDropdown}
@@ -448,7 +467,10 @@ const FolderPage = ({
             <Card>
               <List>
                 <ListItem
-                  onClick={() => setUploadModalOpen(true)}
+                  onClick={() => {
+                    setOpenAddDropdown(false)
+                    setUploadModalOpen(true)
+                  }}
                   disablePadding
                 >
                   <ListItemButton>
@@ -457,7 +479,10 @@ const FolderPage = ({
                 </ListItem>
 
                 <ListItem
-                  onClick={() => setFolderModalOpen(true)}
+                  onClick={() => {
+                    setOpenAddDropdown(false)
+                    setFolderModalOpen(true)
+                  }}
                   disablePadding
                 >
                   <ListItemButton>
@@ -506,11 +531,24 @@ const FolderPage = ({
               key={file.id}
               name={file.name}
               isDir={file.isDir ?? false}
+              isShared={isShared}
+              forAgentOnly={forAgentOnly}
+              agentId={agentId}
+              contactId={contactId}
               onEdit={() => {
-                setActiveFolder(file)
-                setFolderModalOpen(true)
+                if (file.isDir) {
+                  setActiveFolder(file)
+                  setFolderModalOpen(true)
+                } else {
+                  setActiveFile(file as IFile)
+                }
               }}
-              onShare={() => setActiveShareFile(file as IFile)}
+              onShare={() => {
+                if (file.isDir) {
+                } else {
+                  setActiveShareFile(file as IFile)
+                }
+              }}
               onDelete={() => setDeleteFiles([file])}
               onPreview={() =>
                 file.isDir
@@ -525,28 +563,12 @@ const FolderPage = ({
         </Stack>
       )}
 
-      {/* <FileBrowser
-        ref={fileBrowserRef}
-        files={files}
-        fileActions={[
-          deleteFilesAction,
-          renameAction,
-          createFolderAction,
-          uploadFilesAction,
-          shareFilesAction,
-        ]}
-        clearSelectionOnOutsideClick
-        onFileAction={onFileAction}
-        disableDefaultFileActions
-        iconComponent={CustomIcon}
-      >
-        <FileList />
-        <FileContextMenu />
-      </FileBrowser> */}
-
       <FolderModal
         open={folderModalOpen}
-        setOpen={setFolderModalOpen}
+        onClose={() => {
+          setActiveFolder(undefined)
+          setFolderModalOpen(false)
+        }}
         refetch={refetch}
         isRefetching={isFetching}
         orgId={orgId}

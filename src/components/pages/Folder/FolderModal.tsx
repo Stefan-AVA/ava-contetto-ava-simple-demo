@@ -26,7 +26,7 @@ interface IProps {
   isShared: boolean
   forAgentOnly?: boolean
   open: boolean
-  setOpen: Function
+  onClose: Function
   refetch: Function
   isRefetching: boolean
   folder?: IFolder
@@ -46,7 +46,7 @@ const FolderModal = ({
   forAgentOnly = false,
   folder,
   open,
-  setOpen,
+  onClose,
   refetch,
   isRefetching,
 }: IProps) => {
@@ -67,10 +67,10 @@ const FolderModal = ({
     }
   }, [folder])
 
-  const onClose = () => {
+  const onCloseModal = () => {
     setName("")
     setErrors({})
-    setOpen(false)
+    onClose()
   }
 
   const onSubmit = async () => {
@@ -116,7 +116,7 @@ const FolderModal = ({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={onCloseModal}
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Stack

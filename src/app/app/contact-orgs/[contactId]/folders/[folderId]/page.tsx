@@ -28,6 +28,7 @@ const Page = ({ params }: PageProps) => {
       contactId={contactId}
       folderId={folderId}
       isShared={false}
+      forAgentOnly={false}
     />
   )
 }

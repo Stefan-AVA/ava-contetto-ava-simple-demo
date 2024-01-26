@@ -9,12 +9,12 @@ import FolderPage from "@/components/pages/Folder"
 type PageProps = {
   params: {
     agentId: string
-    folderId: string
+    contact_id: string
   }
 }
 
 const Page = ({ params }: PageProps) => {
-  const { agentId, folderId } = params
+  const { agentId, contact_id } = params
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -27,9 +27,9 @@ const Page = ({ params }: PageProps) => {
     <FolderPage
       orgId={String(agentProfile?.orgId)}
       agentId={agentId}
+      contactId={contact_id}
       isShared={false}
-      forAgentOnly={false}
-      folderId={folderId}
+      forAgentOnly={true}
     />
   )
 }

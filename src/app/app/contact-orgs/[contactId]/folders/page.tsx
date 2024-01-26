@@ -26,6 +26,7 @@ const Page = ({ params }: PageProps) => {
       orgId={String(contact?.orgId)}
       contactId={contactId}
       isShared={false}
+      forAgentOnly={false}
     />
   )
 }

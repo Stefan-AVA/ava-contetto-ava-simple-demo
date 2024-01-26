@@ -425,7 +425,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                     : "gray.500",
                 fontWeight: 700,
               }}
-              href={`${basePath}/files` as Route}
+              href={`${basePath}/folders/foragent` as Route}
               component={Link}
             >
               Files

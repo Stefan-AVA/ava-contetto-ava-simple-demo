@@ -88,6 +88,7 @@ interface IShareFilesRequest {
   fileId: string
   contactIds: string[]
   permission: FilePermission
+  notify: boolean
 }
 
 export const mediaApi = createApi({
