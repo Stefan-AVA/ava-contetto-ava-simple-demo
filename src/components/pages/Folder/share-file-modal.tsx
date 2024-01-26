@@ -32,6 +32,7 @@ interface ShareFileModalProps {
   orgId: string
   setOpen: Function
   agentId: string
+  refetch: Function
 }
 
 interface IOption extends Partial<IContact> {
@@ -58,6 +59,7 @@ export default function ShareFileModal({
   file,
   orgId,
   setOpen,
+  refetch,
 }: ShareFileModalProps) {
   const { enqueueSnackbar } = useSnackbar()
 
@@ -93,6 +95,7 @@ export default function ShareFileModal({
         permission: form.permission,
         notify: form.notify,
       })
+      await refetch()
       enqueueSnackbar("File is shared", { variant: "success" })
       onClose()
     } catch (error) {

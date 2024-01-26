@@ -653,6 +653,7 @@ const FolderPage = ({
           orgId={orgId}
           setOpen={setActiveShareFile}
           agentId={agentId}
+          refetch={refetch}
         />
       )}
     </Stack>
