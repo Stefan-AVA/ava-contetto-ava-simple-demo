@@ -52,6 +52,7 @@ interface IDeleteFilesRequest extends IBaseRequest {
 // files
 interface IGetUploadFileUrlRequest extends IBaseRequest {
   name: string
+  type: string
 }
 interface IGetUploadFileUrlResponse {
   key: string
@@ -61,6 +62,7 @@ interface IGetUploadFileUrlResponse {
 interface IStoreFileRequest extends IBaseRequest {
   folderId?: string
   name: string
+  type: string
   isShared: boolean
   forAgentOnly: boolean
   s3Key: string

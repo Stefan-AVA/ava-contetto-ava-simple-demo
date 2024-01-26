@@ -90,6 +90,7 @@ const UploadFilesModal = ({
       agentId,
       contactId,
       name: file.name,
+      type: file.type,
     }).unwrap()
 
     // upload to s3
@@ -108,6 +109,7 @@ const UploadFilesModal = ({
         contactId,
         folderId,
         name: file.name,
+        type: file.type,
         size: file.size,
         s3Key: key,
         isShared,
