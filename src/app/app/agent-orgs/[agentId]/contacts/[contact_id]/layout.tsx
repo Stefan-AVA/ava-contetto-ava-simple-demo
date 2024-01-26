@@ -416,6 +416,20 @@ export default function ContactLayout({ children }: PropsWithChildren) {
             >
               All Activities
             </Typography>
+
+            <Typography
+              sx={{
+                color:
+                  pathname === `${basePath}/all-activities`
+                    ? "secondary.main"
+                    : "gray.500",
+                fontWeight: 700,
+              }}
+              href={`${basePath}/files` as Route}
+              component={Link}
+            >
+              Files
+            </Typography>
           </Stack>
 
           <Stack sx={{ p: 3 }}>{children}</Stack>
