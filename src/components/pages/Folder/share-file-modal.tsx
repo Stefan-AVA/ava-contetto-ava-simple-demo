@@ -1,8 +1,6 @@
-import { useMemo, useState } from "react"
-import { useParams } from "next/navigation"
+import { useState } from "react"
 import { useShareFileMutation } from "@/redux/apis/media"
 import { useGetContactsQuery } from "@/redux/apis/org"
-import { RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import { nameInitials } from "@/utils/format-name"
 import { LoadingButton } from "@mui/lab"
@@ -30,10 +28,10 @@ import { FilePermission, IFile } from "@/types/folder.types"
 
 interface ShareFileModalProps {
   open: boolean
-  setOpen: Function
-  orgId: string
-  agentId: string
   file: IFile
+  orgId: string
+  setOpen: Function
+  agentId: string
 }
 
 interface IOption extends Partial<IContact> {
@@ -57,9 +55,9 @@ const initialForm = {
 
 export default function ShareFileModal({
   open,
-  setOpen,
   file,
   orgId,
+  setOpen,
 }: ShareFileModalProps) {
   const { enqueueSnackbar } = useSnackbar()
 

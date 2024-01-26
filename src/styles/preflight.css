@@ -68,18 +68,3 @@ figure,
 blockquote {
   margin: 0;
 }
-
-.chonky-chonkyRoot {
-  height: auto;
-  border: none !important;
-  min-height: calc(100vh - 300px);
-}
-
-span[class*="gridFileEntryName"] {
-  width: 100%;
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding-bottom: 0;
-}

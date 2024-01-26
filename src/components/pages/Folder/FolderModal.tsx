@@ -45,7 +45,6 @@ const FolderModal = ({
   isShared = true,
   forAgentOnly = false,
   folder,
-
   open,
   setOpen,
   refetch,
