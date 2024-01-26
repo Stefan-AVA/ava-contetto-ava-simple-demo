@@ -107,7 +107,7 @@ const FolderModal = ({
       }
 
       await refetch()
-      onClose()
+      onCloseModal()
     } catch (error) {
       setErrors({ request: parseError(error) })
     }
