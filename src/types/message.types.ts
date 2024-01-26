@@ -20,8 +20,8 @@ export interface IMessage {
   edited: boolean
   editable: boolean
   sharelink?: string
-  agentLink?: string;
-  contactLink?: string;
+  agentLink?: string
+  contactLink?: string
   // mentions:
 }
 

@@ -354,6 +354,7 @@ const FolderPage = ({
   const onShare = async (file: FileOrFolder) => {
     if (agentId) {
       if (file.isDir) {
+        console.log("directory")
       } else {
         if (contactId && forAgentOnly) {
           try {
