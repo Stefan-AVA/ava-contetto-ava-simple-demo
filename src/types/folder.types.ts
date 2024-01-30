@@ -1,33 +1,31 @@
-export interface IFolder {
-  _id: string
-  name: string
-  orgId: string
-  isShared: boolean // if true, it's shared across all org agents
-  contactId?: string // if exists, it's shared with contact (isShared must be false in this case)
-  forAgentOnly: boolean // for contact shared only, if true, it's only visible for agent only, not contacts
-  parentId: string | "" // parentId = '' means it's root folder
-  parentPaths: string[]
-  parentFolders?: IFolder[]
-  creator: string // username
-  agentName?: string // exists if it's created by agent
-  timestamp: number
-}
-
 export enum FilePermission {
   editor = "editor",
   viewer = "viewer",
-  commentor = "commentor",
 }
 
 export interface IFileConnect {
   id?: string // agentId or contactId or null for org shared
-  username: string // agent username or contact name
+  username?: string // agent username or contact name
   type: "agent" | "contact" | "shared" | "forAgentOnly"
   permission: FilePermission
   parentId: string | "" // parentId = '' means it's root folder
 }
 
-export interface IFile extends IFolder {
+export interface IFolderConnect extends IFileConnect {
+  parentPaths: string[]
+}
+
+export interface IFolder {
+  _id: string
+  name: string
+  orgId: string
+  parentFolders?: IFolder[]
+  creator: string // username
+  timestamp: number
+  connections: IFolderConnect[]
+}
+
+export interface IFile {
   _id: string
   name: string
   orgId: string
@@ -38,4 +36,13 @@ export interface IFile extends IFolder {
   timestamp: number
   creator: string
   connections: IFileConnect[]
+}
+
+export interface IFileShare {
+  _id: string
+  orgId: string
+  agentId: string
+  agentName: string // agent username
+  fileId: string
+  code: string
 }

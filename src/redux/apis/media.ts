@@ -34,6 +34,16 @@ interface IRenameFolderRequest extends IBaseRequest {
   name: string
 }
 
+interface IShareFolderRequest extends IBaseRequest {
+  folderId: string
+  contactIds: string[]
+  permission: FilePermission
+  notify: boolean
+  orgShare: boolean
+  isShared: boolean
+  forAgentOnly: boolean
+}
+
 interface IMoveFilesRequest extends IBaseRequest {
   folderId: string
   isShared: boolean
@@ -91,6 +101,12 @@ interface IShareFilesRequest {
   contactIds: string[]
   permission: FilePermission
   notify: boolean
+  orgShare: boolean
+}
+
+interface IShareFileLinkRequest {
+  orgId: string
+  fileId: string
 }
 
 interface IShareAgentOnlyFileRequest {
@@ -122,6 +138,13 @@ export const mediaApi = createApi({
       query: ({ orgId, folderId, ...rest }) => ({
         url: `/${orgId}/folders/${folderId}`,
         method: "PUT",
+        body: rest,
+      }),
+    }),
+    shareFolder: builder.mutation<void, IShareFolderRequest>({
+      query: ({ orgId, folderId, ...rest }) => ({
+        url: `/${orgId}/folders/${folderId}/share`,
+        method: "POST",
         body: rest,
       }),
     }),
@@ -188,6 +211,12 @@ export const mediaApi = createApi({
         method: "POST",
       }),
     }),
+    shareFileLink: builder.query<{ link: string }, IShareFileLinkRequest>({
+      query: ({ orgId, fileId }) => ({
+        url: `/${orgId}/files/${fileId}/share-link`,
+        method: "GET",
+      }),
+    }),
   }),
 })
 
@@ -195,6 +224,7 @@ export const {
   useCreateFolderMutation,
   useGetFolderQuery,
   useRenameFolderMutation,
+  useShareFolderMutation,
   useMoveFilesMutation,
   useDeletefilesMutation,
 
@@ -204,4 +234,5 @@ export const {
   useRenameFileMutation,
   useShareFileMutation,
   useShareAgentOnlyFileMutation,
+  useLazyShareFileLinkQuery,
 } = mediaApi

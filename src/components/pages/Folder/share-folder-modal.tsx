@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useShareFileMutation } from "@/redux/apis/media"
+import { useShareFolderMutation } from "@/redux/apis/media"
 import { useGetContactsQuery } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { nameInitials } from "@/utils/format-name"
@@ -24,14 +24,18 @@ import { X } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import type { IContact } from "@/types/contact.types"
-import { FilePermission, IFile } from "@/types/folder.types"
+import { FilePermission, IFolder } from "@/types/folder.types"
 
-interface ShareFileModalProps {
-  open: boolean
-  file: IFile
+interface ShareFoldereModalProps {
   orgId: string
+  agentId?: string
+  contactId?: string
+  isShared: boolean
+  forAgentOnly: boolean
+  folder: IFolder
+
+  open: boolean
   setOpen: Function
-  agentId: string
   refetch: Function
 }
 
@@ -51,13 +55,18 @@ const initialForm = {
   permission: FilePermission.editor,
 }
 
-export default function ShareFileModal({
-  open,
-  file,
+export default function ShareFolderModal({
   orgId,
+  agentId,
+  contactId,
+  isShared,
+  forAgentOnly,
+  folder,
+
+  open,
   setOpen,
   refetch,
-}: ShareFileModalProps) {
+}: ShareFoldereModalProps) {
   const { enqueueSnackbar } = useSnackbar()
 
   const [form, setForm] = useState(initialForm)
@@ -70,7 +79,7 @@ export default function ShareFileModal({
     orgId,
   })
 
-  const [shareFile, { isLoading: isSharing }] = useShareFileMutation()
+  const [shareFolder, { isLoading: isSharing }] = useShareFolderMutation()
 
   const loading = isLoading || isFetching
 
@@ -85,16 +94,20 @@ export default function ShareFileModal({
       return
     }
     try {
-      await shareFile({
+      await shareFolder({
         orgId,
-        fileId: file._id,
+        agentId,
+        contactId,
+        isShared,
+        forAgentOnly,
+        folderId: folder._id,
         contactIds: form.orgShare ? [] : form.contacts.map((c) => c._id),
         permission: form.permission,
         notify: form.notify,
         orgShare: form.orgShare,
       })
       await refetch()
-      enqueueSnackbar("File is shared", { variant: "success" })
+      enqueueSnackbar("Folder is shared", { variant: "success" })
       onClose()
     } catch (error) {
       enqueueSnackbar(parseError(error), { variant: "error" })
@@ -125,7 +138,7 @@ export default function ShareFileModal({
           }}
         >
           <Typography sx={{ fontWeight: 600 }} variant="h4">
-            Share {file?.name} With
+            Share {folder?.name} With
           </Typography>
 
           <Stack
@@ -273,7 +286,7 @@ export default function ShareFileModal({
           People with access
         </Typography>
         <Stack spacing={1} mt={1}>
-          {file?.connections.map((con) => (
+          {folder?.connections.map((con) => (
             <Stack
               key={`${con.id}-${con.type}`}
               spacing={2}
@@ -284,7 +297,7 @@ export default function ShareFileModal({
                 {con.id ? con.username : "Shared all"}
               </Typography>
               <Typography variant="body2">
-                ({file?.creator === con.username ? "owner" : con.permission})
+                ({folder?.creator === con.username ? "owner" : con.permission})
               </Typography>
             </Stack>
           ))}

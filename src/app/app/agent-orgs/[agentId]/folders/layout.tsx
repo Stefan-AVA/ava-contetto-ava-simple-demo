@@ -13,7 +13,7 @@ interface PageProps extends PropsWithChildren {
 }
 
 const routes = [
-  { path: "/shared", label: "Shared files" },
+  { path: "/shared", label: "Org. files" },
   { path: "/me", label: "My files" },
 ]
 

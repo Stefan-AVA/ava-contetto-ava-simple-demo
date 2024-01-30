@@ -8,8 +8,10 @@ import { useRouter } from "next/navigation"
 import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
+  useLazyShareFileLinkQuery,
   useShareAgentOnlyFileMutation,
 } from "@/redux/apis/media"
+import { parseError } from "@/utils/error"
 import {
   Box,
   Breadcrumbs,
@@ -28,12 +30,14 @@ import {
 import IconFolder from "~/assets/icon-folder.svg"
 import {
   AlignJustify,
+  Download,
   Eye,
   FileArchive,
   Grip,
   LayoutGrid,
   Link2,
   MoreHorizontal,
+  Move,
   Pen,
   Plus,
   SendHorizonal,
@@ -49,6 +53,7 @@ import DeleteFilesModal from "./DeleteFilesModal"
 import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
 import ShareFileModal from "./share-file-modal"
+import ShareFolderModal from "./share-folder-modal"
 import UploadFilesModal from "./UploadFilesModal"
 
 type LayoutType = "GRID" | "LIST"
@@ -80,21 +85,20 @@ interface FileItemProps extends StackProps {
   navigateTo: string
   onPreview?: () => void
   onCopyLink?: () => void
+  onMove?: () => void
   isLayoutGrid: boolean
 }
 
 function FileItem({
   name,
   isDir,
-  isShared,
-  forAgentOnly,
   agentId,
-  contactId,
   onEdit,
   onShare,
   onDelete,
   onPreview,
   onCopyLink,
+  onMove,
   navigateTo,
   isLayoutGrid,
 }: FileItemProps) {
@@ -172,15 +176,15 @@ function FileItem({
             },
           }}
         >
-          {onEdit && (
+          {/* {onEdit && (
             <Tooltip title="Edit" placement="top">
               <button type="button" onClick={onEdit}>
                 <Pen size={20} />
               </button>
             </Tooltip>
-          )}
+          )} */}
 
-          {onPreview && (
+          {onPreview && !isDir && (
             <Tooltip title="Preview" placement="top">
               <button type="button" onClick={onPreview}>
                 <Eye size={20} />
@@ -188,17 +192,13 @@ function FileItem({
             </Tooltip>
           )}
 
-          {onShare &&
-            !isDir &&
-            !isShared &&
-            agentId &&
-            (!contactId || (contactId && forAgentOnly)) && (
-              <Tooltip title="Share" placement="top">
-                <button type="button" onClick={onShare}>
-                  <SendHorizonal size={20} />
-                </button>
-              </Tooltip>
-            )}
+          {onShare && agentId && (
+            <Tooltip title="Share" placement="top">
+              <button type="button" onClick={onShare}>
+                <SendHorizonal size={20} />
+              </button>
+            </Tooltip>
+          )}
 
           <Dropdown
             open={showMoreActions}
@@ -219,7 +219,7 @@ function FileItem({
           >
             <Card>
               <List>
-                {onPreview && (
+                {onPreview && !isDir && (
                   <ListItem onClick={onPreview} disablePadding>
                     <ListItemButton>
                       <ListItemIcon>
@@ -231,23 +231,19 @@ function FileItem({
                   </ListItem>
                 )}
 
-                {onShare &&
-                  !isDir &&
-                  !isShared &&
-                  agentId &&
-                  (!contactId || (contactId && forAgentOnly)) && (
-                    <ListItem onClick={onShare} disablePadding>
-                      <ListItemButton>
-                        <ListItemIcon>
-                          <SendHorizonal size={20} />
-                        </ListItemIcon>
+                {onShare && agentId && (
+                  <ListItem onClick={onShare} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <SendHorizonal size={20} />
+                      </ListItemIcon>
 
-                        <ListItemText>Share</ListItemText>
-                      </ListItemButton>
-                    </ListItem>
-                  )}
+                      <ListItemText>Share</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
 
-                {onCopyLink && !isDir && !isShared && agentId && !contactId && (
+                {onCopyLink && !isDir && agentId && (
                   <ListItem onClick={onCopyLink} disablePadding>
                     <ListItemButton>
                       <ListItemIcon>
@@ -255,6 +251,42 @@ function FileItem({
                       </ListItemIcon>
 
                       <ListItemText>Copy Link</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onEdit && (
+                  <ListItem onClick={onEdit} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Pen size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Rename</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onPreview && !isDir && (
+                  <ListItem onClick={onPreview} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Download size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Download</ListItemText>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {onMove && (
+                  <ListItem onClick={onMove} disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <Move size={20} />
+                      </ListItemIcon>
+
+                      <ListItemText>Move</ListItemText>
                     </ListItemButton>
                   </ListItem>
                 )}
@@ -298,6 +330,9 @@ const FolderPage = ({
   const [activeShareFile, setActiveShareFile] = useState<IFile | undefined>(
     undefined
   )
+  const [activeShareFolder, setActiveShareFolder] = useState<
+    IFolder | undefined
+  >(undefined)
   const [deleteFiles, setDeleteFiles] = useState<FileOrFolder[]>([])
   const [openAddDropdown, setOpenAddDropdown] = useState(false)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
@@ -309,7 +344,8 @@ const FolderPage = ({
     { skip: !orgId }
   )
   const [getDownloadFileUrl] = useGetDownloadFileUrlMutation()
-  const [shareAgentOnlyFile] = useShareAgentOnlyFileMutation()
+  const [getSharefileLink] = useLazyShareFileLinkQuery()
+  // const [shareAgentOnlyFile] = useShareAgentOnlyFileMutation()
 
   const isLayoutGrid = layoutType === "GRID"
 
@@ -354,30 +390,50 @@ const FolderPage = ({
   const onShare = async (file: FileOrFolder) => {
     if (agentId) {
       if (file.isDir) {
-        console.log("directory")
+        setActiveShareFolder(file as IFolder)
       } else {
-        if (contactId && forAgentOnly) {
-          try {
-            await shareAgentOnlyFile({
-              orgId,
-              contactId,
-              fileId: file._id,
-            }).unwrap()
+        setActiveShareFile(file as IFile)
+        // if (contactId && forAgentOnly) {
+        //   try {
+        //     await shareAgentOnlyFile({
+        //       orgId,
+        //       contactId,
+        //       fileId: file._id,
+        //     }).unwrap()
 
-            enqueueSnackbar("Shared", {
-              variant: "success",
-            })
+        //     enqueueSnackbar("Shared", {
+        //       variant: "success",
+        //     })
 
-            await refetch()
-          } catch (error) {
-            enqueueSnackbar("Something is wrong can't share file", {
-              variant: "error",
-            })
-          }
-        } else {
-          setActiveShareFile(file as IFile)
+        //     await refetch()
+        //   } catch (error) {
+        //     enqueueSnackbar("Something is wrong can't share file", {
+        //       variant: "error",
+        //     })
+        //   }
+        // } else {
+        //   setActiveShareFile(file as IFile)
+        // }
+      }
+    }
+  }
+
+  const onCopyLink = async (file: FileOrFolder) => {
+    try {
+      if (agentId) {
+        if (!file.isDir) {
+          const { link } = await getSharefileLink({
+            orgId,
+            fileId: file._id,
+          }).unwrap()
+
+          navigator.clipboard.writeText(link)
+
+          enqueueSnackbar("Copied", { variant: "success" })
         }
       }
+    } catch (error) {
+      enqueueSnackbar(parseError(error), { variant: "error" })
     }
   }
 
@@ -569,7 +625,7 @@ const FolderPage = ({
               contactId={contactId}
               onEdit={() => {
                 if (file.isDir) {
-                  setActiveFolder(file)
+                  setActiveFolder(file as IFolder)
                   setFolderModalOpen(true)
                 } else {
                   setActiveFile(file as IFile)
@@ -582,7 +638,8 @@ const FolderPage = ({
                   ? push(`${baseRoute}/${file.id}` as Route)
                   : onDownloadFile(file)
               }
-              onCopyLink={() => {}}
+              onMove={() => {}}
+              onCopyLink={() => onCopyLink(file)}
               navigateTo={`${baseRoute}/${file.id}`}
               isLayoutGrid={isLayoutGrid}
             />
@@ -653,6 +710,19 @@ const FolderPage = ({
           orgId={orgId}
           setOpen={setActiveShareFile}
           agentId={agentId}
+          refetch={refetch}
+        />
+      )}
+      {agentId && (
+        <ShareFolderModal
+          orgId={orgId}
+          agentId={agentId}
+          contactId={contactId}
+          isShared={isShared}
+          forAgentOnly={forAgentOnly}
+          folder={activeShareFolder!}
+          open={!!activeShareFolder}
+          setOpen={setActiveShareFolder}
           refetch={refetch}
         />
       )}
