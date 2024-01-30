@@ -52,6 +52,7 @@ import Loading from "@/components/Loading"
 import DeleteFilesModal from "./DeleteFilesModal"
 import FileModal from "./FileModal"
 import FolderModal from "./FolderModal"
+import MoveFileModal from "./MoveFileModal"
 import ShareFileModal from "./share-file-modal"
 import ShareFolderModal from "./share-folder-modal"
 import UploadFilesModal from "./UploadFilesModal"
@@ -332,6 +333,9 @@ const FolderPage = ({
   )
   const [activeShareFolder, setActiveShareFolder] = useState<
     IFolder | undefined
+  >(undefined)
+  const [activeMoveFile, setActiveMoveFile] = useState<
+    FileOrFolder | undefined
   >(undefined)
   const [deleteFiles, setDeleteFiles] = useState<FileOrFolder[]>([])
   const [openAddDropdown, setOpenAddDropdown] = useState(false)
@@ -638,7 +642,7 @@ const FolderPage = ({
                   ? push(`${baseRoute}/${file.id}` as Route)
                   : onDownloadFile(file)
               }
-              onMove={() => {}}
+              onMove={() => setActiveMoveFile(file)}
               onCopyLink={() => onCopyLink(file)}
               navigateTo={`${baseRoute}/${file.id}`}
               isLayoutGrid={isLayoutGrid}
@@ -726,6 +730,18 @@ const FolderPage = ({
           refetch={refetch}
         />
       )}
+      <MoveFileModal
+        orgId={orgId}
+        agentId={agentId}
+        contactId={contactId}
+        isShared={isShared}
+        forAgentOnly={forAgentOnly}
+        file={activeMoveFile}
+        open={!!activeMoveFile}
+        setOpen={setActiveMoveFile}
+        refetch={refetch}
+        isRefetching={isFetching}
+      />
     </Stack>
   )
 }

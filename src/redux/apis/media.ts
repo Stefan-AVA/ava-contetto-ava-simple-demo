@@ -223,6 +223,7 @@ export const mediaApi = createApi({
 export const {
   useCreateFolderMutation,
   useGetFolderQuery,
+  useLazyGetFolderQuery,
   useRenameFolderMutation,
   useShareFolderMutation,
   useMoveFilesMutation,
