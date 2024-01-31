@@ -1,6 +1,10 @@
 "use client"
 
 // import Image from "next/image"
+import { useState } from "react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useGetMeQuery } from "@/redux/apis/auth"
 import {
   useCopySharedFileMutation,
   useGetSharedFileQuery,
@@ -8,6 +12,7 @@ import {
 } from "@/redux/apis/fileshare"
 import { Stack, Typography } from "@mui/material"
 import { DownloadCloud, FolderPlus } from "lucide-react"
+import { useSnackbar } from "notistack"
 
 import Loading from "@/components/Loading"
 
@@ -25,14 +30,75 @@ const Page = ({ params, searchParams }: PageProps) => {
   const { shareId } = params
   const { orgId, code } = searchParams
 
-  const { data, isLoading } = useGetSharedFileQuery({
+  const { push } = useRouter()
+  const { enqueueSnackbar } = useSnackbar()
+
+  const [downloading, setDownloading] = useState(false)
+
+  const { data: file, isLoading } = useGetSharedFileQuery({
     shareId,
     orgId,
     code,
   })
+  const { data: user } = useGetMeQuery()
 
   const [getDownloadUrl] = useLazyGetSharedFileQuery()
-  const [copySharedFile] = useCopySharedFileMutation()
+  const [copySharedFile, { isLoading: isCopying }] = useCopySharedFileMutation()
+
+  const onDownload = async () => {
+    setDownloading(true)
+    try {
+      const { name, downloadUrl } = await getDownloadUrl({
+        shareId,
+        orgId,
+        code,
+      }).unwrap()
+
+      const response = await fetch(downloadUrl)
+      const blob = await response.blob()
+
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", name)
+
+      // Append to html link element page
+      document.body.appendChild(link)
+
+      // Start download
+      link.click()
+
+      // Clean up and remove the link
+      link.parentNode?.removeChild(link)
+    } catch (error) {
+      enqueueSnackbar("Error to download. please try again", {
+        variant: "error",
+      })
+    }
+    setDownloading(false)
+  }
+
+  const onCopy = async () => {
+    if (!user) {
+      push(`/?_next=/files/share/${shareId}&orgId=${orgId}&code=${code}`)
+      return
+    }
+    try {
+      await copySharedFile({
+        orgId,
+        shareId,
+        code,
+      }).unwrap()
+
+      enqueueSnackbar("Saved", {
+        variant: "success",
+      })
+    } catch (error) {
+      enqueueSnackbar("Copy failed. please try again", {
+        variant: "error",
+      })
+    }
+  }
 
   if (!orgId || !code) return <div>No Content</div>
 
@@ -79,7 +145,7 @@ const Page = ({ params, searchParams }: PageProps) => {
           }}
           variant="h6"
         >
-          File Name (View Only)
+          {file?.name} (View Only)
         </Typography>
 
         <Stack
@@ -95,7 +161,7 @@ const Page = ({ params, searchParams }: PageProps) => {
               color: "white",
               display: "flex",
               opacity: 0.7,
-              transition: "all .3s ease-in-out",
+              // transition: "all .3s ease-in-out",
               alignItems: "center",
 
               "&:hover": {
@@ -103,6 +169,8 @@ const Page = ({ params, searchParams }: PageProps) => {
               },
             }}
             component="button"
+            onClick={onDownload}
+            disabled={downloading}
           >
             <DownloadCloud />
             Download
@@ -122,6 +190,7 @@ const Page = ({ params, searchParams }: PageProps) => {
               },
             }}
             component="button"
+            onClick={onCopy}
           >
             <FolderPlus />
             Save
@@ -129,20 +198,22 @@ const Page = ({ params, searchParams }: PageProps) => {
         </Stack>
       </Stack>
 
-      <Typography
-        sx={{ m: "auto", textAlign: "center", maxWidth: "20rem" }}
-        variant="h4"
-      >
-        This file can not be opened. Download to open.
-      </Typography>
-
-      {/* <Image
-        src="/assets/signup-background.jpg"
-        alt=""
-        width={960}
-        style={{ margin: "auto" }}
-        height={480}
-      /> */}
+      {file?.mimetype.includes("image") ? (
+        <Image
+          src={file.downloadUrl}
+          alt=""
+          width={960}
+          style={{ margin: "auto" }}
+          height={480}
+        />
+      ) : (
+        <Typography
+          sx={{ m: "auto", textAlign: "center", maxWidth: "20rem" }}
+          variant="h4"
+        >
+          This file can not be opened. Download to open.
+        </Typography>
+      )}
     </Stack>
   )
 }

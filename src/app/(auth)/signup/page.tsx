@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useConfirmEmailMutation, useSignupMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
@@ -45,12 +46,6 @@ type FormError = Record<keyof Partial<FormSchema>, string> & {
   request?: string
 }
 
-interface PageProps {
-  searchParams: {
-    _next: string
-  }
-}
-
 const initialForm = {
   email: "",
   terms: false,
@@ -60,8 +55,9 @@ const initialForm = {
   verificationCode: "",
 }
 
-export default function SignupPage({ searchParams }: PageProps) {
-  const nextLink = searchParams._next
+export default function SignupPage() {
+  const searchParams = useSearchParams()
+  const queryParams = searchParams.toString()
 
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormSchema>(initialForm)
@@ -246,7 +242,7 @@ export default function SignupPage({ searchParams }: PageProps) {
             Already have an account?{" "}
             <Typography
               sx={{ color: "blue.500", fontWeight: 700 }}
-              href={nextLink ? `/?_next=${nextLink}` : "/"}
+              href={queryParams ? `/?${queryParams}` : "/"}
               variant="body2"
               component={Link}
             >
@@ -314,7 +310,7 @@ export default function SignupPage({ searchParams }: PageProps) {
             Your account is now verified. Please{" "}
             <Typography
               sx={{ color: "blue.500", fontWeight: 700 }}
-              href={nextLink ? `/?_next=${nextLink}` : "/"}
+              href={queryParams ? `/?${queryParams}` : "/"}
               component={Link}
             >
               Sign In

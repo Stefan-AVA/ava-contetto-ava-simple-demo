@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import {
   useForgotPasswordConfirmMutation,
   useForgotPasswordMutation,
@@ -35,12 +36,6 @@ export type ConfirmForgotPasswordFormSchema = z.infer<
   typeof confirmForgotPasswordSchema
 >
 
-interface PageProps {
-  searchParams: {
-    _next: string
-  }
-}
-
 type FormSchema = ForgotPasswordFormSchema & ConfirmForgotPasswordFormSchema
 
 type FormError = {
@@ -58,8 +53,9 @@ const initialForm = {
   verificationCode: "",
 }
 
-export default function ForgotPasswordPage({ searchParams }: PageProps) {
-  const nextLink = searchParams._next
+export default function ForgotPasswordPage() {
+  const searchParams = useSearchParams()
+  const queryParams = searchParams.toString()
 
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormSchema>(initialForm)
@@ -233,7 +229,7 @@ export default function ForgotPasswordPage({ searchParams }: PageProps) {
             Please{" "}
             <Typography
               sx={{ color: "blue.500", fontWeight: 700 }}
-              href={nextLink ? `/?_next=${nextLink}` : "/"}
+              href={queryParams ? `/?${queryParams}` : "/"}
               component={Link}
             >
               Sign In

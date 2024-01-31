@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { Route } from "next"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { connectSocket } from "@/providers/SocketProvider"
 import { useLoginMutation } from "@/redux/apis/auth"
 import { parseError } from "@/utils/error"
@@ -28,19 +28,13 @@ type FormError = LoginFormSchema & {
   request?: string
 }
 
-interface PageProps {
-  searchParams: {
-    _next: string
-  }
-}
-
-export default function LoginPage({ searchParams }: PageProps) {
+export default function LoginPage() {
   const [form, setForm] = useState<LoginFormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
   const { push } = useRouter()
-
-  const nextLink = searchParams._next
+  const searchParams = useSearchParams()
+  const queryParams = searchParams.toString()
 
   const [login, { isLoading }] = useLoginMutation()
 
@@ -71,6 +65,17 @@ export default function LoginPage({ searchParams }: PageProps) {
 
       // update webSocket connection
       connectSocket()
+
+      const _next = searchParams.get("_next")
+      let nextLink = _next ? `${_next}?` : ""
+      if (nextLink) {
+        for (const [key, value] of Array.from(searchParams.entries())) {
+          if (key !== "_next") {
+            nextLink = `${nextLink}${key}=${value}&`
+          }
+        }
+        nextLink = nextLink.slice(0, -1)
+      }
 
       push(nextLink ? (nextLink as Route) : "/app")
     } catch (error) {
@@ -118,7 +123,7 @@ export default function LoginPage({ searchParams }: PageProps) {
             fontWeight: 700,
           }}
           href={
-            nextLink ? `/forgot-password?_next=${nextLink}` : "/forgot-password"
+            queryParams ? `/forgot-password?${queryParams}` : "/forgot-password"
           }
           variant="body2"
           component={Link}
@@ -151,7 +156,7 @@ export default function LoginPage({ searchParams }: PageProps) {
         {"Don't have an account? "}
         <Typography
           sx={{ color: "blue.500", fontWeight: 700 }}
-          href={nextLink ? `/signup?_next=${nextLink}` : "/signup"}
+          href={queryParams ? `/signup?${queryParams}` : "/signup"}
           variant="body2"
           component={Link}
         >

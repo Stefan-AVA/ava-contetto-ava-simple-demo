@@ -9,7 +9,12 @@ import {
   type PropsWithChildren,
 } from "react"
 import { Route } from "next"
-import { useParams, usePathname, useRouter } from "next/navigation"
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation"
 import { useLazyGetMeQuery } from "@/redux/apis/auth"
 import { useLazyGetOrgsQuery } from "@/redux/apis/org"
 import { useLazyGetAllRoomsQuery } from "@/redux/apis/room"
@@ -31,6 +36,8 @@ export default function Layout({ children }: PropsWithChildren) {
   const { agentId, contactId } = useParams()
   const { replace } = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const queryParams = searchParams.toString()
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [openCreateOrgModal, setOpenCreateOrgModal] = useState(false)
@@ -74,7 +81,7 @@ export default function Layout({ children }: PropsWithChildren) {
         } catch (error) {
           console.log("error ===>", error)
           dispatch(logout())
-          replace(`/?_next=${pathname}`)
+          replace(`/?_next=${pathname}${queryParams ? `?${queryParams}` : ""}`)
         }
       }
     }
