@@ -120,13 +120,14 @@ const FolderModal = ({
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Stack
-        width={300}
-        spacing={3}
         sx={{ background: "white", padding: 3, borderRadius: 2 }}
+        width={400}
+        spacing={3}
       >
-        <Typography variant="h4">
+        <Typography sx={{ fontWeight: 600 }} variant="h4">
           {folder ? "Rename Folder" : "Create Folder"}
         </Typography>
+
         <TextField
           label="Folder Name"
           value={name}

@@ -8,13 +8,14 @@ import {
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
 import {
+  Box,
+  Button,
   FormHelperText,
-  Unstable_Grid2 as Grid,
   Modal,
   Stack,
   Typography,
 } from "@mui/material"
-import { File } from "lucide-react"
+import { CheckCircle2, UploadCloud } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IFolder } from "@/types/folder.types"
@@ -158,55 +159,99 @@ const UploadFilesModal = ({
         spacing={3}
         sx={{ background: "white", padding: 3, borderRadius: 2 }}
       >
-        <Typography variant="h4">Upload Files</Typography>
+        <Typography sx={{ fontWeight: 600 }} variant="h4">
+          Upload Files
+        </Typography>
 
         <DragDrop
-          multiple
-          onChange={onFileChange}
           sx={{
             width: "100%",
-            height: "unset",
+            height: "auto",
             maxHeight: 500,
             minHeight: 200,
             overflow: "auto",
           }}
+          multiple
+          onChange={onFileChange}
         >
-          {files.length > 0 && (
-            <Grid sx={{ width: "100%" }} container spacing={3}>
-              {files.map((file) => (
-                <Grid xs={4} sm={3} key={file.name}>
-                  <Stack spacing={2} alignItems="center">
-                    <File size={40} />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        maxWidth: "100%",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {file.name}
-                    </Typography>
-                  </Stack>
-                </Grid>
-              ))}
-            </Grid>
-          )}
+          <Stack
+            sx={{
+              py: 3,
+              alignItems: "center",
+            }}
+          >
+            <Box
+              sx={{ color: "primary.main" }}
+              size={56}
+              component={UploadCloud}
+            />
+
+            <Typography
+              sx={{ mt: 1.5, textAlign: "center", fontWeight: "600" }}
+              variant="h6"
+            >
+              Drag and drop files here
+            </Typography>
+
+            <Typography sx={{ textAlign: "center" }} variant="h6">
+              or
+            </Typography>
+
+            <Button sx={{ mt: 1 }} variant="outlined">
+              Upload
+            </Button>
+          </Stack>
         </DragDrop>
 
-        <Stack spacing={1}>
-          <LoadingButton
-            loading={isRefetching || uploading}
-            sx={{ textTransform: "none" }}
-            onClick={onUpload}
-          >
-            Upload
-          </LoadingButton>
-          {errors.request && (
-            <FormHelperText error>{errors.request}</FormHelperText>
-          )}
-        </Stack>
+        {files.length > 0 && (
+          <Stack sx={{ gap: 1 }}>
+            {files.map((file) => (
+              <Stack
+                sx={{
+                  px: 2,
+                  py: 1,
+                  bgcolor: "gray.200",
+                  alignItems: "center",
+                  borderRadius: ".75rem",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+                key={file.name}
+              >
+                <Stack>
+                  <Typography
+                    sx={{
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      fontWeight: "600",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                    variant="body2"
+                  >
+                    {file.name}
+                  </Typography>
+
+                  <Typography sx={{ color: "gray.500" }} variant="body2">
+                    {(file.size / (1024 * 1024)).toFixed(2)}mb
+                  </Typography>
+                </Stack>
+
+                <Box sx={{ color: "primary.main" }} component={CheckCircle2} />
+              </Stack>
+            ))}
+          </Stack>
+        )}
+
+        <LoadingButton loading={isRefetching || uploading} onClick={onUpload}>
+          Upload
+        </LoadingButton>
+
+        {errors.request && (
+          <FormHelperText sx={{ mt: 1 }} error>
+            {errors.request}
+          </FormHelperText>
+        )}
       </Stack>
     </Modal>
   )
