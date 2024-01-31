@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { Suspense, useState, type FormEvent } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -28,7 +28,7 @@ type FormError = LoginFormSchema & {
   request?: string
 }
 
-export default function LoginPage() {
+function Login() {
   const [form, setForm] = useState<LoginFormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
 
@@ -165,5 +165,13 @@ export default function LoginPage() {
         your account.
       </Typography>
     </>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <Login />
+    </Suspense>
   )
 }

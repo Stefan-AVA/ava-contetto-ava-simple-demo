@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, type FormEvent } from "react"
+import { Suspense, useMemo, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useConfirmEmailMutation, useSignupMutation } from "@/redux/apis/auth"
@@ -55,7 +55,7 @@ const initialForm = {
   verificationCode: "",
 }
 
-export default function SignupPage() {
+function Signup() {
   const searchParams = useSearchParams()
   const queryParams = searchParams.toString()
 
@@ -320,5 +320,13 @@ export default function SignupPage() {
         </>
       )}
     </>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <Signup />
+    </Suspense>
   )
 }

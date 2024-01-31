@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { Suspense, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
@@ -53,7 +53,7 @@ const initialForm = {
   verificationCode: "",
 }
 
-export default function ForgotPasswordPage() {
+function ForgotPassword() {
   const searchParams = useSearchParams()
   const queryParams = searchParams.toString()
 
@@ -248,5 +248,13 @@ export default function ForgotPasswordPage() {
         </Typography>
       )}
     </>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <ForgotPassword />
+    </Suspense>
   )
 }

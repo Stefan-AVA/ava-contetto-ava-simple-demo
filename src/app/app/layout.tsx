@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  Suspense,
   useEffect,
   useRef,
   useState,
@@ -30,7 +31,7 @@ import Nav from "./nav"
 import CreateOrgModal from "./nav/createOrg"
 import Sidebar from "./nav/sidebar"
 
-export default function Layout({ children }: PropsWithChildren) {
+function AuthLayout({ children }: PropsWithChildren) {
   const initialized = useRef(false)
 
   const { agentId, contactId } = useParams()
@@ -81,7 +82,7 @@ export default function Layout({ children }: PropsWithChildren) {
         } catch (error) {
           console.log("error ===>", error)
           dispatch(logout())
-          replace(`/?_next=${pathname}${queryParams ? `?${queryParams}` : ""}`)
+          replace(`/?_next=${pathname}${queryParams ? `&${queryParams}` : ""}`)
         }
       }
     }
@@ -148,5 +149,13 @@ export default function Layout({ children }: PropsWithChildren) {
         setOpenCreateOrgModal={setOpenCreateOrgModal}
       />
     </Box>
+  )
+}
+
+export default function Layout({ children }: PropsWithChildren) {
+  return (
+    <Suspense>
+      <AuthLayout>{children}</AuthLayout>
+    </Suspense>
   )
 }
