@@ -1,5 +1,8 @@
 import { useState } from "react"
-import { useShareFileMutation } from "@/redux/apis/media"
+import {
+  useLazyShareFileLinkQuery,
+  useShareFileMutation,
+} from "@/redux/apis/media"
 import { useGetContactsQuery } from "@/redux/apis/org"
 import { parseError } from "@/utils/error"
 import { nameInitials } from "@/utils/format-name"
@@ -71,6 +74,8 @@ export default function ShareFileModal({
   })
 
   const [shareFile, { isLoading: isSharing }] = useShareFileMutation()
+  const [getSharefileLink, { isLoading: isGettingShareLink }] =
+    useLazyShareFileLinkQuery()
 
   const loading = isLoading || isFetching
 
@@ -96,6 +101,21 @@ export default function ShareFileModal({
       await refetch()
       enqueueSnackbar("File is shared", { variant: "success" })
       onClose()
+    } catch (error) {
+      enqueueSnackbar(parseError(error), { variant: "error" })
+    }
+  }
+
+  const onCopyLink = async () => {
+    try {
+      const { link } = await getSharefileLink({
+        orgId,
+        fileId: file._id,
+      }).unwrap()
+
+      navigator.clipboard.writeText(link)
+
+      enqueueSnackbar("Copied", { variant: "success" })
     } catch (error) {
       enqueueSnackbar(parseError(error), { variant: "error" })
     }
@@ -299,7 +319,13 @@ export default function ShareFileModal({
             justifyContent: "space-between",
           }}
         >
-          <LoadingButton variant="outlined">Copy Link</LoadingButton>
+          <LoadingButton
+            variant="outlined"
+            loading={isGettingShareLink}
+            onClick={onCopyLink}
+          >
+            Copy Link
+          </LoadingButton>
 
           <LoadingButton onClick={onShare} loading={isSharing}>
             Share

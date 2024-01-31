@@ -309,11 +309,9 @@ export default function ShareFolderModal({
             gap: 2,
             alignItems: "center",
             flexDirection: "row",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
           }}
         >
-          <LoadingButton variant="outlined">Copy Link</LoadingButton>
-
           <LoadingButton onClick={onShare} loading={isSharing}>
             Share
           </LoadingButton>
