@@ -11,12 +11,11 @@ import {
   Box,
   Button,
   FormHelperText,
-  Unstable_Grid2 as Grid,
   Modal,
   Stack,
   Typography,
 } from "@mui/material"
-import { CheckCircle2, File, UploadCloud } from "lucide-react"
+import { CheckCircle2, UploadCloud } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import { IFolder } from "@/types/folder.types"
