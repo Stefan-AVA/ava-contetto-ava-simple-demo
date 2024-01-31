@@ -9,14 +9,17 @@ import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
   useLazyShareFileLinkQuery,
-  useShareAgentOnlyFileMutation,
+  // useShareAgentOnlyFileMutation,
 } from "@/redux/apis/media"
 import { parseError } from "@/utils/error"
+import { getDatefromUnix } from "@/utils/format-date"
+import reduce from "@/utils/reduce"
 import {
   Box,
   Breadcrumbs,
   Button,
   Card,
+  Unstable_Grid2 as Grid,
   List,
   ListItem,
   ListItemButton,
@@ -28,13 +31,14 @@ import {
   type StackProps,
 } from "@mui/material"
 import IconFolder from "~/assets/icon-folder.svg"
+import { format } from "date-fns"
 import {
-  AlignJustify,
+  // AlignJustify,
   Download,
   Eye,
   FileArchive,
-  Grip,
-  LayoutGrid,
+  // Grip,
+  // LayoutGrid,
   Link2,
   MoreHorizontal,
   Move,
@@ -71,113 +75,130 @@ interface IProps {
 export type FileOrFolder = (IFolder | IFile) & {
   id: string
   isDir?: boolean
+  mimetype?: string
 }
 
 interface FileItemProps extends StackProps {
   name: string
   isDir: boolean
   isShared: boolean
-  forAgentOnly: boolean
-  agentId?: string
-  contactId?: string
+  onMove?: () => void
   onEdit?: () => void
+  addedAt: number
+  agentId?: string
   onShare?: () => void
+  mimetype?: string
   onDelete?: () => void
+  contactId?: string
   navigateTo: string
   onPreview?: () => void
   onCopyLink?: () => void
-  onMove?: () => void
+  forAgentOnly: boolean
   isLayoutGrid: boolean
 }
 
 function FileItem({
   name,
   isDir,
-  agentId,
+  onMove,
   onEdit,
+  addedAt,
+  agentId,
   onShare,
+  mimetype,
   onDelete,
   onPreview,
   onCopyLink,
-  onMove,
   navigateTo,
   isLayoutGrid,
 }: FileItemProps) {
   const [showMoreActions, setShowMoreActions] = useState(false)
 
   return (
-    <Stack
+    <Grid
       sx={{
-        px: !isLayoutGrid ? 3 : 0,
-        py: !isLayoutGrid ? 1 : 0,
-        gap: 3,
+        px: !isLayoutGrid ? 1 : 0,
+        mb: 2,
         width: isLayoutGrid ? "fit-content" : "100%",
         bgcolor: !isLayoutGrid ? "gray.200" : "transparent",
         alignItems: !isLayoutGrid
           ? {
               xs: "flex-start",
-              sm: "center",
+              lg: "center",
             }
           : "center",
         borderRadius: ".625rem",
-        flexDirection: !isLayoutGrid
-          ? {
-              xs: "column",
-              sm: "row",
-            }
-          : "row",
-        justifyContent: "space-between",
       }}
+      spacing={2}
+      container
     >
-      <Stack
-        sx={{
-          gap: 1.5,
-          alignItems: "center",
-          flexDirection: !isLayoutGrid ? "row" : "column",
-        }}
-        href={navigateTo as Route}
-        component={isDir ? Link : "div"}
-      >
-        {isDir && (
-          <Image src={IconFolder} alt="" width={isLayoutGrid ? 80 : 32} />
-        )}
-
-        {!isDir && (
-          <Box
-            sx={{
-              color: "gray.700",
-            }}
-            size={isLayoutGrid ? 80 : 32}
-            component={FileArchive}
-            strokeWidth={1.5}
-          />
-        )}
-
-        <Typography
-          sx={{
-            color: "gray.700",
-            textAlign: "center",
-            fontWeight: 600,
-          }}
-          variant="body2"
-        >
-          {name}
-        </Typography>
-      </Stack>
-
-      {!isLayoutGrid && (
+      <Grid xs={12} lg={5}>
         <Stack
           sx={{
-            gap: 2,
+            gap: 1.5,
             alignItems: "center",
-            flexDirection: "row",
-
-            button: {
-              px: 0,
-            },
+            flexDirection: !isLayoutGrid ? "row" : "column",
           }}
+          href={navigateTo as Route}
+          component={isDir ? Link : "div"}
         >
-          {/* {onEdit && (
+          {isDir && (
+            <Image src={IconFolder} alt="" width={isLayoutGrid ? 80 : 32} />
+          )}
+
+          {!isDir && (
+            <Box
+              sx={{
+                color: "gray.700",
+              }}
+              size={isLayoutGrid ? 80 : 28}
+              component={FileArchive}
+              strokeWidth={1.5}
+            />
+          )}
+
+          <Typography
+            sx={{
+              color: "gray.700",
+              fontWeight: 600,
+            }}
+            variant="body2"
+          >
+            {reduce(name, 32)}
+          </Typography>
+        </Stack>
+      </Grid>
+
+      <Grid xs={6} lg={3}>
+        <Typography
+          sx={{ color: "gray.700", textTransform: "capitalize" }}
+          variant="body2"
+        >
+          {isDir ? "Folder" : mimetype ? mimetype.split("/")[1] : "-"}
+        </Typography>
+      </Grid>
+
+      <Grid xs={6} lg={2}>
+        <Typography sx={{ color: "gray.700" }} variant="body2">
+          {format(new Date(getDatefromUnix(addedAt)), "MMM dd, yyyy")}
+        </Typography>
+      </Grid>
+
+      {!isLayoutGrid && (
+        <Grid xs={12} lg={2}>
+          <Stack
+            sx={{
+              gap: 2,
+              float: "right",
+              alignItems: "center",
+              flexDirection: "row",
+
+              button: {
+                px: 0,
+              },
+            }}
+          >
+            {/* {onEdit && (
             <Tooltip title="Edit" placement="top">
               <button type="button" onClick={onEdit}>
                 <Pen size={20} />
@@ -185,130 +206,131 @@ function FileItem({
             </Tooltip>
           )} */}
 
-          {onPreview && !isDir && (
-            <Tooltip title="Preview" placement="top">
-              <button type="button" onClick={onPreview}>
-                <Eye size={20} />
-              </button>
-            </Tooltip>
-          )}
+            {onPreview && !isDir && (
+              <Tooltip title="Preview" placement="top">
+                <button type="button" onClick={onPreview}>
+                  <Eye size={20} />
+                </button>
+              </Tooltip>
+            )}
 
-          {onShare && agentId && (
-            <Tooltip title="Share" placement="top">
-              <button type="button" onClick={onShare}>
-                <SendHorizonal size={20} />
-              </button>
-            </Tooltip>
-          )}
+            {onShare && agentId && (
+              <Tooltip title="Share" placement="top">
+                <button type="button" onClick={onShare}>
+                  <SendHorizonal size={20} />
+                </button>
+              </Tooltip>
+            )}
 
-          <Dropdown
-            open={showMoreActions}
-            ancher={
-              <button type="button" onClick={() => setShowMoreActions(true)}>
-                <MoreHorizontal size={20} />
-              </button>
-            }
-            onClose={() => setShowMoreActions(false)}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-          >
-            <Card>
-              <List>
-                {onPreview && !isDir && (
-                  <ListItem onClick={onPreview} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Eye size={20} />
-                      </ListItemIcon>
+            <Dropdown
+              open={showMoreActions}
+              ancher={
+                <button type="button" onClick={() => setShowMoreActions(true)}>
+                  <MoreHorizontal size={20} />
+                </button>
+              }
+              onClose={() => setShowMoreActions(false)}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <Card>
+                <List>
+                  {onPreview && !isDir && (
+                    <ListItem onClick={onPreview} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Eye size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Preview</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Preview</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onShare && agentId && (
-                  <ListItem onClick={onShare} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <SendHorizonal size={20} />
-                      </ListItemIcon>
+                  {onShare && agentId && (
+                    <ListItem onClick={onShare} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <SendHorizonal size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Share</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Share</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onCopyLink && !isDir && agentId && (
-                  <ListItem onClick={onCopyLink} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Link2 size={20} />
-                      </ListItemIcon>
+                  {onCopyLink && !isDir && agentId && (
+                    <ListItem onClick={onCopyLink} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Link2 size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Copy Link</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Copy Link</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onEdit && (
-                  <ListItem onClick={onEdit} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Pen size={20} />
-                      </ListItemIcon>
+                  {onEdit && (
+                    <ListItem onClick={onEdit} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Pen size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Rename</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Rename</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onPreview && !isDir && (
-                  <ListItem onClick={onPreview} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Download size={20} />
-                      </ListItemIcon>
+                  {onPreview && !isDir && (
+                    <ListItem onClick={onPreview} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Download size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Download</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Download</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onMove && (
-                  <ListItem onClick={onMove} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Move size={20} />
-                      </ListItemIcon>
+                  {onMove && (
+                    <ListItem onClick={onMove} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Move size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Move</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+                        <ListItemText>Move</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
-                {onDelete && (
-                  <ListItem onClick={onDelete} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <Trash2 size={20} />
-                      </ListItemIcon>
+                  {onDelete && (
+                    <ListItem onClick={onDelete} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>
+                          <Trash2 size={20} />
+                        </ListItemIcon>
 
-                      <ListItemText>Delete</ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                )}
-              </List>
-            </Card>
-          </Dropdown>
-        </Stack>
+                        <ListItemText>Delete</ListItemText>
+                      </ListItemButton>
+                    </ListItem>
+                  )}
+                </List>
+              </Card>
+            </Dropdown>
+          </Stack>
+        </Grid>
       )}
-    </Stack>
+    </Grid>
   )
 }
 
@@ -461,7 +483,7 @@ const FolderPage = ({
     } else {
       return ""
     }
-  }, [agentId, contactId, isShared])
+  }, [agentId, contactId, isShared, forAgentOnly])
 
   if (isLoading) return <Loading />
 
@@ -613,20 +635,56 @@ const FolderPage = ({
       {files.length > 0 && (
         <Stack
           sx={{
-            gap: isLayoutGrid ? 5 : 2,
+            gap: isLayoutGrid ? 5 : 1,
             flexWrap: "wrap",
             flexDirection: isLayoutGrid ? "row" : "column",
           }}
         >
+          <Grid
+            sx={{
+              height: "2rem",
+              display: {
+                xs: "none",
+                lg: "flex",
+              },
+            }}
+            container
+          >
+            <Grid xs={5}>
+              <Typography
+                sx={{ color: "gray.700", fontWeight: "700" }}
+                variant="body2"
+              >
+                Name
+              </Typography>
+            </Grid>
+
+            <Grid xs={3}>
+              <Typography
+                sx={{ color: "gray.700", fontWeight: "700" }}
+                variant="body2"
+              >
+                File Type
+              </Typography>
+            </Grid>
+
+            <Grid xs={2}>
+              <Typography
+                sx={{ color: "gray.700", fontWeight: "700" }}
+                variant="body2"
+              >
+                Added
+              </Typography>
+            </Grid>
+
+            <Grid xs={2} />
+          </Grid>
+
           {files.map((file) => (
             <FileItem
               key={file.id}
               name={file.name}
               isDir={file.isDir ?? false}
-              isShared={isShared}
-              forAgentOnly={forAgentOnly}
-              agentId={agentId}
-              contactId={contactId}
               onEdit={() => {
                 if (file.isDir) {
                   setActiveFolder(file as IFolder)
@@ -635,16 +693,22 @@ const FolderPage = ({
                   setActiveFile(file as IFile)
                 }
               }}
+              onMove={() => setActiveMoveFile(file)}
+              agentId={agentId}
+              addedAt={file.timestamp}
               onShare={() => onShare(file)}
+              isShared={isShared}
+              mimetype={file.mimetype}
               onDelete={() => setDeleteFiles([file])}
+              contactId={contactId}
               onPreview={() =>
                 file.isDir
                   ? push(`${baseRoute}/${file.id}` as Route)
                   : onDownloadFile(file)
               }
-              onMove={() => setActiveMoveFile(file)}
               onCopyLink={() => onCopyLink(file)}
               navigateTo={`${baseRoute}/${file.id}`}
+              forAgentOnly={forAgentOnly}
               isLayoutGrid={isLayoutGrid}
             />
           ))}

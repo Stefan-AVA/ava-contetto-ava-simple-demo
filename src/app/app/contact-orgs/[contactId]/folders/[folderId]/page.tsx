@@ -8,8 +8,8 @@ import FolderPage from "@/components/pages/Folder"
 
 type PageProps = {
   params: {
-    contactId: string
     folderId: string
+    contactId: string
   }
 }
 
