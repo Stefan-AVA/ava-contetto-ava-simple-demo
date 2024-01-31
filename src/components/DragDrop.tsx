@@ -1,7 +1,14 @@
 "use client"
 
 import { PropsWithChildren, useCallback, useEffect, useState } from "react"
-import { Box, SxProps, Theme, Typography } from "@mui/material"
+import {
+  hexToRgb,
+  Stack,
+  SxProps,
+  Theme,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import { useDropzone, type DropzoneOptions } from "react-dropzone"
 
 export interface IDragDropProps
@@ -31,6 +38,8 @@ const DragDrop = ({
 }: PropsWithChildren<IDragDropProps>) => {
   const [error, setError] = useState("")
 
+  const { palette } = useTheme()
+
   const onDrop = useCallback(
     (files: File[]) => {
       if (files.length > 0) onChange(files)
@@ -50,21 +59,19 @@ const DragDrop = ({
   }, [isDragActive])
 
   return (
-    <Box
+    <Stack
       {...getRootProps()}
       sx={{
         width: width || "100%",
         height: height || "100px",
-        display: "flex",
+        cursor: "pointer",
+        border: "2px dashed",
+        bgcolor: isDragActive ? `${palette.primary.main}20` : "white",
         alignItems: "center",
+        borderColor: isDragActive ? "primary.main" : "gray.500",
+        borderRadius: circle ? "50%" : 4,
         justifyContent: "center",
-        flexDirection: "column",
-        border: "dashed 2px #0658c2",
-        borderRadius: circle ? "100%" : 4,
-        background: isDragActive ? "#00000055" : "White",
-        ":hover": {
-          cursor: "pointer",
-        },
+
         ...sx,
       }}
     >
@@ -82,7 +89,7 @@ const DragDrop = ({
       )}
 
       {children}
-    </Box>
+    </Stack>
   )
 }
 
