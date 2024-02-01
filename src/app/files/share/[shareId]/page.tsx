@@ -1,6 +1,5 @@
 "use client"
 
-// import Image from "next/image"
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -10,7 +9,7 @@ import {
   useGetSharedFileQuery,
   useLazyGetSharedFileQuery,
 } from "@/redux/apis/fileshare"
-import { CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 import { DownloadCloud, FolderPlus } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -156,55 +155,55 @@ const Page = ({ params, searchParams }: PageProps) => {
             flexDirection: "row",
           }}
         >
-          <Typography
+          <Button
             sx={{
-              gap: 2,
+              p: 1,
               color: "white",
-              display: "flex",
               opacity: 0.7,
               transition: "all .3s ease-in-out",
-              alignItems: "center",
 
               "&:hover": {
                 opacity: 1,
               },
             }}
-            component="button"
+            variant="text"
             onClick={onDownload}
             disabled={downloading}
+            startIcon={
+              downloading ? (
+                <CircularProgress color="inherit" size="1.25rem" />
+              ) : (
+                <DownloadCloud />
+              )
+            }
           >
-            {downloading ? (
-              <CircularProgress color="inherit" size="1.25rem" />
-            ) : (
-              <DownloadCloud />
-            )}
             Download
-          </Typography>
+          </Button>
 
-          <Typography
+          <Button
             sx={{
-              gap: 2,
+              p: 1,
               color: "white",
-              display: "flex",
               opacity: 0.7,
               transition: "all .3s ease-in-out",
-              alignItems: "center",
 
               "&:hover": {
                 opacity: 1,
               },
             }}
             onClick={onCopy}
+            variant="text"
             disabled={isCopyingLoading}
-            component="button"
+            startIcon={
+              isCopyingLoading ? (
+                <CircularProgress color="inherit" size="1.25rem" />
+              ) : (
+                <Box sx={{ pointerEvents: "none" }} component={FolderPlus} />
+              )
+            }
           >
-            {isCopyingLoading ? (
-              <CircularProgress color="inherit" size="1.25rem" />
-            ) : (
-              <FolderPlus />
-            )}
             Save
-          </Typography>
+          </Button>
         </Stack>
       </Stack>
 
