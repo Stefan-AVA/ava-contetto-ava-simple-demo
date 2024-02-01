@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useGetMeQuery } from "@/redux/apis/auth"
 import {
@@ -9,11 +8,12 @@ import {
   useGetSharedFileQuery,
   useLazyGetSharedFileQuery,
 } from "@/redux/apis/fileshare"
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress } from "@mui/material"
 import { DownloadCloud, FolderPlus } from "lucide-react"
 import { useSnackbar } from "notistack"
 
 import Loading from "@/components/Loading"
+import ShareView from "@/components/pages/Folder/share-view"
 
 type PageProps = {
   params: {
@@ -47,6 +47,7 @@ const Page = ({ params, searchParams }: PageProps) => {
 
   const onDownload = async () => {
     setDownloading(true)
+
     try {
       const { name, downloadUrl } = await getDownloadUrl({
         shareId,
@@ -62,13 +63,10 @@ const Page = ({ params, searchParams }: PageProps) => {
       link.href = url
       link.setAttribute("download", name)
 
-      // Append to html link element page
       document.body.appendChild(link)
 
-      // Start download
       link.click()
 
-      // Clean up and remove the link
       link.parentNode?.removeChild(link)
     } catch (error) {
       enqueueSnackbar("Error to download. please try again", {
@@ -105,125 +103,60 @@ const Page = ({ params, searchParams }: PageProps) => {
   if (isLoading) return <Loading />
 
   return (
-    <Stack
-      sx={{
-        p: 4,
-        top: 0,
-        left: 0,
-        color: "white",
-        width: "100svw",
-        zIndex: 999,
-        position: "fixed",
-        minHeight: "100svh",
-        backgroundColor: "rgba(0, 0, 0, .8)",
-      }}
+    <ShareView
+      title={`${file?.name} (View Only)`}
+      fileUrl={file?.mimetype.includes("image") ? file.downloadUrl : null}
     >
-      <Stack
+      <Button
         sx={{
-          gap: 3,
-          position: "relative",
-          alignItems: {
-            sm: "center",
-          },
-          flexDirection: {
-            xs: "column",
-            sm: "row",
-          },
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end",
+          p: 1,
+          color: "white",
+          opacity: 0.7,
+          transition: "all .3s ease-in-out",
+
+          "&:hover": {
+            opacity: 1,
           },
         }}
+        variant="text"
+        onClick={onDownload}
+        disabled={downloading}
+        startIcon={
+          downloading ? (
+            <CircularProgress color="inherit" size="1.25rem" />
+          ) : (
+            <DownloadCloud />
+          )
+        }
       >
-        <Typography
-          sx={{
-            left: 0,
-            right: 0,
-            position: { md: "absolute" },
-            textAlign: { xs: "left", md: "center" },
-            fontWeight: "700",
-          }}
-          variant="h6"
-        >
-          {file?.name} (View Only)
-        </Typography>
+        Download
+      </Button>
 
-        <Stack
-          sx={{
-            gap: 6,
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <Button
-            sx={{
-              p: 1,
-              color: "white",
-              opacity: 0.7,
-              transition: "all .3s ease-in-out",
+      <Button
+        sx={{
+          p: 1,
+          color: "white",
+          opacity: 0.7,
+          transition: "all .3s ease-in-out",
 
-              "&:hover": {
-                opacity: 1,
-              },
-            }}
-            variant="text"
-            onClick={onDownload}
-            disabled={downloading}
-            startIcon={
-              downloading ? (
-                <CircularProgress color="inherit" size="1.25rem" />
-              ) : (
-                <DownloadCloud />
-              )
-            }
-          >
-            Download
-          </Button>
-
-          <Button
-            sx={{
-              p: 1,
-              color: "white",
-              opacity: 0.7,
-              transition: "all .3s ease-in-out",
-
-              "&:hover": {
-                opacity: 1,
-              },
-            }}
-            onClick={onCopy}
-            variant="text"
-            disabled={isCopyingLoading}
-            startIcon={
-              isCopyingLoading ? (
-                <CircularProgress color="inherit" size="1.25rem" />
-              ) : (
-                <Box sx={{ pointerEvents: "none" }} component={FolderPlus} />
-              )
-            }
-          >
-            Save
-          </Button>
-        </Stack>
-      </Stack>
-
-      {file?.mimetype.includes("image") ? (
-        <Image
-          src={file.downloadUrl}
-          alt=""
-          width={960}
-          style={{ margin: "auto" }}
-          height={480}
-        />
-      ) : (
-        <Typography
-          sx={{ m: "auto", textAlign: "center", maxWidth: "20rem" }}
-          variant="h4"
-        >
-          This file can not be opened. Download to open.
-        </Typography>
-      )}
-    </Stack>
+          "&:hover": {
+            opacity: 1,
+          },
+        }}
+        onClick={onCopy}
+        variant="text"
+        disabled={isCopyingLoading}
+        startIcon={
+          isCopyingLoading ? (
+            <CircularProgress color="inherit" size="1.25rem" />
+          ) : (
+            <Box sx={{ pointerEvents: "none" }} component={FolderPlus} />
+          )
+        }
+      >
+        Save
+      </Button>
+    </ShareView>
   )
 }
 
