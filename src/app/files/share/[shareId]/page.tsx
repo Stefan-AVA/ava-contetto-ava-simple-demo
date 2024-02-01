@@ -105,7 +105,8 @@ const Page = ({ params, searchParams }: PageProps) => {
   return (
     <ShareView
       title={`${file?.name} (View Only)`}
-      fileUrl={file?.mimetype.includes("image") ? file.downloadUrl : null}
+      fileUrl={file?.downloadUrl}
+      type={file?.mimetype}
     >
       <Button
         sx={{

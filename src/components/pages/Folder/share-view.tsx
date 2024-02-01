@@ -4,14 +4,17 @@ import { Stack, Typography } from "@mui/material"
 
 interface ShareViewProps extends PropsWithChildren {
   title: string
-  fileUrl: string | null
+  fileUrl?: string | null
+  type?: string
 }
 
 export default function ShareView({
   title,
   fileUrl,
+  type,
   children,
 }: ShareViewProps) {
+  console.log(fileUrl)
   return (
     <Stack
       sx={{
@@ -67,7 +70,7 @@ export default function ShareView({
         </Stack>
       </Stack>
 
-      {fileUrl ? (
+      {fileUrl && type?.includes("image") ? (
         <Image
           src={fileUrl}
           alt=""

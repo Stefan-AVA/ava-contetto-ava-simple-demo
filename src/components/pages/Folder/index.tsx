@@ -98,6 +98,7 @@ interface FileItemProps extends StackProps {
 interface PreviewModal {
   title: string
   fileUrl: string
+  type: string
 }
 
 function FileItem({
@@ -238,7 +239,13 @@ function FileItem({
               <Card>
                 <List>
                   {onPreview && !isDir && (
-                    <ListItem onClick={onPreview} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onPreview()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Eye size={20} />
@@ -250,7 +257,13 @@ function FileItem({
                   )}
 
                   {onShare && agentId && (
-                    <ListItem onClick={onShare} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onShare()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <SendHorizonal size={20} />
@@ -262,7 +275,13 @@ function FileItem({
                   )}
 
                   {onCopyLink && !isDir && agentId && (
-                    <ListItem onClick={onCopyLink} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onCopyLink()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Link2 size={20} />
@@ -274,7 +293,13 @@ function FileItem({
                   )}
 
                   {onEdit && (
-                    <ListItem onClick={onEdit} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onEdit()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Pen size={20} />
@@ -286,7 +311,13 @@ function FileItem({
                   )}
 
                   {onDownload && !isDir && (
-                    <ListItem onClick={onDownload} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onDownload()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Download size={20} />
@@ -298,7 +329,13 @@ function FileItem({
                   )}
 
                   {onMove && (
-                    <ListItem onClick={onMove} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onMove()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Move size={20} />
@@ -310,7 +347,13 @@ function FileItem({
                   )}
 
                   {onDelete && (
-                    <ListItem onClick={onDelete} disablePadding>
+                    <ListItem
+                      onClick={() => {
+                        setShowMoreActions(false)
+                        onDelete()
+                      }}
+                      disablePadding
+                    >
                       <ListItemButton>
                         <ListItemIcon>
                           <Trash2 size={20} />
@@ -412,14 +455,17 @@ const FolderPage = ({
   }
 
   async function onPreview(file: FileOrFolder) {
-    const fileUrl = await generateFileUrl(file._id)
+    if (!file.isDir) {
+      const fileUrl = await generateFileUrl(file._id)
 
-    if (!fileUrl) return
+      if (!fileUrl) return
 
-    setPreviewModal({
-      title: file.name,
-      fileUrl,
-    })
+      setPreviewModal({
+        title: file.name,
+        fileUrl,
+        type: file.mimetype!,
+      })
+    }
   }
 
   async function onDownloadFile(file: FileOrFolder) {
