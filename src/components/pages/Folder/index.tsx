@@ -831,7 +831,6 @@ const FolderPage = ({
         file={activeMoveFile}
         open={!!activeMoveFile}
         setOpen={setActiveMoveFile}
-        refetch={refetch}
         isRefetching={isFetching}
       />
 

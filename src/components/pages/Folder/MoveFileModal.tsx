@@ -22,14 +22,8 @@ interface IProps {
   forAgentOnly: boolean
   open: boolean
   setOpen: Function
-  refetch: Function
   isRefetching: boolean
   file?: FileOrFolder
-}
-
-interface IError {
-  name?: string
-  request?: string
 }
 
 const MoveFileModal = ({
@@ -39,10 +33,8 @@ const MoveFileModal = ({
   file,
   isShared = true,
   forAgentOnly = false,
-
   open,
   setOpen,
-  refetch,
   isRefetching,
 }: IProps) => {
   const [folder, setFolder] = useState<IFolder | undefined>(undefined)
@@ -112,8 +104,6 @@ const MoveFileModal = ({
         folderIds: file.isDir ? [file._id] : [],
         folderId: folder._id,
       }).unwrap()
-
-      await refetch()
 
       onClose()
     } catch (error) {

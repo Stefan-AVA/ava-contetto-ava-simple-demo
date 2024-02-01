@@ -118,6 +118,7 @@ interface IShareAgentOnlyFileRequest {
 export const mediaApi = createApi({
   reducerPath: "mediaApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
+  tagTypes: ["Folder"],
   endpoints: (builder) => ({
     // folders
     createFolder: builder.mutation<void, ICreateFolderRequest>({
@@ -133,6 +134,20 @@ export const mediaApi = createApi({
         method: "GET",
         params: rest,
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.subFolders.map((folder) => ({
+                id: folder._id,
+                type: "Folder" as const,
+              })),
+              ...result.files.map((file) => ({
+                id: file._id,
+                type: "Folder" as const,
+              })),
+              "Folder",
+            ]
+          : ["Folder"],
     }),
     renameFolder: builder.mutation<void, IRenameFolderRequest>({
       query: ({ orgId, folderId, ...rest }) => ({
@@ -154,6 +169,7 @@ export const mediaApi = createApi({
         method: "POST",
         body: rest,
       }),
+      invalidatesTags: ["Folder"],
     }),
     deletefiles: builder.mutation<void, IDeleteFilesRequest>({
       query: ({ orgId, ...rest }) => ({
