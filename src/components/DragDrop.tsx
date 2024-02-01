@@ -1,7 +1,13 @@
 "use client"
 
-import { PropsWithChildren, useCallback, useEffect, useState } from "react"
-import { Stack, SxProps, Theme, Typography, useTheme } from "@mui/material"
+import { useCallback, useEffect, useState, type PropsWithChildren } from "react"
+import {
+  Stack,
+  Typography,
+  useTheme,
+  type SxProps,
+  type Theme,
+} from "@mui/material"
 import { useDropzone, type DropzoneOptions } from "react-dropzone"
 
 export interface IDragDropProps

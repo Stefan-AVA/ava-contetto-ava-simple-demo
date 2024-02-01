@@ -4,12 +4,10 @@ import { useMemo, useState } from "react"
 import { Route } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
   useGetDownloadFileUrlMutation,
   useGetFolderQuery,
   useLazyShareFileLinkQuery,
-  // useShareAgentOnlyFileMutation,
 } from "@/redux/apis/media"
 import { parseError } from "@/utils/error"
 import { getDatefromUnix } from "@/utils/format-date"
@@ -33,12 +31,9 @@ import {
 import IconFolder from "~/assets/icon-folder.svg"
 import { format } from "date-fns"
 import {
-  // AlignJustify,
   Download,
   Eye,
   FileArchive,
-  // Grip,
-  // LayoutGrid,
   Link2,
   MoreHorizontal,
   Move,
@@ -46,6 +41,7 @@ import {
   Plus,
   SendHorizonal,
   Trash2,
+  X,
 } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -59,6 +55,7 @@ import FolderModal from "./FolderModal"
 import MoveFileModal from "./MoveFileModal"
 import ShareFileModal from "./share-file-modal"
 import ShareFolderModal from "./share-folder-modal"
+import ShareView from "./share-view"
 import UploadFilesModal from "./UploadFilesModal"
 
 type LayoutType = "GRID" | "LIST"
@@ -92,9 +89,15 @@ interface FileItemProps extends StackProps {
   contactId?: string
   navigateTo: string
   onPreview?: () => void
+  onDownload?: () => void
   onCopyLink?: () => void
   forAgentOnly: boolean
   isLayoutGrid: boolean
+}
+
+interface PreviewModal {
+  title: string
+  fileUrl: string
 }
 
 function FileItem({
@@ -109,6 +112,7 @@ function FileItem({
   onDelete,
   onPreview,
   onCopyLink,
+  onDownload,
   navigateTo,
   isLayoutGrid,
 }: FileItemProps) {
@@ -198,14 +202,6 @@ function FileItem({
               },
             }}
           >
-            {/* {onEdit && (
-            <Tooltip title="Edit" placement="top">
-              <button type="button" onClick={onEdit}>
-                <Pen size={20} />
-              </button>
-            </Tooltip>
-          )} */}
-
             {onPreview && !isDir && (
               <Tooltip title="Preview" placement="top">
                 <button type="button" onClick={onPreview}>
@@ -289,8 +285,8 @@ function FileItem({
                     </ListItem>
                   )}
 
-                  {onPreview && !isDir && (
-                    <ListItem onClick={onPreview} disablePadding>
+                  {onDownload && !isDir && (
+                    <ListItem onClick={onDownload} disablePadding>
                       <ListItemButton>
                         <ListItemIcon>
                           <Download size={20} />
@@ -342,7 +338,6 @@ const FolderPage = ({
   isShared = true,
   forAgentOnly = false, // we may need this param later, but based on figma, we may not need this for now
 }: IProps) => {
-  const { push } = useRouter()
   const { enqueueSnackbar } = useSnackbar()
 
   const [layoutType, setLayoutType] = useState<LayoutType>("LIST")
@@ -360,6 +355,7 @@ const FolderPage = ({
     FileOrFolder | undefined
   >(undefined)
   const [deleteFiles, setDeleteFiles] = useState<FileOrFolder[]>([])
+  const [previewModal, setPreviewModal] = useState<PreviewModal | null>(null)
   const [openAddDropdown, setOpenAddDropdown] = useState(false)
   const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
@@ -394,26 +390,59 @@ const FolderPage = ({
     [data]
   )
 
-  const onDownloadFile = async (file: FileOrFolder) => {
+  async function generateFileUrl(fileId: string) {
     try {
       const { url } = await getDownloadFileUrl({
         orgId,
         agentId,
         contactId,
-        fileId: file._id,
+        fileId,
         isShared,
         forAgentOnly,
       }).unwrap()
 
-      window.open(url, "_blank")
+      return url
     } catch (error) {
       enqueueSnackbar("Something is wrong can't donwload file", {
         variant: "error",
       })
+
+      return null
     }
   }
 
-  const onShare = async (file: FileOrFolder) => {
+  async function onPreview(file: FileOrFolder) {
+    const fileUrl = await generateFileUrl(file._id)
+
+    if (!fileUrl) return
+
+    setPreviewModal({
+      title: file.name,
+      fileUrl,
+    })
+  }
+
+  async function onDownloadFile(file: FileOrFolder) {
+    const fileUrl = await generateFileUrl(file._id)
+
+    if (!fileUrl) return
+
+    const response = await fetch(fileUrl)
+    const blob = await response.blob()
+
+    const url = window.URL.createObjectURL(new Blob([blob]))
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", file.name)
+
+    document.body.appendChild(link)
+
+    link.click()
+
+    link.parentNode?.removeChild(link)
+  }
+
+  async function onShare(file: FileOrFolder) {
     if (agentId) {
       if (file.isDir) {
         setActiveShareFolder(file as IFolder)
@@ -444,7 +473,7 @@ const FolderPage = ({
     }
   }
 
-  const onCopyLink = async (file: FileOrFolder) => {
+  async function onCopyLink(file: FileOrFolder) {
     try {
       if (agentId) {
         if (!file.isDir) {
@@ -700,12 +729,9 @@ const FolderPage = ({
               isShared={isShared}
               mimetype={file.mimetype}
               onDelete={() => setDeleteFiles([file])}
+              onPreview={() => onPreview(file)}
               contactId={contactId}
-              onPreview={() =>
-                file.isDir
-                  ? push(`${baseRoute}/${file.id}` as Route)
-                  : onDownloadFile(file)
-              }
+              onDownload={() => onDownloadFile(file)}
               onCopyLink={() => onCopyLink(file)}
               navigateTo={`${baseRoute}/${file.id}`}
               forAgentOnly={forAgentOnly}
@@ -781,6 +807,7 @@ const FolderPage = ({
           refetch={refetch}
         />
       )}
+
       {agentId && (
         <ShareFolderModal
           orgId={orgId}
@@ -794,6 +821,7 @@ const FolderPage = ({
           refetch={refetch}
         />
       )}
+
       <MoveFileModal
         orgId={orgId}
         agentId={agentId}
@@ -803,9 +831,24 @@ const FolderPage = ({
         file={activeMoveFile}
         open={!!activeMoveFile}
         setOpen={setActiveMoveFile}
-        refetch={refetch}
         isRefetching={isFetching}
       />
+
+      {previewModal && (
+        <ShareView {...previewModal}>
+          <Button
+            sx={{
+              color: "white",
+              width: "2.5rem",
+              height: "2.5rem",
+            }}
+            onClick={() => setPreviewModal(null)}
+            variant="text"
+          >
+            <X strokeWidth={3} />
+          </Button>
+        </ShareView>
+      )}
     </Stack>
   )
 }

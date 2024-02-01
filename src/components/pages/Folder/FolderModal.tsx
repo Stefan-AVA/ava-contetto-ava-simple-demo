@@ -16,7 +16,7 @@ import {
 } from "@mui/material"
 import { useSnackbar } from "notistack"
 
-import { IFolder } from "@/types/folder.types"
+import type { IFolder } from "@/types/folder.types"
 
 interface IProps {
   orgId: string
