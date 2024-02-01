@@ -10,7 +10,7 @@ import {
   useGetSharedFileQuery,
   useLazyGetSharedFileQuery,
 } from "@/redux/apis/fileshare"
-import { Stack, Typography } from "@mui/material"
+import { CircularProgress, Stack, Typography } from "@mui/material"
 import { DownloadCloud, FolderPlus } from "lucide-react"
 import { useSnackbar } from "notistack"
 
@@ -43,7 +43,8 @@ const Page = ({ params, searchParams }: PageProps) => {
   const { data: user } = useGetMeQuery()
 
   const [getDownloadUrl] = useLazyGetSharedFileQuery()
-  const [copySharedFile, { isLoading: isCopying }] = useCopySharedFileMutation()
+  const [copySharedFile, { isLoading: isCopyingLoading }] =
+    useCopySharedFileMutation()
 
   const onDownload = async () => {
     setDownloading(true)
@@ -161,7 +162,7 @@ const Page = ({ params, searchParams }: PageProps) => {
               color: "white",
               display: "flex",
               opacity: 0.7,
-              // transition: "all .3s ease-in-out",
+              transition: "all .3s ease-in-out",
               alignItems: "center",
 
               "&:hover": {
@@ -172,7 +173,11 @@ const Page = ({ params, searchParams }: PageProps) => {
             onClick={onDownload}
             disabled={downloading}
           >
-            <DownloadCloud />
+            {downloading ? (
+              <CircularProgress color="inherit" size="1.25rem" />
+            ) : (
+              <DownloadCloud />
+            )}
             Download
           </Typography>
 
@@ -189,10 +194,15 @@ const Page = ({ params, searchParams }: PageProps) => {
                 opacity: 1,
               },
             }}
-            component="button"
             onClick={onCopy}
+            disabled={isCopyingLoading}
+            component="button"
           >
-            <FolderPlus />
+            {isCopyingLoading ? (
+              <CircularProgress color="inherit" size="1.25rem" />
+            ) : (
+              <FolderPlus />
+            )}
             Save
           </Typography>
         </Stack>
