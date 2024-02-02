@@ -169,7 +169,8 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
       <Stack
         sx={{
           px: 4,
-          py: 2,
+          pt: 2,
+          pb: 5,
           left: 0,
           width: "100%",
           bottom: 0,
