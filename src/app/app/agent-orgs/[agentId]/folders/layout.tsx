@@ -46,7 +46,7 @@ export default function FolderLayout({ params, children }: PageProps) {
                 sx={{
                   py: 2,
                   px: 5,
-                  color: currentRoute ? "gray.800" : "gray.500",
+                  color: currentRoute ? "gray.700" : "gray.500",
                   cursor: "pointer",
                   position: "relative",
                   borderColor: currentRoute ? "gray.300" : "transparent",
@@ -54,14 +54,14 @@ export default function FolderLayout({ params, children }: PageProps) {
                   borderTopWidth: "1px",
                   borderLeftWidth: "1px",
                   borderRightWidth: "1px",
-                  borderTopLeftRadius: "1rem",
-                  borderTopRightRadius: "1rem",
+                  borderTopLeftRadius: ".5rem",
+                  borderTopRightRadius: ".5rem",
 
                   "::after": {
                     left: 0,
                     width: "100%",
-                    bottom: currentRoute ? "-.0625rem" : 0,
-                    height: ".125rem",
+                    bottom: currentRoute ? "-.125rem" : 0,
+                    height: ".25rem",
                     bgcolor: "white",
                     content: "''",
                     position: "absolute",
@@ -80,8 +80,8 @@ export default function FolderLayout({ params, children }: PageProps) {
           p: 3,
           border: "1px solid",
           borderColor: "gray.300",
-          borderRadius: "1rem",
-          borderTopLeftRadius: isTheFirstOnTheList ? 0 : "1rem",
+          borderRadius: ".5rem",
+          borderTopLeftRadius: isTheFirstOnTheList ? 0 : ".5rem",
         }}
       >
         {children}

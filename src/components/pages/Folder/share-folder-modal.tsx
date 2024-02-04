@@ -166,9 +166,7 @@ export default function ShareFolderModal({
             flexDirection: "row",
           }}
         >
-          <Typography sx={{ fontWeight: 700 }}>
-            Share with organization
-          </Typography>
+          <Typography sx={{ fontWeight: 700 }}>Share with team</Typography>
 
           <Switch
             checked={form.orgShare}
