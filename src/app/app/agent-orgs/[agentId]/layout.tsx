@@ -4,7 +4,13 @@ import { useMemo, type PropsWithChildren } from "react"
 import { useParams, usePathname } from "next/navigation"
 import { RootState } from "@/redux/store"
 import { Stack } from "@mui/material"
-import { Contact, FolderHeart, LayoutDashboardIcon, Search } from "lucide-react"
+import {
+  Contact,
+  FolderHeart,
+  LayoutDashboardIcon,
+  Search,
+  Table2,
+} from "lucide-react"
 import { useSelector } from "react-redux"
 
 import Breadcrumb from "@/components/breadcrumb"
@@ -48,6 +54,12 @@ export default function Layout({ children }: PropsWithChildren) {
         icon: <FolderHeart />,
         label: "Files",
         active: pathName.includes("folders"),
+      },
+      {
+        path: `/app/agent-orgs/${agentId}/marketing-hub/collections`,
+        icon: <Table2 />,
+        label: "Marketing Hub",
+        active: pathName.includes("marketing-hub"),
       },
     ],
     [pathName, agentId]
