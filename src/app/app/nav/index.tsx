@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { type RootState } from "@/redux/store"
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material"
-import AVALogo from "~/assets/logo-ava.png"
+import ContettoLogo from "~/assets/logo.png"
 import { MenuIcon } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -100,7 +100,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
         >
           <Box sx={{ width: "100px", height: "2rem", position: "relative" }}>
             <Image
-              src={orgLogo || AVALogo}
+              src={orgLogo || ContettoLogo}
               alt="logo"
               fill
               style={{ objectFit: "contain" }}

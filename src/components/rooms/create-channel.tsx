@@ -94,7 +94,7 @@ export default function CreateChannel({ agentProfile }: CreateChannelProps) {
           component="button"
         >
           <Plus size={20} />
-          Create Channel
+          Create group
         </Typography>
       }
       onClose={() => setOpen(false)}
@@ -116,7 +116,7 @@ export default function CreateChannel({ agentProfile }: CreateChannelProps) {
           fullWidth
           onClick={submit}
         >
-          Create channel
+          Create group
         </LoadingButton>
 
         {errors && errors.request && (

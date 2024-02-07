@@ -1,7 +1,7 @@
 import { type PropsWithChildren } from "react"
 import Image from "next/image"
 import { Box, Stack } from "@mui/material"
-import Logo from "~/assets/logo-ava.png"
+import ContettoLogo from "~/assets/logo.png"
 import Background from "~/assets/signup-background.jpg"
 
 export default function AuthLayout({ children }: PropsWithChildren) {
@@ -61,8 +61,8 @@ export default function AuthLayout({ children }: PropsWithChildren) {
         }}
       >
         <Box
-          sx={{ mb: 5, height: "3rem", objectFit: "contain" }}
-          src={Logo}
+          sx={{ mb: 5, height: "2rem", objectFit: "contain" }}
+          src={ContettoLogo}
           alt="Logo Ava"
           component={Image}
         />
