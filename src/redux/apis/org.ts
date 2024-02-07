@@ -3,7 +3,7 @@ import { createApi } from "@reduxjs/toolkit/query/react"
 import type { IAgentProfile } from "@/types/agentProfile.types"
 import type { IContact, IContactNote } from "@/types/contact.types"
 import { IInvite } from "@/types/invite.types"
-import type { IOrg } from "@/types/org.types"
+import type { IOrg, IOrgBrand } from "@/types/org.types"
 import type { DefaultAvaOrgTheme } from "@/styles/white-label-theme"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
@@ -67,6 +67,17 @@ interface ISetWhiteLableRequest extends DefaultAvaOrgTheme {
   orgId: string
 }
 
+interface IUploadBrandLogoRequest {
+  orgId: string
+  logoUrl: string
+  logoFileType: string
+}
+
+interface ISetBrandRequest extends IOrgBrand {
+  orgId: string
+  name: string // org name
+}
+
 export const orgApi = createApi({
   reducerPath: "orgApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -127,6 +138,24 @@ export const orgApi = createApi({
     setWhiteLabel: builder.mutation<IAgentProfile, ISetWhiteLableRequest>({
       query: ({ orgId, ...rest }) => ({
         url: `/${orgId}/set-whitelabel`,
+        method: "POST",
+        body: rest,
+      }),
+      invalidatesTags: ["Orgs"],
+    }),
+    uploadBrandLogo: builder.mutation<{ url: string }, IUploadBrandLogoRequest>(
+      {
+        query: ({ orgId, ...rest }) => ({
+          url: `/${orgId}/brand/logo`,
+          method: "POST",
+          body: rest,
+        }),
+        invalidatesTags: ["Orgs"],
+      }
+    ),
+    setBrand: builder.mutation<IBaseResponse, ISetBrandRequest>({
+      query: ({ orgId, ...rest }) => ({
+        url: `/${orgId}/brand`,
         method: "POST",
         body: rest,
       }),
@@ -278,6 +307,8 @@ export const {
   useGetOrgsQuery,
   useGetOrgQuery,
   useSetWhiteLabelMutation,
+  useUploadBrandLogoMutation,
+  useSetBrandMutation,
 
   // agent
   useGetMembersQuery,

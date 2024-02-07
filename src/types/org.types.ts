@@ -11,6 +11,13 @@ export interface IMLSFeed {
   api_secret: string
 }
 
+export interface IOrgBrand {
+  logos: string[]
+  colors: string[]
+  titleFont: string
+  bodyFont: string
+}
+
 export interface IOrg {
   _id: string
   name: string
@@ -18,6 +25,8 @@ export interface IOrg {
   logoUrl?: string
   deleted: boolean
   mlsFeeds?: IMLSFeed[]
+  createdAt: number
   deletedAt?: number
   whiteLabel?: DefaultAvaOrgTheme
+  brand?: IOrgBrand
 }

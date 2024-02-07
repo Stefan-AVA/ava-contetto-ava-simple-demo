@@ -15,6 +15,7 @@ import { messageApi } from "./apis/message"
 import { orgApi } from "./apis/org"
 import { roomApi } from "./apis/room"
 import { searchApi } from "./apis/search"
+import { templateApi } from "./apis/templates"
 import appReducer from "./slices/app"
 import roomReducer from "./slices/room"
 
@@ -31,6 +32,7 @@ export const store = configureStore({
     [messageApi.reducerPath]: messageApi.reducer,
     [mediaApi.reducerPath]: mediaApi.reducer,
     [fileShareApi.reducerPath]: fileShareApi.reducer,
+    [templateApi.reducerPath]: templateApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -42,7 +44,8 @@ export const store = configureStore({
       roomApi.middleware,
       messageApi.middleware,
       mediaApi.middleware,
-      fileShareApi.middleware
+      fileShareApi.middleware,
+      templateApi.middleware
     ),
 })
 
