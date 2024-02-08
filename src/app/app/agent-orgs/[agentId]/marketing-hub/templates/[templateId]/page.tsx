@@ -1,7 +1,8 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { RootState } from "@/redux/store"
 import {
   Box,
   Button,
@@ -13,6 +14,7 @@ import {
 import { Canvas, FabricImage, type FabricObject } from "fabric"
 import PDF from "jspdf"
 import { MuiColorInput } from "mui-color-input"
+import { useSelector } from "react-redux"
 
 import { dmsans } from "@/styles/fonts"
 
@@ -20,6 +22,7 @@ import FabricCanvas from "./fabric-canvas"
 
 interface PageParams {
   params: {
+    agentId: string
     templateId: string
   }
 }
@@ -49,7 +52,14 @@ export default function Page({ params }: PageParams) {
 
   const selectedCanvas = canvas[currCanvas]
 
-  function saveToJSON() {
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const org = useMemo(
+    () => agentOrgs.find((agent) => agent._id === params.agentId)?.org,
+    [params.agentId, agentOrgs]
+  )
+
+  function onSave() {
     const data = {} as Record<string, string>
 
     canvas.forEach((curr, index) => {
@@ -201,6 +211,14 @@ export default function Page({ params }: PageParams) {
     }
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
+  const colors = useMemo(() => {
+    const palette: string[] = ["#000", "#FFF"]
+
+    if (org?.brand) palette.push(...org.brand.colors)
+
+    return palette
+  }, [org])
+
   return (
     <Stack
       sx={{
@@ -240,8 +258,12 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{
           width: "100%",
+          height: "calc(100vh - 4rem)",
           bgcolor: "white",
           maxWidth: "27rem",
+          overflowY: "auto",
+          borderLeft: "1px solid",
+          borderColor: "gray.300",
         }}
       >
         <Stack
@@ -269,11 +291,21 @@ export default function Page({ params }: PageParams) {
             borderBottomColor: "gray.200",
           }}
         >
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
+          <Button
+            sx={{ width: "47%" }}
+            size="small"
+            variant="outlined"
+            onClick={onSave}
+          >
             Save draft
           </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
+          <Button
+            sx={{ width: "47%" }}
+            size="small"
+            variant="outlined"
+            onClick={onExportToPDF}
+          >
             Share
           </Button>
 
@@ -285,6 +317,39 @@ export default function Page({ params }: PageParams) {
             Schedule
           </Button>
         </Stack>
+
+        {org?.brand?.colors && (
+          <Stack
+            sx={{
+              p: 4,
+              gap: 2,
+              borderBottom: "1px solid",
+              borderBottomColor: "gray.200",
+            }}
+          >
+            <Typography variant="h6">Brand colours</Typography>
+
+            <Stack sx={{ gap: 2, flexWrap: "wrap", flexDirection: "row" }}>
+              {colors.map((color) => (
+                <Box
+                  sx={{
+                    width: "2.5rem",
+                    height: "2.5rem",
+                    border: "1px solid",
+                    bgcolor: color,
+                    borderColor: "gray.200",
+                    borderRadius: ".75rem",
+                  }}
+                  key={color}
+                />
+              ))}
+            </Stack>
+          </Stack>
+        )}
+
+        <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
+          Click the elements on the template to edit them.
+        </Typography>
 
         <Stack
           sx={{
