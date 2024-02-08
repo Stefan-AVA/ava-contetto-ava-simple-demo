@@ -4,15 +4,21 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { RootState } from "@/redux/store"
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
+  InputAdornment,
   MenuItem,
+  Slider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material"
-import { Canvas, FabricImage, type FabricObject } from "fabric"
+import { Canvas, FabricImage, Textbox, type FabricObject } from "fabric"
 import PDF from "jspdf"
+import { ChevronDown, ChevronRight } from "lucide-react"
 import { MuiColorInput } from "mui-color-input"
 import { useSelector } from "react-redux"
 
@@ -196,10 +202,8 @@ export default function Page({ params }: PageParams) {
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
-      if (selectedElements.length > 0) return
-
       if (key === "Escape") selectedCanvas.discardActiveObject()
-      if (key === "Backspace") onDeleteElement()
+      if (key === "Backspace" && selectedElements.length <= 0) onDeleteElement()
 
       selectedCanvas.renderAll()
     }
@@ -219,9 +223,27 @@ export default function Page({ params }: PageParams) {
     return palette
   }, [org])
 
+  const selectedCurrentElement = useMemo(() => {
+    if (selectedElements.length > 0) {
+      const elem = selectedElements[0]
+
+      if (elem instanceof Textbox) {
+        return {
+          elem,
+          type: "TEXT",
+        }
+      }
+    }
+
+    return null
+  }, [selectedElements])
+
+  console.log({ selectedCurrentElement })
+
   return (
     <Stack
       sx={{
+        height: "calc(100vh - 4rem)",
         bgcolor: "gray.100",
         flexDirection: "row",
       }}
@@ -232,7 +254,7 @@ export default function Page({ params }: PageParams) {
         crossOrigin="anonymous"
       />
 
-      <Stack sx={{ p: 4, gap: 4, flexGrow: 1 }}>
+      <Stack sx={{ p: 4, gap: 4, flexGrow: 1, overflow: "auto" }}>
         <Stack
           sx={{
             gap: 2,
@@ -258,7 +280,7 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{
           width: "100%",
-          height: "calc(100vh - 4rem)",
+          height: "100%",
           bgcolor: "white",
           maxWidth: "27rem",
           overflowY: "auto",
@@ -269,224 +291,264 @@ export default function Page({ params }: PageParams) {
         <Stack
           sx={{
             p: 4,
-            gap: 3,
             borderBottom: "1px solid",
             borderBottomColor: "gray.200",
           }}
         >
-          <Typography variant="h6">
-            Populate template with listing data
-          </Typography>
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ChevronDown />}>
+              <Typography variant="h6">
+                Populate template with listing data
+              </Typography>
+            </AccordionSummary>
 
-          <TextField label="Search Address or MLS" />
+            <AccordionDetails sx={{ px: 0 }}>
+              <TextField
+                label="Search Address or MLS"
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        sx={{
+                          p: 1,
+                          width: "2rem",
+                          height: "2rem",
+                          minWidth: "2rem",
+                        }}
+                      >
+                        <ChevronRight />
+                      </Button>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </AccordionDetails>
+          </Accordion>
         </Stack>
 
-        <Stack
-          sx={{
-            p: 4,
-            gap: 2,
-            flexWrap: "wrap",
-            borderBottom: "1px solid",
-            flexDirection: "row",
-            borderBottomColor: "gray.200",
-          }}
-        >
-          <Button
-            sx={{ width: "47%" }}
-            size="small"
-            variant="outlined"
-            onClick={onSave}
-          >
-            Save draft
-          </Button>
+        {!selectedCurrentElement && (
+          <>
+            <Stack
+              sx={{
+                p: 4,
+                gap: 2,
+                flexWrap: "wrap",
+                borderBottom: "1px solid",
+                flexDirection: "row",
+                borderBottomColor: "gray.200",
+              }}
+            >
+              <Button
+                sx={{ width: "47%" }}
+                size="small"
+                variant="outlined"
+                onClick={onSave}
+              >
+                Save draft
+              </Button>
 
-          <Button
-            sx={{ width: "47%" }}
-            size="small"
-            variant="outlined"
-            onClick={onExportToPDF}
-          >
-            Share
-          </Button>
+              <Button
+                sx={{ width: "47%" }}
+                size="small"
+                variant="outlined"
+                onClick={onExportToPDF}
+              >
+                Share
+              </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Download image
-          </Button>
+              <Button sx={{ width: "47%" }} size="small" variant="outlined">
+                Download image
+              </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Schedule
-          </Button>
-        </Stack>
-
-        {org?.brand?.colors && (
-          <Stack
-            sx={{
-              p: 4,
-              gap: 2,
-              borderBottom: "1px solid",
-              borderBottomColor: "gray.200",
-            }}
-          >
-            <Typography variant="h6">Brand colours</Typography>
-
-            <Stack sx={{ gap: 2, flexWrap: "wrap", flexDirection: "row" }}>
-              {colors.map((color) => (
-                <Box
-                  sx={{
-                    width: "2.5rem",
-                    height: "2.5rem",
-                    border: "1px solid",
-                    bgcolor: color,
-                    borderColor: "gray.200",
-                    borderRadius: ".75rem",
-                  }}
-                  key={color}
-                />
-              ))}
+              <Button sx={{ width: "47%" }} size="small" variant="outlined">
+                Schedule
+              </Button>
             </Stack>
+
+            {org?.brand?.colors && (
+              <Stack
+                sx={{
+                  p: 4,
+                  gap: 2,
+                  borderBottom: "1px solid",
+                  borderBottomColor: "gray.200",
+                }}
+              >
+                <Typography variant="h6">Brand colours</Typography>
+
+                <Stack sx={{ gap: 2, flexWrap: "wrap", flexDirection: "row" }}>
+                  {colors.map((color) => (
+                    <Box
+                      sx={{
+                        width: "2.5rem",
+                        height: "2.5rem",
+                        border: "1px solid",
+                        bgcolor: color,
+                        borderColor: "gray.200",
+                        borderRadius: ".75rem",
+                      }}
+                      key={color}
+                    />
+                  ))}
+                </Stack>
+              </Stack>
+            )}
+
+            <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
+              Click the elements on the template to edit them.
+            </Typography>
+          </>
+        )}
+
+        {selectedCurrentElement && (
+          <Stack>
+            {selectedCurrentElement.type === "TEXT" && (
+              <Stack
+                sx={{
+                  p: 4,
+                  gap: 2,
+                  borderBottom: "1px solid",
+                  borderBottomColor: "gray.200",
+                }}
+              >
+                <Typography variant="h6">Font Size</Typography>
+
+                <Slider min={12} step={1} max={48} />
+              </Stack>
+            )}
           </Stack>
         )}
 
-        <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
-          Click the elements on the template to edit them.
-        </Typography>
+        {selectedCurrentElement?.type === "TEXT" && (
+          <>
+            <Stack
+              sx={{
+                mb: 2,
+                gap: {
+                  xs: 1,
+                  sm: 2,
+                },
+                flexWrap: "wrap",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <TextField
+                label="Font Family"
+                value={style.fontFamily}
+                select
+                onChange={({ target }) =>
+                  onUpdateStylesAndCurrentElements("fontFamily", target.value)
+                }
+              >
+                <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
+                <MenuItem value="Inter">Inter</MenuItem>
+                <MenuItem value="Roboto">Roboto</MenuItem>
+                <MenuItem value="Open Sans">Open Sans</MenuItem>
+                <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
+                <MenuItem value="Lato">Lato</MenuItem>
+                <MenuItem value="Raleway">Raleway</MenuItem>
+                <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
+              </TextField>
 
-        <Stack
-          sx={{
-            mb: 2,
-            gap: {
-              xs: 1,
-              sm: 2,
-            },
-            flexWrap: "wrap",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <TextField
-            label="Font Family"
-            value={style.fontFamily}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("fontFamily", target.value)
-            }
-          >
-            <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
-            <MenuItem value="Inter">Inter</MenuItem>
-            <MenuItem value="Roboto">Roboto</MenuItem>
-            <MenuItem value="Open Sans">Open Sans</MenuItem>
-            <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
-            <MenuItem value="Lato">Lato</MenuItem>
-            <MenuItem value="Raleway">Raleway</MenuItem>
-            <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
-          </TextField>
+              <TextField
+                label="Font Size"
+                value={style.fontSize}
+                inputMode="numeric"
+                onChange={({ target }) =>
+                  onUpdateStylesAndCurrentElements(
+                    "fontSize",
+                    Number(target.value) ?? initialStyle.fontSize
+                  )
+                }
+              />
 
-          <TextField
-            label="Font Size"
-            value={style.fontSize}
-            inputMode="numeric"
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements(
-                "fontSize",
-                Number(target.value) ?? initialStyle.fontSize
-              )
-            }
-          />
+              <TextField
+                label="Line Height"
+                value={style.lineHeight}
+                inputMode="numeric"
+                onChange={({ target }) =>
+                  onUpdateStylesAndCurrentElements(
+                    "lineHeight",
+                    Number(target.value) ?? initialStyle.lineHeight
+                  )
+                }
+              />
 
-          <TextField
-            label="Line Height"
-            value={style.lineHeight}
-            inputMode="numeric"
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements(
-                "lineHeight",
-                Number(target.value) ?? initialStyle.lineHeight
-              )
-            }
-          />
+              <TextField
+                label="Font Align"
+                value={style.textAlign}
+                select
+                onChange={({ target }) =>
+                  onUpdateStylesAndCurrentElements("textAlign", target.value)
+                }
+              >
+                <MenuItem value="left">Left</MenuItem>
+                <MenuItem value="center">Center</MenuItem>
+                <MenuItem value="right">Right</MenuItem>
+              </TextField>
 
-          <TextField
-            label="Font Align"
-            value={style.textAlign}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("textAlign", target.value)
-            }
-          >
-            <MenuItem value="left">Left</MenuItem>
-            <MenuItem value="center">Center</MenuItem>
-            <MenuItem value="right">Right</MenuItem>
-          </TextField>
+              <TextField
+                label="Font Weight"
+                value={style.fontWeight}
+                select
+                onChange={({ target }) =>
+                  onUpdateStylesAndCurrentElements("fontWeight", target.value)
+                }
+              >
+                <MenuItem value="300">300</MenuItem>
+                <MenuItem value="400">400</MenuItem>
+                <MenuItem value="500">500</MenuItem>
+                <MenuItem value="600">600</MenuItem>
+                <MenuItem value="700">700</MenuItem>
+              </TextField>
+            </Stack>
 
-          <TextField
-            label="Font Weight"
-            value={style.fontWeight}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("fontWeight", target.value)
-            }
-          >
-            <MenuItem value="300">300</MenuItem>
-            <MenuItem value="400">400</MenuItem>
-            <MenuItem value="500">500</MenuItem>
-            <MenuItem value="600">600</MenuItem>
-            <MenuItem value="700">700</MenuItem>
-          </TextField>
-        </Stack>
+            <Stack
+              sx={{
+                mb: 5,
+                gap: {
+                  xs: 1,
+                  sm: 2,
+                },
+                flexWrap: "wrap",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <MuiColorInput
+                value={style.textColor}
+                label="Text Color"
+                format="hex"
+                onChange={(value) =>
+                  onUpdateStylesAndCurrentElements("textColor", value)
+                }
+                fullWidth
+              />
 
-        <Stack
-          sx={{
-            mb: 5,
-            gap: {
-              xs: 1,
-              sm: 2,
-            },
-            flexWrap: "wrap",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <MuiColorInput
-            value={style.textColor}
-            label="Text Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("textColor", value)
-            }
-            fullWidth
-          />
+              <MuiColorInput
+                value={style.backgroundColor}
+                label="Background Color"
+                format="hex"
+                onChange={(value) =>
+                  onUpdateStylesAndCurrentElements("backgroundColor", value)
+                }
+                fullWidth
+              />
 
-          <MuiColorInput
-            value={style.backgroundColor}
-            label="Background Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("backgroundColor", value)
-            }
-            fullWidth
-          />
-
-          <MuiColorInput
-            value={style.borderColor}
-            label="Border Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("borderColor", value)
-            }
-            fullWidth
-          />
-        </Stack>
-
-        <Stack
-          sx={{
-            mt: 8,
-            gap: 2,
-            justifyContent: "flex-end",
-            flexDirection: "row",
-          }}
-        >
-          <Button onClick={onExportToPDF}>Export to PDF</Button>
-        </Stack>
+              <MuiColorInput
+                value={style.borderColor}
+                label="Border Color"
+                format="hex"
+                onChange={(value) =>
+                  onUpdateStylesAndCurrentElements("borderColor", value)
+                }
+                fullWidth
+              />
+            </Stack>
+          </>
+        )}
       </Stack>
     </Stack>
   )
