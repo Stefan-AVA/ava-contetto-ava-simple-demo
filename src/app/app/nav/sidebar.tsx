@@ -16,7 +16,7 @@ import {
   Typography,
   Zoom,
 } from "@mui/material"
-import AVALogo from "~/assets/logo-ava.png"
+import ContettoLogo from "~/assets/logo.png"
 import { Plus, Power } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -291,9 +291,9 @@ export default function Sidebar({
           }}
         >
           <Stack href="/" component={Link}>
-            <Box sx={{ width: "8rem", height: "4rem", position: "relative" }}>
+            <Box sx={{ width: "8rem", height: "3rem", position: "relative" }}>
               <Image
-                src={AVALogo}
+                src={ContettoLogo}
                 alt="logo"
                 fill
                 style={{ objectFit: "contain" }}

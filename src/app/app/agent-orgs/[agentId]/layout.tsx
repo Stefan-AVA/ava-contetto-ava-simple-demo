@@ -20,7 +20,7 @@ import WhiteLabelWrapper from "@/components/white-label-wrapper"
 export default function Layout({ children }: PropsWithChildren) {
   const pathName = usePathname()
 
-  const { agentId } = useParams()
+  const { agentId, templateId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -83,7 +83,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
         <Stack
           sx={{
-            p: { xs: 1, md: 5 },
+            p: { xs: 1, md: templateId ? 0 : 5 },
             gap: 2,
             width: "100%",
             height: "calc(100vh - 4rem)",

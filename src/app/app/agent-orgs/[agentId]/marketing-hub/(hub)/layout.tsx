@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react"
 import { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Box, Stack, Typography } from "@mui/material"
+import { Stack, Typography } from "@mui/material"
 
 interface PageProps extends PropsWithChildren {
   params: {

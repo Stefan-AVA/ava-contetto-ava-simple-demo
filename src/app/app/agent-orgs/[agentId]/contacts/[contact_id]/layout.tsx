@@ -307,7 +307,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                     }}
                   >
                     <Box
-                      sx={{ color: "purple.500" }}
+                      sx={{ color: "gray.700" }}
                       size={20}
                       component={User2}
                     />
@@ -327,7 +327,7 @@ export default function ContactLayout({ children }: PropsWithChildren) {
                     }}
                   >
                     <Box
-                      sx={{ color: "purple.500" }}
+                      sx={{ color: "gray.700" }}
                       size={20}
                       component={Mail}
                     />

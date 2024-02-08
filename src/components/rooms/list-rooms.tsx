@@ -16,7 +16,7 @@ interface IListRoomsProps extends PropsWithChildren {
 const types = {
   CHANNELS: {
     icon: Hash,
-    title: "Channels",
+    title: "Groups",
   },
 
   DIRECT_CHATS: {

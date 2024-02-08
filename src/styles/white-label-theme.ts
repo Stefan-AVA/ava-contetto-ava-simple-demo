@@ -1,4 +1,5 @@
 import { dmsans } from "./fonts"
+import { palette } from "./theme"
 
 export interface DefaultAvaOrgTheme {
   title: string
@@ -10,10 +11,10 @@ export interface DefaultAvaOrgTheme {
 }
 
 export const initialTheme = {
-  title: "#172832",
-  primary: "#303F65",
-  secondary: "#B80E7F",
-  background: "#FFF",
+  title: palette.gray[700],
+  primary: palette.blue[800],
+  secondary: palette.cyan[500],
+  background: palette.white,
   fontFamily: dmsans.style.fontFamily,
-  description: "#8C8C8C",
+  description: palette.gray[500],
 } satisfies DefaultAvaOrgTheme
