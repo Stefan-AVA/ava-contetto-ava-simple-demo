@@ -1,59 +1,101 @@
 "use client"
 
-import { useState, type MouseEvent } from "react"
+import { useEffect, useMemo, useState, type MouseEvent } from "react"
 import Image from "next/image"
+import {
+  useSetBrandMutation,
+  useUploadBrandLogoMutation,
+} from "@/redux/apis/org"
+import { RootState } from "@/redux/store"
+import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
-import { Box, MenuItem, Stack, TextField, Typography } from "@mui/material"
+import {
+  Box,
+  CircularProgress,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 import { Check, Plus, X } from "lucide-react"
+import { useSnackbar } from "notistack"
+import { useSelector } from "react-redux"
 
 const initialForm = {
   name: "",
-  logos: [] as File[],
-  fonts: {
-    body: "",
-    title: "",
-  },
+  logos: [] as string[],
   colors: [] as string[],
+  titleFont: "",
+  bodyFont: "",
 }
 
-export default function ManageBrand() {
+interface IError {
+  name?: string
+}
+
+type PageProps = {
+  params: {
+    agentId: string
+  }
+}
+
+export default function ManageBrand({ params }: PageProps) {
+  const { agentId } = params
+
+  const { enqueueSnackbar } = useSnackbar()
+
   const [form, setForm] = useState(initialForm)
   const [color, setColor] = useState("")
+  const [errors, setErrors] = useState<IError>({})
 
-  async function onSubmit() {
-    //
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const org = useMemo(
+    () => agentOrgs.find((agent) => agent._id === agentId)?.org,
+    [agentId, agentOrgs]
+  )
+
+  const [uploadLogo, { isLoading: isUploadingLogo }] =
+    useUploadBrandLogoMutation()
+  const [setBrand, { isLoading: isSettingBrand }] = useSetBrandMutation()
+
+  useEffect(() => {
+    if (org) {
+      setForm({
+        name: org.name,
+        logos: org.brand?.logos || [],
+        colors: org.brand?.colors || [],
+        titleFont: org.brand?.titleFont || "",
+        bodyFont: org.brand?.bodyFont || "",
+      })
+    }
+  }, [org])
+
+  const onChange = (key: keyof typeof initialForm, value: string) => {
+    setErrors({})
+    setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  function onAddLogo(files: FileList | null) {
-    if (files)
-      setForm((prev) => ({
-        ...prev,
-        logos: [...prev.logos, files[0]],
-      }))
-  }
+  const onAddLogo = async (files: FileList | null) => {
+    const file = files ? files[0] : null
+    if (file && org) {
+      try {
+        const base64 = await toBase64(file)
 
-  function onAddColor() {
-    if (color)
-      setForm((prev) => ({
-        ...prev,
-        colors: [...prev.colors, color],
-      }))
+        const { url } = await uploadLogo({
+          orgId: org._id,
+          logoUrl: String(base64),
+          logoFileType: file.type,
+        }).unwrap()
 
-    setColor("")
-  }
-
-  function onChangeName(value: string) {
-    setForm((prev) => ({ ...prev, name: value }))
-  }
-
-  function onAddFontFamily(type: keyof typeof form.fonts, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      fonts: {
-        ...prev.fonts,
-        [type]: value,
-      },
-    }))
+        setForm((prev) => ({
+          ...prev,
+          logos: [...prev.logos, url],
+        }))
+      } catch (error) {
+        enqueueSnackbar("Upload error!", { variant: "error" })
+      }
+    }
   }
 
   function onRemoveLogo(position: number) {
@@ -63,7 +105,20 @@ export default function ManageBrand() {
     }))
   }
 
-  function onRemoveColor(e: MouseEvent<HTMLButtonElement>, position: number) {
+  const onAddColor = () => {
+    if (color)
+      setForm((prev) => ({
+        ...prev,
+        colors: [...prev.colors, color],
+      }))
+
+    setColor("")
+  }
+
+  const onRemoveColor = (
+    e: MouseEvent<HTMLButtonElement>,
+    position: number
+  ) => {
     e.stopPropagation()
 
     setForm((prev) => ({
@@ -72,8 +127,27 @@ export default function ManageBrand() {
     }))
   }
 
-  function onCurrentColor(value: string) {
+  const onCurrentColor = (value: string) => {
     setColor(value)
+  }
+
+  const onSubmit = async () => {
+    if (!org) return
+    if (!form.name) {
+      setErrors({ name: "This field is required" })
+      return
+    }
+
+    try {
+      await setBrand({
+        orgId: org?._id,
+        ...form,
+      }).unwrap()
+
+      enqueueSnackbar("Saved!", { variant: "success" })
+    } catch (error) {
+      enqueueSnackbar("save error!", { variant: "error" })
+    }
   }
 
   return (
@@ -90,7 +164,9 @@ export default function ManageBrand() {
         <TextField
           label="Organization Name"
           value={form.name}
-          onChange={({ target }) => onChangeName(target.value)}
+          onChange={({ target }) => onChange("name", target.value)}
+          error={!!errors.name}
+          helperText={errors.name}
         />
       </Stack>
 
@@ -118,10 +194,10 @@ export default function ManageBrand() {
                 borderRadius: ".75rem",
                 justifyContent: "center",
               }}
-              key={logo.name}
+              key={logo}
             >
               <Image
-                src={URL.createObjectURL(logo)}
+                src={logo}
                 alt=""
                 width={96}
                 style={{
@@ -168,7 +244,11 @@ export default function ManageBrand() {
             }}
             component="button"
           >
-            <Box sx={{ pointerEvents: "none" }} component={Plus} />
+            {isUploadingLogo ? (
+              <CircularProgress color="inherit" size="1.25rem" />
+            ) : (
+              <Box sx={{ pointerEvents: "none" }} component={Plus} />
+            )}
 
             <Box
               sx={{
@@ -181,8 +261,10 @@ export default function ManageBrand() {
                 position: "absolute",
               }}
               type="file"
+              accept="image/*"
               onChange={({ target }) => onAddLogo(target.files)}
               component="input"
+              disabled={isUploadingLogo || isSettingBrand}
             />
           </Stack>
         </Stack>
@@ -211,7 +293,7 @@ export default function ManageBrand() {
                 borderRadius: ".75rem",
                 backgroundColor: color,
               }}
-              key={color}
+              key={`${color}+${index}`}
             >
               <Stack
                 sx={{
@@ -289,8 +371,8 @@ export default function ManageBrand() {
           sx={{ mb: 1 }}
           select
           label="Title font"
-          value={form.fonts.title}
-          onChange={({ target }) => onAddFontFamily("title", target.value)}
+          value={form.titleFont}
+          onChange={({ target }) => onChange("titleFont", target.value)}
         >
           <MenuItem value="DM Sans">DM Sans</MenuItem>
           <MenuItem value="Inter">Inter</MenuItem>
@@ -305,8 +387,8 @@ export default function ManageBrand() {
         <TextField
           select
           label="Body font"
-          value={form.fonts.body}
-          onChange={({ target }) => onAddFontFamily("body", target.value)}
+          value={form.bodyFont}
+          onChange={({ target }) => onChange("bodyFont", target.value)}
         >
           <MenuItem value="DM Sans">DM Sans</MenuItem>
           <MenuItem value="Inter">Inter</MenuItem>
@@ -319,7 +401,11 @@ export default function ManageBrand() {
         </TextField>
       </Stack>
 
-      <LoadingButton sx={{ mt: 6, ml: "auto" }} onClick={onSubmit}>
+      <LoadingButton
+        sx={{ mt: 6, ml: "auto" }}
+        onClick={onSubmit}
+        loading={isSettingBrand}
+      >
         Save
       </LoadingButton>
     </Stack>

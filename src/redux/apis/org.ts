@@ -150,7 +150,6 @@ export const orgApi = createApi({
           method: "POST",
           body: rest,
         }),
-        invalidatesTags: ["Orgs"],
       }
     ),
     setBrand: builder.mutation<IBaseResponse, ISetBrandRequest>({
