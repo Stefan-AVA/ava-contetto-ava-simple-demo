@@ -8,6 +8,7 @@ import {
 
 import { agentApi } from "./apis/agent"
 import { authApi } from "./apis/auth"
+import { brochureApi } from "./apis/brochure"
 import { cityApi } from "./apis/city"
 import { fileShareApi } from "./apis/fileshare"
 import { mediaApi } from "./apis/media"
@@ -33,6 +34,7 @@ export const store = configureStore({
     [mediaApi.reducerPath]: mediaApi.reducer,
     [fileShareApi.reducerPath]: fileShareApi.reducer,
     [templateApi.reducerPath]: templateApi.reducer,
+    [brochureApi.reducerPath]: brochureApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -45,7 +47,8 @@ export const store = configureStore({
       messageApi.middleware,
       mediaApi.middleware,
       fileShareApi.middleware,
-      templateApi.middleware
+      templateApi.middleware,
+      brochureApi.middleware
     ),
 })
 
