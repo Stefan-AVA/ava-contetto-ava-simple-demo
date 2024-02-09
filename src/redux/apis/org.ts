@@ -38,6 +38,13 @@ interface ISearchContactRequest {
   search: string
 }
 
+interface ICreateOrgRequest {
+  name: string
+  industryId: string
+  logoUrl?: string
+  logoFileType?: string
+}
+
 interface IUpdateOrgRequest {
   _id: string
   name: string
@@ -85,7 +92,7 @@ export const orgApi = createApi({
   endpoints: (builder) => ({
     createOrg: builder.mutation<
       { orgId: string; agentProfileId: string },
-      Omit<IUpdateOrgRequest, "_id">
+      ICreateOrgRequest
     >({
       query: (data) => ({
         url: "",

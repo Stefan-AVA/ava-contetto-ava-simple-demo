@@ -11,6 +11,7 @@ import { authApi } from "./apis/auth"
 import { brochureApi } from "./apis/brochure"
 import { cityApi } from "./apis/city"
 import { fileShareApi } from "./apis/fileshare"
+import { industryApi } from "./apis/industry"
 import { mediaApi } from "./apis/media"
 import { messageApi } from "./apis/message"
 import { orgApi } from "./apis/org"
@@ -35,6 +36,7 @@ export const store = configureStore({
     [fileShareApi.reducerPath]: fileShareApi.reducer,
     [templateApi.reducerPath]: templateApi.reducer,
     [brochureApi.reducerPath]: brochureApi.reducer,
+    [industryApi.reducerPath]: industryApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -48,7 +50,8 @@ export const store = configureStore({
       mediaApi.middleware,
       fileShareApi.middleware,
       templateApi.middleware,
-      brochureApi.middleware
+      brochureApi.middleware,
+      industryApi.middleware
     ),
 })
 

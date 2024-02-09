@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
+import { useGetIndustriesQuery } from "@/redux/apis/industry"
 import {
   useCreateOrgMutation,
   useLazyGetOrgsQuery,
@@ -10,9 +11,18 @@ import {
 import { parseError } from "@/utils/error"
 import toBase64 from "@/utils/toBase64"
 import { LoadingButton } from "@mui/lab"
-import { Stack, TextField, Typography } from "@mui/material"
+import {
+  Autocomplete,
+  InputAdornment,
+  ListItem,
+  ListItemText,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 
 import { AgentRole } from "@/types/agentProfile.types"
+import { IIndustry } from "@/types/industry.types"
 import type { IOrg } from "@/types/org.types"
 
 import ImageUpload from "../ImageUpload"
@@ -26,18 +36,21 @@ interface IOrgInfo {
 
 interface IForm {
   name: string
+  industryId: string
   logoUrl: string
   logoFileType?: string
 }
 
 const initialForm: IForm = {
   name: "",
+  industryId: "",
   logoUrl: "",
   logoFileType: undefined,
 }
 
 interface IError {
   name?: string
+  industryId?: string
   request?: string
 }
 
@@ -55,8 +68,11 @@ export default function OrgInfo({
   const [updateOrg, { isLoading: isUpdateLoading }] = useUpdateOrgMutation()
   const [createOrg, { isLoading: isCreateLoading }] = useCreateOrgMutation()
   const [getOrgs, { isLoading: isLoadingOrgs }] = useLazyGetOrgsQuery()
+  const { data: industries = [], isLoading: isLoadingIndustries } =
+    useGetIndustriesQuery()
 
-  const isLoading = isCreateLoading || isUpdateLoading || isLoadingOrgs
+  const isLoading =
+    isCreateLoading || isUpdateLoading || isLoadingOrgs || isLoadingIndustries
 
   useEffect(() => {
     if (org)
@@ -67,7 +83,7 @@ export default function OrgInfo({
       }))
   }, [org])
 
-  const onChange = (name: string, value: any) => {
+  const onChange = (name: keyof IForm, value: any) => {
     setErrors({})
     setForm((prev) => ({ ...prev, [name]: value }))
   }
@@ -75,6 +91,7 @@ export default function OrgInfo({
   const isValidated = () => {
     const errs: IError = {}
     if (!form.name) errs.name = "This field is required"
+    if (!form.industryId) errors.industryId = "This field is required"
     setErrors(errs)
 
     return Object.keys(errs).length === 0
@@ -147,6 +164,40 @@ export default function OrgInfo({
         disabled={!isCreate && role !== AgentRole.owner}
         helperText={errors?.name}
         fullWidth
+      />
+
+      <Autocomplete
+        value={industries.find((industry) => industry._id === form.industryId)}
+        loading={isLoadingIndustries}
+        options={industries as IIndustry[]}
+        onChange={(_, newValue) => onChange("industryId", newValue?._id)}
+        fullWidth
+        clearOnBlur
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Search Industry"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <InputAdornment position="end">
+                  {params.InputProps.endAdornment}
+                </InputAdornment>
+              ),
+            }}
+            error={!!errors.industryId}
+            helperText={errors.industryId}
+          />
+        )}
+        renderOption={({ key, ...props }: any, option) => (
+          <ListItem key={option._id} {...props}>
+            <ListItemText>{option.name}</ListItemText>
+          </ListItem>
+        )}
+        noOptionsText="No Industry"
+        selectOnFocus
+        getOptionLabel={(option) => option.name}
+        handleHomeEndKeys
       />
 
       <ImageUpload

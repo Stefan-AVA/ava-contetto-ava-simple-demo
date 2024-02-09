@@ -1,5 +1,7 @@
 import type { DefaultAvaOrgTheme } from "@/styles/white-label-theme"
 
+import { IIndustry } from "./industry.types"
+
 export enum MLSSource {
   crea = "crea",
   kvcore = "kvcore",
@@ -23,6 +25,8 @@ export interface IOrg {
   name: string
   owner: string // username
   logoUrl?: string
+  industryId: string
+  industry?: IIndustry
   deleted: boolean
   mlsFeeds?: IMLSFeed[]
   createdAt: number
