@@ -22,8 +22,8 @@ export interface ITemplate {
   data: any
   layoutId: string
   layout: ITemplateLayout
-  industryId: string
-  industry?: IIndustry
+  industryIds: string[]
+  industries?: IIndustry[]
   createdAt: number
   updatedAt: number
 }
