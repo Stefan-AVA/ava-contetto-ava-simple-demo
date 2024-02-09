@@ -12,7 +12,7 @@ interface PageProps extends PropsWithChildren {
   }
 }
 
-const routes = [{ path: "/collections", label: "Collections" }]
+const routes = [{ path: "/social-media", label: "Social Media" }]
 
 export default function MarketingHub({ params, children }: PageProps) {
   const pathname = usePathname()

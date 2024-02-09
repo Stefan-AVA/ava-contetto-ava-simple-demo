@@ -1,25 +1,36 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
+import { RootState } from "@/redux/store"
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
-  MenuItem,
+  InputAdornment,
+  Slider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material"
-import { Canvas, FabricImage, type FabricObject } from "fabric"
+import { Canvas, FabricImage, Textbox, type FabricObject } from "fabric"
 import PDF from "jspdf"
-import { MuiColorInput } from "mui-color-input"
-
-import { dmsans } from "@/styles/fonts"
+import { ChevronDown, ChevronRight, Minus, Plus } from "lucide-react"
+import { useSelector } from "react-redux"
 
 import FabricCanvas from "./fabric-canvas"
+import { styles, textAligns } from "./utils"
+
+interface BrandColoursProps {
+  onChange?: (color: string) => void
+}
 
 interface PageParams {
   params: {
+    agentId: string
     templateId: string
   }
 }
@@ -28,10 +39,9 @@ const initialStyle = {
   fontSize: 16,
   textColor: "#000",
   textAlign: "left",
-  lineHeight: 24,
+  fontStyle: "normal",
+  underline: false,
   fontWeight: "400",
-  fontFamily: dmsans.style.fontFamily,
-  borderColor: "#000",
   backgroundColor: "#000",
 }
 
@@ -49,7 +59,26 @@ export default function Page({ params }: PageParams) {
 
   const selectedCanvas = canvas[currCanvas]
 
-  function saveToJSON() {
+  const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
+
+  const org = useMemo(
+    () => agentOrgs.find((agent) => agent._id === params.agentId)?.org,
+    [params.agentId, agentOrgs]
+  )
+
+  const { data } = useGetOrgTemplateQuery(
+    {
+      orgId: org?._id as string,
+      templateId: params.templateId,
+    },
+    {
+      skip: !org,
+    }
+  )
+
+  console.log({ data })
+
+  function onSave() {
     const data = {} as Record<string, string>
 
     canvas.forEach((curr, index) => {
@@ -107,16 +136,27 @@ export default function Page({ params }: PageParams) {
 
   function onUpdateStylesAndCurrentElements(
     key: keyof typeof initialStyle,
-    value: string | number
+    value: string | number | boolean
   ) {
-    setStyle((prev) => ({ ...prev, [key]: value }))
+    let customValue = value
+
+    if (key === "fontStyle")
+      customValue =
+        style.fontStyle === value ? initialStyle.fontStyle : "italic"
+
+    if (key === "fontWeight")
+      customValue = style.fontWeight === value ? initialStyle.fontWeight : "700"
+
+    if (key === "underline") customValue = !style.underline
+
+    console.log({ key, customValue })
+
+    setStyle((prev) => ({ ...prev, [key]: customValue }))
 
     if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
         if (object.type !== "textbox") {
-          if (key === "backgroundColor") object.set({ fill: value })
-
-          if (key === "borderColor") object.set({ stroke: value })
+          if (key === "backgroundColor") object.set({ fill: customValue })
         }
 
         if (
@@ -125,23 +165,15 @@ export default function Page({ params }: PageParams) {
             "fontSize",
             "textColor",
             "textAlign",
-            "fontFamily",
+            "underline",
+            "fontStyle",
             "fontWeight",
-            "lineHeight",
           ].includes(key)
         ) {
           const customKey = key === "textColor" ? "fill" : key
 
-          const customValue = () => {
-            if (customKey === "lineHeight") return Number(value) / 16
-
-            if (customKey === "fontFamily") return `'${value}', sans-serif`
-
-            return value
-          }
-
           object.set({
-            [customKey]: customValue(),
+            [customKey]: customValue,
           })
         }
       })
@@ -186,10 +218,8 @@ export default function Page({ params }: PageParams) {
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
-      if (selectedElements.length > 0) return
-
       if (key === "Escape") selectedCanvas.discardActiveObject()
-      if (key === "Backspace") onDeleteElement()
+      if (key === "Backspace" && selectedElements.length <= 0) onDeleteElement()
 
       selectedCanvas.renderAll()
     }
@@ -201,9 +231,90 @@ export default function Page({ params }: PageParams) {
     }
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
+  const colors = useMemo(() => {
+    const palette: string[] = []
+
+    if (org?.brand) palette.push(...org.brand.colors)
+
+    palette.push(...["#000", "#FFF"])
+
+    return palette
+  }, [org])
+
+  const selectedCurrentElement = useMemo(() => {
+    if (selectedElements.length > 0) {
+      const elem = selectedElements[0]
+
+      if (elem instanceof Textbox) {
+        return {
+          elem,
+          type: "TEXT",
+        }
+      }
+    }
+
+    return null
+  }, [selectedElements])
+
+  const BrandColours = useCallback(
+    ({ onChange }: BrandColoursProps) => {
+      if (org?.brand?.colors) {
+        return (
+          <Stack
+            sx={{
+              p: 4,
+              gap: 2,
+              borderBottom: "1px solid",
+              borderBottomColor: "gray.200",
+            }}
+          >
+            <Typography variant="h6">Brand colours</Typography>
+
+            <Stack sx={{ gap: 4, flexWrap: "wrap", flexDirection: "row" }}>
+              {colors.map((color) => (
+                <Stack
+                  sx={{
+                    gap: 2,
+                    width: onChange ? "45%" : "auto",
+                    cursor: onChange ? "pointer" : "default",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                  key={color}
+                  onClick={() => onChange?.(color)}
+                >
+                  <Box
+                    sx={{
+                      width: "2.5rem",
+                      height: "2.5rem",
+                      border: "1px solid",
+                      bgcolor: color,
+                      borderColor: color !== "#FFF" ? color : "gray.300",
+                      borderRadius: ".75rem",
+                    }}
+                  />
+
+                  {onChange && (
+                    <Typography sx={{ color: "primary.main" }}>
+                      {color.toUpperCase()}
+                    </Typography>
+                  )}
+                </Stack>
+              ))}
+            </Stack>
+          </Stack>
+        )
+      }
+
+      return null
+    },
+    [colors, org?.brand?.colors]
+  )
+
   return (
     <Stack
       sx={{
+        height: "calc(100vh - 4rem)",
         bgcolor: "gray.100",
         flexDirection: "row",
       }}
@@ -214,7 +325,7 @@ export default function Page({ params }: PageParams) {
         crossOrigin="anonymous"
       />
 
-      <Stack sx={{ p: 4, gap: 4, flexGrow: 1 }}>
+      <Stack sx={{ p: 4, gap: 4, flexGrow: 1, overflow: "auto" }}>
         <Stack
           sx={{
             gap: 2,
@@ -240,188 +351,265 @@ export default function Page({ params }: PageParams) {
       <Stack
         sx={{
           width: "100%",
+          height: "100%",
           bgcolor: "white",
           maxWidth: "27rem",
+          overflowY: "auto",
+          borderLeft: "1px solid",
+          borderColor: "gray.300",
         }}
       >
         <Stack
           sx={{
             p: 4,
-            gap: 3,
             borderBottom: "1px solid",
             borderBottomColor: "gray.200",
           }}
         >
-          <Typography variant="h6">
-            Populate template with listing data
-          </Typography>
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ChevronDown />}>
+              <Typography variant="h6">
+                Populate template with listing data
+              </Typography>
+            </AccordionSummary>
 
-          <TextField label="Search Address or MLS" />
+            <AccordionDetails sx={{ px: 0 }}>
+              <TextField
+                label="Search Address or MLS"
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        sx={{
+                          p: 1,
+                          width: "2rem",
+                          height: "2rem",
+                          minWidth: "2rem",
+                        }}
+                      >
+                        <ChevronRight />
+                      </Button>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </AccordionDetails>
+          </Accordion>
         </Stack>
 
-        <Stack
-          sx={{
-            p: 4,
-            gap: 2,
-            flexWrap: "wrap",
-            borderBottom: "1px solid",
-            flexDirection: "row",
-            borderBottomColor: "gray.200",
-          }}
-        >
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Save draft
-          </Button>
+        {!selectedCurrentElement && (
+          <>
+            <Stack
+              sx={{
+                p: 4,
+                gap: 2,
+                flexWrap: "wrap",
+                borderBottom: "1px solid",
+                flexDirection: "row",
+                borderBottomColor: "gray.200",
+              }}
+            >
+              <Button
+                sx={{ width: "47%" }}
+                size="small"
+                variant="outlined"
+                onClick={onSave}
+              >
+                Save draft
+              </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Share
-          </Button>
+              <Button
+                sx={{ width: "47%" }}
+                size="small"
+                variant="outlined"
+                onClick={onExportToPDF}
+              >
+                Share
+              </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Download image
-          </Button>
+              <Button sx={{ width: "47%" }} size="small" variant="outlined">
+                Download image
+              </Button>
 
-          <Button sx={{ width: "47%" }} size="small" variant="outlined">
-            Schedule
-          </Button>
-        </Stack>
+              <Button sx={{ width: "47%" }} size="small" variant="outlined">
+                Schedule
+              </Button>
+            </Stack>
 
-        <Stack
-          sx={{
-            mb: 2,
-            gap: {
-              xs: 1,
-              sm: 2,
-            },
-            flexWrap: "wrap",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <TextField
-            label="Font Family"
-            value={style.fontFamily}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("fontFamily", target.value)
-            }
-          >
-            <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
-            <MenuItem value="Inter">Inter</MenuItem>
-            <MenuItem value="Roboto">Roboto</MenuItem>
-            <MenuItem value="Open Sans">Open Sans</MenuItem>
-            <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
-            <MenuItem value="Lato">Lato</MenuItem>
-            <MenuItem value="Raleway">Raleway</MenuItem>
-            <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
-          </TextField>
+            <BrandColours />
 
-          <TextField
-            label="Font Size"
-            value={style.fontSize}
-            inputMode="numeric"
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements(
-                "fontSize",
-                Number(target.value) ?? initialStyle.fontSize
-              )
-            }
-          />
+            <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
+              Click the elements on the template to edit them.
+            </Typography>
+          </>
+        )}
 
-          <TextField
-            label="Line Height"
-            value={style.lineHeight}
-            inputMode="numeric"
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements(
-                "lineHeight",
-                Number(target.value) ?? initialStyle.lineHeight
-              )
-            }
-          />
+        {selectedCurrentElement && (
+          <Stack>
+            {selectedCurrentElement.type === "TEXT" && (
+              <>
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Font Size</Typography>
 
-          <TextField
-            label="Font Align"
-            value={style.textAlign}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("textAlign", target.value)
-            }
-          >
-            <MenuItem value="left">Left</MenuItem>
-            <MenuItem value="center">Center</MenuItem>
-            <MenuItem value="right">Right</MenuItem>
-          </TextField>
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Stack
+                      sx={{
+                        width: "1.5rem",
+                        color: "primary.main",
+                        height: "1.5rem",
+                        cursor:
+                          style.fontSize <= 12 ? "not-allowed" : "pointer",
+                        border: "1px solid",
+                        alignItems: "center",
+                        borderColor: "primary.main",
+                        borderRadius: "50%",
+                        justifyContent: "center",
+                      }}
+                      onClick={() =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          style.fontSize > 12
+                            ? style.fontSize - 1
+                            : style.fontSize
+                        )
+                      }
+                      disabled={style.fontSize <= 12}
+                      component="button"
+                    >
+                      <Minus />
+                    </Stack>
 
-          <TextField
-            label="Font Weight"
-            value={style.fontWeight}
-            select
-            onChange={({ target }) =>
-              onUpdateStylesAndCurrentElements("fontWeight", target.value)
-            }
-          >
-            <MenuItem value="300">300</MenuItem>
-            <MenuItem value="400">400</MenuItem>
-            <MenuItem value="500">500</MenuItem>
-            <MenuItem value="600">600</MenuItem>
-            <MenuItem value="700">700</MenuItem>
-          </TextField>
-        </Stack>
+                    <Slider
+                      min={12}
+                      max={48}
+                      step={1}
+                      value={style.fontSize}
+                      onChange={(_, value) =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          (value as number) ?? initialStyle.fontSize
+                        )
+                      }
+                      valueLabelDisplay="auto"
+                    />
 
-        <Stack
-          sx={{
-            mb: 5,
-            gap: {
-              xs: 1,
-              sm: 2,
-            },
-            flexWrap: "wrap",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          <MuiColorInput
-            value={style.textColor}
-            label="Text Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("textColor", value)
-            }
-            fullWidth
-          />
+                    <Stack
+                      sx={{
+                        width: "1.5rem",
+                        color: "primary.main",
+                        height: "1.5rem",
+                        cursor:
+                          style.fontSize >= 48 ? "not-allowed" : "pointer",
+                        border: "1px solid",
+                        alignItems: "center",
+                        borderColor: "primary.main",
+                        borderRadius: "50%",
+                        justifyContent: "center",
+                      }}
+                      onClick={() =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          style.fontSize < 48
+                            ? style.fontSize + 1
+                            : style.fontSize
+                        )
+                      }
+                      disabled={style.fontSize >= 48}
+                      component="button"
+                    >
+                      <Plus />
+                    </Stack>
+                  </Stack>
+                </Stack>
 
-          <MuiColorInput
-            value={style.backgroundColor}
-            label="Background Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("backgroundColor", value)
-            }
-            fullWidth
-          />
+                <BrandColours
+                  onChange={(color) =>
+                    onUpdateStylesAndCurrentElements("textColor", color)
+                  }
+                />
 
-          <MuiColorInput
-            value={style.borderColor}
-            label="Border Color"
-            format="hex"
-            onChange={(value) =>
-              onUpdateStylesAndCurrentElements("borderColor", value)
-            }
-            fullWidth
-          />
-        </Stack>
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Style</Typography>
 
-        <Stack
-          sx={{
-            mt: 8,
-            gap: 2,
-            justifyContent: "flex-end",
-            flexDirection: "row",
-          }}
-        >
-          <Button onClick={onExportToPDF}>Export to PDF</Button>
-        </Stack>
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {styles.map(({ key, type, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key.toString()}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements(
+                            type as keyof typeof initialStyle,
+                            key
+                          )
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Text Allignment</Typography>
+
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {textAligns.map(({ key, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements("textAlign", key)
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+              </>
+            )}
+          </Stack>
+        )}
       </Stack>
     </Stack>
   )

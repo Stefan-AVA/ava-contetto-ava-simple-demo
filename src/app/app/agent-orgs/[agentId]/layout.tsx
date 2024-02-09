@@ -56,7 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
         active: pathName.includes("folders"),
       },
       {
-        path: `/app/agent-orgs/${agentId}/marketing-hub/collections`,
+        path: `/app/agent-orgs/${agentId}/marketing-hub/social-media`,
         icon: <Table2 />,
         label: "Marketing Hub",
         active: pathName.includes("marketing-hub"),
