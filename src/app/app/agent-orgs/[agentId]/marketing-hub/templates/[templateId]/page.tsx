@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
 import {
   Accordion,
@@ -10,7 +11,6 @@ import {
   Box,
   Button,
   InputAdornment,
-  MenuItem,
   Slider,
   Stack,
   TextField,
@@ -18,13 +18,15 @@ import {
 } from "@mui/material"
 import { Canvas, FabricImage, Textbox, type FabricObject } from "fabric"
 import PDF from "jspdf"
-import { ChevronDown, ChevronRight } from "lucide-react"
-import { MuiColorInput } from "mui-color-input"
+import { ChevronDown, ChevronRight, Minus, Plus } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import { dmsans } from "@/styles/fonts"
-
 import FabricCanvas from "./fabric-canvas"
+import { styles, textAligns } from "./utils"
+
+interface BrandColoursProps {
+  onChange?: (color: string) => void
+}
 
 interface PageParams {
   params: {
@@ -37,10 +39,9 @@ const initialStyle = {
   fontSize: 16,
   textColor: "#000",
   textAlign: "left",
-  lineHeight: 24,
+  fontStyle: "normal",
+  underline: false,
   fontWeight: "400",
-  fontFamily: dmsans.style.fontFamily,
-  borderColor: "#000",
   backgroundColor: "#000",
 }
 
@@ -64,6 +65,18 @@ export default function Page({ params }: PageParams) {
     () => agentOrgs.find((agent) => agent._id === params.agentId)?.org,
     [params.agentId, agentOrgs]
   )
+
+  const { data } = useGetOrgTemplateQuery(
+    {
+      orgId: org?._id as string,
+      templateId: params.templateId,
+    },
+    {
+      skip: !org,
+    }
+  )
+
+  console.log({ data })
 
   function onSave() {
     const data = {} as Record<string, string>
@@ -123,16 +136,27 @@ export default function Page({ params }: PageParams) {
 
   function onUpdateStylesAndCurrentElements(
     key: keyof typeof initialStyle,
-    value: string | number
+    value: string | number | boolean
   ) {
-    setStyle((prev) => ({ ...prev, [key]: value }))
+    let customValue = value
+
+    if (key === "fontStyle")
+      customValue =
+        style.fontStyle === value ? initialStyle.fontStyle : "italic"
+
+    if (key === "fontWeight")
+      customValue = style.fontWeight === value ? initialStyle.fontWeight : "700"
+
+    if (key === "underline") customValue = !style.underline
+
+    console.log({ key, customValue })
+
+    setStyle((prev) => ({ ...prev, [key]: customValue }))
 
     if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
         if (object.type !== "textbox") {
-          if (key === "backgroundColor") object.set({ fill: value })
-
-          if (key === "borderColor") object.set({ stroke: value })
+          if (key === "backgroundColor") object.set({ fill: customValue })
         }
 
         if (
@@ -141,23 +165,15 @@ export default function Page({ params }: PageParams) {
             "fontSize",
             "textColor",
             "textAlign",
-            "fontFamily",
+            "underline",
+            "fontStyle",
             "fontWeight",
-            "lineHeight",
           ].includes(key)
         ) {
           const customKey = key === "textColor" ? "fill" : key
 
-          const customValue = () => {
-            if (customKey === "lineHeight") return Number(value) / 16
-
-            if (customKey === "fontFamily") return `'${value}', sans-serif`
-
-            return value
-          }
-
           object.set({
-            [customKey]: customValue(),
+            [customKey]: customValue,
           })
         }
       })
@@ -216,9 +232,11 @@ export default function Page({ params }: PageParams) {
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
   const colors = useMemo(() => {
-    const palette: string[] = ["#000", "#FFF"]
+    const palette: string[] = []
 
     if (org?.brand) palette.push(...org.brand.colors)
+
+    palette.push(...["#000", "#FFF"])
 
     return palette
   }, [org])
@@ -238,7 +256,60 @@ export default function Page({ params }: PageParams) {
     return null
   }, [selectedElements])
 
-  console.log({ selectedCurrentElement })
+  const BrandColours = useCallback(
+    ({ onChange }: BrandColoursProps) => {
+      if (org?.brand?.colors) {
+        return (
+          <Stack
+            sx={{
+              p: 4,
+              gap: 2,
+              borderBottom: "1px solid",
+              borderBottomColor: "gray.200",
+            }}
+          >
+            <Typography variant="h6">Brand colours</Typography>
+
+            <Stack sx={{ gap: 4, flexWrap: "wrap", flexDirection: "row" }}>
+              {colors.map((color) => (
+                <Stack
+                  sx={{
+                    gap: 2,
+                    width: onChange ? "45%" : "auto",
+                    cursor: onChange ? "pointer" : "default",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                  key={color}
+                  onClick={() => onChange?.(color)}
+                >
+                  <Box
+                    sx={{
+                      width: "2.5rem",
+                      height: "2.5rem",
+                      border: "1px solid",
+                      bgcolor: color,
+                      borderColor: color !== "#FFF" ? color : "gray.300",
+                      borderRadius: ".75rem",
+                    }}
+                  />
+
+                  {onChange && (
+                    <Typography sx={{ color: "primary.main" }}>
+                      {color.toUpperCase()}
+                    </Typography>
+                  )}
+                </Stack>
+              ))}
+            </Stack>
+          </Stack>
+        )
+      }
+
+      return null
+    },
+    [colors, org?.brand?.colors]
+  )
 
   return (
     <Stack
@@ -366,34 +437,7 @@ export default function Page({ params }: PageParams) {
               </Button>
             </Stack>
 
-            {org?.brand?.colors && (
-              <Stack
-                sx={{
-                  p: 4,
-                  gap: 2,
-                  borderBottom: "1px solid",
-                  borderBottomColor: "gray.200",
-                }}
-              >
-                <Typography variant="h6">Brand colours</Typography>
-
-                <Stack sx={{ gap: 2, flexWrap: "wrap", flexDirection: "row" }}>
-                  {colors.map((color) => (
-                    <Box
-                      sx={{
-                        width: "2.5rem",
-                        height: "2.5rem",
-                        border: "1px solid",
-                        bgcolor: color,
-                        borderColor: "gray.200",
-                        borderRadius: ".75rem",
-                      }}
-                      key={color}
-                    />
-                  ))}
-                </Stack>
-              </Stack>
-            )}
+            <BrandColours />
 
             <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
               Click the elements on the template to edit them.
@@ -404,150 +448,167 @@ export default function Page({ params }: PageParams) {
         {selectedCurrentElement && (
           <Stack>
             {selectedCurrentElement.type === "TEXT" && (
-              <Stack
-                sx={{
-                  p: 4,
-                  gap: 2,
-                  borderBottom: "1px solid",
-                  borderBottomColor: "gray.200",
-                }}
-              >
-                <Typography variant="h6">Font Size</Typography>
+              <>
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Font Size</Typography>
 
-                <Slider min={12} step={1} max={48} />
-              </Stack>
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Stack
+                      sx={{
+                        width: "1.5rem",
+                        color: "primary.main",
+                        height: "1.5rem",
+                        cursor:
+                          style.fontSize <= 12 ? "not-allowed" : "pointer",
+                        border: "1px solid",
+                        alignItems: "center",
+                        borderColor: "primary.main",
+                        borderRadius: "50%",
+                        justifyContent: "center",
+                      }}
+                      onClick={() =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          style.fontSize > 12
+                            ? style.fontSize - 1
+                            : style.fontSize
+                        )
+                      }
+                      disabled={style.fontSize <= 12}
+                      component="button"
+                    >
+                      <Minus />
+                    </Stack>
+
+                    <Slider
+                      min={12}
+                      max={48}
+                      step={1}
+                      value={style.fontSize}
+                      onChange={(_, value) =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          (value as number) ?? initialStyle.fontSize
+                        )
+                      }
+                      valueLabelDisplay="auto"
+                    />
+
+                    <Stack
+                      sx={{
+                        width: "1.5rem",
+                        color: "primary.main",
+                        height: "1.5rem",
+                        cursor:
+                          style.fontSize >= 48 ? "not-allowed" : "pointer",
+                        border: "1px solid",
+                        alignItems: "center",
+                        borderColor: "primary.main",
+                        borderRadius: "50%",
+                        justifyContent: "center",
+                      }}
+                      onClick={() =>
+                        onUpdateStylesAndCurrentElements(
+                          "fontSize",
+                          style.fontSize < 48
+                            ? style.fontSize + 1
+                            : style.fontSize
+                        )
+                      }
+                      disabled={style.fontSize >= 48}
+                      component="button"
+                    >
+                      <Plus />
+                    </Stack>
+                  </Stack>
+                </Stack>
+
+                <BrandColours
+                  onChange={(color) =>
+                    onUpdateStylesAndCurrentElements("textColor", color)
+                  }
+                />
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Style</Typography>
+
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {styles.map(({ key, type, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key.toString()}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements(
+                            type as keyof typeof initialStyle,
+                            key
+                          )
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Text Allignment</Typography>
+
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {textAligns.map(({ key, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements("textAlign", key)
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+              </>
             )}
           </Stack>
-        )}
-
-        {selectedCurrentElement?.type === "TEXT" && (
-          <>
-            <Stack
-              sx={{
-                mb: 2,
-                gap: {
-                  xs: 1,
-                  sm: 2,
-                },
-                flexWrap: "wrap",
-                alignItems: "center",
-                flexDirection: "row",
-              }}
-            >
-              <TextField
-                label="Font Family"
-                value={style.fontFamily}
-                select
-                onChange={({ target }) =>
-                  onUpdateStylesAndCurrentElements("fontFamily", target.value)
-                }
-              >
-                <MenuItem value={dmsans.style.fontFamily}>DM Sans</MenuItem>
-                <MenuItem value="Inter">Inter</MenuItem>
-                <MenuItem value="Roboto">Roboto</MenuItem>
-                <MenuItem value="Open Sans">Open Sans</MenuItem>
-                <MenuItem value="Plus Jakarta Sans">Plus Jakarta Sans</MenuItem>
-                <MenuItem value="Lato">Lato</MenuItem>
-                <MenuItem value="Raleway">Raleway</MenuItem>
-                <MenuItem value="Nunito Sans">Nunito Sans</MenuItem>
-              </TextField>
-
-              <TextField
-                label="Font Size"
-                value={style.fontSize}
-                inputMode="numeric"
-                onChange={({ target }) =>
-                  onUpdateStylesAndCurrentElements(
-                    "fontSize",
-                    Number(target.value) ?? initialStyle.fontSize
-                  )
-                }
-              />
-
-              <TextField
-                label="Line Height"
-                value={style.lineHeight}
-                inputMode="numeric"
-                onChange={({ target }) =>
-                  onUpdateStylesAndCurrentElements(
-                    "lineHeight",
-                    Number(target.value) ?? initialStyle.lineHeight
-                  )
-                }
-              />
-
-              <TextField
-                label="Font Align"
-                value={style.textAlign}
-                select
-                onChange={({ target }) =>
-                  onUpdateStylesAndCurrentElements("textAlign", target.value)
-                }
-              >
-                <MenuItem value="left">Left</MenuItem>
-                <MenuItem value="center">Center</MenuItem>
-                <MenuItem value="right">Right</MenuItem>
-              </TextField>
-
-              <TextField
-                label="Font Weight"
-                value={style.fontWeight}
-                select
-                onChange={({ target }) =>
-                  onUpdateStylesAndCurrentElements("fontWeight", target.value)
-                }
-              >
-                <MenuItem value="300">300</MenuItem>
-                <MenuItem value="400">400</MenuItem>
-                <MenuItem value="500">500</MenuItem>
-                <MenuItem value="600">600</MenuItem>
-                <MenuItem value="700">700</MenuItem>
-              </TextField>
-            </Stack>
-
-            <Stack
-              sx={{
-                mb: 5,
-                gap: {
-                  xs: 1,
-                  sm: 2,
-                },
-                flexWrap: "wrap",
-                alignItems: "center",
-                flexDirection: "row",
-              }}
-            >
-              <MuiColorInput
-                value={style.textColor}
-                label="Text Color"
-                format="hex"
-                onChange={(value) =>
-                  onUpdateStylesAndCurrentElements("textColor", value)
-                }
-                fullWidth
-              />
-
-              <MuiColorInput
-                value={style.backgroundColor}
-                label="Background Color"
-                format="hex"
-                onChange={(value) =>
-                  onUpdateStylesAndCurrentElements("backgroundColor", value)
-                }
-                fullWidth
-              />
-
-              <MuiColorInput
-                value={style.borderColor}
-                label="Border Color"
-                format="hex"
-                onChange={(value) =>
-                  onUpdateStylesAndCurrentElements("borderColor", value)
-                }
-                fullWidth
-              />
-            </Stack>
-          </>
         )}
       </Stack>
     </Stack>
