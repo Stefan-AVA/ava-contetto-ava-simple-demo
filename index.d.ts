@@ -1,5 +1,9 @@
 interface Window {
-  ReactNativeWebView: {
+  ReactNativeWebView?: {
     postMessage(msg: string): void
+  }
+
+  Electron?: {
+    sendNotification: (options: INotificationOptions) => void
   }
 }

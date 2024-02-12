@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux"
 import io, { Socket } from "socket.io-client"
 
 import { IMessage, ServerMessageType } from "@/types/message.types"
+import { INotificationOptions } from "@/types/notificationOptions.types"
 import { IRoom } from "@/types/room.types"
 
 const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
@@ -103,6 +104,17 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
           const { typing, ...rest } = payload
 
           dispatch(typingMessage(typing ? rest : null))
+        }
+      )
+
+      // electron notification
+      socket.on(
+        ServerMessageType.electronNotification,
+        (payload: INotificationOptions) => {
+          const electron = window.Electron
+          if (electron) {
+            electron.sendNotification(payload)
+          }
         }
       )
 

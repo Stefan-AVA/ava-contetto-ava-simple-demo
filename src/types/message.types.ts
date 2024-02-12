@@ -51,6 +51,9 @@ export enum ServerMessageType {
   msgRead = "msg:read",
   msgTyping = "msg:typing",
 
+  // notification for electron app
+  electronNotification = "electron:notification",
+
   // error
   invalidRequest = "error:invalid",
   authError = "error:auth",
