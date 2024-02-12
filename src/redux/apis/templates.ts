@@ -22,13 +22,14 @@ interface IHideShowRequest extends BaseRequest {
 export const templateApi = createApi({
   reducerPath: "templateApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
-  tagTypes: ["OrgTemplates"],
+  tagTypes: ["Templates", "OrgTemplates"],
   endpoints: (builder) => ({
     getTemplates: builder.query<ITemplate[], BaseRequest>({
       query: ({ orgId }) => ({
         url: `/${orgId}/templates`,
         method: "GET",
       }),
+      providesTags: ["Templates"],
     }),
     addOrgTemplate: builder.mutation<IOrgTemplate, IAddOrgTemplateRequest>({
       query: ({ orgId, templateId }) => ({
@@ -58,7 +59,7 @@ export const templateApi = createApi({
         method: "PUT",
         body: { hidden },
       }),
-      invalidatesTags: ["OrgTemplates"],
+      invalidatesTags: ["Templates", "OrgTemplates"],
     }),
     deleteOrgTemplate: builder.mutation<IBaseResponse, IAddOrgTemplateRequest>({
       query: ({ orgId, templateId }) => ({
