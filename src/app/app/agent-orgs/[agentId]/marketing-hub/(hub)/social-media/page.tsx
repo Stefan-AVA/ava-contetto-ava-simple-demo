@@ -94,7 +94,15 @@ export default function Collections({ params }: PageProps) {
 
   return (
     <Stack>
-      {data.length > 0 && <CardPreview data={data} onCanvas={setCanvas} />}
+      {data.length > 0 && (
+        <CardPreview
+          data={data}
+          orgId={currentOrg._id}
+          onCanvas={setCanvas}
+          hasAUseButton
+          hasAHideButton
+        />
+      )}
 
       {data.length <= 0 && (
         <Stack
