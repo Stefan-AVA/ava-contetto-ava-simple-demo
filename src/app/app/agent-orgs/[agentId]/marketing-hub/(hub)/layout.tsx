@@ -14,6 +14,11 @@ interface PageProps extends PropsWithChildren {
 
 const routes = [{ path: "/social-media", label: "Social Media" }]
 
+const actions = [
+  { path: "/social-media", label: "Templates" },
+  { path: "/social-media/saved", label: "Saved" },
+]
+
 export default function MarketingHub({ params, children }: PageProps) {
   const pathname = usePathname()
 
@@ -99,6 +104,42 @@ export default function MarketingHub({ params, children }: PageProps) {
           borderTopLeftRadius: isTheFirstOnTheList ? 0 : ".5rem",
         }}
       >
+        <Stack
+          sx={{
+            mb: 4,
+            width: "fit-content",
+            border: "1px solid",
+            bgcolor: "gray.200",
+            alignItems: "center",
+            borderColor: "gray.100",
+            borderRadius: "5rem",
+            flexDirection: "row",
+          }}
+        >
+          {actions.map(({ path, label }) => {
+            const route = `${basePath}${path}`
+
+            const currentRoute = route === pathname
+
+            return (
+              <Link key={path} href={route as Route}>
+                <Typography
+                  sx={{
+                    py: 1,
+                    px: 3,
+                    color: currentRoute ? "white" : "gray.700",
+                    bgcolor: currentRoute ? "primary.main" : "transparent",
+                    fontWeight: currentRoute ? "600" : "400",
+                    borderRadius: "5rem",
+                  }}
+                >
+                  {label}
+                </Typography>
+              </Link>
+            )
+          })}
+        </Stack>
+
         {children}
       </Stack>
     </Stack>
