@@ -168,7 +168,6 @@ export default function ListMessages({
                   createdAt={createdAt}
                   messageId={_id}
                   currentUser={currentUser}
-                  attachments={attachments}
                   editMessageId={editMessageId}
                   onEditMessageId={setEditMessageId}
                 />
