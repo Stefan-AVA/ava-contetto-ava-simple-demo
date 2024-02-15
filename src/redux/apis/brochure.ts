@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
 import { IBrochure } from "@/types/brochure.types"
-import { TemplateType } from "@/types/template.types"
+import { ITemplateImage, TemplateType } from "@/types/template.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
 import { IBaseResponse } from "./auth"
@@ -82,7 +82,7 @@ export const brochureApi = createApi({
 
     // brochure images
     uploadBrochureImage: builder.mutation<
-      IBrochure,
+      ITemplateImage,
       IUpoadBrochureImageRequest
     >({
       query: ({ orgId, ...rest }) => ({
@@ -92,7 +92,7 @@ export const brochureApi = createApi({
       }),
       invalidatesTags: ["BrochureImages"],
     }),
-    getBrochureImages: builder.query<IBrochure[], BaseRequest>({
+    getBrochureImages: builder.query<ITemplateImage[], BaseRequest>({
       query: ({ orgId }) => ({
         url: `/${orgId}/brochure-images`,
         method: "GET",
