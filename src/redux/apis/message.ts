@@ -30,6 +30,12 @@ interface IAddAttachmentRequest {
   size: number // file size byte
 }
 
+interface IDeleteAttachmentRequest {
+  orgId: string
+  roomId: string
+  attachmentId: string
+}
+
 export const messageApi = createApi({
   reducerPath: "messageApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/orgs" }),
@@ -69,6 +75,15 @@ export const messageApi = createApi({
         body: rest,
       }),
     }),
+    deleteAttachment: builder.mutation<
+      IMsgAttachment,
+      IDeleteAttachmentRequest
+    >({
+      query: ({ orgId, roomId, attachmentId }) => ({
+        url: `/${orgId}/rooms/${roomId}/attachments/${attachmentId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 })
 
@@ -77,4 +92,5 @@ export const {
   useLazyLoadMoreMessagesQuery,
   useLazySearchMessagesQuery,
   useAddAttachmentMutation,
+  useDeleteAttachmentMutation,
 } = messageApi
