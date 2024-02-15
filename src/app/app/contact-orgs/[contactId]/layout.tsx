@@ -50,6 +50,8 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const orgName = contact?.org?.name
 
+  const isRoomPath = pathName.includes("/rooms/")
+
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
@@ -63,7 +65,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
         <Box
           sx={{
-            p: { xs: 1, md: 5 },
+            p: isRoomPath ? 0 : { xs: 1, md: 5 },
             width: "100%",
             height: { xs: "calc(100vh - 11rem)", md: "calc(100vh - 4rem)" },
             overflowY: "auto",

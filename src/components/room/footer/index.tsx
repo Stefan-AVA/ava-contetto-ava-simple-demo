@@ -102,6 +102,7 @@ export default function Footer() {
         px: { xs: 2, md: 5 },
         py: { xs: 2, md: 3 },
         gap: { xs: 1, md: 4 },
+        height: "6.25rem",
         alignItems: "center",
         flexDirection: "row",
       }}

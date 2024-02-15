@@ -3,7 +3,6 @@ import { useLazyLoadMoreMessagesQuery } from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
 import delay from "@/utils/delay"
 import { Box, Stack, Typography } from "@mui/material"
-import { format } from "date-fns"
 import { User } from "lucide-react"
 import { useSelector } from "react-redux"
 
@@ -87,7 +86,8 @@ export default function ListMessages({
           pt: { xs: 2, md: 3 },
           px: { xs: 2, md: 5 },
           gap: 1.5,
-          height: "calc(100vh - 25.5rem)",
+          flex: 1,
+          height: "calc(100vh - 4rem - 5rem - 6.25rem)",
           overflowY: "auto",
         }}
         onScroll={onScrollTop}
@@ -143,41 +143,30 @@ export default function ListMessages({
                   </Stack>
                 )}
 
-                <Stack sx={{ gap: 0.5 }}>
-                  <Message
-                    message={
-                      msg
-                        ? sharelink
-                          ? `${msg} \n ${
-                              agentId
-                                ? `https://avahomeai.com/app/agent-orgs/${agentId}/${sharelink}`
-                                : `https://avahomeai.com/app/contact-orgs/${contactId}/${sharelink}`
-                            }`
-                          : agentId && agentLink
-                            ? `${msg} \n https://avahomeai.com/app/agent-orgs/${agentId}/${agentLink}`
-                            : contactId && contactLink
-                              ? `${msg} \n https://avahomeai.com/app/contact-orgs/${contactId}/${contactLink}`
-                              : msg
-                        : ""
-                    }
-                    username={senderName}
-                    messageId={_id}
-                    currentUser={currentUser}
-                    editMessageId={editMessageId}
-                    onEditMessageId={setEditMessageId}
-                    editable={editable}
-                  />
-
-                  <Typography
-                    sx={{
-                      color: "gray.600",
-                      textAlign: currentUser ? "right" : "left",
-                    }}
-                    variant="caption"
-                  >
-                    {format(new Date(createdAt * 1000), "HH:mm aa")}
-                  </Typography>
-                </Stack>
+                <Message
+                  message={
+                    msg
+                      ? sharelink
+                        ? `${msg} \n ${
+                            agentId
+                              ? `https://avahomeai.com/app/agent-orgs/${agentId}/${sharelink}`
+                              : `https://avahomeai.com/app/contact-orgs/${contactId}/${sharelink}`
+                          }`
+                        : agentId && agentLink
+                          ? `${msg} \n https://avahomeai.com/app/agent-orgs/${agentId}/${agentLink}`
+                          : contactId && contactLink
+                            ? `${msg} \n https://avahomeai.com/app/contact-orgs/${contactId}/${contactLink}`
+                            : msg
+                      : ""
+                  }
+                  username={senderName}
+                  editable={editable}
+                  createdAt={createdAt}
+                  messageId={_id}
+                  currentUser={currentUser}
+                  editMessageId={editMessageId}
+                  onEditMessageId={setEditMessageId}
+                />
               </Stack>
             )
           }
