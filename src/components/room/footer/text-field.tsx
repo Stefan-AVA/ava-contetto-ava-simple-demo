@@ -3,10 +3,12 @@ import {
   useState,
   type Dispatch,
   type KeyboardEvent,
+  type PropsWithChildren,
   type SetStateAction,
 } from "react"
 import { useParams } from "next/navigation"
 import type { RootState } from "@/redux/store"
+import toBase64 from "@/utils/toBase64"
 import { Box, useTheme } from "@mui/material"
 import Mentions, { type MentionsProps } from "rc-mentions"
 import type { OptionProps } from "rc-mentions/lib/Option"
@@ -17,10 +19,17 @@ import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 const { Option } = Mentions
 
+export type PasteImageParams = {
+  size: number
+  base64: string
+  mimetype: string
+}
+
 interface TextFieldProps
   extends Pick<MentionsProps, "value" | "onBlur" | "onChange"> {
   onSend: () => Promise<void>
   variant?: "DEFAULT" | "TINY"
+  onPastImage?: (params: PasteImageParams) => Promise<void>
   setMentions: Dispatch<SetStateAction<OptionProps[]>>
   setChannels: Dispatch<SetStateAction<OptionProps[]>>
 }
@@ -28,10 +37,12 @@ interface TextFieldProps
 export default function TextField({
   onSend,
   variant = "DEFAULT",
+  children,
   setMentions,
   setChannels,
+  onPastImage,
   ...rest
-}: TextFieldProps) {
+}: PropsWithChildren<TextFieldProps>) {
   const { agentId, contactId } = useParams()
 
   const { typography } = useTheme()
@@ -85,6 +96,36 @@ export default function TextField({
     if (rest.onChange) rest.onChange(text)
 
     if (text.length <= 0) setRows(1)
+  }
+
+  async function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (onPastImage && e.code === "KeyV") {
+      const clipboardItems = await navigator.clipboard.read()
+
+      console.log({ clipboardItems })
+
+      const findImageClipboard = clipboardItems.find((clipboardItem) =>
+        clipboardItem.types.includes("image/png")
+      )
+
+      if (!findImageClipboard) return
+
+      const blobOutput = await clipboardItems[0].getType("image/png")
+
+      const data = URL.createObjectURL(blobOutput)
+
+      const copiedImage = await fetch(data)
+
+      const blob = await copiedImage.blob()
+
+      const base64 = await toBase64(blob)
+
+      onPastImage({
+        size: blob.size,
+        base64,
+        mimetype: blob.type,
+      })
+    }
   }
 
   async function onPressEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -147,6 +188,7 @@ export default function TextField({
         }}
         placement="top"
         autoFocus
+        onKeyDown={onKeyDown}
         placeholder="Write your message here."
         onPressEnter={onPressEnter}
         transitionName="motion-zoom"
@@ -157,6 +199,8 @@ export default function TextField({
           </Option>
         ))}
       </Mentions>
+
+      {children}
     </Box>
   )
 }

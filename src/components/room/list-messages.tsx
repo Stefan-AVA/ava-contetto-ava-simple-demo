@@ -101,13 +101,14 @@ export default function ListMessages({
           (
             {
               _id,
-              senderName,
               msg,
-              createdAt,
               editable,
+              createdAt,
               sharelink,
               agentLink,
+              senderName,
               contactLink,
+              attachments,
             },
             index
           ) => {

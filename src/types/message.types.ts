@@ -1,10 +1,16 @@
 import { IRoom } from "./room.types"
 import { IUser } from "./user.types"
 
-export interface IMsgAttachMent {
+export interface IMsgAttachment {
+  _id: string
+  roomId: string
+  name: string
   url: string
-  type: "image" | "video" | "pdf"
-  createdAt: number
+  s3Key: string
+  mimetype: string
+  size: number
+  timestamp: number
+  creator: string
 }
 
 export interface IMessage {
@@ -14,15 +20,17 @@ export interface IMessage {
   msg?: string
   senderName: string // sender username
   sender?: IUser
-  createdAt: number // unix timestamp
-  updatedAt?: number // unix timestamp
-  attatchMents: IMsgAttachMent[]
+  createdAt: number // milliseconds timestamp
+  updatedAt?: number // milliseconds timestamp
+  attachmentIds: string[]
+  attachments?: IMsgAttachment[]
   edited: boolean
+  mentions: string[] // usernames
+  channels: string[] // channel names
   editable: boolean
   sharelink?: string
   agentLink?: string
   contactLink?: string
-  // mentions:
 }
 
 export interface IMessagePayload {
@@ -30,6 +38,8 @@ export interface IMessagePayload {
   user: IUser
   msg?: string
   messageId?: string
+  attachmentIds?: string[]
+  deletAttachmentId?: string
 }
 
 export enum ServerMessageType {
@@ -67,4 +77,5 @@ export enum ClientMessageType {
   msgDelete = "msg:delete",
   msgRead = "msg:read",
   msgTyping = "msg:typing",
+  attachmentDelete = "attachment:delete",
 }

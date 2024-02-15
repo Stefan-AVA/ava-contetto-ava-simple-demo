@@ -105,6 +105,23 @@ export default function Message({
     setLoadingRemove(false)
   }
 
+  // TODO: implement delete attachment operation
+  async function onDeleteAttachment() {
+    setLoadingRemove(true)
+
+    const token = getToken()
+
+    socket.emit(ClientMessageType.attachmentDelete, {
+      token,
+      orgId: room?.orgId,
+      roomId: room?._id,
+      messageId,
+      deletAttachmentId: "",
+    })
+
+    setLoadingRemove(false)
+  }
+
   function onEdit() {
     onEditMessageId(messageId)
 
