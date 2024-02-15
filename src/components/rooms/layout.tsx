@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react"
-import { Box, Stack } from "@mui/material"
+import { Stack } from "@mui/material"
 
 import Rooms from "."
 
@@ -9,6 +9,11 @@ export default function LayoutRoomPage({ children }: PropsWithChildren) {
       <Stack
         sx={{
           p: 3,
+          display: {
+            xs: "none",
+            md: "flex",
+          },
+          width: "20.5rem",
           minWidth: "20.5rem",
           overflowY: "auto",
           borderRight: "1px solid",
@@ -18,7 +23,9 @@ export default function LayoutRoomPage({ children }: PropsWithChildren) {
         <Rooms />
       </Stack>
 
-      <Box sx={{ height: "100%", flexGrow: 1 }}>{children}</Box>
+      <Stack sx={{ width: "100%", height: "100%", flexGrow: 1 }}>
+        {children}
+      </Stack>
     </Stack>
   )
 }

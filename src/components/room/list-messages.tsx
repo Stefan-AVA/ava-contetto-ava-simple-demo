@@ -87,7 +87,10 @@ export default function ListMessages({
           px: { xs: 2, md: 5 },
           gap: 1.5,
           flex: 1,
-          height: "calc(100vh - 4rem - 5rem - 6.25rem)",
+          height: {
+            xs: "calc(100vh - 4rem - 5rem - 6.25rem - 5.5rem)",
+            lg: "calc(100vh - 4rem - 5rem - 6.25rem)",
+          },
           overflowY: "auto",
         }}
         onScroll={onScrollTop}

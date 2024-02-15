@@ -232,6 +232,10 @@ export default function Message({
               whiteSpace: "break-spaces",
               lineHeight: "1.25rem",
 
+              "*": {
+                wordBreak: "break-word",
+              },
+
               a: {
                 fontWeight: 700,
                 transition: "all .3s ease-in-out",

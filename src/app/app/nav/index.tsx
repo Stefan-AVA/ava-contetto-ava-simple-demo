@@ -76,7 +76,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
             bgcolor: "white",
             display: {
               xs: "flex",
-              md: "none",
+              lg: "none",
             },
 
             ":hover": {
@@ -92,7 +92,7 @@ export default function Nav({ loading, toggleDrawer }: INav) {
           sx={{
             display: {
               xs: "flex",
-              md: "none",
+              lg: "none",
             },
           }}
           href="/"

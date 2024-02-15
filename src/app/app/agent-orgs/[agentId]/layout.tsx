@@ -75,17 +75,17 @@ export default function Layout({ children }: PropsWithChildren) {
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
         sx={{
-          p: { xs: 1, md: 0 },
-          gap: { xs: 2, md: 0 },
+          p: { xs: 1, lg: 0 },
+          gap: { xs: 2, lg: 0 },
           bgcolor: "background.default",
-          flexDirection: { xs: "column", md: "row" },
+          flexDirection: { xs: "column", lg: "row" },
         }}
       >
         <Sidebar routes={routes} orgName={orgName ?? ""} />
 
         <Stack
           sx={{
-            p: isRoomPath ? 0 : { xs: 1, md: templateId ? 0 : 5 },
+            p: isRoomPath ? 0 : { xs: 1, lg: templateId ? 0 : 5 },
             gap: 2,
             width: "100%",
             height: "calc(100vh - 4rem)",
