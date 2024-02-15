@@ -1,11 +1,18 @@
 import "linkify-plugin-hashtag"
 import "linkify-plugin-mention"
 
-import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import {
+  useCallback,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
+import { format } from "date-fns"
 import Linkify from "linkify-react"
 import { Pencil, Send, Trash } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
@@ -19,20 +26,22 @@ import TextField from "./footer/text-field"
 interface MessageProps {
   message: string
   username: string
+  editable: boolean
+  createdAt: number
   messageId: string
   currentUser: boolean
   editMessageId: string | null
   onEditMessageId: Dispatch<SetStateAction<string | null>>
-  editable: boolean
 }
 
 export default function Message({
   message: content,
   username,
+  editable,
   messageId,
+  createdAt,
   currentUser,
   editMessageId,
-  editable,
   onEditMessageId,
 }: MessageProps) {
   const [message, setMessage] = useState("")
@@ -119,6 +128,21 @@ export default function Message({
     setMessage(content)
   }
 
+  const CreatedAt = useCallback(
+    () => (
+      <Typography
+        sx={{
+          color: "gray.500",
+          textAlign: currentUser ? "right" : "left",
+        }}
+        variant="caption"
+      >
+        {format(new Date(createdAt * 1000), "HH:mm aa")}
+      </Typography>
+    ),
+    [createdAt, currentUser]
+  )
+
   return (
     <Stack
       sx={{
@@ -163,18 +187,27 @@ export default function Message({
 
       <Stack
         sx={{
-          py: 1.5,
-          px: 2,
+          py: currentUser ? 1.5 : 0,
+          px: currentUser ? 2 : 0,
           gap: 0.25,
+          textAlign: currentUser ? "right" : "left",
           borderRadius: ".75rem",
-          backgroundColor: currentUser ? "secondary.main" : "gray.200",
-          borderTopLeftRadius: !currentUser ? 0 : ".75rem",
-          borderBottomRightRadius: currentUser ? 0 : ".75rem",
+          backgroundColor: currentUser ? "gray.200" : "transparent",
         }}
       >
         {!currentUser && (
-          <Typography sx={{ fontWeight: 600 }} variant="caption">
+          <Typography
+            sx={{
+              gap: 1,
+              display: "flex",
+              fontWeight: 600,
+              alignItems: "center",
+            }}
+            variant="body2"
+          >
             {username}
+
+            <CreatedAt />
           </Typography>
         )}
 
@@ -196,7 +229,11 @@ export default function Message({
             />
 
             <Box
-              sx={{ color: "white", aspectRatio: "1/1" }}
+              sx={{
+                color: "secondary.main",
+                cursor: loadingEdit ? "not-allowed" : "pointer",
+                aspectRatio: "1/1",
+              }}
               size={20}
               onClick={submit}
               component={loadingEdit ? CircularProgress : Send}
@@ -207,7 +244,7 @@ export default function Message({
         {editMessageId !== messageId && (
           <Box
             sx={{
-              color: currentUser ? "white" : "gray.700",
+              color: "gray.700",
               fontSize: ".875rem",
               whiteSpace: "break-spaces",
               lineHeight: "1.25rem",
@@ -260,6 +297,8 @@ export default function Message({
             </Linkify>
           </Box>
         )}
+
+        {currentUser && <CreatedAt />}
       </Stack>
     </Stack>
   )

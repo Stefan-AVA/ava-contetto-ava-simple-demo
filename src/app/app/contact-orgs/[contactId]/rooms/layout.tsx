@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react"
 
-import RoomLayout from "@/components/room/layout"
+import LayoutRoomPage from "@/components/rooms/layout"
 
 export default function Layout({ children }: PropsWithChildren) {
-  return <RoomLayout>{children}</RoomLayout>
+  return <LayoutRoomPage>{children}</LayoutRoomPage>
 }

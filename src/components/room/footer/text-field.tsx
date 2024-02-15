@@ -107,7 +107,7 @@ export default function TextField({
         width: "100%",
 
         textarea: {
-          color: variant === "DEFAULT" ? "gray.700" : "white",
+          color: "gray.700",
           width: "100%",
           resize: "none",
           padding: variant === "DEFAULT" ? ".875rem 1.5rem" : 0,
@@ -120,8 +120,7 @@ export default function TextField({
           backgroundColor: variant === "DEFAULT" ? "gray.200" : "transparent",
 
           "&::placeholder": {
-            color:
-              variant === "DEFAULT" ? "gray.400" : "rgba(255, 255, 255, .5)",
+            color: "gray.400",
           },
         },
       }}

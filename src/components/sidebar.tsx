@@ -117,23 +117,6 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
             <Typography sx={{ fontWeight: 500 }}>{label}</Typography>
           </Stack>
         ))}
-
-        <Typography
-          sx={{
-            mb: 3,
-            mt: 4,
-            pt: 4,
-            color: "gray.500",
-            borderTop: "1px solid",
-            fontWeight: 500,
-            borderTopColor: "gray.300",
-          }}
-          variant="body2"
-        >
-          MESSAGING
-        </Typography>
-
-        <Rooms />
       </Stack>
 
       <SwipeableDrawer

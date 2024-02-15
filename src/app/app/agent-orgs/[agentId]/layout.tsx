@@ -69,6 +69,8 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const orgName = currentOrg.org?.name
 
+  const isRoomPath = pathName.includes("/rooms/")
+
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
@@ -83,7 +85,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
         <Stack
           sx={{
-            p: { xs: 1, md: templateId ? 0 : 5 },
+            p: isRoomPath ? 0 : { xs: 1, md: templateId ? 0 : 5 },
             gap: 2,
             width: "100%",
             height: "calc(100vh - 4rem)",

@@ -4,7 +4,7 @@ import { useAddMemberToChannelMutation } from "@/redux/apis/room"
 import { type RootState } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import { LoadingButton } from "@mui/lab"
-import { Box, Stack, Typography } from "@mui/material"
+import { Avatar, Stack, Typography } from "@mui/material"
 import { UserPlus2 } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { useSelector } from "react-redux"
@@ -70,23 +70,12 @@ export default function AddMembersToRoom() {
 
   return (
     <Dropdown
-      sx={{ marginLeft: "auto" }}
+      sx={{ ml: "auto" }}
       open={open}
       ancher={
-        <Box
-          sx={{
-            gap: 0.5,
-            width: "100%",
-            color: "secondary.main",
-            display: "flex",
-            alignItems: "center",
-          }}
-          onClick={() => setOpen(true)}
-          disabled={isLoading}
-          component="button"
-        >
+        <Avatar sx={{ cursor: "pointer" }}>
           <UserPlus2 size={20} />
-        </Box>
+        </Avatar>
       }
       onClose={() => setOpen(false)}
     >
