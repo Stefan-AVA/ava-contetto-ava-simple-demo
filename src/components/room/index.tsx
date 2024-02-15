@@ -110,12 +110,19 @@ export default function Room() {
           <Stack
             sx={{ ml: "auto", alignItems: "center", flexDirection: "row" }}
           >
-            <Typography sx={{ mr: 1, color: "gray.500", fontWeight: 600 }}>
+            <Typography
+              sx={{
+                mr: 1,
+                color: "gray.500",
+                display: { xs: "none", md: "flex" },
+                fontWeight: 600,
+              }}
+            >
               {room.usernames.length.toString().padStart(2, "0")} member
               {room.usernames.length !== 1 ? "s" : ""}
             </Typography>
 
-            <AvatarGroup max={4}>
+            <AvatarGroup sx={{ display: { xs: "none", md: "flex" } }} max={4}>
               {room.usernames.map((username) => (
                 <Avatar sx={{ bgcolor: nameToColor(username) }} key={username}>
                   {nameInitials(username)}
