@@ -66,6 +66,7 @@ export default function Footer() {
       channels: channels
         .map((c) => c.value)
         .filter((val) => message.includes(`#${val} `)), // channel ids
+      attachmentIds: [],
     })
 
     stopTyping()

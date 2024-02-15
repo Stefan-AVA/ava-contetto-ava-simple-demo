@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 
-import { IMessage } from "@/types/message.types"
+import { IMessage, IMsgAttachment } from "@/types/message.types"
 
 import { fetchAuthQuery } from "../fetch-auth-query"
 
@@ -13,6 +13,21 @@ interface ILoadMoreMessageRequest {
   orgId: string
   roomId: string
   messageId: string
+}
+
+interface ISearchMessagesRequest {
+  orgId: string
+  roomId: string
+  search: string
+}
+
+interface IAddAttachmentRequest {
+  orgId: string
+  roomId: string
+  name: string // file name
+  base64: string // base64 encoded file
+  mimetype: string // file.type
+  size: number // file size byte
 }
 
 export const messageApi = createApi({
@@ -37,8 +52,29 @@ export const messageApi = createApi({
       }),
       providesTags: ["Messages"],
     }),
+    searchMessages: builder.query<IMessage[], ISearchMessagesRequest>({
+      query: ({ orgId, roomId, search }) => ({
+        url: `/${orgId}/rooms/${roomId}/messages/search`,
+        method: "GET",
+        params: {
+          search,
+        },
+      }),
+      providesTags: ["Messages"],
+    }),
+    addAttachment: builder.mutation<IMsgAttachment, IAddAttachmentRequest>({
+      query: ({ orgId, roomId, ...rest }) => ({
+        url: `/${orgId}/rooms/${roomId}/attachments`,
+        method: "POST",
+        body: rest,
+      }),
+    }),
   }),
 })
 
-export const { useLazyGetMessagesQuery, useLazyLoadMoreMessagesQuery } =
-  messageApi
+export const {
+  useLazyGetMessagesQuery,
+  useLazyLoadMoreMessagesQuery,
+  useLazySearchMessagesQuery,
+  useAddAttachmentMutation,
+} = messageApi
