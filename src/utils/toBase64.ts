@@ -1,9 +1,8 @@
-const toBase64 = (file: File) =>
-  new Promise((resolve, reject) => {
+export default function toBase64(file: File | Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
+    reader.onload = () => resolve(reader.result as string)
     reader.onerror = (error) => reject(error)
   })
-
-export default toBase64
+}

@@ -101,13 +101,14 @@ export default function ListMessages({
           (
             {
               _id,
-              senderName,
               msg,
-              createdAt,
               editable,
+              createdAt,
               sharelink,
               agentLink,
+              senderName,
               contactLink,
+              attachments,
             },
             index
           ) => {
@@ -167,6 +168,7 @@ export default function ListMessages({
                   createdAt={createdAt}
                   messageId={_id}
                   currentUser={currentUser}
+                  attachments={attachments}
                   editMessageId={editMessageId}
                   onEditMessageId={setEditMessageId}
                 />

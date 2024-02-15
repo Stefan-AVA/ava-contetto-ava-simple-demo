@@ -1,6 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from "react"
 import dynamic from "next/dynamic"
-import { Box } from "@mui/material"
+import { Box, type StackProps } from "@mui/material"
 import { Smile } from "lucide-react"
 
 import Dropdown from "@/components/drop-down"
@@ -12,16 +12,16 @@ const Picker = dynamic(
   { ssr: true }
 )
 
-interface EmojiPickerProps {
+interface EmojiPickerProps extends StackProps {
   onMessage: Dispatch<SetStateAction<string>>
 }
 
-export default function EmojiPicker({ onMessage }: EmojiPickerProps) {
+export default function EmojiPicker({ sx, onMessage }: EmojiPickerProps) {
   const [open, setOpen] = useState(false)
 
   return (
     <Dropdown
-      sx={{ display: "flex" }}
+      sx={{ ...sx, display: "flex" }}
       open={open}
       ancher={
         <Box
