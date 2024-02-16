@@ -86,7 +86,7 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
           py: 3.5,
           px: 3,
           height: "calc(100vh - 4rem)",
-          display: { xs: "none", md: "flex" },
+          display: { xs: "none", lg: "flex" },
           minWidth: "16rem",
           overflowY: "auto",
           borderRight: "1px solid",
@@ -117,23 +117,6 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
             <Typography sx={{ fontWeight: 500 }}>{label}</Typography>
           </Stack>
         ))}
-
-        <Typography
-          sx={{
-            mb: 3,
-            mt: 4,
-            pt: 4,
-            color: "gray.500",
-            borderTop: "1px solid",
-            fontWeight: 500,
-            borderTopColor: "gray.300",
-          }}
-          variant="body2"
-        >
-          MESSAGING
-        </Typography>
-
-        <Rooms />
       </Stack>
 
       <SwipeableDrawer
@@ -175,7 +158,7 @@ export default function Sidebar({ routes, orgName }: SidebarProps) {
           width: "100%",
           bottom: 0,
           zIndex: 999,
-          display: { xs: "flex", md: "none" },
+          display: { xs: "flex", lg: "none" },
           bgcolor: "white",
           position: "fixed",
           borderTop: "1px solid",

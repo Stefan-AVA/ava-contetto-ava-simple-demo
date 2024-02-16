@@ -39,8 +39,10 @@ export default function RoomField({
         sx={{
           width: "2.25rem",
           height: "2.25rem",
+          border: "2px solid",
           position: "relative",
           alignItems: "center",
+          borderColor: unreadMessages ? "secondary.main" : "gray.200",
           aspectRatio: 1 / 1,
           borderRadius: "50%",
           justifyContent: "center",
@@ -63,6 +65,30 @@ export default function RoomField({
             component={Icon}
             strokeWidth={3}
           />
+        )}
+
+        {Boolean(unreadMessages) && unreadMessages && (
+          <Stack
+            sx={{
+              top: "-.5rem",
+              right: "-.5rem",
+              width: "1.25rem",
+              height: "1.25rem",
+              zIndex: 2,
+              position: "absolute",
+              alignItems: "center",
+              borderRadius: "50%",
+              justifyContent: "center",
+              backgroundColor: "secondary.main",
+            }}
+          >
+            <Typography
+              sx={{ color: "white", textAlign: "center", fontWeight: 500 }}
+              variant="caption"
+            >
+              {unreadMessages}
+            </Typography>
+          </Stack>
         )}
       </Stack>
 
@@ -89,42 +115,19 @@ export default function RoomField({
         </Typography>
       </Stack>
 
-      {sendedAt || unreadMessages ? (
-        <Stack sx={{ ml: "auto", gap: 0.25, alignItems: "flex-end" }}>
-          {sendedAt && (
-            <Typography
-              sx={{
-                color: "gray.500",
-                textAlign: "right",
-                whiteSpace: "nowrap",
-              }}
-              variant="caption"
-            >
-              {format(new Date(sendedAt), "HH:mm aa")}
-            </Typography>
-          )}
-
-          {unreadMessages && (
-            <Stack
-              sx={{
-                width: "1.25rem",
-                height: "1.25rem",
-                alignItems: "center",
-                borderRadius: "50%",
-                justifyContent: "center",
-                backgroundColor: "red.700",
-              }}
-            >
-              <Typography
-                sx={{ color: "white", textAlign: "center", fontWeight: 500 }}
-                variant="caption"
-              >
-                {unreadMessages}
-              </Typography>
-            </Stack>
-          )}
-        </Stack>
-      ) : null}
+      {sendedAt && (
+        <Typography
+          sx={{
+            ml: "auto",
+            color: "gray.500",
+            textAlign: "right",
+            whiteSpace: "nowrap",
+          }}
+          variant="caption"
+        >
+          {format(new Date(sendedAt), "HH:mm aa")}
+        </Typography>
+      )}
     </Stack>
   )
 }

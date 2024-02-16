@@ -5,8 +5,9 @@ import { useParams, useRouter } from "next/navigation"
 import { useLazyGetMessagesQuery } from "@/redux/apis/message"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"
-import { Box, Stack, Typography } from "@mui/material"
-import { User } from "lucide-react"
+import { nameInitials, nameToColor } from "@/utils/format-name"
+import { Avatar, AvatarGroup, Box, Stack, Typography } from "@mui/material"
+import { Lock, User } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { RoomType } from "@/types/room.types"
@@ -55,6 +56,8 @@ export default function Room() {
     }
   }, [room?._id, room?.orgId, getAllMessages])
 
+  const isChannel = room?.type === RoomType.channel
+
   return (
     <>
       <Stack
@@ -62,6 +65,7 @@ export default function Room() {
           px: { xs: 2, md: 5 },
           py: 2.5,
           gap: 2,
+          height: "5rem",
           alignItems: "center",
           borderBottom: "1px solid",
           flexDirection: "row",
@@ -83,12 +87,13 @@ export default function Room() {
           <Box
             sx={{ color: "gray.500" }}
             size={16}
-            component={User}
+            component={isChannel ? Lock : User}
             strokeWidth={3}
           />
         </Stack>
 
         <Typography sx={{ color: "gray.700", fontWeight: 600 }} variant="h5">
+          {isChannel ? "Group: " : ""}
           {room
             ? room.type === RoomType.channel
               ? room.name
@@ -101,7 +106,35 @@ export default function Room() {
             : ""}
         </Typography>
 
-        {room?.type === RoomType.channel && <AddMembersToRoom />}
+        {room && isChannel && (
+          <Stack
+            sx={{ ml: "auto", alignItems: "center", flexDirection: "row" }}
+          >
+            <Typography
+              sx={{
+                mr: 1,
+                color: "gray.500",
+                display: { xs: "none", md: "flex" },
+                fontWeight: 600,
+              }}
+            >
+              {room.usernames.length.toString().padStart(2, "0")} member
+              {room.usernames.length !== 1 ? "s" : ""}
+            </Typography>
+
+            <AvatarGroup sx={{ display: { xs: "none", md: "flex" } }} max={4}>
+              {room.usernames.map((username) => (
+                <Avatar sx={{ bgcolor: nameToColor(username) }} key={username}>
+                  {nameInitials(username)}
+                </Avatar>
+              ))}
+            </AvatarGroup>
+
+            <Avatar>
+              <AddMembersToRoom />
+            </Avatar>
+          </Stack>
+        )}
       </Stack>
 
       {isLoading && (
@@ -124,6 +157,7 @@ export default function Room() {
           contactId={contactId as string}
         />
       )}
+
       <Footer />
     </>
   )

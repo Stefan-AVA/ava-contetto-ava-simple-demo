@@ -268,7 +268,7 @@ export default function Sidebar({
           height: "100%",
           display: {
             xs: "none",
-            md: "flex",
+            lg: "flex",
           },
           bgcolor: "primary.main",
           position: "fixed",
