@@ -6,11 +6,12 @@ import { Box, Stack, Typography } from "@mui/material"
 import { User } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import type { IMessage } from "@/types/message.types"
+import type { IMessage, IMsgAttachment } from "@/types/message.types"
 import type { IUser } from "@/types/user.types"
 import useIsVisible from "@/hooks/use-is-visible"
 
 import Loading from "../Loading"
+import AttachmentPreview from "./attachment-preview"
 import Message from "./message"
 import scrollToBottom from "./scroll-to-bottom"
 
@@ -28,6 +29,8 @@ export default function ListMessages({
   contactId,
 }: IProps) {
   const [editMessageId, setEditMessageId] = useState<string | null>(null)
+  const [attachmentPreview, setAttachmentPreview] =
+    useState<IMsgAttachment | null>(null)
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -167,9 +170,11 @@ export default function ListMessages({
                   editable={editable}
                   createdAt={createdAt}
                   messageId={_id}
+                  attachments={attachments ?? []}
                   currentUser={currentUser}
                   editMessageId={editMessageId}
                   onEditMessageId={setEditMessageId}
+                  onAttachmentPreview={setAttachmentPreview}
                 />
               </Stack>
             )
@@ -192,6 +197,14 @@ export default function ListMessages({
         >
           {userTyping.username} is typing...
         </Typography>
+      )}
+
+      {attachmentPreview && (
+        <AttachmentPreview
+          type={attachmentPreview.mimetype}
+          fileUrl={attachmentPreview.url}
+          onClose={() => setAttachmentPreview(null)}
+        />
       )}
     </>
   )

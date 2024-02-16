@@ -8,17 +8,18 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
+import Image from "next/image"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import Linkify from "linkify-react"
-import { Pencil, Send, Trash } from "lucide-react"
+import { Pencil, Send, Trash, X } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
-import { ClientMessageType } from "@/types/message.types"
+import { ClientMessageType, type IMsgAttachment } from "@/types/message.types"
 import useOutsideClick from "@/hooks/use-outside-click"
 
 import TextField from "./footer/text-field"
@@ -29,9 +30,11 @@ interface MessageProps {
   editable: boolean
   createdAt: number
   messageId: string
+  attachments: IMsgAttachment[]
   currentUser: boolean
   editMessageId: string | null
   onEditMessageId: Dispatch<SetStateAction<string | null>>
+  onAttachmentPreview: (attachment: IMsgAttachment) => void
 }
 
 export default function Message({
@@ -40,15 +43,18 @@ export default function Message({
   editable,
   messageId,
   createdAt,
+  attachments,
   currentUser,
   editMessageId,
   onEditMessageId,
+  onAttachmentPreview,
 }: MessageProps) {
   const [message, setMessage] = useState("")
   const [mentions, setMentions] = useState<OptionProps[]>([])
   const [channels, setChannels] = useState<OptionProps[]>([])
   const [loadingEdit, setLoadingEdit] = useState(false)
   const [loadingRemove, setLoadingRemove] = useState(false)
+  const [loadingDeleteAttachment, setLoadingDeleteAttachment] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -105,9 +111,8 @@ export default function Message({
     setLoadingRemove(false)
   }
 
-  // TODO: implement delete attachment operation
-  async function onDeleteAttachment() {
-    setLoadingRemove(true)
+  async function onDeleteAttachment(attachmentId: string) {
+    setLoadingDeleteAttachment(true)
 
     const token = getToken()
 
@@ -116,10 +121,10 @@ export default function Message({
       orgId: room?.orgId,
       roomId: room?._id,
       messageId,
-      deletAttachmentId: "",
+      deletAttachmentId: attachmentId,
     })
 
-    setLoadingRemove(false)
+    setLoadingDeleteAttachment(false)
   }
 
   function onEdit() {
@@ -156,7 +161,6 @@ export default function Message({
           pointerEvents: "auto",
         },
       }}
-      ref={ref}
     >
       {currentUser && editable && (
         <Stack
@@ -218,6 +222,7 @@ export default function Message({
               alignItems: "center",
               flexDirection: "row",
             }}
+            ref={ref}
           >
             <TextField
               value={message}
@@ -303,6 +308,60 @@ export default function Message({
         )}
 
         {currentUser && <CreatedAt />}
+
+        {attachments.length > 0 && (
+          <Stack
+            sx={{
+              mt: 1,
+              ml: currentUser ? "auto" : 0,
+              gap: 1,
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            {attachments.map((file) => (
+              <Box sx={{ position: "relative" }} key={file._id}>
+                <Image
+                  src={file.url}
+                  alt=""
+                  width={56}
+                  style={{
+                    width: "3.5rem",
+                    height: "3.5rem",
+                    cursor: "pointer",
+                    objectFit: "cover",
+                    borderRadius: ".5rem",
+                  }}
+                  height={56}
+                  onClick={() => onAttachmentPreview(file)}
+                />
+
+                {currentUser && (
+                  <Box
+                    sx={{
+                      p: 0.25,
+                      top: ".25rem",
+                      right: ".25rem",
+                      color: "white",
+                      bgcolor: "primary.main",
+                      position: "absolute",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => onDeleteAttachment(file._id)}
+                    disabled={loadingDeleteAttachment}
+                    component="button"
+                  >
+                    {loadingDeleteAttachment ? (
+                      <CircularProgress color="info" size="1rem" />
+                    ) : (
+                      <X size={16} />
+                    )}
+                  </Box>
+                )}
+              </Box>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </Stack>
   )
