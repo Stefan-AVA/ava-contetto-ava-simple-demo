@@ -2,10 +2,10 @@ import type { PropsWithChildren } from "react"
 import Image from "next/image"
 import { Stack, Typography } from "@mui/material"
 
-interface ShareViewProps extends PropsWithChildren {
+interface ShareViewProps {
   title: string
-  fileUrl?: string | null
   type?: string
+  fileUrl?: string | null
 }
 
 export default function ShareView({
@@ -13,8 +13,7 @@ export default function ShareView({
   fileUrl,
   type,
   children,
-}: ShareViewProps) {
-  console.log(fileUrl)
+}: PropsWithChildren<ShareViewProps>) {
   return (
     <Stack
       sx={{

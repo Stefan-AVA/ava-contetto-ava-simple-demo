@@ -106,7 +106,7 @@ function AuthLayout({ children }: PropsWithChildren) {
   return (
     <Box
       sx={{
-        pb: { xs: 10, md: 0 },
+        pb: { xs: 10, lg: 0 },
         display: "flex",
       }}
     >
@@ -121,7 +121,7 @@ function AuthLayout({ children }: PropsWithChildren) {
         sx={{
           pl: {
             xs: 0,
-            md: `${SIDEBAR_WIDTH}px`,
+            lg: `${SIDEBAR_WIDTH}px`,
           },
           width: "100%",
         }}

@@ -1,17 +1,25 @@
 import "linkify-plugin-hashtag"
 import "linkify-plugin-mention"
 
-import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import {
+  useCallback,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
+import Image from "next/image"
 import { useSocket } from "@/providers/SocketProvider"
 import type { RootState } from "@/redux/store"
 import { getToken } from "@/redux/token"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
+import { format } from "date-fns"
 import Linkify from "linkify-react"
-import { Pencil, Send, Trash } from "lucide-react"
+import { Pencil, Send, Trash, X } from "lucide-react"
 import type { OptionProps } from "rc-mentions/lib/Option"
 import { useSelector } from "react-redux"
 
-import { ClientMessageType } from "@/types/message.types"
+import { ClientMessageType, type IMsgAttachment } from "@/types/message.types"
 import useOutsideClick from "@/hooks/use-outside-click"
 
 import TextField from "./footer/text-field"
@@ -19,27 +27,34 @@ import TextField from "./footer/text-field"
 interface MessageProps {
   message: string
   username: string
+  editable: boolean
+  createdAt: number
   messageId: string
+  attachments: IMsgAttachment[]
   currentUser: boolean
   editMessageId: string | null
   onEditMessageId: Dispatch<SetStateAction<string | null>>
-  editable: boolean
+  onAttachmentPreview: (attachment: IMsgAttachment) => void
 }
 
 export default function Message({
   message: content,
   username,
+  editable,
   messageId,
+  createdAt,
+  attachments,
   currentUser,
   editMessageId,
-  editable,
   onEditMessageId,
+  onAttachmentPreview,
 }: MessageProps) {
   const [message, setMessage] = useState("")
   const [mentions, setMentions] = useState<OptionProps[]>([])
   const [channels, setChannels] = useState<OptionProps[]>([])
   const [loadingEdit, setLoadingEdit] = useState(false)
   const [loadingRemove, setLoadingRemove] = useState(false)
+  const [loadingDeleteAttachment, setLoadingDeleteAttachment] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -96,9 +111,8 @@ export default function Message({
     setLoadingRemove(false)
   }
 
-  // TODO: implement delete attachment operation
-  async function onDeleteAttachment() {
-    setLoadingRemove(true)
+  async function onDeleteAttachment(attachmentId: string) {
+    setLoadingDeleteAttachment(true)
 
     const token = getToken()
 
@@ -107,10 +121,10 @@ export default function Message({
       orgId: room?.orgId,
       roomId: room?._id,
       messageId,
-      deletAttachmentId: "",
+      deletAttachmentId: attachmentId,
     })
 
-    setLoadingRemove(false)
+    setLoadingDeleteAttachment(false)
   }
 
   function onEdit() {
@@ -118,6 +132,21 @@ export default function Message({
 
     setMessage(content)
   }
+
+  const CreatedAt = useCallback(
+    () => (
+      <Typography
+        sx={{
+          color: "gray.500",
+          textAlign: currentUser ? "right" : "left",
+        }}
+        variant="caption"
+      >
+        {format(new Date(createdAt * 1000), "HH:mm aa")}
+      </Typography>
+    ),
+    [createdAt, currentUser]
+  )
 
   return (
     <Stack
@@ -132,7 +161,6 @@ export default function Message({
           pointerEvents: "auto",
         },
       }}
-      ref={ref}
     >
       {currentUser && editable && (
         <Stack
@@ -163,18 +191,27 @@ export default function Message({
 
       <Stack
         sx={{
-          py: 1.5,
-          px: 2,
+          py: currentUser ? 1.5 : 0,
+          px: currentUser ? 2 : 0,
           gap: 0.25,
+          textAlign: currentUser ? "right" : "left",
           borderRadius: ".75rem",
-          backgroundColor: currentUser ? "secondary.main" : "gray.200",
-          borderTopLeftRadius: !currentUser ? 0 : ".75rem",
-          borderBottomRightRadius: currentUser ? 0 : ".75rem",
+          backgroundColor: currentUser ? "gray.200" : "transparent",
         }}
       >
         {!currentUser && (
-          <Typography sx={{ fontWeight: 600 }} variant="caption">
+          <Typography
+            sx={{
+              gap: 1,
+              display: "flex",
+              fontWeight: 600,
+              alignItems: "center",
+            }}
+            variant="body2"
+          >
             {username}
+
+            <CreatedAt />
           </Typography>
         )}
 
@@ -185,6 +222,7 @@ export default function Message({
               alignItems: "center",
               flexDirection: "row",
             }}
+            ref={ref}
           >
             <TextField
               value={message}
@@ -196,7 +234,11 @@ export default function Message({
             />
 
             <Box
-              sx={{ color: "white", aspectRatio: "1/1" }}
+              sx={{
+                color: "secondary.main",
+                cursor: loadingEdit ? "not-allowed" : "pointer",
+                aspectRatio: "1/1",
+              }}
               size={20}
               onClick={submit}
               component={loadingEdit ? CircularProgress : Send}
@@ -207,10 +249,14 @@ export default function Message({
         {editMessageId !== messageId && (
           <Box
             sx={{
-              color: currentUser ? "white" : "gray.700",
+              color: "gray.700",
               fontSize: ".875rem",
               whiteSpace: "break-spaces",
               lineHeight: "1.25rem",
+
+              "*": {
+                wordBreak: "break-word",
+              },
 
               a: {
                 fontWeight: 700,
@@ -259,6 +305,62 @@ export default function Message({
               {content}
             </Linkify>
           </Box>
+        )}
+
+        {currentUser && <CreatedAt />}
+
+        {attachments.length > 0 && (
+          <Stack
+            sx={{
+              mt: 1,
+              ml: currentUser ? "auto" : 0,
+              gap: 1,
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            {attachments.map((file) => (
+              <Box sx={{ position: "relative" }} key={file._id}>
+                <Image
+                  src={file.url}
+                  alt=""
+                  width={56}
+                  style={{
+                    width: "3.5rem",
+                    height: "3.5rem",
+                    cursor: "pointer",
+                    objectFit: "cover",
+                    borderRadius: ".5rem",
+                  }}
+                  height={56}
+                  onClick={() => onAttachmentPreview(file)}
+                />
+
+                {currentUser && (
+                  <Box
+                    sx={{
+                      p: 0.25,
+                      top: ".25rem",
+                      right: ".25rem",
+                      color: "white",
+                      bgcolor: "primary.main",
+                      position: "absolute",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => onDeleteAttachment(file._id)}
+                    disabled={loadingDeleteAttachment}
+                    component="button"
+                  >
+                    {loadingDeleteAttachment ? (
+                      <CircularProgress color="info" size="1rem" />
+                    ) : (
+                      <X size={16} />
+                    )}
+                  </Box>
+                )}
+              </Box>
+            ))}
+          </Stack>
         )}
       </Stack>
     </Stack>

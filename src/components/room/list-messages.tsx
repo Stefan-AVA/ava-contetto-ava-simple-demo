@@ -3,15 +3,15 @@ import { useLazyLoadMoreMessagesQuery } from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
 import delay from "@/utils/delay"
 import { Box, Stack, Typography } from "@mui/material"
-import { format } from "date-fns"
 import { User } from "lucide-react"
 import { useSelector } from "react-redux"
 
-import type { IMessage } from "@/types/message.types"
+import type { IMessage, IMsgAttachment } from "@/types/message.types"
 import type { IUser } from "@/types/user.types"
 import useIsVisible from "@/hooks/use-is-visible"
 
 import Loading from "../Loading"
+import AttachmentPreview from "./attachment-preview"
 import Message from "./message"
 import scrollToBottom from "./scroll-to-bottom"
 
@@ -29,6 +29,8 @@ export default function ListMessages({
   contactId,
 }: IProps) {
   const [editMessageId, setEditMessageId] = useState<string | null>(null)
+  const [attachmentPreview, setAttachmentPreview] =
+    useState<IMsgAttachment | null>(null)
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -87,7 +89,11 @@ export default function ListMessages({
           pt: { xs: 2, md: 3 },
           px: { xs: 2, md: 5 },
           gap: 1.5,
-          height: "calc(100vh - 25.5rem)",
+          flex: 1,
+          height: {
+            xs: "calc(100vh - 4rem - 5rem - 6.25rem - 5.5rem)",
+            lg: "calc(100vh - 4rem - 5rem - 6.25rem)",
+          },
           overflowY: "auto",
         }}
         onScroll={onScrollTop}
@@ -98,13 +104,14 @@ export default function ListMessages({
           (
             {
               _id,
-              senderName,
               msg,
-              createdAt,
               editable,
+              createdAt,
               sharelink,
               agentLink,
+              senderName,
               contactLink,
+              attachments,
             },
             index
           ) => {
@@ -143,41 +150,32 @@ export default function ListMessages({
                   </Stack>
                 )}
 
-                <Stack sx={{ gap: 0.5 }}>
-                  <Message
-                    message={
-                      msg
-                        ? sharelink
-                          ? `${msg} \n ${
-                              agentId
-                                ? `https://avahomeai.com/app/agent-orgs/${agentId}/${sharelink}`
-                                : `https://avahomeai.com/app/contact-orgs/${contactId}/${sharelink}`
-                            }`
-                          : agentId && agentLink
-                            ? `${msg} \n https://avahomeai.com/app/agent-orgs/${agentId}/${agentLink}`
-                            : contactId && contactLink
-                              ? `${msg} \n https://avahomeai.com/app/contact-orgs/${contactId}/${contactLink}`
-                              : msg
-                        : ""
-                    }
-                    username={senderName}
-                    messageId={_id}
-                    currentUser={currentUser}
-                    editMessageId={editMessageId}
-                    onEditMessageId={setEditMessageId}
-                    editable={editable}
-                  />
-
-                  <Typography
-                    sx={{
-                      color: "gray.600",
-                      textAlign: currentUser ? "right" : "left",
-                    }}
-                    variant="caption"
-                  >
-                    {format(new Date(createdAt * 1000), "HH:mm aa")}
-                  </Typography>
-                </Stack>
+                <Message
+                  message={
+                    msg
+                      ? sharelink
+                        ? `${msg} \n ${
+                            agentId
+                              ? `https://avahomeai.com/app/agent-orgs/${agentId}/${sharelink}`
+                              : `https://avahomeai.com/app/contact-orgs/${contactId}/${sharelink}`
+                          }`
+                        : agentId && agentLink
+                          ? `${msg} \n https://avahomeai.com/app/agent-orgs/${agentId}/${agentLink}`
+                          : contactId && contactLink
+                            ? `${msg} \n https://avahomeai.com/app/contact-orgs/${contactId}/${contactLink}`
+                            : msg
+                      : ""
+                  }
+                  username={senderName}
+                  editable={editable}
+                  createdAt={createdAt}
+                  messageId={_id}
+                  attachments={attachments ?? []}
+                  currentUser={currentUser}
+                  editMessageId={editMessageId}
+                  onEditMessageId={setEditMessageId}
+                  onAttachmentPreview={setAttachmentPreview}
+                />
               </Stack>
             )
           }
@@ -199,6 +197,14 @@ export default function ListMessages({
         >
           {userTyping.username} is typing...
         </Typography>
+      )}
+
+      {attachmentPreview && (
+        <AttachmentPreview
+          type={attachmentPreview.mimetype}
+          fileUrl={attachmentPreview.url}
+          onClose={() => setAttachmentPreview(null)}
+        />
       )}
     </>
   )
