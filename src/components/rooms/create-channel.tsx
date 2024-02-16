@@ -19,6 +19,7 @@ const schema = z.object({
 
 const initialForm = {
   name: "",
+  isPublic: false,
 }
 
 type FormSchema = z.infer<typeof schema>
@@ -61,6 +62,7 @@ export default function CreateChannel({ agentProfile }: CreateChannelProps) {
       const channel = await create({
         ...form,
         orgId: agentProfile.orgId,
+        isPublic: false,
       }).unwrap()
 
       setOpen(false)

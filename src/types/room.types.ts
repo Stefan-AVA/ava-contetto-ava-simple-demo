@@ -45,5 +45,6 @@ export interface IRoom {
   dmInitiated?: boolean
   createdAt: number // unix timestamp
   updatedAt?: number // unix timestamp
+  isPublic: boolean
   deleted: boolean
 }

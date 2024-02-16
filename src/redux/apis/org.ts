@@ -29,6 +29,11 @@ interface IAcceptInviteRequest {
   code: string
 }
 
+interface IRemoveMemberRequest {
+  id: string
+  username: string // username of the get removed user
+}
+
 interface IShareContactResponse {
   link: string
 }
@@ -202,6 +207,15 @@ export const orgApi = createApi({
         },
       }),
     }),
+    removeMember: builder.mutation<void, IRemoveMemberRequest>({
+      query: ({ id, username }) => ({
+        url: `/${id}/remove-member`,
+        method: "POST",
+        body: {
+          username,
+        },
+      }),
+    }),
 
     // for contacts
     createContact: builder.mutation<IContact, ICreateContactRequest>({
@@ -322,6 +336,7 @@ export const {
   useInviteAgentMutation,
   useInviteContactMutation,
   useAcceptInviteMutation,
+  useRemoveMemberMutation,
 
   // contacts
   useGetContactQuery,

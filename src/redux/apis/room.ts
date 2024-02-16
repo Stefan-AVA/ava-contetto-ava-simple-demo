@@ -7,6 +7,7 @@ import { fetchAuthQuery } from "../fetch-auth-query"
 interface ICreateChannelRequest {
   orgId: string
   name: string
+  isPublic: boolean
 }
 
 interface IUpdateChannelRequest extends ICreateChannelRequest {
@@ -24,6 +25,18 @@ interface IAddMembersRequest {
   roomId: string
   agents: IRoomAgent[]
   contacts: IRoomContact[]
+}
+
+interface IRemoveMemberRequest {
+  orgId: string
+  roomId: string
+  agent?: IRoomAgent
+  contact?: IRoomContact
+}
+
+interface IArchiveRoomRequest {
+  orgId: string
+  roomId: string
 }
 
 export const roomApi = createApi({
@@ -74,7 +87,22 @@ export const roomApi = createApi({
           contacts,
         },
       }),
-      invalidatesTags: ["Rooms"],
+    }),
+    removeMemberFromRoom: builder.mutation<void, IRemoveMemberRequest>({
+      query: ({ orgId, roomId, agent, contact }) => ({
+        url: `/orgs/${orgId}/channels/${roomId}/remove-member`,
+        method: "POST",
+        body: {
+          agent,
+          contact,
+        },
+      }),
+    }),
+    archiveRoom: builder.mutation<void, IArchiveRoomRequest>({
+      query: ({ orgId, roomId }) => ({
+        url: `/orgs/${orgId}/channels/${roomId}`,
+        method: "DELETE",
+      }),
     }),
   }),
 })
@@ -85,4 +113,6 @@ export const {
   useUpdateChannelMutation,
   useLazyGetAllRoomsQuery,
   useAddMemberToChannelMutation,
+  useRemoveMemberFromRoomMutation,
+  useArchiveRoomMutation,
 } = roomApi
