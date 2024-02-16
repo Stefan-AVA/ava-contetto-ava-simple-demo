@@ -47,6 +47,9 @@ export const roomSlice = createSlice({
     setCurrentRoom: (state, { payload }: PayloadAction<IRoom | undefined>) => {
       state.currentRoom = payload
     },
+    archiveRoom: (state, { payload }: PayloadAction<IRoom>) => {
+      state.rooms = state.rooms.filter((room) => room._id !== payload._id)
+    },
     readMessage: (state, { payload }: PayloadAction<IRoom>) => {
       const prevRoom = (state.rooms || []).find((r) => r._id === payload._id)
       if (prevRoom) {
@@ -147,6 +150,7 @@ export const {
   setRooms,
   updateRoom,
   joinRoom,
+  archiveRoom,
   readMessage,
   setMessages,
   sendMessage,

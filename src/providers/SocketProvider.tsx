@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation"
 import { logout } from "@/redux/slices/app"
 import {
+  archiveRoom,
   deleteMessage,
   joinRoom,
   readMessage,
@@ -75,6 +76,10 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
       socket.on(ServerMessageType.channelJoin, (room: IRoom) => {
         dispatch(joinRoom(room))
+      })
+
+      socket.on(ServerMessageType.channelArchive, (room: IRoom) => {
+        dispatch(archiveRoom(room))
       })
 
       socket.on(ServerMessageType.dmCreate, (room: IRoom) => {
