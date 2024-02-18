@@ -48,8 +48,6 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const hasWhiteLabelDefined = contact?.org?.whiteLabel
 
-  const orgName = contact?.org?.name
-
   const isRoomPath = pathName.includes("/rooms/")
 
   return (
@@ -61,7 +59,11 @@ export default function Layout({ children }: PropsWithChildren) {
           flexDirection: { xs: "column", md: "row" },
         }}
       >
-        <Sidebar routes={routes} orgName={orgName ?? ""} />
+        <Sidebar
+          name={contact?.name ?? "Name not registered"}
+          email={contact?.userEmail ?? null}
+          routes={routes}
+        />
 
         <Box
           sx={{
