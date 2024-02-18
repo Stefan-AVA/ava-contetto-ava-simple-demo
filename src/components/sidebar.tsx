@@ -98,7 +98,7 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
         sx={{
           pt: minimize ? 10 : 3.5,
           pb: 3.5,
-          px: 3,
+          px: minimize ? 2 : 3,
           width: minimize ? "5rem" : "19.5rem",
           height: "calc(100vh - 4rem)",
           display: { xs: "none", lg: "flex" },
@@ -221,8 +221,8 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
             >
               <Stack
                 sx={{
-                  py: 4,
-                  px: 3,
+                  py: minimize ? 2 : 4,
+                  px: minimize ? 2 : 3,
                   mb: 1,
                   gap: 1.5,
                   color: active ? "gray.700" : "gray.500",
@@ -238,12 +238,15 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
                 component={Link}
               >
                 {icon}
-                <Typography
-                  sx={{ textAlign: "center", fontWeight: 500 }}
-                  variant="caption"
-                >
-                  {label}
-                </Typography>
+
+                {!minimize && (
+                  <Typography
+                    sx={{ textAlign: "center", fontWeight: 500 }}
+                    variant="caption"
+                  >
+                    {label}
+                  </Typography>
+                )}
               </Stack>
             </Grid>
           ))}
