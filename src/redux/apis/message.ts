@@ -48,9 +48,19 @@ export const messageApi = createApi({
       }),
       providesTags: ["Messages"],
     }),
-    loadMoreMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
+    loadBeforeMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
       query: ({ orgId, roomId, messageId }) => ({
-        url: `/${orgId}/rooms/${roomId}/messages/more`,
+        url: `/${orgId}/rooms/${roomId}/messages/load-before`,
+        method: "GET",
+        params: {
+          messageId,
+        },
+      }),
+      providesTags: ["Messages"],
+    }),
+    loadNextMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
+      query: ({ orgId, roomId, messageId }) => ({
+        url: `/${orgId}/rooms/${roomId}/messages/load-next`,
         method: "GET",
         params: {
           messageId,
@@ -64,6 +74,16 @@ export const messageApi = createApi({
         method: "GET",
         params: {
           search,
+        },
+      }),
+      providesTags: ["Messages"],
+    }),
+    loadSearchedessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
+      query: ({ orgId, roomId, messageId }) => ({
+        url: `/${orgId}/rooms/${roomId}/messages/load-searched`,
+        method: "GET",
+        params: {
+          messageId,
         },
       }),
       providesTags: ["Messages"],
@@ -88,9 +108,11 @@ export const messageApi = createApi({
 })
 
 export const {
-  useLazyGetMessagesQuery,
-  useLazyLoadMoreMessagesQuery,
+  useLazyGetMessagesQuery, // can also be used for scroll to bottom
+  useLazyLoadBeforeMessagesQuery,
+  useLazyLoadNextMessagesQuery,
   useLazySearchMessagesQuery,
+  useLazyLoadSearchedessagesQuery,
   useAddAttachmentMutation,
   useDeleteAttachmentMutation,
 } = messageApi

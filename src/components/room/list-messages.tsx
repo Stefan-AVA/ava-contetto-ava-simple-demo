@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type UIEvent } from "react"
-import { useLazyLoadMoreMessagesQuery } from "@/redux/apis/message"
+import {
+  useLazyLoadBeforeMessagesQuery,
+  useLazyLoadNextMessagesQuery,
+} from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
 import delay from "@/utils/delay"
 import { Box, Stack, Typography } from "@mui/material"
@@ -36,7 +39,9 @@ export default function ListMessages({
 
   const isVisible = useIsVisible(ref)
 
-  const [loadMore, { isLoading }] = useLazyLoadMoreMessagesQuery()
+  const [loadBefore, { isLoading: isLoadingBefore }] = useLazyLoadBeforeMessagesQuery()
+  const [loadNext, { isLoading: isLoadingNext }] =
+    useLazyLoadNextMessagesQuery()
 
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
   const userTyping = useSelector((state: RootState) => state.rooms.userTyping)
@@ -63,7 +68,7 @@ export default function ListMessages({
     if (messages.length > 0 && element.scrollTop === 0) {
       const { _id, orgId, roomId } = messages[0]
 
-      const data = await loadMore({ orgId, roomId, messageId: _id }).unwrap()
+      const data = await loadBefore({ orgId, roomId, messageId: _id }).unwrap()
 
       await delay()
 
@@ -98,7 +103,7 @@ export default function ListMessages({
         }}
         onScroll={onScrollTop}
       >
-        {isLoading && <Loading sx={{ py: 2 }} />}
+        {isLoadingBefore && <Loading sx={{ py: 2 }} />}
 
         {messages.map(
           (

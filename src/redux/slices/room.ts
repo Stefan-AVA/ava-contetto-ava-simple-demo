@@ -138,9 +138,21 @@ export const roomSlice = createSlice({
       }
     )
     builder.addMatcher(
-      messageApi.endpoints.loadMoreMessages.matchFulfilled,
+      messageApi.endpoints.loadBeforeMessages.matchFulfilled,
       (state, action) => {
         state.messages = [...action.payload, ...state.messages]
+      }
+    )
+    builder.addMatcher(
+      messageApi.endpoints.loadNextMessages.matchFulfilled,
+      (state, action) => {
+        state.messages = [...state.messages, ...action.payload]
+      }
+    )
+    builder.addMatcher(
+      messageApi.endpoints.loadSearchedessages.matchFulfilled,
+      (state, action) => {
+        state.messages = action.payload
       }
     )
   },
