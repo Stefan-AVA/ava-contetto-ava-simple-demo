@@ -45,10 +45,10 @@ export const roomApi = createApi({
   tagTypes: ["Rooms"],
   endpoints: (builder) => ({
     createChannel: builder.mutation<IRoom, ICreateChannelRequest>({
-      query: ({ orgId, name }) => ({
+      query: ({ orgId, name, isPublic }) => ({
         url: `/orgs/${orgId}/channels`,
         method: "POST",
-        body: { name },
+        body: { name, isPublic },
       }),
       invalidatesTags: ["Rooms"],
     }),

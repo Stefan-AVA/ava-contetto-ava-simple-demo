@@ -16,20 +16,16 @@ import {
   SwipeableDrawer,
   Typography,
 } from "@mui/material"
-import {
-  ChevronLeft,
-  MessageCircle,
-  MessageCircleMore,
-  User,
-} from "lucide-react"
+import { ChevronLeft, MessageCircle, User } from "lucide-react"
 
 import Rooms from "./rooms"
 
 type Router = {
   icon: JSX.Element
-  path: string
+  path?: string
   label: string
   active: boolean
+  onClick?: () => void
 }
 
 interface SidebarProps {
@@ -70,13 +66,14 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
     return null
   }, [routes, pathname])
 
-  const mobileRoutes = [
-    ...routes,
-    {
-      icon: <MessageCircleMore />,
-      label: "Messages",
-    },
-  ] as MobileRoute[]
+  const mobileRoutes = routes.map((route) =>
+    route.label === "Messages"
+      ? {
+          icon: route.icon,
+          label: route.label,
+        }
+      : route
+  ) as MobileRoute[]
 
   const toggleDrawer =
     (state: boolean) => (event: KeyboardEvent | MouseEvent) => {
@@ -199,7 +196,7 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
           }}
           container
         >
-          {routes.map(({ label, path, icon, active }) => (
+          {routes.map(({ label, path, icon, active, onClick }) => (
             <Grid
               sx={
                 !minimize
@@ -217,7 +214,7 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
                   : undefined
               }
               xs={minimize ? 12 : 6}
-              key={path}
+              key={label}
             >
               <Stack
                 sx={{
@@ -235,7 +232,8 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
                   alignItems: "center",
                 }}
                 href={path as Route}
-                component={Link}
+                onClick={onClick}
+                component={path ? Link : "div"}
               >
                 {icon}
 

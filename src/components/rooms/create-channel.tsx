@@ -4,7 +4,13 @@ import { useCreateChannelMutation } from "@/redux/apis/room"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
-import { Stack, TextField, Typography } from "@mui/material"
+import {
+  FormControlLabel,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material"
 import { Plus } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { z } from "zod"
@@ -15,6 +21,7 @@ import Dropdown from "../drop-down"
 
 const schema = z.object({
   name: z.string().min(1, "Enter the name"),
+  isPublic: z.boolean().default(false),
 })
 
 const initialForm = {
@@ -24,8 +31,9 @@ const initialForm = {
 
 type FormSchema = z.infer<typeof schema>
 
-type FormError = FormSchema & {
+type FormError = Omit<FormSchema, "isPublic"> & {
   request?: string
+  isPublic?: string
 }
 
 type CreateChannelProps = {
@@ -62,7 +70,6 @@ export default function CreateChannel({ agentProfile }: CreateChannelProps) {
       const channel = await create({
         ...form,
         orgId: agentProfile.orgId,
-        isPublic: false,
       }).unwrap()
 
       setOpen(false)
@@ -110,6 +117,19 @@ export default function CreateChannel({ agentProfile }: CreateChannelProps) {
             setForm((prev) => ({ ...prev, name: target.value }))
           }
           helperText={errors?.name}
+        />
+
+        <FormControlLabel
+          sx={{ mt: 0.5 }}
+          control={
+            <Switch
+              checked={form.isPublic}
+              onClick={() =>
+                setForm((prev) => ({ ...prev, isPublic: !prev.isPublic }))
+              }
+            />
+          }
+          label="Is Public?"
         />
 
         <LoadingButton

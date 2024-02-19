@@ -1,16 +1,26 @@
 "use client"
 
-import { useMemo, type PropsWithChildren } from "react"
-import { useParams, usePathname } from "next/navigation"
-import type { RootState } from "@/redux/store"
+import { useCallback, useMemo, type PropsWithChildren } from "react"
+import { Route } from "next"
+import { useParams, usePathname, useRouter } from "next/navigation"
+import { setCurrentRoom } from "@/redux/slices/room"
+import { useAppDispatch, type RootState } from "@/redux/store"
 import { Box, Stack } from "@mui/material"
-import { FolderHeart, LayoutDashboardIcon, Search } from "lucide-react"
+import {
+  FolderHeart,
+  LayoutDashboardIcon,
+  MessageCircleMore,
+  Search,
+} from "lucide-react"
 import { useSelector } from "react-redux"
 
+import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 import Sidebar from "@/components/sidebar"
 import WhiteLabelWrapper from "@/components/white-label-wrapper"
 
 export default function Layout({ children }: PropsWithChildren) {
+  const { push } = useRouter()
+
   const pathName = usePathname()
 
   const { contactId } = useParams()
@@ -21,6 +31,32 @@ export default function Layout({ children }: PropsWithChildren) {
     () => contactOrgs.find((contact) => contact._id === contactId),
     [contactId, contactOrgs]
   )
+
+  const rooms = useGetOrgRooms({
+    contactId: contactId as string,
+  })
+
+  const dispatch = useAppDispatch()
+
+  const onRoomChange = useCallback(() => {
+    const baseURL = `/app/contact-orgs/${contactId}/rooms` as Route
+
+    const sortRooms = rooms
+      ? rooms.sort((a, b) => (a.createdAt >= b.createdAt ? 1 : -1))
+      : null
+
+    if (!sortRooms || (sortRooms && sortRooms.length <= 0)) {
+      push(baseURL)
+
+      return
+    }
+
+    const currRoom = sortRooms[0]
+
+    dispatch(setCurrentRoom(currRoom))
+
+    push(`${baseURL}/${currRoom._id}` as Route)
+  }, [contactId, dispatch, push, rooms])
 
   const routes = useMemo(
     () => [
@@ -37,18 +73,24 @@ export default function Layout({ children }: PropsWithChildren) {
         active: pathName.includes("search-results"),
       },
       {
+        icon: <MessageCircleMore />,
+        label: "Messages",
+        active: pathName.includes("rooms"),
+        onClick: onRoomChange,
+      },
+      {
         path: `/app/contact-orgs/${contactId}/folders`,
         icon: <FolderHeart />,
         label: "Files",
         active: pathName.includes("folders"),
       },
     ],
-    [pathName, contactId]
+    [pathName, contactId, onRoomChange]
   )
 
   const hasWhiteLabelDefined = contact?.org?.whiteLabel
 
-  const isRoomPath = pathName.includes("/rooms/")
+  const isRoomPath = pathName.includes("/rooms")
 
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
