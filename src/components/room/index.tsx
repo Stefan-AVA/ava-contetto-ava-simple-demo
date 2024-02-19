@@ -1,16 +1,34 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { useLazyGetMessagesQuery } from "@/redux/apis/message"
+import {
+  useLazyGetMessagesQuery,
+  useLazySearchMessagesQuery,
+} from "@/redux/apis/message"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"
 import { nameInitials, nameToColor } from "@/utils/format-name"
-import { Avatar, AvatarGroup, Box, Stack, Typography } from "@mui/material"
+import {
+  Autocomplete,
+  Avatar,
+  AvatarGroup,
+  Box,
+  CircularProgress,
+  InputAdornment,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 import { Lock, User } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import type { IMessage } from "@/types/message.types"
 import { RoomType } from "@/types/room.types"
+import useDebounce from "@/hooks/use-debounce"
 import useGetOrgRooms from "@/hooks/use-get-org-rooms"
 
 import Loading from "../Loading"
@@ -19,20 +37,35 @@ import Footer from "./footer"
 import ListMessages from "./list-messages"
 
 export default function Room() {
+  const [search, setSearch] = useState("")
+  const [showAutocomplete, setShowAutocomplete] = useState(false)
+  const [selectedMessages, setSelectedMessages] = useState<IMessage | null>(
+    null
+  )
+  const [searchedMessages, setSearchedMessages] = useState<IMessage[]>([])
+
   const { replace } = useRouter()
+
   const { agentId, contactId, roomId } = useParams()
 
   const dispatch = useAppDispatch()
 
+  const debounce = useDebounce(search)
+
   const user = useSelector((state: RootState) => state.app.user)
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
+
   const rooms = useGetOrgRooms({
     agentId: agentId as string,
     contactId: contactId as string,
   })
+
   const messages = useSelector((state: RootState) => state.rooms.messages)
 
   const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
+
+  const [searchMessages, { isLoading: isLoadingSearchMessages }] =
+    useLazySearchMessagesQuery()
 
   useEffect(() => {
     if (roomId && rooms) {
@@ -55,6 +88,22 @@ export default function Room() {
       getAllMessages({ orgId: room.orgId, roomId: room._id })
     }
   }, [room?._id, room?.orgId, getAllMessages])
+
+  useEffect(() => {
+    if (debounce) {
+      searchMessages({
+        orgId: room?.orgId as string,
+        roomId: room?._id as string,
+        search: debounce,
+      })
+        .unwrap()
+        .then((message) => {
+          setSearchedMessages(message)
+
+          setShowAutocomplete(true)
+        })
+    }
+  }, [debounce, room?._id, room?.orgId, searchMessages])
 
   const isChannel = room?.type === RoomType.channel
 
@@ -135,6 +184,60 @@ export default function Room() {
             </Avatar>
           </Stack>
         )}
+
+        <Autocomplete
+          sx={{
+            ml: "auto",
+            maxWidth: "240px",
+          }}
+          open={showAutocomplete}
+          value={selectedMessages}
+          onOpen={() => setShowAutocomplete(true)}
+          loading={isLoadingSearchMessages}
+          onClose={() => setShowAutocomplete(false)}
+          options={searchedMessages}
+          onChange={(_, newValue) => setSelectedMessages(newValue)}
+          fullWidth
+          inputValue={search}
+          clearOnBlur
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              label="Search message"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {isLoadingSearchMessages ? (
+                      <CircularProgress size="1.25rem" />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+          renderOption={({ key, ...props }: any, option) => (
+            <ListItem key={option._id} {...props}>
+              <ListItemAvatar>
+                <Avatar alt={option.senderName}>
+                  {nameInitials(option.senderName)}
+                </Avatar>
+              </ListItemAvatar>
+
+              <ListItemText
+                primary={option.msg ?? "-"}
+                secondary={option.senderName}
+              />
+            </ListItem>
+          )}
+          onInputChange={(_, newValue) => setSearch(newValue)}
+          noOptionsText="No Messages"
+          selectOnFocus
+          getOptionLabel={(option) => option.msg ?? option.senderName}
+          handleHomeEndKeys
+        />
       </Stack>
 
       {isLoading && (
