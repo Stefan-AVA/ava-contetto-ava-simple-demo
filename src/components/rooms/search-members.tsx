@@ -13,17 +13,17 @@ export type SearchMemberOption = {
 }
 
 interface SearchMembersProps {
+  dm?: boolean
   value: SearchMemberOption[]
   orgId: string
   onChange: (options: SearchMemberOption[]) => void
-  dm?: boolean
 }
 
 export default function SearchMembers({
+  dm,
   value,
   orgId,
   onChange,
-  dm,
 }: SearchMembersProps) {
   const { agentId } = useParams()
 
@@ -79,13 +79,16 @@ export default function SearchMembers({
   return (
     <Autocomplete
       id="grouped-contacts"
+      size="small"
       value={value}
       options={data}
       groupBy={(option) => option.type}
       multiple
       onChange={(_, newValue) => onChange(newValue)}
+      fullWidth
       renderInput={(params) => <TextField {...params} label="Users" />}
       getOptionKey={(option) => option.value}
+      getOptionLabel={(option) => option.label}
     />
   )
 }
