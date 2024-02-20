@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   useLazyLoadSearchedMessagesQuery,
   useLazySearchMessagesQuery,
@@ -20,7 +20,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Lock, Pencil, User } from "lucide-react"
+import { Lock, Pencil, Unlock, User } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import type { IMessage } from "@/types/message.types"
@@ -94,6 +94,12 @@ export default function HeadRoom({ room }: HeadRoomProps) {
     }
   }
 
+  const Icon = useCallback(() => {
+    if (room.isPublic) return Unlock
+
+    return isChannel ? Lock : User
+  }, [isChannel, room.isPublic])
+
   return (
     <Stack
       sx={{
@@ -122,12 +128,21 @@ export default function HeadRoom({ room }: HeadRoomProps) {
         <Box
           sx={{ color: "gray.500" }}
           size={16}
-          component={isChannel ? Lock : User}
+          component={Icon()}
           strokeWidth={3}
         />
       </Stack>
 
-      <Typography sx={{ color: "gray.700", fontWeight: 600 }} variant="h5">
+      <Typography
+        sx={{
+          color: "gray.700",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          fontWeight: 600,
+          textOverflow: "ellipsis",
+        }}
+        variant="h5"
+      >
         {isChannel ? "Group: " : ""}
         {room
           ? room.type === RoomType.channel
@@ -148,7 +163,10 @@ export default function HeadRoom({ room }: HeadRoomProps) {
               mr: 1,
               color: "gray.500",
               display: { xs: "none", md: "flex" },
+              overflow: "hidden",
               fontWeight: 600,
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
             }}
           >
             {room.usernames.length.toString().padStart(2, "0")} member

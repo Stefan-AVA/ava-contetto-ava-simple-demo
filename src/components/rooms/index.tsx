@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { setCurrentRoom } from "@/redux/slices/room"
 import { useAppDispatch, type RootState } from "@/redux/store"
 import { Stack } from "@mui/material"
-import { Lock } from "lucide-react"
+import { Lock, Unlock } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { RoomType, type IRoom } from "@/types/room.types"
@@ -67,7 +67,7 @@ export default function Rooms({ onAction }: RoomsProps) {
               .map((room) => (
                 <RoomField
                   key={room._id}
-                  icon={Lock}
+                  icon={room.isPublic ? Unlock : Lock}
                   title={String(room.name)}
                   onClick={() => navigate(room)}
                   numberOfMembers={room.usernames.length}

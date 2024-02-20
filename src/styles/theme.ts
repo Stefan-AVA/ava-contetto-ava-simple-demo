@@ -134,6 +134,14 @@ export const components = (
     },
   },
 
+  MuiBadge: {
+    styleOverrides: {
+      colorSecondary: {
+        color: "white",
+      },
+    },
+  },
+
   MuiButton: {
     defaultProps: {
       color: "primary",
