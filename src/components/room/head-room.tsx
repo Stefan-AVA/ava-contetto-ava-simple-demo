@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react"
-import { useLazySearchMessagesQuery } from "@/redux/apis/message"
-import { RootState } from "@/redux/store"
+import {
+  useLazyLoadSearchedMessagesQuery,
+  useLazySearchMessagesQuery,
+} from "@/redux/apis/message"
+import type { RootState } from "@/redux/store"
+import delay from "@/utils/delay"
 import { nameInitials, nameToColor } from "@/utils/format-name"
 import {
   Autocomplete,
@@ -41,8 +45,10 @@ export default function HeadRoom({ room }: HeadRoomProps) {
   const debounce = useDebounce(search)
 
   const user = useSelector((state: RootState) => state.app.user)
+
   const [searchMessages, { isLoading: isLoadingSearchMessages }] =
     useLazySearchMessagesQuery()
+  const [loadSearchedMessages] = useLazyLoadSearchedMessagesQuery()
 
   const isChannel = room.type === RoomType.channel
 
@@ -61,6 +67,32 @@ export default function HeadRoom({ room }: HeadRoomProps) {
         })
     }
   }, [debounce, room._id, room.orgId, searchMessages])
+
+  async function onLoadSearchedMessages(message: IMessage | null) {
+    setSelectedMessages(message)
+
+    if (!message) return
+
+    await loadSearchedMessages({
+      orgId: room.orgId as string,
+      roomId: room._id as string,
+      messageId: message._id,
+    }).unwrap()
+
+    await delay()
+
+    const currMessage = document.getElementById(`message-${message._id}`)
+    const listMessages = document.getElementById("messages-list")
+
+    if (listMessages && currMessage) {
+      const { top, height } = currMessage.getBoundingClientRect()
+
+      listMessages.scrollTo({
+        top: top - height - 124,
+        behavior: "smooth",
+      })
+    }
+  }
 
   return (
     <Stack
@@ -151,7 +183,7 @@ export default function HeadRoom({ room }: HeadRoomProps) {
         loading={isLoadingSearchMessages}
         onClose={() => setShowAutocomplete(false)}
         options={searchedMessages}
-        onChange={(_, newValue) => setSelectedMessages(newValue)}
+        onChange={(_, newValue) => onLoadSearchedMessages(newValue)}
         fullWidth
         inputValue={search}
         clearOnBlur
@@ -192,6 +224,7 @@ export default function HeadRoom({ room }: HeadRoomProps) {
         selectOnFocus
         getOptionLabel={(option) => option.msg ?? option.senderName}
         handleHomeEndKeys
+        isOptionEqualToValue={(option) => !!option._id}
       />
 
       <AddMembersToRoom

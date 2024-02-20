@@ -32,23 +32,26 @@ export default function Room() {
 
   const messages = useSelector((state: RootState) => state.rooms.messages)
 
+  console.log({ messages })
+
   const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
 
   useEffect(() => {
-    if (roomId && rooms) {
-      const room = rooms.find((r) => r._id === roomId)
+    if (room) return
 
-      if (room) {
-        dispatch(setCurrentRoom(room))
-      } else {
-        if (agentId) {
-          replace(`/app/agent-orgs/${agentId}`)
-        } else if (contactId) {
-          replace(`/app/contact-orgs/${contactId}`)
-        }
+    if (roomId && rooms) {
+      const findRoom = rooms.find((r) => r._id === roomId)
+
+      if (findRoom) {
+        dispatch(setCurrentRoom(findRoom))
+
+        return
       }
+
+      if (agentId) replace(`/app/agent-orgs/${agentId}`)
+      else if (contactId) replace(`/app/contact-orgs/${contactId}`)
     }
-  }, [rooms, roomId, agentId, contactId, dispatch, replace])
+  }, [room, rooms, roomId, agentId, contactId, dispatch, replace])
 
   useEffect(() => {
     if (room?._id) {
