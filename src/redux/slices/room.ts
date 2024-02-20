@@ -40,6 +40,9 @@ export const roomSlice = createSlice({
       state.rooms = state.rooms.map((room) =>
         room._id === payload._id ? payload : room
       )
+      if (state.currentRoom && state.currentRoom._id === payload._id) {
+        state.currentRoom = payload
+      }
     },
     joinRoom: (state, { payload }: PayloadAction<IRoom>) => {
       state.rooms = [...state.rooms, payload]

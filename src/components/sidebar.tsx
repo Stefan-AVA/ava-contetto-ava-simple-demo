@@ -26,6 +26,7 @@ type Router = {
   label: string
   active: boolean
   onClick?: () => void
+  badge?: number
 }
 
 interface SidebarProps {
@@ -196,7 +197,7 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
           }}
           container
         >
-          {routes.map(({ label, path, icon, active, onClick }) => (
+          {routes.map(({ label, path, icon, active, onClick, badge }) => (
             <Grid
               sx={
                 !minimize
@@ -230,6 +231,9 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
                   transform: active ? "scale(1.1)" : "scale(1)",
                   transition: "all .3s ease-in-out",
                   alignItems: "center",
+                  ":hover": {
+                    cursor: "pointer",
+                  },
                 }}
                 href={path as Route}
                 onClick={onClick}
@@ -245,6 +249,34 @@ export default function Sidebar({ name, email, routes }: SidebarProps) {
                     {label}
                   </Typography>
                 )}
+
+                {badge && badge > 0 ? (
+                  <Stack
+                    sx={{
+                      top: "-.5rem",
+                      right: "-.5rem",
+                      width: "1.25rem",
+                      height: "1.25rem",
+                      zIndex: 2,
+                      position: "absolute",
+                      alignItems: "center",
+                      borderRadius: "50%",
+                      justifyContent: "center",
+                      backgroundColor: "secondary.main",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "white",
+                        textAlign: "center",
+                        fontWeight: 500,
+                      }}
+                      variant="caption"
+                    >
+                      {badge}
+                    </Typography>
+                  </Stack>
+                ) : undefined}
               </Stack>
             </Grid>
           ))}

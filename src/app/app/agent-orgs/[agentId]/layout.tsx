@@ -61,6 +61,17 @@ export default function Layout({ children }: PropsWithChildren) {
     push(`${baseURL}/${currRoom._id}` as Route)
   }, [agentId, dispatch, push, rooms])
 
+  const unReadMessages = useMemo(
+    () =>
+      rooms && currentOrg
+        ? rooms.reduce(
+            (total, room) => total + room.userStatus[currentOrg.username].notis,
+            0
+          )
+        : 0,
+    [rooms]
+  )
+
   const routes = useMemo(
     () => [
       {
@@ -86,6 +97,7 @@ export default function Layout({ children }: PropsWithChildren) {
         label: "Messages",
         active: pathName.includes("rooms"),
         onClick: onRoomChange,
+        badge: unReadMessages,
       },
       {
         path: `/app/agent-orgs/${agentId}/folders/me`,
