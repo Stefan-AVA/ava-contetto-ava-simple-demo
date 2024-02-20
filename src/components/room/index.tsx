@@ -32,8 +32,6 @@ export default function Room() {
 
   const messages = useSelector((state: RootState) => state.rooms.messages)
 
-  console.log({ messages })
-
   const [getAllMessages, { isLoading }] = useLazyGetMessagesQuery()
 
   useEffect(() => {

@@ -14,8 +14,6 @@ export default function useListCitiesByLocation() {
 
   useEffect(() => {
     if (location) {
-      console.log({ location })
-
       const fetchCitiesByLocation = async () => {
         const cities = await getNearestCities({
           lat: location.lat,

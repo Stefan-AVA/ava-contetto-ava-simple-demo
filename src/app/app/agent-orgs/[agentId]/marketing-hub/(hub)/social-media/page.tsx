@@ -88,8 +88,6 @@ export default function Collections({ params }: PageProps) {
     }
   }, [data, canvas])
 
-  console.log({ data })
-
   if (!data) return <Loading />
 
   return (
