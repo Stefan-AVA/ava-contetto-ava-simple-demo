@@ -30,6 +30,7 @@ export interface IFile {
   name: string
   orgId: string
   s3Key: string
+  publicUrl?: string
   ext: string
   mimetype: string
   size: number // byte

@@ -95,6 +95,12 @@ interface IRenameFileRequest extends IBaseRequest {
   forAgentOnly: boolean
 }
 
+interface IGetPublicFileUrlRequest {
+  orgId: string
+  fileId: string
+  isShared: boolean
+}
+
 interface IShareFilesRequest {
   orgId: string
   fileId: string
@@ -214,6 +220,15 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
+    getPublicFileUrl: builder.query<IFile, IGetPublicFileUrlRequest>({
+      query: ({ orgId, fileId, isShared }) => ({
+        url: `/${orgId}/files/${fileId}/public-url`,
+        method: "GET",
+        params: {
+          isShared,
+        },
+      }),
+    }),
     shareFile: builder.mutation<void, IShareFilesRequest>({
       query: ({ orgId, fileId, ...rest }) => ({
         url: `/${orgId}/files/${fileId}/share`,
@@ -249,6 +264,7 @@ export const {
   useStoreFileMutation,
   useGetDownloadFileUrlMutation,
   useRenameFileMutation,
+  useLazyGetPublicFileUrlQuery,
   useShareFileMutation,
   useShareAgentOnlyFileMutation,
   useLazyShareFileLinkQuery,
