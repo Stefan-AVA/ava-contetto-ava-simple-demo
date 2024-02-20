@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState, type UIEvent } from "react"
-import {
-  useLazyLoadBeforeMessagesQuery,
-  useLazyLoadNextMessagesQuery,
-} from "@/redux/apis/message"
+import { useLazyLoadBeforeMessagesQuery } from "@/redux/apis/message"
 import { RootState } from "@/redux/store"
 import delay from "@/utils/delay"
 import { Box, Stack, Typography } from "@mui/material"
@@ -39,9 +36,8 @@ export default function ListMessages({
 
   const isVisible = useIsVisible(ref)
 
-  const [loadBefore, { isLoading: isLoadingBefore }] = useLazyLoadBeforeMessagesQuery()
-  const [loadNext, { isLoading: isLoadingNext }] =
-    useLazyLoadNextMessagesQuery()
+  const [loadBefore, { isLoading: isLoadingBefore }] =
+    useLazyLoadBeforeMessagesQuery()
 
   const room = useSelector((state: RootState) => state.rooms.currentRoom)
   const userTyping = useSelector((state: RootState) => state.rooms.userTyping)

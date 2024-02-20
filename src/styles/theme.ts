@@ -341,6 +341,10 @@ export const components = (
 
   MuiAutocomplete: {
     styleOverrides: {
+      tag: {
+        zIndex: 2,
+      },
+
       endAdornment: {
         gap: 1,
         zIndex: 2,

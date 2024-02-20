@@ -76,8 +76,6 @@ export default function Page({ params }: PageParams) {
     }
   )
 
-  console.log({ data })
-
   function onSave() {
     const data = {} as Record<string, string>
 

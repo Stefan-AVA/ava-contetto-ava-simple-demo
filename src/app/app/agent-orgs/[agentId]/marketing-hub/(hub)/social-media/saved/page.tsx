@@ -31,8 +31,6 @@ export default function Saved({ params }: PageProps) {
     }
   )
 
-  console.log({ data })
-
   if (!data) return <Loading />
 
   return (

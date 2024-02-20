@@ -78,7 +78,7 @@ export const messageApi = createApi({
       }),
       providesTags: ["Messages"],
     }),
-    loadSearchedessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
+    loadSearchedMessages: builder.query<IMessage[], ILoadMoreMessageRequest>({
       query: ({ orgId, roomId, messageId }) => ({
         url: `/${orgId}/rooms/${roomId}/messages/load-searched`,
         method: "GET",
@@ -112,7 +112,7 @@ export const {
   useLazyLoadBeforeMessagesQuery,
   useLazyLoadNextMessagesQuery,
   useLazySearchMessagesQuery,
-  useLazyLoadSearchedessagesQuery,
+  useLazyLoadSearchedMessagesQuery,
   useAddAttachmentMutation,
   useDeleteAttachmentMutation,
 } = messageApi

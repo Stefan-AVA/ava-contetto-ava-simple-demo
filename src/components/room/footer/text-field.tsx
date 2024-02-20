@@ -102,8 +102,6 @@ export default function TextField({
     if (onPastImage && e.code === "KeyV") {
       const clipboardItems = await navigator.clipboard.read()
 
-      console.log({ clipboardItems })
-
       const findImageClipboard = clipboardItems.find((clipboardItem) =>
         clipboardItem.types.includes("image/png")
       )
