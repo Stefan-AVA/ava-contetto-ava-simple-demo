@@ -70,10 +70,6 @@ export default function CardPreview({
     }).unwrap()
 
     enqueueSnackbar("Template added successfully", { variant: "success" })
-
-    push(
-      `/app/agent-orgs/${params.agentId}/marketing-hub/templates/${orgTemplate._id}`
-    )
   }
 
   async function onHide(templateId: string) {

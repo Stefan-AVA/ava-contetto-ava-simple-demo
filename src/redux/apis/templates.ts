@@ -31,7 +31,7 @@ export const templateApi = createApi({
       }),
       providesTags: ["Templates"],
     }),
-    addOrgTemplate: builder.mutation<IOrgTemplate, IAddOrgTemplateRequest>({
+    addOrgTemplate: builder.mutation<IBaseResponse, IAddOrgTemplateRequest>({
       query: ({ orgId, templateId }) => ({
         url: `/${orgId}/org-templates`,
         method: "POST",
