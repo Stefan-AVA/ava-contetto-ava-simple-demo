@@ -61,18 +61,18 @@ export default function Page({ params }: PageParams) {
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
-  const org = useMemo(
-    () => agentOrgs.find((agent) => agent._id === params.agentId)?.org,
+  const currentOrg = useMemo(
+    () => agentOrgs.find((agent) => agent._id === params.agentId)!,
     [params.agentId, agentOrgs]
   )
 
   const { data } = useGetOrgTemplateQuery(
     {
-      orgId: org?._id as string,
+      orgId: currentOrg.orgId as string,
       templateId: params.templateId,
     },
     {
-      skip: !org,
+      skip: !currentOrg,
     }
   )
 
@@ -232,12 +232,12 @@ export default function Page({ params }: PageParams) {
   const colors = useMemo(() => {
     const palette: string[] = []
 
-    if (org?.brand) palette.push(...org.brand.colors)
+    if (currentOrg.org?.brand) palette.push(...currentOrg.org.brand.colors)
 
     palette.push(...["#000", "#FFF"])
 
     return palette
-  }, [org])
+  }, [currentOrg.org])
 
   const selectedCurrentElement = useMemo(() => {
     if (selectedElements.length > 0) {
@@ -256,7 +256,7 @@ export default function Page({ params }: PageParams) {
 
   const BrandColours = useCallback(
     ({ onChange }: BrandColoursProps) => {
-      if (org?.brand?.colors) {
+      if (currentOrg.org?.brand?.colors) {
         return (
           <Stack
             sx={{
@@ -306,7 +306,7 @@ export default function Page({ params }: PageParams) {
 
       return null
     },
-    [colors, org?.brand?.colors]
+    [colors, currentOrg.org?.brand?.colors]
   )
 
   return (

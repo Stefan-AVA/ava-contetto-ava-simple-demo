@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useGetTemplatesQuery } from "@/redux/apis/templates"
+import { useGetOrgTemplatesQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
 import { Stack, Typography } from "@mui/material"
 import { Canvas } from "fabric"
@@ -33,7 +33,7 @@ export default function Collections({ params }: PageProps) {
     [params.agentId, agentOrgs]
   )
 
-  const { data } = useGetTemplatesQuery(
+  const { data } = useGetOrgTemplatesQuery(
     {
       orgId: currentOrg.orgId,
     },
@@ -52,12 +52,12 @@ export default function Collections({ params }: PageProps) {
 
           if (!ctx) return
 
-          await selectedCanvas.loadFromJSON(value.data[0])
+          await selectedCanvas.loadFromJSON(value.template.data[0])
 
           selectedCanvas.selection = false
 
-          const scaleX = WIDTH / value.layout.width
-          const scaleY = WIDTH / value.layout.height
+          const scaleX = WIDTH / value.template.layout.width
+          const scaleY = WIDTH / value.template.layout.height
 
           const background = selectedCanvas.backgroundImage
 

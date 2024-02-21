@@ -113,8 +113,6 @@ export default function Collections({ params }: PageProps) {
     return []
   }, [data])
 
-  console.log({ groupByLayout })
-
   if (!data) return <Loading />
 
   return (
@@ -132,7 +130,7 @@ export default function Collections({ params }: PageProps) {
       {data.length > 0 && (
         <CardPreview
           data={groupByLayout}
-          orgId={currentOrg._id}
+          orgId={currentOrg.orgId}
           onCanvas={setCanvas}
           hasAUseButton
           hasAHideButton

@@ -9,6 +9,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
+import { useParams, useRouter } from "next/navigation"
 import {
   useAddOrgTemplateMutation,
   useHideShowTemplateMutation,
@@ -23,6 +24,7 @@ import {
 } from "@mui/material"
 import { Canvas, type CanvasOptions } from "fabric"
 import { EyeOff } from "lucide-react"
+import { useSnackbar } from "notistack"
 import { Swiper, SwiperSlide } from "swiper/react"
 
 import type { ITemplate } from "@/types/template.types"
@@ -50,16 +52,28 @@ export default function CardPreview({
 }: CardPreviewProps) {
   const ref = useRef<HTMLCanvasElement[]>([])
 
+  const { push } = useRouter()
+
+  const params = useParams()
+
+  const { enqueueSnackbar } = useSnackbar()
+
   const [addOrgTemplate, { isLoading: isLoadingAddOrgTemplate }] =
     useAddOrgTemplateMutation()
   const [hideShowTemplate, { isLoading: isLoadingHideShowTemplate }] =
     useHideShowTemplateMutation()
 
   async function onAdd(templateId: string) {
-    addOrgTemplate({
+    const orgTemplate = await addOrgTemplate({
       orgId,
       templateId,
-    })
+    }).unwrap()
+
+    enqueueSnackbar("Template added successfully", { variant: "success" })
+
+    push(
+      `/app/agent-orgs/${params.agentId}/marketing-hub/templates/${orgTemplate._id}`
+    )
   }
 
   async function onHide(templateId: string) {
@@ -160,6 +174,7 @@ export default function CardPreview({
                   <Tooltip title="Hide from team" placement="top-start">
                     <Stack
                       sx={{
+                        p: 0,
                         top: "1rem",
                         right: "1rem",
                         width: "2.5rem",
