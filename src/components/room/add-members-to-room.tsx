@@ -53,6 +53,7 @@ export default function AddMembersToRoom({
 
   const { roomId, agentId } = useParams()
 
+  const user = useSelector((state: RootState) => state.app.user)
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
   const agentProfile = useMemo(
@@ -195,11 +196,13 @@ export default function AddMembersToRoom({
             gap: 3,
           }}
         >
-          <SearchMembers
-            value={users}
-            orgId={String(agentProfile?.orgId)}
-            onChange={setUsers}
-          />
+          {!room.isPublic && (
+            <SearchMembers
+              value={users}
+              orgId={String(agentProfile?.orgId)}
+              onChange={setUsers}
+            />
+          )}
 
           <List>
             {members.map((member) => (
@@ -234,45 +237,49 @@ export default function AddMembersToRoom({
                   secondary={member.type.toLowerCase()}
                 />
 
-                <Typography
-                  sx={{
-                    gap: 1,
-                    color: "gray.500",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                  variant="body2"
-                  onClick={() =>
-                    onRemoveMember({
-                      agent:
-                        member.type === "AGENT"
-                          ? (member as IRoomAgent)
-                          : undefined,
-                      contact:
-                        member.type === "CONTACT"
-                          ? (member as IRoomContact)
-                          : undefined,
-                    })
-                  }
-                  className="remove-button"
-                >
-                  Remove
-                  {isLoadingRemoveMember === member._id && (
-                    <CircularProgress size="1rem" />
-                  )}
-                </Typography>
+                {!room.isPublic && user?.username !== member.username && (
+                  <Typography
+                    sx={{
+                      gap: 1,
+                      color: "gray.500",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                    variant="body2"
+                    onClick={() =>
+                      onRemoveMember({
+                        agent:
+                          member.type === "AGENT"
+                            ? (member as IRoomAgent)
+                            : undefined,
+                        contact:
+                          member.type === "CONTACT"
+                            ? (member as IRoomContact)
+                            : undefined,
+                      })
+                    }
+                    className="remove-button"
+                  >
+                    Remove
+                    {isLoadingRemoveMember === member._id && (
+                      <CircularProgress size="1rem" />
+                    )}
+                  </Typography>
+                )}
               </ListItem>
             ))}
           </List>
 
-          <LoadingButton
-            sx={{ ml: "auto" }}
-            onClick={onSubmit}
-            loading={isLoading}
-          >
-            Save
-          </LoadingButton>
+          {!room.isPublic && (
+            <LoadingButton
+              sx={{ ml: "auto" }}
+              onClick={onSubmit}
+              loading={isLoading}
+            >
+              Save
+            </LoadingButton>
+          )}
         </Stack>
 
         {error && (

@@ -235,18 +235,25 @@ export default function Footer() {
         </Stack>
       </TextField>
 
-      <Box sx={{ top: ".625rem", color: "primary.main", position: "relative" }}>
-        <Paperclip />
+      <Box
+        sx={{
+          top: ".625rem",
+          color: "primary.main",
+          position: "relative",
+        }}
+      >
+        <Box
+          sx={{ cursor: "pointer" }}
+          htmlFor="file-attachment"
+          component="label"
+        >
+          <Paperclip />
+        </Box>
 
         <Box
+          id="file-attachment"
           sx={{
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            cursor: "pointer",
-            opacity: 0,
-            position: "absolute",
+            display: "none",
           }}
           type="file"
           accept=".png, .jpg, .jpeg, .webp"

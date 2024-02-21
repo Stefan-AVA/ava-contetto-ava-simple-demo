@@ -1,6 +1,6 @@
 import type { MouseEventHandler } from "react"
 import Image from "next/image"
-import { Box, Stack, Typography } from "@mui/material"
+import { Badge, Box, Stack, Typography } from "@mui/material"
 import { format } from "date-fns"
 import { User, type LucideIcon } from "lucide-react"
 
@@ -19,11 +19,11 @@ export default function RoomField({
   icon: Icon = User,
   title,
   avatar,
+  onClick,
   sendedAt,
   lastMessage,
   unreadMessages,
   numberOfMembers,
-  onClick,
 }: IRoomFieldProps) {
   return (
     <Stack
@@ -35,62 +35,40 @@ export default function RoomField({
       }}
       onClick={onClick}
     >
-      <Stack
-        sx={{
-          width: "2.25rem",
-          height: "2.25rem",
-          border: "2px solid",
-          position: "relative",
-          alignItems: "center",
-          borderColor: unreadMessages ? "secondary.main" : "gray.200",
-          aspectRatio: 1 / 1,
-          borderRadius: "50%",
-          justifyContent: "center",
-          backgroundColor: "gray.200",
-        }}
-      >
-        {avatar && (
-          <Image
-            src={avatar}
-            alt=""
-            fill
-            style={{ objectFit: "cover", borderRadius: "50%" }}
-          />
-        )}
+      <Badge color="secondary" badgeContent={unreadMessages}>
+        <Stack
+          sx={{
+            width: "2.25rem",
+            height: "2.25rem",
+            border: "2px solid",
+            position: "relative",
+            alignItems: "center",
+            borderColor: unreadMessages ? "secondary.main" : "gray.200",
+            aspectRatio: 1 / 1,
+            borderRadius: "50%",
+            justifyContent: "center",
+            backgroundColor: "gray.200",
+          }}
+        >
+          {avatar && (
+            <Image
+              src={avatar}
+              alt=""
+              fill
+              style={{ objectFit: "cover", borderRadius: "50%" }}
+            />
+          )}
 
-        {!avatar && (
-          <Box
-            sx={{ color: "gray.500" }}
-            size={16}
-            component={Icon}
-            strokeWidth={3}
-          />
-        )}
-
-        {Boolean(unreadMessages) && unreadMessages && (
-          <Stack
-            sx={{
-              top: "-.5rem",
-              right: "-.5rem",
-              width: "1.25rem",
-              height: "1.25rem",
-              zIndex: 2,
-              position: "absolute",
-              alignItems: "center",
-              borderRadius: "50%",
-              justifyContent: "center",
-              backgroundColor: "secondary.main",
-            }}
-          >
-            <Typography
-              sx={{ color: "white", textAlign: "center", fontWeight: 500 }}
-              variant="caption"
-            >
-              {unreadMessages}
-            </Typography>
-          </Stack>
-        )}
-      </Stack>
+          {!avatar && (
+            <Box
+              sx={{ color: "gray.500" }}
+              size={16}
+              component={Icon}
+              strokeWidth={3}
+            />
+          )}
+        </Stack>
+      </Badge>
 
       <Stack sx={{ gap: 0.25, overflow: "hidden" }}>
         <Typography
