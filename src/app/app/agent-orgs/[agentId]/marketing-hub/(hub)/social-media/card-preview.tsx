@@ -16,10 +16,10 @@ import {
 import { Canvas, type CanvasOptions } from "fabric"
 import { EyeOff } from "lucide-react"
 
-import type { ITemplate } from "@/types/template.types"
+import type { IOrgTemplate } from "@/types/orgTemplate.types"
 
 interface CardPreviewProps {
-  data: ITemplate[]
+  data: IOrgTemplate[]
   orgId: string
   onCanvas: Dispatch<SetStateAction<Canvas[]>>
   hasAUseButton?: boolean
@@ -88,6 +88,7 @@ export default function CardPreview({
 
       onCanvas((prev) => [...prev, ...createdCanvas])
     }
+
     return () => {
       createdCanvas.forEach((currCanvas) => currCanvas.dispose())
 

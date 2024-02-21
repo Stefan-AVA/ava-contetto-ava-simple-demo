@@ -1,12 +1,15 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useGetOrgTemplatesQuery } from "@/redux/apis/templates"
+import { Route } from "next"
+import Link from "next/link"
+import { useGetTemplatesQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
-import { Stack, Typography } from "@mui/material"
+import { Button, Stack, Typography } from "@mui/material"
 import { Canvas } from "fabric"
 import { useSelector } from "react-redux"
 
+import type { ITemplate } from "@/types/template.types"
 import Loading from "@/components/Loading"
 
 import CardPreview from "./card-preview"
@@ -26,6 +29,8 @@ const WIDTH = 344 - 8
 export default function Collections({ params }: PageProps) {
   const [canvas, setCanvas] = useState<Canvas[]>([])
 
+  const basePath = `/app/agent-orgs/${params.agentId}/marketing-hub`
+
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
   const currentOrg = useMemo(
@@ -33,7 +38,7 @@ export default function Collections({ params }: PageProps) {
     [params.agentId, agentOrgs]
   )
 
-  const { data } = useGetOrgTemplatesQuery(
+  const { data } = useGetTemplatesQuery(
     {
       orgId: currentOrg.orgId,
     },
@@ -52,12 +57,12 @@ export default function Collections({ params }: PageProps) {
 
           if (!ctx) return
 
-          await selectedCanvas.loadFromJSON(value.template.data[0])
+          await selectedCanvas.loadFromJSON(value.data[0])
 
           selectedCanvas.selection = false
 
-          const scaleX = WIDTH / value.template.layout.width
-          const scaleY = WIDTH / value.template.layout.height
+          const scaleX = WIDTH / value.layout.width
+          const scaleY = WIDTH / value.layout.height
 
           const background = selectedCanvas.backgroundImage
 
@@ -88,14 +93,44 @@ export default function Collections({ params }: PageProps) {
     }
   }, [data, canvas])
 
+  const groupByLayout = useMemo(() => {
+    if (data) {
+      const group = data.reduce(
+        (acc, curr) => {
+          const name = curr.layout.name
+
+          acc[name] = acc[name] || []
+          acc[name].push(curr)
+
+          return acc
+        },
+        {} as Record<string, ITemplate[]>
+      )
+
+      return Object.entries(group)
+    }
+
+    return []
+  }, [data])
+
   if (!data) return <Loading />
 
   return (
     <Stack>
+      <Link href={`${basePath}/social-media` as Route}>
+        <Button size="small" variant="outlined">
+          Back to Marketing Hub
+        </Button>
+      </Link>
+
+      <Typography sx={{ my: 3, fontWeight: 600 }} variant="h4">
+        Add Templates For Your Team
+      </Typography>
+
       {data.length > 0 && (
         <CardPreview
-          data={data}
-          orgId={currentOrg._id}
+          data={groupByLayout}
+          orgId={currentOrg.orgId}
           onCanvas={setCanvas}
           hasAUseButton
           hasAHideButton

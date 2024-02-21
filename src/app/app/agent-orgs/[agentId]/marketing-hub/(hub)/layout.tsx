@@ -77,22 +77,46 @@ export default function MarketingHub({ params, children }: PageProps) {
           )
         })}
 
-        <Typography
+        <Stack
           sx={{
-            py: 0.75,
-            px: 2,
             ml: "auto",
-            border: "1px solid",
-            bgcolor: "gray.200",
-            fontWeight: 600,
-            borderColor: "gray.300",
-            borderRadius: 1.25,
+            gap: 2,
+            alignItems: "center",
+            flexDirection: "row",
           }}
-          href={`${basePath}/manage-brand` as Route}
-          component={Link}
         >
-          Manage brand
-        </Typography>
+          <Typography
+            sx={{
+              py: 0.75,
+              px: 2,
+              border: "1px solid",
+              bgcolor: "gray.200",
+              fontWeight: 600,
+              borderColor: "gray.300",
+              borderRadius: 1.25,
+            }}
+            href={`${basePath}/manage-brand` as Route}
+            component={Link}
+          >
+            Manage brand
+          </Typography>
+
+          <Typography
+            sx={{
+              py: 0.75,
+              px: 2,
+              border: "1px solid",
+              bgcolor: "gray.200",
+              fontWeight: 600,
+              borderColor: "gray.300",
+              borderRadius: 1.25,
+            }}
+            href={`${basePath}/manage-templates` as Route}
+            component={Link}
+          >
+            Manage templates
+          </Typography>
+        </Stack>
       </Stack>
 
       <Stack
