@@ -97,7 +97,6 @@ export default function Collections({ params }: PageProps) {
           data={data}
           orgId={currentOrg._id}
           onCanvas={setCanvas}
-          hasAUseButton
           hasAHideButton
         />
       )}

@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useRef, type Dispatch, type SetStateAction } from "react"
-import {
-  useAddOrgTemplateMutation,
-  useHideShowTemplateMutation,
-} from "@/redux/apis/templates"
-import { LoadingButton } from "@mui/lab"
+import { Route } from "next"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { useHideShowTemplateMutation } from "@/redux/apis/templates"
+import { parseError } from "@/utils/error"
 import {
   Box,
   CircularProgress,
@@ -14,7 +14,8 @@ import {
   Tooltip,
 } from "@mui/material"
 import { Canvas, type CanvasOptions } from "fabric"
-import { EyeOff } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
+import { useSnackbar } from "notistack"
 
 import type { IOrgTemplate } from "@/types/orgTemplate.types"
 
@@ -22,7 +23,6 @@ interface CardPreviewProps {
   data: IOrgTemplate[]
   orgId: string
   onCanvas: Dispatch<SetStateAction<Canvas[]>>
-  hasAUseButton?: boolean
   hasAHideButton?: boolean
 }
 
@@ -36,29 +36,33 @@ export default function CardPreview({
   data,
   orgId,
   onCanvas,
-  hasAUseButton,
   hasAHideButton,
 }: CardPreviewProps) {
   const ref = useRef<HTMLCanvasElement[]>([])
 
-  const [addOrgTemplate, { isLoading: isLoadingAddOrgTemplate }] =
-    useAddOrgTemplateMutation()
+  const params = useParams()
+
+  const { enqueueSnackbar } = useSnackbar()
+
   const [hideShowTemplate, { isLoading: isLoadingHideShowTemplate }] =
     useHideShowTemplateMutation()
 
-  async function onAdd(templateId: string) {
-    addOrgTemplate({
-      orgId,
-      templateId,
-    })
-  }
-
-  async function onHide(templateId: string) {
+  async function onHide(templateId: string, hidden: boolean) {
     hideShowTemplate({
       orgId,
-      hidden: true,
+      hidden,
       templateId,
     })
+      .unwrap()
+      .then(() =>
+        enqueueSnackbar(
+          `Template ${hidden ? "hidden" : "unhidden"} successfully`,
+          { variant: "success" }
+        )
+      )
+      .catch((error) =>
+        enqueueSnackbar(parseError(error), { variant: "error" })
+      )
   }
 
   useEffect(() => {
@@ -98,7 +102,7 @@ export default function CardPreview({
 
   return (
     <Grid container spacing={3}>
-      {data.map(({ _id }, index) => (
+      {data.map(({ _id, hidden }, index) => (
         <Grid xs={12} md={2} lg={4} key={_id}>
           <Stack
             sx={{
@@ -110,7 +114,9 @@ export default function CardPreview({
 
               ":hover": {
                 ".overlay": {
+                  cursor: "pointer",
                   opacity: 0.5,
+                  pointerEvents: "auto",
                 },
 
                 ".on-action": {
@@ -147,12 +153,14 @@ export default function CardPreview({
                     pointerEvents: "none",
                     justifyContent: "center",
                   }}
-                  onClick={() => onHide(_id)}
+                  onClick={() => onHide(_id, !hidden)}
                   component="button"
                   className="on-action"
                 >
                   {isLoadingHideShowTemplate ? (
                     <CircularProgress size="1.25rem" />
+                  ) : hidden ? (
+                    <Eye size={20} />
                   ) : (
                     <EyeOff size={20} />
                   )}
@@ -171,26 +179,14 @@ export default function CardPreview({
                 bgcolor: "gray.100",
                 position: "absolute",
                 transition: "all .3s ease-in-out",
+                pointerEvents: "none",
               }}
+              href={
+                `/app/agent-orgs/${params.agentId}/marketing-hub/templates/${_id}` as Route
+              }
+              component={Link}
               className="overlay"
             />
-
-            {hasAUseButton && (
-              <LoadingButton
-                sx={{
-                  zIndex: 2,
-                  opacity: 0,
-                  position: "absolute",
-                  transition: "all .3s ease-in-out",
-                  pointerEvents: "none",
-                }}
-                onClick={() => onAdd(_id)}
-                loading={isLoadingAddOrgTemplate}
-                className="on-action"
-              >
-                Use
-              </LoadingButton>
-            )}
           </Stack>
         </Grid>
       ))}

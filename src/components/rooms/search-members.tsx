@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { useParams } from "next/navigation"
-import { useGetContactsQuery, useGetMembersQuery } from "@/redux/apis/org"
+import { useGetMembersQuery } from "@/redux/apis/org"
 import { Autocomplete, TextField } from "@mui/material"
 
 export type SearchMemberOption = {
@@ -34,12 +34,12 @@ export default function SearchMembers({
     }
   )
 
-  const { data: contacts } = useGetContactsQuery(
-    { orgId },
-    {
-      skip: !orgId,
-    }
-  )
+  // const { data: contacts } = useGetContactsQuery(
+  //   { orgId },
+  //   {
+  //     skip: !orgId,
+  //   }
+  // )
 
   const data = useMemo(() => {
     const options = [] as SearchMemberOption[]
@@ -58,23 +58,23 @@ export default function SearchMembers({
       options.push(...fields)
     }
 
-    if (contacts && contacts.length > 0) {
-      const fields = contacts
-        .filter((contact) => contact.username || dm)
-        .map((contact) => ({
-          type: "Contacts",
-          value: contact._id,
-          label: contact.username || contact.name,
-          name: contact.name,
-          agentId: contact.agentProfileId,
-          agentName: contact.agentName,
-        }))
+    // if (contacts && contacts.length > 0) {
+    //   const fields = contacts
+    //     .filter((contact) => contact.username || dm)
+    //     .map((contact) => ({
+    //       type: "Contacts",
+    //       value: contact._id,
+    //       label: contact.username || contact.name,
+    //       name: contact.name,
+    //       agentId: contact.agentProfileId,
+    //       agentName: contact.agentName,
+    //     }))
 
-      options.push(...fields)
-    }
+    //   options.push(...fields)
+    // }
 
     return options
-  }, [dm, agents, contacts, agentId])
+  }, [agents, agentId])
 
   return (
     <Autocomplete

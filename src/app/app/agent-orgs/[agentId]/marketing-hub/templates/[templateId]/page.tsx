@@ -45,10 +45,6 @@ const initialStyle = {
   backgroundColor: "#000",
 }
 
-const dumpTemplate = {
-  0: `{ "version": "6.0.0-beta17", "objects": [ { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 0, "top": 0, "width": 40, "height": 40, "fill": "#000", "stroke": "#000", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 16.2104, "scaleY": 16.2104, "angle": 0, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "rx": 0, "ry": 0, "type": "Rect", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": -60.591, "top": 405.1052, "width": 40, "height": 40, "fill": "#2d43b8", "stroke": "#2d43b8", "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 20.3902, "scaleY": 3.4853, "angle": 353.4102, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 }, { "fontSize": 32, "fontWeight": "400", "fontFamily": "'__DM_Sans_88fdc4', '__DM_Sans_Fallback_88fdc4'", "fontStyle": "normal", "lineHeight": 2, "text": "Hello world", "charSpacing": 0, "textAlign": "center", "styles": [], "pathStartOffset": 0, "pathSide": "left", "pathAlign": "baseline", "underline": false, "overline": false, "linethrough": false, "textBackgroundColor": "", "direction": "ltr", "minWidth": 20, "splitByGrapheme": false, "type": "Textbox", "version": "6.0.0-beta17", "originX": "left", "originY": "top", "left": 33.8807, "top": 448.2357, "width": 579, "height": 36.16, "fill": "#ffffff", "stroke": null, "strokeWidth": 1, "strokeDashArray": null, "strokeLineCap": "butt", "strokeDashOffset": 0, "strokeLineJoin": "miter", "strokeUniform": false, "strokeMiterLimit": 4, "scaleX": 1, "scaleY": 1, "angle": 353.3482, "flipX": false, "flipY": false, "opacity": 1, "shadow": null, "visible": true, "backgroundColor": "", "fillRule": "nonzero", "paintFirst": "fill", "globalCompositeOperation": "source-over", "skewX": 0, "skewY": 0 } ], "background": "#FFF" }`,
-}
-
 export default function Page({ params }: PageParams) {
   const [style, setStyle] = useState(initialStyle)
   const [canvas, setCanvas] = useState<Canvas[]>([])
@@ -181,14 +177,13 @@ export default function Page({ params }: PageParams) {
   }
 
   useEffect(() => {
-    if (canvas.length > 0) {
+    if (data && canvas.length > 0) {
       const run = async () => {
-        const templates = JSON.parse(JSON.stringify(dumpTemplate)) as Record<
-          string,
-          string
-        >
+        const templates = data.template.data
 
-        Object.entries(templates).forEach(async ([key, value]) => {
+        const layoutTemplate = data.template.layout
+
+        for await (const [key, value] of templates.entries()) {
           const selectedCanvas = canvas[Number(key)]
 
           const ctx = selectedCanvas.contextTop
@@ -207,12 +202,21 @@ export default function Page({ params }: PageParams) {
           })
 
           selectedCanvas.renderAll()
-        })
+        }
+
+        for (const object of canvas) {
+          object.setDimensions({
+            width: layoutTemplate.width,
+            height: layoutTemplate.height,
+          })
+
+          object.renderAll()
+        }
       }
 
       run()
     }
-  }, [canvas])
+  }, [data, canvas])
 
   useEffect(() => {
     function keyboard({ key }: KeyboardEvent) {
@@ -247,6 +251,24 @@ export default function Page({ params }: PageParams) {
         return {
           elem,
           type: "TEXT",
+        }
+      }
+
+      if (elem instanceof FabricImage) {
+        const block = elem as FabricImage & { id: string }
+
+        if (block.id === "logo") {
+          return {
+            elem,
+            type: "LOGO",
+          }
+        }
+
+        if (block.id === "image") {
+          return {
+            elem,
+            type: "IMAGE",
+          }
         }
       }
     }
@@ -308,6 +330,8 @@ export default function Page({ params }: PageParams) {
     },
     [colors, currentOrg.org?.brand?.colors]
   )
+
+  console.log({ selectedElements })
 
   return (
     <Stack
@@ -603,6 +627,91 @@ export default function Page({ params }: PageParams) {
                       />
                     ))}
                   </Stack>
+                </Stack>
+              </>
+            )}
+
+            {selectedCurrentElement.type === "LOGO" && (
+              <>
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Replace logo</Typography>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Zoom</Typography>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Align</Typography>
+                </Stack>
+              </>
+            )}
+
+            {selectedCurrentElement.type === "IMAGE" && (
+              <>
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Replace photo</Typography>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Zoom</Typography>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Align</Typography>
+                </Stack>
+
+                <Stack
+                  sx={{
+                    p: 4,
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "gray.200",
+                  }}
+                >
+                  <Typography variant="h6">Rotate</Typography>
                 </Stack>
               </>
             )}
