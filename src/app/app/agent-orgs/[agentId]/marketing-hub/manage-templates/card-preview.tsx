@@ -3,27 +3,22 @@
 import "swiper/css"
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   type Dispatch,
   type SetStateAction,
 } from "react"
-import { useParams, useRouter } from "next/navigation"
 import {
   useAddOrgTemplateMutation,
-  useHideShowTemplateMutation,
+  useDeleteOrgTemplateMutation,
+  useGetOrgTemplatesQuery,
 } from "@/redux/apis/templates"
 import { LoadingButton } from "@mui/lab"
-import {
-  Box,
-  CircularProgress,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material"
+import { Box, Stack, Typography } from "@mui/material"
 import { Canvas, type CanvasOptions } from "fabric"
-import { EyeOff } from "lucide-react"
+import { Star } from "lucide-react"
 import { useSnackbar } from "notistack"
 import { Swiper, SwiperSlide } from "swiper/react"
 
@@ -33,51 +28,49 @@ interface CardPreviewProps {
   data: [string, ITemplate[]][]
   orgId: string
   onCanvas: Dispatch<SetStateAction<Canvas[]>>
-  hasAUseButton?: boolean
-  hasAHideButton?: boolean
 }
 
-/**
- * @todo
- * Adjust the card width according to the screen width.
- */
 const WIDTH = 344 - 8
 
 export default function CardPreview({
   data,
   orgId,
   onCanvas,
-  hasAUseButton,
-  hasAHideButton,
 }: CardPreviewProps) {
   const ref = useRef<HTMLCanvasElement[]>([])
 
-  const { push } = useRouter()
-
-  const params = useParams()
-
   const { enqueueSnackbar } = useSnackbar()
+
+  const { data: orgTemplates } = useGetOrgTemplatesQuery(
+    {
+      orgId,
+    },
+    {
+      skip: !orgId,
+    }
+  )
 
   const [addOrgTemplate, { isLoading: isLoadingAddOrgTemplate }] =
     useAddOrgTemplateMutation()
-  const [hideShowTemplate, { isLoading: isLoadingHideShowTemplate }] =
-    useHideShowTemplateMutation()
+  const [deleteOrgTemplate, { isLoading: isLoadingDeleteOrgTemplate }] =
+    useDeleteOrgTemplateMutation()
+
+  async function onRemove(templateId: string) {
+    await deleteOrgTemplate({
+      orgId,
+      templateId,
+    }).unwrap()
+
+    enqueueSnackbar("Template removed successfully", { variant: "success" })
+  }
 
   async function onAdd(templateId: string) {
-    const orgTemplate = await addOrgTemplate({
+    await addOrgTemplate({
       orgId,
       templateId,
     }).unwrap()
 
     enqueueSnackbar("Template added successfully", { variant: "success" })
-  }
-
-  async function onHide(templateId: string) {
-    hideShowTemplate({
-      orgId,
-      hidden: true,
-      templateId,
-    })
   }
 
   const mergeElems = useMemo(() => {
@@ -122,6 +115,21 @@ export default function CardPreview({
     }
   }, [mergeElems, onCanvas])
 
+  const findTemplateAddedToOrganization = useCallback(
+    (templateId: string) => {
+      if (orgTemplates) {
+        const template = orgTemplates.find(
+          (orgTemplate) => orgTemplate.templateId === templateId
+        )
+
+        return template ?? null
+      }
+
+      return null
+    },
+    [orgTemplates]
+  )
+
   return data.map(([key, cards]) => (
     <Stack sx={{ gap: 2, mb: 4 }} key={key}>
       <Typography sx={{ fontWeight: 600 }} variant="h6">
@@ -136,6 +144,8 @@ export default function CardPreview({
       >
         {cards.map(({ _id }) => {
           const findIndex = mergeElems.findIndex((elem) => elem._id === _id)
+
+          const addedTemplate = findTemplateAddedToOrganization(_id)
 
           return (
             <SwiperSlide key={_id} style={{ width: "fit-content" }}>
@@ -166,41 +176,6 @@ export default function CardPreview({
                   }}
                 />
 
-                {hasAHideButton && (
-                  <Tooltip title="Hide from team" placement="top-start">
-                    <Stack
-                      sx={{
-                        p: 0,
-                        top: "1rem",
-                        right: "1rem",
-                        width: "2.5rem",
-                        color: "primary.main",
-                        height: "2.5rem",
-                        border: "1px solid",
-                        zIndex: 2,
-                        bgcolor: "white",
-                        opacity: 0,
-                        position: "absolute",
-                        alignItems: "center",
-                        transition: "all .3s ease-in-out",
-                        borderColor: "gray.200",
-                        borderRadius: "50%",
-                        pointerEvents: "none",
-                        justifyContent: "center",
-                      }}
-                      onClick={() => onHide(_id)}
-                      component="button"
-                      className="on-action"
-                    >
-                      {isLoadingHideShowTemplate ? (
-                        <CircularProgress size="1.25rem" />
-                      ) : (
-                        <EyeOff size={20} />
-                      )}
-                    </Stack>
-                  </Tooltip>
-                )}
-
                 <Box
                   sx={{
                     top: 0,
@@ -208,7 +183,7 @@ export default function CardPreview({
                     width: "100%",
                     zIndex: 1,
                     height: "100%",
-                    opacity: 0,
+                    opacity: addedTemplate ? 0.5 : 0,
                     bgcolor: "gray.100",
                     position: "absolute",
                     transition: "all .3s ease-in-out",
@@ -216,21 +191,36 @@ export default function CardPreview({
                   className="overlay"
                 />
 
-                {hasAUseButton && (
-                  <LoadingButton
+                <LoadingButton
+                  sx={{
+                    zIndex: 2,
+                    opacity: 0,
+                    position: "absolute",
+                    transition: "all .3s ease-in-out",
+                    pointerEvents: "none",
+                  }}
+                  onClick={() =>
+                    addedTemplate ? onRemove(addedTemplate._id) : onAdd(_id)
+                  }
+                  loading={
+                    isLoadingAddOrgTemplate || isLoadingDeleteOrgTemplate
+                  }
+                  className="on-action"
+                >
+                  {addedTemplate ? "Remove" : "Use"}
+                </LoadingButton>
+
+                {addedTemplate && (
+                  <Box
                     sx={{
+                      top: "1rem",
+                      right: "1rem",
+                      color: "secondary.main",
                       zIndex: 2,
-                      opacity: 0,
                       position: "absolute",
-                      transition: "all .3s ease-in-out",
-                      pointerEvents: "none",
                     }}
-                    onClick={() => onAdd(_id)}
-                    loading={isLoadingAddOrgTemplate}
-                    className="on-action"
-                  >
-                    Use
-                  </LoadingButton>
+                    component={Star}
+                  />
                 )}
               </Stack>
             </SwiperSlide>

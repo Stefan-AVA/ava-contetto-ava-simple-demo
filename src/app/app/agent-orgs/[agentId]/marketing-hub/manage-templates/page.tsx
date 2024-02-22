@@ -20,10 +20,6 @@ interface PageProps {
   }
 }
 
-/**
- * @todo
- * Adjust the card width according to the screen width.
- */
 const WIDTH = 344 - 8
 
 export default function Collections({ params }: PageProps) {
@@ -132,8 +128,6 @@ export default function Collections({ params }: PageProps) {
           data={groupByLayout}
           orgId={currentOrg.orgId}
           onCanvas={setCanvas}
-          hasAUseButton
-          hasAHideButton
         />
       )}
 
