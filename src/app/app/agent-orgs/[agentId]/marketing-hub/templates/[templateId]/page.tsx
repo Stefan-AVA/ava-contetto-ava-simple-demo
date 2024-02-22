@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
@@ -10,8 +11,8 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Unstable_Grid2 as Grid,
   InputAdornment,
-  Slider,
   Stack,
   TextField,
   Typography,
@@ -22,11 +23,30 @@ import { ChevronDown, ChevronRight, Minus, Plus } from "lucide-react"
 import { useSelector } from "react-redux"
 
 import FabricCanvas from "./fabric-canvas"
+import Slider from "./slider"
 import { styles, textAligns } from "./utils"
+import WrapperAction from "./wrapper-action"
 
 interface BrandColoursProps {
   onChange?: (color: string) => void
 }
+
+type SelectedText = {
+  type: "TEXT"
+  elem: Textbox
+}
+
+type SelectedLogo = {
+  type: "LOGO"
+  elem: FabricImage
+}
+
+type SelectedImage = {
+  type: "IMAGE"
+  elem: FabricImage
+}
+
+type SelectedElement = SelectedText | SelectedLogo | SelectedImage
 
 interface PageParams {
   params: {
@@ -36,6 +56,7 @@ interface PageParams {
 }
 
 const initialStyle = {
+  zoom: 1,
   fontSize: 16,
   textColor: "#000",
   textAlign: "left",
@@ -82,20 +103,45 @@ export default function Page({ params }: PageParams) {
     console.log(JSON.stringify(data))
   }
 
-  async function onAddImage(files: FileList | null) {
-    if (!files || (files && files.length <= 0)) return
+  const selectedCurrentElement: SelectedElement | null = useMemo(() => {
+    if (selectedElements.length > 0) {
+      const elem = selectedElements[0]
 
-    const file = files[0]
+      if (elem instanceof Textbox) {
+        return {
+          elem,
+          type: "TEXT",
+        }
+      }
 
-    // Send image to backend to register.
+      if (elem instanceof FabricImage) {
+        const block = elem as FabricImage & { id: string }
 
-    const path = URL.createObjectURL(file)
+        if (block.id === "logo") {
+          return {
+            elem,
+            type: "LOGO",
+          }
+        }
 
-    const image = await FabricImage.fromURL(path)
+        if (block.id === "image") {
+          return {
+            elem,
+            type: "IMAGE",
+          }
+        }
+      }
+    }
 
-    selectedCanvas.add(image)
+    return null
+  }, [selectedElements])
 
-    selectedCanvas.sendObjectToBack(image)
+  async function onUpdateLogoOrImage(fileUrl: string) {
+    if (selectedCurrentElement && selectedCurrentElement.type !== "TEXT") {
+      await selectedCurrentElement.elem.setSrc(fileUrl)
+
+      selectedCanvas.renderAll()
+    }
   }
 
   const onDeleteElement = useCallback(() => {
@@ -143,12 +189,14 @@ export default function Page({ params }: PageParams) {
 
     if (key === "underline") customValue = !style.underline
 
-    console.log({ key, customValue })
-
     setStyle((prev) => ({ ...prev, [key]: customValue }))
 
     if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
+        if (object.type === "image") {
+          if (key === "zoom") object.scale(value as number)
+        }
+
         if (object.type !== "textbox") {
           if (key === "backgroundColor") object.set({ fill: customValue })
         }
@@ -233,6 +281,8 @@ export default function Page({ params }: PageParams) {
     }
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
+  const logos = currentOrg.org?.brand?.logos ?? []
+
   const colors = useMemo(() => {
     const palette: string[] = []
 
@@ -242,39 +292,6 @@ export default function Page({ params }: PageParams) {
 
     return palette
   }, [currentOrg.org])
-
-  const selectedCurrentElement = useMemo(() => {
-    if (selectedElements.length > 0) {
-      const elem = selectedElements[0]
-
-      if (elem instanceof Textbox) {
-        return {
-          elem,
-          type: "TEXT",
-        }
-      }
-
-      if (elem instanceof FabricImage) {
-        const block = elem as FabricImage & { id: string }
-
-        if (block.id === "logo") {
-          return {
-            elem,
-            type: "LOGO",
-          }
-        }
-
-        if (block.id === "image") {
-          return {
-            elem,
-            type: "IMAGE",
-          }
-        }
-      }
-    }
-
-    return null
-  }, [selectedElements])
 
   const BrandColours = useCallback(
     ({ onChange }: BrandColoursProps) => {
@@ -330,8 +347,6 @@ export default function Page({ params }: PageParams) {
     },
     [colors, currentOrg.org?.brand?.colors]
   )
-
-  console.log({ selectedElements })
 
   return (
     <Stack
@@ -471,92 +486,26 @@ export default function Page({ params }: PageParams) {
           <Stack>
             {selectedCurrentElement.type === "TEXT" && (
               <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Font Size</Typography>
-
-                  <Stack
-                    sx={{
-                      gap: 3,
-                      alignItems: "center",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <Stack
-                      sx={{
-                        width: "1.5rem",
-                        color: "primary.main",
-                        height: "1.5rem",
-                        cursor:
-                          style.fontSize <= 12 ? "not-allowed" : "pointer",
-                        border: "1px solid",
-                        alignItems: "center",
-                        borderColor: "primary.main",
-                        borderRadius: "50%",
-                        justifyContent: "center",
-                      }}
-                      onClick={() =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          style.fontSize > 12
-                            ? style.fontSize - 1
-                            : style.fontSize
-                        )
-                      }
-                      disabled={style.fontSize <= 12}
-                      component="button"
-                    >
-                      <Minus />
-                    </Stack>
-
-                    <Slider
-                      min={12}
-                      max={48}
-                      step={1}
-                      value={style.fontSize}
-                      onChange={(_, value) =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          (value as number) ?? initialStyle.fontSize
-                        )
-                      }
-                      valueLabelDisplay="auto"
-                    />
-
-                    <Stack
-                      sx={{
-                        width: "1.5rem",
-                        color: "primary.main",
-                        height: "1.5rem",
-                        cursor:
-                          style.fontSize >= 48 ? "not-allowed" : "pointer",
-                        border: "1px solid",
-                        alignItems: "center",
-                        borderColor: "primary.main",
-                        borderRadius: "50%",
-                        justifyContent: "center",
-                      }}
-                      onClick={() =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          style.fontSize < 48
-                            ? style.fontSize + 1
-                            : style.fontSize
-                        )
-                      }
-                      disabled={style.fontSize >= 48}
-                      component="button"
-                    >
-                      <Plus />
-                    </Stack>
-                  </Stack>
-                </Stack>
+                <WrapperAction title="Font Size">
+                  <Slider
+                    min={12}
+                    max={48}
+                    step={1}
+                    value={style.fontSize}
+                    onAdd={(value) =>
+                      onUpdateStylesAndCurrentElements("fontSize", value)
+                    }
+                    onRemove={(value) =>
+                      onUpdateStylesAndCurrentElements("fontSize", value)
+                    }
+                    onChange={(_, value) =>
+                      onUpdateStylesAndCurrentElements(
+                        "fontSize",
+                        (value as number) ?? initialStyle.fontSize
+                      )
+                    }
+                  />
+                </WrapperAction>
 
                 <BrandColours
                   onChange={(color) =>
@@ -564,16 +513,7 @@ export default function Page({ params }: PageParams) {
                   }
                 />
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Style</Typography>
-
+                <WrapperAction title="Style">
                   <Stack
                     sx={{
                       gap: 3,
@@ -596,18 +536,9 @@ export default function Page({ params }: PageParams) {
                       />
                     ))}
                   </Stack>
-                </Stack>
+                </WrapperAction>
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Text Allignment</Typography>
-
+                <WrapperAction title="Text Allignment">
                   <Stack
                     sx={{
                       gap: 3,
@@ -627,93 +558,63 @@ export default function Page({ params }: PageParams) {
                       />
                     ))}
                   </Stack>
-                </Stack>
+                </WrapperAction>
               </>
             )}
 
             {selectedCurrentElement.type === "LOGO" && (
-              <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Replace logo</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Zoom</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Align</Typography>
-                </Stack>
-              </>
+              <WrapperAction title="Replace Logo">
+                {logos.length > 0 && (
+                  <Grid container spacing={3}>
+                    {logos.map((logo) => (
+                      <Grid xs={6} key={logo}>
+                        <Image
+                          src={logo}
+                          alt=""
+                          width={180}
+                          style={{
+                            objectFit: "contain",
+                            borderRadius: ".75rem",
+                          }}
+                          height={140}
+                          onClick={() => onUpdateLogoOrImage(logo)}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </WrapperAction>
             )}
 
             {selectedCurrentElement.type === "IMAGE" && (
               <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Replace photo</Typography>
-                </Stack>
+                <WrapperAction title="Replace Photo"></WrapperAction>
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Zoom</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Align</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Rotate</Typography>
-                </Stack>
+                <WrapperAction title="Rotate"></WrapperAction>
               </>
+            )}
+
+            {["LOGO", "IMAGE"].includes(selectedCurrentElement.type) && (
+              <WrapperAction title="Zoom">
+                <Slider
+                  min={0.1}
+                  max={2}
+                  step={0.1}
+                  value={style.zoom}
+                  onAdd={(value) =>
+                    onUpdateStylesAndCurrentElements("zoom", value)
+                  }
+                  onRemove={(value) =>
+                    onUpdateStylesAndCurrentElements("zoom", value)
+                  }
+                  onChange={(_, value) =>
+                    onUpdateStylesAndCurrentElements(
+                      "zoom",
+                      (value as number) ?? initialStyle.zoom
+                    )
+                  }
+                />
+              </WrapperAction>
             )}
           </Stack>
         )}
