@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
@@ -10,23 +11,56 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Unstable_Grid2 as Grid,
   InputAdornment,
-  Slider,
   Stack,
   TextField,
   Typography,
 } from "@mui/material"
-import { Canvas, FabricImage, Textbox, type FabricObject } from "fabric"
+import {
+  Canvas,
+  Circle,
+  FabricImage,
+  Rect,
+  Textbox,
+  type FabricObject,
+} from "fabric"
 import PDF from "jspdf"
-import { ChevronDown, ChevronRight, Minus, Plus } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import BrandColours from "./brand-colours"
 import FabricCanvas from "./fabric-canvas"
-import { styles, textAligns } from "./utils"
+import ReplacePhoto from "./replace-photo"
+import Slider from "./slider"
+import { rotate, styles, textAligns } from "./utils"
+import WrapperAction from "./wrapper-action"
 
-interface BrandColoursProps {
-  onChange?: (color: string) => void
+type SelectedText = {
+  type: "TEXT"
+  elem: Textbox
 }
+
+type SelectedLogo = {
+  type: "LOGO"
+  elem: FabricImage
+}
+
+type SelectedImage = {
+  type: "IMAGE"
+  elem: FabricImage
+}
+
+type SelectedSymbol = {
+  type: "SYMBOL"
+  elem: Rect | Circle
+}
+
+type SelectedElement =
+  | SelectedText
+  | SelectedLogo
+  | SelectedImage
+  | SelectedSymbol
 
 interface PageParams {
   params: {
@@ -36,6 +70,7 @@ interface PageParams {
 }
 
 const initialStyle = {
+  zoom: 1,
   fontSize: 16,
   textColor: "#000",
   textAlign: "left",
@@ -82,20 +117,56 @@ export default function Page({ params }: PageParams) {
     console.log(JSON.stringify(data))
   }
 
-  async function onAddImage(files: FileList | null) {
-    if (!files || (files && files.length <= 0)) return
+  const selectedCurrentElement: SelectedElement | null = useMemo(() => {
+    if (selectedElements.length > 0) {
+      const elem = selectedElements[0]
 
-    const file = files[0]
+      if (elem instanceof Textbox) {
+        return {
+          elem,
+          type: "TEXT",
+        }
+      }
 
-    // Send image to backend to register.
+      if (elem instanceof Circle || elem instanceof Rect) {
+        return {
+          elem,
+          type: "SYMBOL",
+        }
+      }
 
-    const path = URL.createObjectURL(file)
+      if (elem instanceof FabricImage) {
+        const block = elem as FabricImage & { id: string }
 
-    const image = await FabricImage.fromURL(path)
+        if (block.id === "logo") {
+          return {
+            elem,
+            type: "LOGO",
+          }
+        }
 
-    selectedCanvas.add(image)
+        if (block.id === "image") {
+          return {
+            elem,
+            type: "IMAGE",
+          }
+        }
+      }
+    }
 
-    selectedCanvas.sendObjectToBack(image)
+    return null
+  }, [selectedElements])
+
+  async function onUpdateLogoOrImage(fileUrl: string) {
+    if (
+      selectedCurrentElement &&
+      (selectedCurrentElement.type === "LOGO" ||
+        selectedCurrentElement.type === "IMAGE")
+    ) {
+      await selectedCurrentElement.elem.setSrc(fileUrl)
+
+      selectedCanvas.renderAll()
+    }
   }
 
   const onDeleteElement = useCallback(() => {
@@ -129,7 +200,7 @@ export default function Page({ params }: PageParams) {
   }
 
   function onUpdateStylesAndCurrentElements(
-    key: keyof typeof initialStyle,
+    key: keyof typeof initialStyle | "rotate",
     value: string | number | boolean
   ) {
     let customValue = value
@@ -143,12 +214,23 @@ export default function Page({ params }: PageParams) {
 
     if (key === "underline") customValue = !style.underline
 
-    console.log({ key, customValue })
-
     setStyle((prev) => ({ ...prev, [key]: customValue }))
 
     if (selectedElements.length > 0) {
       selectedElements.forEach((object) => {
+        if (object.type === "image") {
+          if (key === "zoom") object.scale(value as number)
+
+          if (key === "rotate") {
+            const angle = object.angle
+
+            const newAngle =
+              angle === 355 ? 0 : angle + (value === "right" ? 10 : -10)
+
+            object.rotate(newAngle)
+          }
+        }
+
         if (object.type !== "textbox") {
           if (key === "backgroundColor") object.set({ fill: customValue })
         }
@@ -233,105 +315,8 @@ export default function Page({ params }: PageParams) {
     }
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
-  const colors = useMemo(() => {
-    const palette: string[] = []
-
-    if (currentOrg.org?.brand) palette.push(...currentOrg.org.brand.colors)
-
-    palette.push(...["#000", "#FFF"])
-
-    return palette
-  }, [currentOrg.org])
-
-  const selectedCurrentElement = useMemo(() => {
-    if (selectedElements.length > 0) {
-      const elem = selectedElements[0]
-
-      if (elem instanceof Textbox) {
-        return {
-          elem,
-          type: "TEXT",
-        }
-      }
-
-      if (elem instanceof FabricImage) {
-        const block = elem as FabricImage & { id: string }
-
-        if (block.id === "logo") {
-          return {
-            elem,
-            type: "LOGO",
-          }
-        }
-
-        if (block.id === "image") {
-          return {
-            elem,
-            type: "IMAGE",
-          }
-        }
-      }
-    }
-
-    return null
-  }, [selectedElements])
-
-  const BrandColours = useCallback(
-    ({ onChange }: BrandColoursProps) => {
-      if (currentOrg.org?.brand?.colors) {
-        return (
-          <Stack
-            sx={{
-              p: 4,
-              gap: 2,
-              borderBottom: "1px solid",
-              borderBottomColor: "gray.200",
-            }}
-          >
-            <Typography variant="h6">Brand colours</Typography>
-
-            <Stack sx={{ gap: 4, flexWrap: "wrap", flexDirection: "row" }}>
-              {colors.map((color) => (
-                <Stack
-                  sx={{
-                    gap: 2,
-                    width: onChange ? "45%" : "auto",
-                    cursor: onChange ? "pointer" : "default",
-                    alignItems: "center",
-                    flexDirection: "row",
-                  }}
-                  key={color}
-                  onClick={() => onChange?.(color)}
-                >
-                  <Box
-                    sx={{
-                      width: "2.5rem",
-                      height: "2.5rem",
-                      border: "1px solid",
-                      bgcolor: color,
-                      borderColor: color !== "#FFF" ? color : "gray.300",
-                      borderRadius: ".75rem",
-                    }}
-                  />
-
-                  {onChange && (
-                    <Typography sx={{ color: "primary.main" }}>
-                      {color.toUpperCase()}
-                    </Typography>
-                  )}
-                </Stack>
-              ))}
-            </Stack>
-          </Stack>
-        )
-      }
-
-      return null
-    },
-    [colors, currentOrg.org?.brand?.colors]
-  )
-
-  console.log({ selectedElements })
+  const logos = currentOrg.org?.brand?.logos ?? []
+  const colors = currentOrg.org?.brand?.colors ?? []
 
   return (
     <Stack
@@ -459,7 +444,7 @@ export default function Page({ params }: PageParams) {
               </Button>
             </Stack>
 
-            <BrandColours />
+            <BrandColours brandColours={colors} />
 
             <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
               Click the elements on the template to edit them.
@@ -471,109 +456,35 @@ export default function Page({ params }: PageParams) {
           <Stack>
             {selectedCurrentElement.type === "TEXT" && (
               <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Font Size</Typography>
-
-                  <Stack
-                    sx={{
-                      gap: 3,
-                      alignItems: "center",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <Stack
-                      sx={{
-                        width: "1.5rem",
-                        color: "primary.main",
-                        height: "1.5rem",
-                        cursor:
-                          style.fontSize <= 12 ? "not-allowed" : "pointer",
-                        border: "1px solid",
-                        alignItems: "center",
-                        borderColor: "primary.main",
-                        borderRadius: "50%",
-                        justifyContent: "center",
-                      }}
-                      onClick={() =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          style.fontSize > 12
-                            ? style.fontSize - 1
-                            : style.fontSize
-                        )
-                      }
-                      disabled={style.fontSize <= 12}
-                      component="button"
-                    >
-                      <Minus />
-                    </Stack>
-
-                    <Slider
-                      min={12}
-                      max={48}
-                      step={1}
-                      value={style.fontSize}
-                      onChange={(_, value) =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          (value as number) ?? initialStyle.fontSize
-                        )
-                      }
-                      valueLabelDisplay="auto"
-                    />
-
-                    <Stack
-                      sx={{
-                        width: "1.5rem",
-                        color: "primary.main",
-                        height: "1.5rem",
-                        cursor:
-                          style.fontSize >= 48 ? "not-allowed" : "pointer",
-                        border: "1px solid",
-                        alignItems: "center",
-                        borderColor: "primary.main",
-                        borderRadius: "50%",
-                        justifyContent: "center",
-                      }}
-                      onClick={() =>
-                        onUpdateStylesAndCurrentElements(
-                          "fontSize",
-                          style.fontSize < 48
-                            ? style.fontSize + 1
-                            : style.fontSize
-                        )
-                      }
-                      disabled={style.fontSize >= 48}
-                      component="button"
-                    >
-                      <Plus />
-                    </Stack>
-                  </Stack>
-                </Stack>
+                <WrapperAction title="Font Size">
+                  <Slider
+                    min={12}
+                    max={48}
+                    step={1}
+                    value={style.fontSize}
+                    onAdd={(value) =>
+                      onUpdateStylesAndCurrentElements("fontSize", value)
+                    }
+                    onRemove={(value) =>
+                      onUpdateStylesAndCurrentElements("fontSize", value)
+                    }
+                    onChange={(_, value) =>
+                      onUpdateStylesAndCurrentElements(
+                        "fontSize",
+                        (value as number) ?? initialStyle.fontSize
+                      )
+                    }
+                  />
+                </WrapperAction>
 
                 <BrandColours
                   onChange={(color) =>
                     onUpdateStylesAndCurrentElements("textColor", color)
                   }
+                  brandColours={colors}
                 />
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Style</Typography>
-
+                <WrapperAction title="Style">
                   <Stack
                     sx={{
                       gap: 3,
@@ -596,18 +507,9 @@ export default function Page({ params }: PageParams) {
                       />
                     ))}
                   </Stack>
-                </Stack>
+                </WrapperAction>
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Text Allignment</Typography>
-
+                <WrapperAction title="Text Allignment">
                   <Stack
                     sx={{
                       gap: 3,
@@ -627,93 +529,96 @@ export default function Page({ params }: PageParams) {
                       />
                     ))}
                   </Stack>
-                </Stack>
+                </WrapperAction>
               </>
             )}
 
             {selectedCurrentElement.type === "LOGO" && (
-              <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Replace logo</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Zoom</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Align</Typography>
-                </Stack>
-              </>
+              <WrapperAction title="Replace Logo">
+                {logos.length > 0 && (
+                  <Grid container spacing={3}>
+                    {logos.map((logo) => (
+                      <Grid xs={6} key={logo}>
+                        <Image
+                          src={logo}
+                          alt=""
+                          width={180}
+                          style={{
+                            objectFit: "contain",
+                            borderRadius: ".75rem",
+                          }}
+                          height={140}
+                          onClick={() => onUpdateLogoOrImage(logo)}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </WrapperAction>
             )}
 
             {selectedCurrentElement.type === "IMAGE" && (
               <>
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Replace photo</Typography>
-                </Stack>
+                <WrapperAction title="Replace Photo">
+                  <ReplacePhoto
+                    orgId={currentOrg.orgId as string}
+                    onSelectImage={onUpdateLogoOrImage}
+                  />
+                </WrapperAction>
 
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Zoom</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Align</Typography>
-                </Stack>
-
-                <Stack
-                  sx={{
-                    p: 4,
-                    gap: 2,
-                    borderBottom: "1px solid",
-                    borderBottomColor: "gray.200",
-                  }}
-                >
-                  <Typography variant="h6">Rotate</Typography>
-                </Stack>
+                <WrapperAction title="Rotate">
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    {rotate.map(({ key, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements("rotate", key)
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </WrapperAction>
               </>
+            )}
+
+            {selectedCurrentElement.type === "SYMBOL" && (
+              <BrandColours
+                onChange={(color) =>
+                  onUpdateStylesAndCurrentElements("backgroundColor", color)
+                }
+                brandColours={colors}
+              />
+            )}
+
+            {["LOGO", "IMAGE"].includes(selectedCurrentElement.type) && (
+              <WrapperAction title="Zoom">
+                <Slider
+                  min={0.1}
+                  max={2}
+                  step={0.1}
+                  value={style.zoom}
+                  onAdd={(value) =>
+                    onUpdateStylesAndCurrentElements("zoom", value)
+                  }
+                  onRemove={(value) =>
+                    onUpdateStylesAndCurrentElements("zoom", value)
+                  }
+                  onChange={(_, value) =>
+                    onUpdateStylesAndCurrentElements(
+                      "zoom",
+                      (value as number) ?? initialStyle.zoom
+                    )
+                  }
+                />
+              </WrapperAction>
             )}
           </Stack>
         )}

@@ -5,6 +5,8 @@ import {
   AlignRight,
   Bold,
   Italic,
+  RotateCcw,
+  RotateCw,
   Underline,
 } from "lucide-react"
 
@@ -23,6 +25,17 @@ export const styles = [
     key: true,
     icon: Underline,
     type: "underline",
+  },
+]
+
+export const rotate = [
+  {
+    key: "left",
+    icon: RotateCcw,
+  },
+  {
+    key: "right",
+    icon: RotateCw,
   },
 ]
 
