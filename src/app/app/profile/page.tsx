@@ -7,7 +7,15 @@ import { RootState, useAppDispatch } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
 import { LoadingButton } from "@mui/lab"
-import { Stack, TextField } from "@mui/material"
+import {
+  Button,
+  Modal,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
+import { X } from "lucide-react"
 import { useSelector } from "react-redux"
 import { z } from "zod"
 
@@ -30,6 +38,7 @@ type FormError = ProfileFormSchema & {
 export default function Page() {
   const [form, setForm] = useState<ProfileFormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
+  const [deleteAccountDialog, setDeleteAccountDialog] = useState(false)
 
   const dispatch = useAppDispatch()
 
@@ -103,7 +112,107 @@ export default function Page() {
         >
           Submit
         </LoadingButton>
+
+        <Button
+          sx={{ mt: 2 }}
+          color="error"
+          variant="outlined"
+          onClick={() => setDeleteAccountDialog(true)}
+        >
+          Delete account
+        </Button>
       </Stack>
+
+      <Modal
+        open={deleteAccountDialog}
+        onClose={() => setDeleteAccountDialog(false)}
+      >
+        <Paper
+          sx={{
+            p: 4,
+            top: "50%",
+            left: "50%",
+            width: "100%",
+            maxWidth: "39rem",
+            position: "absolute",
+            overflowY: "auto",
+            maxHeight: "90vh",
+            transform: "translate(-50%, -50%)",
+          }}
+          variant="outlined"
+        >
+          <Stack
+            sx={{
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography sx={{ fontWeight: 600 }} variant="h4">
+              Delete Account
+            </Typography>
+
+            <Stack
+              sx={{
+                color: "white",
+                width: "2.5rem",
+                height: "2.5rem",
+                bgcolor: "gray.300",
+                alignItems: "center",
+                borderRadius: "50%",
+                justifyContent: "center",
+              }}
+              onClick={() => setDeleteAccountDialog(false)}
+              component="button"
+            >
+              <X strokeWidth={3} />
+            </Stack>
+          </Stack>
+
+          <Stack
+            sx={{
+              mt: 2,
+              gap: 4,
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            <TextField
+              rows={4}
+              label="Enter the reason why you want to delete the account"
+              fullWidth
+              multiline
+            />
+          </Stack>
+
+          <Stack
+            sx={{
+              mt: 4,
+              gap: 2,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              size="small"
+              color="primary"
+              variant="outlined"
+              onClick={() => setDeleteAccountDialog(false)}
+            >
+              Cancel
+            </Button>
+
+            <LoadingButton
+              size="small"
+              color="error"
+              onClick={() => setDeleteAccountDialog(false)}
+            >
+              Delete
+            </LoadingButton>
+          </Stack>
+        </Paper>
+      </Modal>
     </Stack>
   )
 }
