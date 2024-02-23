@@ -17,19 +17,24 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import { Canvas, FabricImage, Textbox, type FabricObject } from "fabric"
+import {
+  Canvas,
+  Circle,
+  FabricImage,
+  Rect,
+  Textbox,
+  type FabricObject,
+} from "fabric"
 import PDF from "jspdf"
-import { ChevronDown, ChevronRight, Minus, Plus } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
 import { useSelector } from "react-redux"
 
+import BrandColours from "./brand-colours"
 import FabricCanvas from "./fabric-canvas"
+import ReplacePhoto from "./replace-photo"
 import Slider from "./slider"
-import { styles, textAligns } from "./utils"
+import { rotate, styles, textAligns } from "./utils"
 import WrapperAction from "./wrapper-action"
-
-interface BrandColoursProps {
-  onChange?: (color: string) => void
-}
 
 type SelectedText = {
   type: "TEXT"
@@ -46,7 +51,16 @@ type SelectedImage = {
   elem: FabricImage
 }
 
-type SelectedElement = SelectedText | SelectedLogo | SelectedImage
+type SelectedSymbol = {
+  type: "SYMBOL"
+  elem: Rect | Circle
+}
+
+type SelectedElement =
+  | SelectedText
+  | SelectedLogo
+  | SelectedImage
+  | SelectedSymbol
 
 interface PageParams {
   params: {
@@ -114,6 +128,13 @@ export default function Page({ params }: PageParams) {
         }
       }
 
+      if (elem instanceof Circle || elem instanceof Rect) {
+        return {
+          elem,
+          type: "SYMBOL",
+        }
+      }
+
       if (elem instanceof FabricImage) {
         const block = elem as FabricImage & { id: string }
 
@@ -137,7 +158,11 @@ export default function Page({ params }: PageParams) {
   }, [selectedElements])
 
   async function onUpdateLogoOrImage(fileUrl: string) {
-    if (selectedCurrentElement && selectedCurrentElement.type !== "TEXT") {
+    if (
+      selectedCurrentElement &&
+      (selectedCurrentElement.type === "LOGO" ||
+        selectedCurrentElement.type === "IMAGE")
+    ) {
       await selectedCurrentElement.elem.setSrc(fileUrl)
 
       selectedCanvas.renderAll()
@@ -175,7 +200,7 @@ export default function Page({ params }: PageParams) {
   }
 
   function onUpdateStylesAndCurrentElements(
-    key: keyof typeof initialStyle,
+    key: keyof typeof initialStyle | "rotate",
     value: string | number | boolean
   ) {
     let customValue = value
@@ -195,6 +220,15 @@ export default function Page({ params }: PageParams) {
       selectedElements.forEach((object) => {
         if (object.type === "image") {
           if (key === "zoom") object.scale(value as number)
+
+          if (key === "rotate") {
+            const angle = object.angle
+
+            const newAngle =
+              angle === 355 ? 0 : angle + (value === "right" ? 10 : -10)
+
+            object.rotate(newAngle)
+          }
         }
 
         if (object.type !== "textbox") {
@@ -282,71 +316,7 @@ export default function Page({ params }: PageParams) {
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
   const logos = currentOrg.org?.brand?.logos ?? []
-
-  const colors = useMemo(() => {
-    const palette: string[] = []
-
-    if (currentOrg.org?.brand) palette.push(...currentOrg.org.brand.colors)
-
-    palette.push(...["#000", "#FFF"])
-
-    return palette
-  }, [currentOrg.org])
-
-  const BrandColours = useCallback(
-    ({ onChange }: BrandColoursProps) => {
-      if (currentOrg.org?.brand?.colors) {
-        return (
-          <Stack
-            sx={{
-              p: 4,
-              gap: 2,
-              borderBottom: "1px solid",
-              borderBottomColor: "gray.200",
-            }}
-          >
-            <Typography variant="h6">Brand colours</Typography>
-
-            <Stack sx={{ gap: 4, flexWrap: "wrap", flexDirection: "row" }}>
-              {colors.map((color) => (
-                <Stack
-                  sx={{
-                    gap: 2,
-                    width: onChange ? "45%" : "auto",
-                    cursor: onChange ? "pointer" : "default",
-                    alignItems: "center",
-                    flexDirection: "row",
-                  }}
-                  key={color}
-                  onClick={() => onChange?.(color)}
-                >
-                  <Box
-                    sx={{
-                      width: "2.5rem",
-                      height: "2.5rem",
-                      border: "1px solid",
-                      bgcolor: color,
-                      borderColor: color !== "#FFF" ? color : "gray.300",
-                      borderRadius: ".75rem",
-                    }}
-                  />
-
-                  {onChange && (
-                    <Typography sx={{ color: "primary.main" }}>
-                      {color.toUpperCase()}
-                    </Typography>
-                  )}
-                </Stack>
-              ))}
-            </Stack>
-          </Stack>
-        )
-      }
-
-      return null
-    },
-    [colors, currentOrg.org?.brand?.colors]
-  )
+  const colors = currentOrg.org?.brand?.colors ?? []
 
   return (
     <Stack
@@ -474,7 +444,7 @@ export default function Page({ params }: PageParams) {
               </Button>
             </Stack>
 
-            <BrandColours />
+            <BrandColours brandColours={colors} />
 
             <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
               Click the elements on the template to edit them.
@@ -511,6 +481,7 @@ export default function Page({ params }: PageParams) {
                   onChange={(color) =>
                     onUpdateStylesAndCurrentElements("textColor", color)
                   }
+                  brandColours={colors}
                 />
 
                 <WrapperAction title="Style">
@@ -588,10 +559,43 @@ export default function Page({ params }: PageParams) {
 
             {selectedCurrentElement.type === "IMAGE" && (
               <>
-                <WrapperAction title="Replace Photo"></WrapperAction>
+                <WrapperAction title="Replace Photo">
+                  <ReplacePhoto
+                    orgId={currentOrg.orgId as string}
+                    onSelectImage={onUpdateLogoOrImage}
+                  />
+                </WrapperAction>
 
-                <WrapperAction title="Rotate"></WrapperAction>
+                <WrapperAction title="Rotate">
+                  <Stack
+                    sx={{
+                      gap: 3,
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    {rotate.map(({ key, icon: Icon }) => (
+                      <Box
+                        sx={{ color: "primary.main", cursor: "pointer" }}
+                        key={key}
+                        onClick={() =>
+                          onUpdateStylesAndCurrentElements("rotate", key)
+                        }
+                        component={Icon}
+                      />
+                    ))}
+                  </Stack>
+                </WrapperAction>
               </>
+            )}
+
+            {selectedCurrentElement.type === "SYMBOL" && (
+              <BrandColours
+                onChange={(color) =>
+                  onUpdateStylesAndCurrentElements("backgroundColor", color)
+                }
+                brandColours={colors}
+              />
             )}
 
             {["LOGO", "IMAGE"].includes(selectedCurrentElement.type) && (

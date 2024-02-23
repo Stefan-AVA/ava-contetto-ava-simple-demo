@@ -220,7 +220,7 @@ export const mediaApi = createApi({
         body: rest,
       }),
     }),
-    getPublicFileUrl: builder.query<IFile, IGetPublicFileUrlRequest>({
+    getPublicFileUrl: builder.mutation<IFile, IGetPublicFileUrlRequest>({
       query: ({ orgId, fileId, isShared }) => ({
         url: `/${orgId}/files/${fileId}/public-url`,
         method: "GET",
@@ -264,7 +264,7 @@ export const {
   useStoreFileMutation,
   useGetDownloadFileUrlMutation,
   useRenameFileMutation,
-  useLazyGetPublicFileUrlQuery,
+  useGetPublicFileUrlMutation,
   useShareFileMutation,
   useShareAgentOnlyFileMutation,
   useLazyShareFileLinkQuery,
