@@ -24,6 +24,11 @@ interface IForgotPasswordConfirmRequest {
   password: string
 }
 
+interface IDeleteAccountRequest {
+  password: string
+  reason: string
+}
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchAuthQuery({ baseUrl: "/auth" }),
@@ -79,6 +84,13 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    deleteAccount: builder.mutation<IBaseResponse, IDeleteAccountRequest>({
+      query: (data) => ({
+        url: "/delete",
+        method: "DELETE",
+        body: data,
+      }),
+    }),
   }),
 })
 
@@ -91,4 +103,5 @@ export const {
   useLazyGetMeQuery,
   useForgotPasswordMutation,
   useForgotPasswordConfirmMutation,
+  useDeleteAccountMutation,
 } = authApi

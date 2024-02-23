@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import { usePostMeMutation } from "@/redux/apis/auth"
-import { setUser } from "@/redux/slices/app"
+import { useRouter } from "next/navigation"
+import { useDeleteAccountMutation, usePostMeMutation } from "@/redux/apis/auth"
+import { logout, setUser } from "@/redux/slices/app"
 import { RootState, useAppDispatch } from "@/redux/store"
 import { parseError } from "@/utils/error"
 import formatErrorZodMessage from "@/utils/format-error-zod"
@@ -35,16 +36,30 @@ type FormError = ProfileFormSchema & {
   request?: string
 }
 
+interface IDeleteError {
+  password?: string
+  reason?: string
+  request?: string
+}
+
 export default function Page() {
   const [form, setForm] = useState<ProfileFormSchema>(initialForm)
   const [errors, setErrors] = useState<FormError | null>(null)
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false)
 
+  const [deleteForm, setDeleteForm] = useState({
+    password: "",
+    reason: "",
+  })
+  const [deleteError, setDeleteError] = useState<IDeleteError>({})
+
+  const { replace } = useRouter()
   const dispatch = useAppDispatch()
 
   const user = useSelector((state: RootState) => state.app.user)
 
   const [updateProfile, { isLoading }] = usePostMeMutation()
+  const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation()
 
   useEffect(() => {
     if (user) {
@@ -79,6 +94,35 @@ export default function Page() {
       dispatch(setUser(updatedUser))
     } catch (error) {
       setErrors(
+        (prev) => ({ ...prev, request: parseError(error) }) as FormError
+      )
+    }
+  }
+
+  const onDeleteAccount = async () => {
+    setDeleteError({})
+
+    if (!deleteForm.password) {
+      return setDeleteError((prev) => ({
+        ...prev,
+        password: "This field is required",
+      }))
+    }
+    if (!deleteForm.reason) {
+      return setDeleteError((prev) => ({
+        ...prev,
+        reason: "This field is requried",
+      }))
+    }
+
+    try {
+      await deleteAccount(deleteForm).unwrap()
+
+      dispatch(logout())
+
+      replace("/")
+    } catch (error) {
+      setDeleteError(
         (prev) => ({ ...prev, request: parseError(error) }) as FormError
       )
     }
@@ -178,10 +222,39 @@ export default function Page() {
             }}
           >
             <TextField
+              label="Enter Password again"
+              type="password"
+              fullWidth
+              value={deleteForm.password}
+              onChange={({ target }) => {
+                setDeleteError({})
+                setDeleteForm((prev) => ({ ...prev, password: target.value }))
+              }}
+              error={!!deleteError.password}
+              helperText={deleteError.password}
+            />
+          </Stack>
+
+          <Stack
+            sx={{
+              mt: 2,
+              gap: 4,
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            <TextField
               rows={4}
               label="Enter the reason why you want to delete the account"
               fullWidth
               multiline
+              value={deleteForm.reason}
+              onChange={({ target }) => {
+                setDeleteError({})
+                setDeleteForm((prev) => ({ ...prev, reason: target.value }))
+              }}
+              error={!!deleteError.reason}
+              helperText={deleteError.reason}
             />
           </Stack>
 
@@ -206,11 +279,20 @@ export default function Page() {
             <LoadingButton
               size="small"
               color="error"
-              onClick={() => setDeleteAccountDialog(false)}
+              onClick={onDeleteAccount}
+              loading={isDeleting}
             >
               Delete
             </LoadingButton>
           </Stack>
+          {deleteError.request && (
+            <Typography
+              sx={{ mt: 1.5, color: "red.500", textAlign: "center" }}
+              variant="body2"
+            >
+              {deleteError.request}
+            </Typography>
+          )}
         </Paper>
       </Modal>
     </Stack>
