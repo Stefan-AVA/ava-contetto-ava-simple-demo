@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
@@ -11,11 +10,11 @@ import {
   AccordionSummary,
   Box,
   Button,
-  Unstable_Grid2 as Grid,
   InputAdornment,
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material"
 import {
   Canvas,
@@ -26,41 +25,20 @@ import {
   type FabricObject,
 } from "fabric"
 import PDF from "jspdf"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import {
+  CalendarCheck2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  DownloadCloud,
+  Share2,
+  UploadCloud,
+} from "lucide-react"
 import { useSelector } from "react-redux"
 
-import BrandColours from "./brand-colours"
 import FabricCanvas from "./fabric-canvas"
-import ReplacePhoto from "./replace-photo"
-import Slider from "./slider"
-import { rotate, styles, textAligns } from "./utils"
-import WrapperAction from "./wrapper-action"
-
-type SelectedText = {
-  type: "TEXT"
-  elem: Textbox
-}
-
-type SelectedLogo = {
-  type: "LOGO"
-  elem: FabricImage
-}
-
-type SelectedImage = {
-  type: "IMAGE"
-  elem: FabricImage
-}
-
-type SelectedSymbol = {
-  type: "SYMBOL"
-  elem: Rect | Circle
-}
-
-type SelectedElement =
-  | SelectedText
-  | SelectedLogo
-  | SelectedImage
-  | SelectedSymbol
+import LateralActions from "./lateral-actions"
+import type { SelectedElement } from "./types"
 
 interface PageParams {
   params: {
@@ -69,24 +47,14 @@ interface PageParams {
   }
 }
 
-const initialStyle = {
-  zoom: 1,
-  fontSize: 16,
-  textColor: "#000",
-  textAlign: "left",
-  fontStyle: "normal",
-  underline: false,
-  fontWeight: "400",
-  backgroundColor: "#000",
-}
-
 export default function Page({ params }: PageParams) {
-  const [style, setStyle] = useState(initialStyle)
   const [canvas, setCanvas] = useState<Canvas[]>([])
   const [currCanvas, setCurrCanvas] = useState(0)
   const [selectedElements, setSelectedElements] = useState<FabricObject[]>([])
 
   const { back } = useRouter()
+
+  const isResponsive = useMediaQuery("(max-width:900px)")
 
   const selectedCanvas = canvas[currCanvas]
 
@@ -107,7 +75,7 @@ export default function Page({ params }: PageParams) {
     }
   )
 
-  function onSave() {
+  async function onSave() {
     const data = {} as Record<string, string>
 
     canvas.forEach((curr, index) => {
@@ -157,18 +125,6 @@ export default function Page({ params }: PageParams) {
     return null
   }, [selectedElements])
 
-  async function onUpdateLogoOrImage(fileUrl: string) {
-    if (
-      selectedCurrentElement &&
-      (selectedCurrentElement.type === "LOGO" ||
-        selectedCurrentElement.type === "IMAGE")
-    ) {
-      await selectedCurrentElement.elem.setSrc(fileUrl)
-
-      selectedCanvas.renderAll()
-    }
-  }
-
   const onDeleteElement = useCallback(() => {
     selectedCanvas
       .getActiveObjects()
@@ -199,63 +155,10 @@ export default function Page({ params }: PageParams) {
     pdf.save("template.pdf")
   }
 
-  function onUpdateStylesAndCurrentElements(
-    key: keyof typeof initialStyle | "rotate",
-    value: string | number | boolean
-  ) {
-    let customValue = value
+  function onClearSelectedElements() {
+    selectedCanvas.discardActiveObject()
 
-    if (key === "fontStyle")
-      customValue =
-        style.fontStyle === value ? initialStyle.fontStyle : "italic"
-
-    if (key === "fontWeight")
-      customValue = style.fontWeight === value ? initialStyle.fontWeight : "700"
-
-    if (key === "underline") customValue = !style.underline
-
-    setStyle((prev) => ({ ...prev, [key]: customValue }))
-
-    if (selectedElements.length > 0) {
-      selectedElements.forEach((object) => {
-        if (object.type === "image") {
-          if (key === "zoom") object.scale(value as number)
-
-          if (key === "rotate") {
-            const angle = object.angle
-
-            const newAngle =
-              angle === 355 ? 0 : angle + (value === "right" ? 10 : -10)
-
-            object.rotate(newAngle)
-          }
-        }
-
-        if (object.type !== "textbox") {
-          if (key === "backgroundColor") object.set({ fill: customValue })
-        }
-
-        if (
-          object.type === "textbox" &&
-          [
-            "fontSize",
-            "textColor",
-            "textAlign",
-            "underline",
-            "fontStyle",
-            "fontWeight",
-          ].includes(key)
-        ) {
-          const customKey = key === "textColor" ? "fill" : key
-
-          object.set({
-            [customKey]: customValue,
-          })
-        }
-      })
-
-      selectedCanvas.renderAll()
-    }
+    selectedCanvas.renderAll()
   }
 
   useEffect(() => {
@@ -315,9 +218,6 @@ export default function Page({ params }: PageParams) {
     }
   }, [selectedCanvas, onDeleteElement, selectedElements])
 
-  const logos = currentOrg.org?.brand?.logos ?? []
-  const colors = currentOrg.org?.brand?.colors ?? []
-
   return (
     <Stack
       sx={{
@@ -357,15 +257,88 @@ export default function Page({ params }: PageParams) {
 
       <Stack
         sx={{
+          top: {
+            xs: "4rem",
+            md: 0,
+          },
           width: "100%",
-          height: "100%",
+          right: 0,
+          height: {
+            xs: "calc(100vh - 4rem - 5rem)",
+            height: "100%",
+          },
+          zIndex: 2,
           bgcolor: "white",
-          maxWidth: "27rem",
+          maxWidth: {
+            xs: selectedElements.length > 0 ? "100%" : 0,
+            md: "27rem",
+          },
+          position: {
+            xs: "fixed",
+            md: "relative",
+          },
           overflowY: "auto",
+          transition: "all .3s ease-in-out",
           borderLeft: "1px solid",
           borderColor: "gray.300",
+          transformOrigin: "right",
         }}
       >
+        {isResponsive && (
+          <Stack
+            sx={{
+              pt: 2,
+              px: 4,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box
+              sx={{
+                px: 0,
+                color: "gray.700",
+              }}
+              onClick={onClearSelectedElements}
+              component="button"
+            >
+              <ChevronLeft />
+            </Box>
+
+            <Stack
+              sx={{
+                gap: 1,
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <Box
+                sx={{ color: "gray.700" }}
+                onClick={onSave}
+                component="button"
+              >
+                <UploadCloud />
+              </Box>
+
+              <Box
+                sx={{ color: "gray.700" }}
+                onClick={onExportToPDF}
+                component="button"
+              >
+                <DownloadCloud />
+              </Box>
+
+              <Box sx={{ color: "gray.700" }} component="button">
+                <Share2 />
+              </Box>
+
+              <Box sx={{ color: "gray.700" }} component="button">
+                <CalendarCheck2 />
+              </Box>
+            </Stack>
+          </Stack>
+        )}
+
         <Stack
           sx={{
             p: 4,
@@ -405,223 +378,14 @@ export default function Page({ params }: PageParams) {
           </Accordion>
         </Stack>
 
-        {!selectedCurrentElement && (
-          <>
-            <Stack
-              sx={{
-                p: 4,
-                gap: 2,
-                flexWrap: "wrap",
-                borderBottom: "1px solid",
-                flexDirection: "row",
-                borderBottomColor: "gray.200",
-              }}
-            >
-              <Button
-                sx={{ width: "47%" }}
-                size="small"
-                variant="outlined"
-                onClick={onSave}
-              >
-                Save draft
-              </Button>
-
-              <Button
-                sx={{ width: "47%" }}
-                size="small"
-                variant="outlined"
-                onClick={onExportToPDF}
-              >
-                Share
-              </Button>
-
-              <Button sx={{ width: "47%" }} size="small" variant="outlined">
-                Download image
-              </Button>
-
-              <Button sx={{ width: "47%" }} size="small" variant="outlined">
-                Schedule
-              </Button>
-            </Stack>
-
-            <BrandColours brandColours={colors} />
-
-            <Typography sx={{ py: 4, px: 14, textAlign: "center" }}>
-              Click the elements on the template to edit them.
-            </Typography>
-          </>
-        )}
-
-        {selectedCurrentElement && (
-          <Stack>
-            {selectedCurrentElement.type === "TEXT" && (
-              <>
-                <WrapperAction title="Font Size">
-                  <Slider
-                    min={12}
-                    max={48}
-                    step={1}
-                    value={style.fontSize}
-                    onAdd={(value) =>
-                      onUpdateStylesAndCurrentElements("fontSize", value)
-                    }
-                    onRemove={(value) =>
-                      onUpdateStylesAndCurrentElements("fontSize", value)
-                    }
-                    onChange={(_, value) =>
-                      onUpdateStylesAndCurrentElements(
-                        "fontSize",
-                        (value as number) ?? initialStyle.fontSize
-                      )
-                    }
-                  />
-                </WrapperAction>
-
-                <BrandColours
-                  onChange={(color) =>
-                    onUpdateStylesAndCurrentElements("textColor", color)
-                  }
-                  brandColours={colors}
-                />
-
-                <WrapperAction title="Style">
-                  <Stack
-                    sx={{
-                      gap: 3,
-                      alignItems: "center",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    {styles.map(({ key, type, icon: Icon }) => (
-                      <Box
-                        sx={{ color: "primary.main", cursor: "pointer" }}
-                        key={key.toString()}
-                        onClick={() =>
-                          onUpdateStylesAndCurrentElements(
-                            type as keyof typeof initialStyle,
-                            key
-                          )
-                        }
-                        component={Icon}
-                      />
-                    ))}
-                  </Stack>
-                </WrapperAction>
-
-                <WrapperAction title="Text Allignment">
-                  <Stack
-                    sx={{
-                      gap: 3,
-                      alignItems: "center",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    {textAligns.map(({ key, icon: Icon }) => (
-                      <Box
-                        sx={{ color: "primary.main", cursor: "pointer" }}
-                        key={key}
-                        onClick={() =>
-                          onUpdateStylesAndCurrentElements("textAlign", key)
-                        }
-                        component={Icon}
-                      />
-                    ))}
-                  </Stack>
-                </WrapperAction>
-              </>
-            )}
-
-            {selectedCurrentElement.type === "LOGO" && (
-              <WrapperAction title="Replace Logo">
-                {logos.length > 0 && (
-                  <Grid container spacing={3}>
-                    {logos.map((logo) => (
-                      <Grid xs={6} key={logo}>
-                        <Image
-                          src={logo}
-                          alt=""
-                          width={180}
-                          style={{
-                            objectFit: "contain",
-                            borderRadius: ".75rem",
-                          }}
-                          height={140}
-                          onClick={() => onUpdateLogoOrImage(logo)}
-                        />
-                      </Grid>
-                    ))}
-                  </Grid>
-                )}
-              </WrapperAction>
-            )}
-
-            {selectedCurrentElement.type === "IMAGE" && (
-              <>
-                <WrapperAction title="Replace Photo">
-                  <ReplacePhoto
-                    orgId={currentOrg.orgId as string}
-                    onSelectImage={onUpdateLogoOrImage}
-                  />
-                </WrapperAction>
-
-                <WrapperAction title="Rotate">
-                  <Stack
-                    sx={{
-                      gap: 3,
-                      alignItems: "center",
-                      flexDirection: "row",
-                    }}
-                  >
-                    {rotate.map(({ key, icon: Icon }) => (
-                      <Box
-                        sx={{ color: "primary.main", cursor: "pointer" }}
-                        key={key}
-                        onClick={() =>
-                          onUpdateStylesAndCurrentElements("rotate", key)
-                        }
-                        component={Icon}
-                      />
-                    ))}
-                  </Stack>
-                </WrapperAction>
-              </>
-            )}
-
-            {selectedCurrentElement.type === "SYMBOL" && (
-              <BrandColours
-                onChange={(color) =>
-                  onUpdateStylesAndCurrentElements("backgroundColor", color)
-                }
-                brandColours={colors}
-              />
-            )}
-
-            {["LOGO", "IMAGE"].includes(selectedCurrentElement.type) && (
-              <WrapperAction title="Zoom">
-                <Slider
-                  min={0.1}
-                  max={2}
-                  step={0.1}
-                  value={style.zoom}
-                  onAdd={(value) =>
-                    onUpdateStylesAndCurrentElements("zoom", value)
-                  }
-                  onRemove={(value) =>
-                    onUpdateStylesAndCurrentElements("zoom", value)
-                  }
-                  onChange={(_, value) =>
-                    onUpdateStylesAndCurrentElements(
-                      "zoom",
-                      (value as number) ?? initialStyle.zoom
-                    )
-                  }
-                />
-              </WrapperAction>
-            )}
-          </Stack>
-        )}
+        <LateralActions
+          onSave={onSave}
+          isResponsive={isResponsive}
+          onExportToPDF={onExportToPDF}
+          selectedCanvas={selectedCanvas}
+          selectedElements={selectedElements}
+          selectedCurrentElement={selectedCurrentElement}
+        />
       </Stack>
     </Stack>
   )
