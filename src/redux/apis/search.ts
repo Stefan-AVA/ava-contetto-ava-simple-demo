@@ -15,6 +15,11 @@ interface ISearchRequest {
   contactId?: string
 }
 
+interface ISearchByAddressRequest {
+  orgId: string
+  address: string
+}
+
 interface ISaveSearchRequest {
   orgId: string
   searchId: string
@@ -58,6 +63,19 @@ export const searchApi = createApi({
         url: `/${orgId}/search`,
         method: "GET",
         params: rest,
+      }),
+    }),
+
+    searchPropertiesByAddress: builder.query<
+      IListing[],
+      ISearchByAddressRequest
+    >({
+      query: ({ orgId, address }) => ({
+        url: `/${orgId}/search`,
+        method: "GET",
+        params: {
+          address,
+        },
       }),
     }),
 
@@ -194,6 +212,7 @@ export const searchApi = createApi({
 
 export const {
   useLazySearchQuery,
+  useLazySearchPropertiesByAddressQuery,
   useGetSearchResultsQuery,
   useGetSearchResultQuery,
   useLazyGetSearchResultQuery,

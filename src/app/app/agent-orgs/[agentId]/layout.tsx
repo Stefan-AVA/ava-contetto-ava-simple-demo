@@ -26,7 +26,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const pathName = usePathname()
 
-  const { agentId, templateId } = useParams()
+  const { agentId } = useParams()
 
   const agentOrgs = useSelector((state: RootState) => state.app.agentOrgs)
 
@@ -69,7 +69,7 @@ export default function Layout({ children }: PropsWithChildren) {
             0
           )
         : 0,
-    [rooms]
+    [rooms, currentOrg]
   )
 
   const routes = useMemo(
@@ -118,26 +118,29 @@ export default function Layout({ children }: PropsWithChildren) {
   const hasWhiteLabelDefined = currentOrg.org?.whiteLabel
 
   const isRoomPath = pathName.includes("/rooms")
+  const isTemplateEditorPath = pathName.includes("/templates/")
 
   return (
     <WhiteLabelWrapper whiteLabel={hasWhiteLabelDefined}>
       <Stack
         sx={{
-          p: { xs: 1, lg: 0 },
+          p: { xs: isTemplateEditorPath ? 0 : 1, lg: 0 },
           gap: { xs: 2, lg: 0 },
           bgcolor: "background.default",
           flexDirection: { xs: "column", lg: "row" },
         }}
       >
-        <Sidebar
-          name={currentOrg.username}
-          email={currentOrg.email}
-          routes={routes}
-        />
+        {!isTemplateEditorPath && (
+          <Sidebar
+            name={currentOrg.username}
+            email={currentOrg.email}
+            routes={routes}
+          />
+        )}
 
         <Stack
           sx={{
-            p: isRoomPath ? 0 : { xs: 1, lg: templateId ? 0 : 5 },
+            p: isRoomPath || isTemplateEditorPath ? 0 : { xs: 1, lg: 5 },
             gap: 2,
             width: "100%",
             height: "calc(100vh - 4rem)",
