@@ -4,18 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGetOrgTemplateQuery } from "@/redux/apis/templates"
 import { RootState } from "@/redux/store"
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-  useMediaQuery,
-} from "@mui/material"
+import { Box, Button, Stack, useMediaQuery } from "@mui/material"
 import {
   Canvas,
   Circle,
@@ -27,9 +16,7 @@ import {
 import PDF from "jspdf"
 import {
   CalendarCheck2,
-  ChevronDown,
   ChevronLeft,
-  ChevronRight,
   DownloadCloud,
   Share2,
   UploadCloud,
@@ -38,6 +25,7 @@ import { useSelector } from "react-redux"
 
 import FabricCanvas from "./fabric-canvas"
 import LateralActions from "./lateral-actions"
+import SearchField from "./search-field"
 import type { SelectedElement } from "./types"
 
 interface PageParams {
@@ -223,7 +211,10 @@ export default function Page({ params }: PageParams) {
       sx={{
         height: "calc(100vh - 4rem)",
         bgcolor: "gray.100",
-        flexDirection: "row",
+        flexDirection: {
+          xs: "column",
+          md: "row",
+        },
       }}
     >
       <link
@@ -232,74 +223,27 @@ export default function Page({ params }: PageParams) {
         crossOrigin="anonymous"
       />
 
-      <Stack sx={{ p: 4, gap: 4, flexGrow: 1, overflow: "auto" }}>
-        <Stack
-          sx={{
-            gap: 2,
-            alignItems: "center",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <Button size="small" onClick={back} variant="outlined">
-            Back to All Templates
-          </Button>
-        </Stack>
-
-        <FabricCanvas
-          onCanvas={setCanvas}
-          currCanvas={currCanvas}
-          onCurrCanvas={setCurrCanvas}
-          numberOfPages={3}
-          onSelectedElements={setSelectedElements}
-        />
-      </Stack>
-
-      <Stack
-        sx={{
-          top: {
-            xs: "4rem",
-            md: 0,
-          },
-          width: "100%",
-          right: 0,
-          height: {
-            xs: "calc(100vh - 4rem - 5rem)",
-            height: "100%",
-          },
-          zIndex: 2,
-          bgcolor: "white",
-          maxWidth: {
-            xs: selectedElements.length > 0 ? "100%" : 0,
-            md: "27rem",
-          },
-          position: {
-            xs: "fixed",
-            md: "relative",
-          },
-          overflowY: "auto",
-          transition: "all .3s ease-in-out",
-          borderLeft: "1px solid",
-          borderColor: "gray.300",
-          transformOrigin: "right",
-        }}
-      >
-        {isResponsive && (
+      {isResponsive && (
+        <>
           <Stack
             sx={{
-              pt: 2,
+              py: 3,
               px: 4,
+              bgcolor: "white",
               alignItems: "center",
+              borderBottom: "1px solid",
               flexDirection: "row",
               justifyContent: "space-between",
+              borderBottomColor: "gray.300",
             }}
           >
             <Box
               sx={{
                 px: 0,
                 color: "gray.700",
+                border: "none",
               }}
-              onClick={onClearSelectedElements}
+              onClick={back}
               component="button"
             >
               <ChevronLeft />
@@ -307,7 +251,7 @@ export default function Page({ params }: PageParams) {
 
             <Stack
               sx={{
-                gap: 1,
+                gap: 2,
                 alignItems: "center",
                 flexDirection: "row",
               }}
@@ -337,46 +281,82 @@ export default function Page({ params }: PageParams) {
               </Box>
             </Stack>
           </Stack>
+
+          <SearchField orgId={currentOrg.orgId as string} isResponsive />
+        </>
+      )}
+
+      <Stack sx={{ p: 4, gap: 4, flexGrow: 1, overflow: "auto" }}>
+        {!isResponsive && (
+          <Button
+            sx={{ width: "fit-content" }}
+            size="small"
+            onClick={back}
+            variant="outlined"
+          >
+            Back to All Templates
+          </Button>
         )}
 
-        <Stack
-          sx={{
-            p: 4,
-            borderBottom: "1px solid",
-            borderBottomColor: "gray.200",
-          }}
-        >
-          <Accordion defaultExpanded>
-            <AccordionSummary expandIcon={<ChevronDown />}>
-              <Typography variant="h6">
-                Populate template with listing data
-              </Typography>
-            </AccordionSummary>
+        <FabricCanvas
+          onCanvas={setCanvas}
+          currCanvas={currCanvas}
+          onCurrCanvas={setCurrCanvas}
+          numberOfPages={3}
+          onSelectedElements={setSelectedElements}
+        />
+      </Stack>
 
-            <AccordionDetails sx={{ px: 0 }}>
-              <TextField
-                label="Search Address or MLS"
-                fullWidth
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        sx={{
-                          p: 1,
-                          width: "2rem",
-                          height: "2rem",
-                          minWidth: "2rem",
-                        }}
-                      >
-                        <ChevronRight />
-                      </Button>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </AccordionDetails>
-          </Accordion>
-        </Stack>
+      <Stack
+        sx={{
+          top: {
+            xs: "4rem",
+            md: 0,
+          },
+          width: "100%",
+          right: 0,
+          height: {
+            xs: "calc(100vh - 4rem)",
+            md: "100%",
+          },
+          zIndex: 2,
+          bgcolor: "white",
+          maxWidth: {
+            xs: selectedElements.length > 0 ? "100%" : 0,
+            md: "27rem",
+          },
+          position: {
+            xs: "fixed",
+            md: "relative",
+          },
+          overflowY: "auto",
+          transition: "all .3s ease-in-out",
+          borderLeft: "1px solid",
+          borderColor: "gray.300",
+          transformOrigin: "right",
+        }}
+      >
+        {isResponsive && (
+          <Stack
+            sx={{
+              pt: 2,
+              px: 4,
+            }}
+          >
+            <Box
+              sx={{
+                px: 0,
+                color: "gray.700",
+              }}
+              onClick={onClearSelectedElements}
+              component="button"
+            >
+              <ChevronLeft />
+            </Box>
+          </Stack>
+        )}
+
+        {!isResponsive && <SearchField orgId={currentOrg.orgId as string} />}
 
         <LateralActions
           onSave={onSave}
