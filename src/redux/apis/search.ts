@@ -71,7 +71,7 @@ export const searchApi = createApi({
       ISearchByAddressRequest
     >({
       query: ({ orgId, address }) => ({
-        url: `/${orgId}/search`,
+        url: `/${orgId}/search/address`,
         method: "GET",
         params: {
           address,
