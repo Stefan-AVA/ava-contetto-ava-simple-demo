@@ -3,6 +3,7 @@ import { ITemplateLayout, TemplateType } from "./template.types"
 
 export interface IBrochure {
   _id: string
+  name: string
   orgId: string
   propertyId: string
   property: IListing
@@ -12,4 +13,8 @@ export interface IBrochure {
   layout: ITemplateLayout
   type: TemplateType
   createdAt: number
+  edited: boolean
+  publicLink?: string
+  s3Key?: string
+  mimetype?: string
 }

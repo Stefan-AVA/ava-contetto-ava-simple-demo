@@ -11,6 +11,7 @@ interface BaseRequest {
 }
 
 interface ICreateBrochureRequest extends BaseRequest {
+  name: string
   propertyId: string
   layoutId: string
   data: any
@@ -22,8 +23,24 @@ interface IGetBrochureRequest extends BaseRequest {
 }
 
 interface IUpdateBrochureRequest extends BaseRequest {
+  name: string
   brochureId: string
   data: any
+}
+
+interface IDownloadBrochurePDFRequest extends BaseRequest {
+  svg: string
+}
+
+interface ICopySocialLink extends BaseRequest {
+  brochureId: string
+  imageData: string
+  imageType: string
+}
+
+interface ICopyBrochureLink extends BaseRequest {
+  brochureId: string
+  svg: string
 }
 
 interface IUpoadBrochureImageRequest extends BaseRequest {
@@ -79,6 +96,32 @@ export const brochureApi = createApi({
       }),
       invalidatesTags: ["Brochures"],
     }),
+    downloadPDFForBrochureTemplate: builder.mutation<
+      IBrochure,
+      IDownloadBrochurePDFRequest
+    >({
+      query: ({ orgId, svg }) => ({
+        url: `/${orgId}/brochures/download-brochure-pdf`,
+        method: "POST",
+        body: { svg },
+      }),
+    }),
+    copySocialLink: builder.mutation<IBrochure, ICopySocialLink>({
+      query: ({ orgId, brochureId, imageData, imageType }) => ({
+        url: `/${orgId}/brochures/${brochureId}/copy-social-link`,
+        method: "POST",
+        body: { imageData, imageType },
+      }),
+      invalidatesTags: ["Brochures"],
+    }),
+    copyBrochureLink: builder.mutation<IBrochure, ICopyBrochureLink>({
+      query: ({ orgId, brochureId, svg }) => ({
+        url: `/${orgId}/brochures/${brochureId}/copy-brochure-link`,
+        method: "POST",
+        body: { svg },
+      }),
+      invalidatesTags: ["Brochures"],
+    }),
 
     // brochure images
     uploadBrochureImage: builder.mutation<
@@ -118,6 +161,9 @@ export const {
   useGetBrochureQuery,
   useUpdateBrochureMutation,
   useDeleteBrochureMutation,
+  useDownloadPDFForBrochureTemplateMutation,
+  useCopySocialLinkMutation,
+  useCopyBrochureLinkMutation,
 
   useUploadBrochureImageMutation,
   useGetBrochureImagesQuery,
