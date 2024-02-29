@@ -97,7 +97,7 @@ export const brochureApi = createApi({
       invalidatesTags: ["Brochures"],
     }),
     downloadPDFForBrochureTemplate: builder.mutation<
-      IBrochure,
+      Blob,
       IDownloadBrochurePDFRequest
     >({
       query: ({ orgId, svg }) => ({
