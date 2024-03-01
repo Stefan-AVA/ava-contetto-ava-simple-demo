@@ -110,7 +110,7 @@ export const brochureApi = createApi({
     }),
     downloadPngForSocial: builder.mutation<IBrochure, ICopySocialLink>({
       query: ({ orgId, brochureId, svg }) => ({
-        url: `/${orgId}/brochures/${brochureId}/copy-social-link`,
+        url: `/${orgId}/brochures/${brochureId}/download-social-png`,
         method: "POST",
         body: { svg },
       }),
