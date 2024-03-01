@@ -29,16 +29,11 @@ interface IUpdateBrochureRequest extends BaseRequest {
 }
 
 interface IDownloadBrochurePDFRequest extends BaseRequest {
-  svg: string
+  brochureId: string
+  svgs: string[]
 }
 
 interface ICopySocialLink extends BaseRequest {
-  brochureId: string
-  imageData: string
-  imageType: string
-}
-
-interface ICopyBrochureLink extends BaseRequest {
   brochureId: string
   svg: string
 }
@@ -96,27 +91,34 @@ export const brochureApi = createApi({
       }),
       invalidatesTags: ["Brochures"],
     }),
-    downloadPDFForBrochureTemplate: builder.mutation<
-      Blob,
-      IDownloadBrochurePDFRequest
-    >({
-      query: ({ orgId, svg }) => ({
-        url: `/${orgId}/brochures/download-brochure-pdf`,
+    downloadPDFForBrochure: builder.mutation<Blob, IDownloadBrochurePDFRequest>(
+      {
+        query: ({ orgId, brochureId, svgs }) => ({
+          url: `/${orgId}/brochures/${brochureId}/download-brochure-pdf`,
+          method: "POST",
+          body: { svgs },
+        }),
+      }
+    ),
+    copyBrochureLink: builder.mutation<IBrochure, IDownloadBrochurePDFRequest>({
+      query: ({ orgId, brochureId, svgs }) => ({
+        url: `/${orgId}/brochures/${brochureId}/copy-brochure-link`,
         method: "POST",
-        body: { svg },
-      }),
-    }),
-    copySocialLink: builder.mutation<IBrochure, ICopySocialLink>({
-      query: ({ orgId, brochureId, imageData, imageType }) => ({
-        url: `/${orgId}/brochures/${brochureId}/copy-social-link`,
-        method: "POST",
-        body: { imageData, imageType },
+        body: { svgs },
       }),
       invalidatesTags: ["Brochures"],
     }),
-    copyBrochureLink: builder.mutation<IBrochure, ICopyBrochureLink>({
+    downloadPngForSocial: builder.mutation<IBrochure, ICopySocialLink>({
       query: ({ orgId, brochureId, svg }) => ({
-        url: `/${orgId}/brochures/${brochureId}/copy-brochure-link`,
+        url: `/${orgId}/brochures/${brochureId}/copy-social-link`,
+        method: "POST",
+        body: { svg },
+      }),
+      invalidatesTags: ["Brochures"],
+    }),
+    copySocialLink: builder.mutation<IBrochure, ICopySocialLink>({
+      query: ({ orgId, brochureId, svg }) => ({
+        url: `/${orgId}/brochures/${brochureId}/copy-social-link`,
         method: "POST",
         body: { svg },
       }),
@@ -161,9 +163,10 @@ export const {
   useGetBrochureQuery,
   useUpdateBrochureMutation,
   useDeleteBrochureMutation,
-  useDownloadPDFForBrochureTemplateMutation,
-  useCopySocialLinkMutation,
+  useDownloadPDFForBrochureMutation,
   useCopyBrochureLinkMutation,
+  useDownloadPngForSocialMutation,
+  useCopySocialLinkMutation,
 
   useUploadBrochureImageMutation,
   useGetBrochureImagesQuery,
